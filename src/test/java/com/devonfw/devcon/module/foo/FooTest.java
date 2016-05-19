@@ -1,10 +1,14 @@
 package com.devonfw.devcon.module.foo;
 
+import static org.junit.Assert.assertTrue;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Set;
 
 import org.junit.Test;
+import org.reflections.Reflections;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
@@ -16,7 +20,7 @@ import com.devonfw.devcon.common.api.annotations.Command;
  */
 public class FooTest {
 
-  @SuppressWarnings("javadoc")
+  @SuppressWarnings({ "javadoc" })
   @Test
   public void oneCommandAtLeast() throws SecurityException, ClassNotFoundException, IllegalAccessException,
       IllegalArgumentException, InvocationTargetException, InstantiationException {
@@ -43,5 +47,18 @@ public class FooTest {
 
       }
     }
+
+    assertTrue(commandCounter > 0);
+
+    // TODO implement AssertJ
+    // assertThat(commandCounter).isGreateThan(0);
+  }
+
+  @Test
+  public void annotationsScanner() {
+
+    Reflections reflections = new Reflections("com.devonfw.devcon.modules");
+    Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(CmdModuleRegistry.class);
+    System.out.println(annotated.size());
   }
 }

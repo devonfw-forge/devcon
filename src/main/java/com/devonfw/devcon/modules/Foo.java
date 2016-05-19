@@ -1,5 +1,6 @@
 package com.devonfw.devcon.modules;
 
+import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 
 /**
@@ -7,6 +8,7 @@ import com.devonfw.devcon.common.api.annotations.Command;
  *
  * @author pparrado
  */
+@CmdModuleRegistry(name = "MyNameIsModuleFoo", context = "MyContextIsNotGlobal", deprecated = false)
 public class Foo {
   @Command
   @SuppressWarnings("javadoc")
