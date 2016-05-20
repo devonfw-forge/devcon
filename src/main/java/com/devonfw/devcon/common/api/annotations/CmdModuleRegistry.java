@@ -13,9 +13,24 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface CmdModuleRegistry {
+  /**
+   * The name of the module
+   * 
+   * @return name
+   */
   String name() default "";
 
+  /**
+   * Context of the module
+   * 
+   * @return context
+   */
   String context() default "";
 
+  /**
+   * State of the module
+   * 
+   * @return state
+   */
   boolean deprecated() default false;
 }

@@ -10,14 +10,15 @@ import com.devonfw.devcon.common.api.annotations.Command;
  */
 @CmdModuleRegistry(name = "MyNameIsModuleFoo", context = "MyContextIsNotGlobal", deprecated = false)
 public class Foo {
-  @Command
+
+  @Command(help = "This command is used to say hello.")
   @SuppressWarnings("javadoc")
   public String greeting() {
 
     return "Hello";
   }
 
-  @Command
+  @Command(help = "This command is used to say bye.")
   @SuppressWarnings("javadoc")
   public String farewell() {
 

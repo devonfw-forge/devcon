@@ -13,5 +13,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Command {
-
+  /**
+   * Help info associated to the command
+   * 
+   * @return help info
+   */
+  String help() default "";
 }
