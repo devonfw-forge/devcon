@@ -6,6 +6,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.Before;
@@ -18,6 +19,7 @@ import org.reflections.util.ClasspathHelper;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
+import com.devonfw.devcon.modules.Foo;
 
 /**
  * Class for prototype tests
@@ -139,7 +141,7 @@ public class FooTest {
 
   /**
    * Tests if a specific annotation parameter can be obtained from a specific annotated method
-   * 
+   *
    * @throws ClassNotFoundException if the referenced class is not found.
    * @throws SecurityException
    * @throws NoSuchMethodException if the referenced method is not found.
@@ -161,5 +163,15 @@ public class FooTest {
 
     assertTrue(result);
 
+  }
+
+  @Test
+  public void toughImplementation() {
+
+    Foo f = new Foo();
+    List<Command> commands = f.getCommands();
+    for (Command command : commands) {
+      System.out.println(command.help());
+    }
   }
 }

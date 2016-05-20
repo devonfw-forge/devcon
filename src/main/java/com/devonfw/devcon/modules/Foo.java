@@ -2,6 +2,7 @@ package com.devonfw.devcon.modules;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
+import com.devonfw.devcon.common.impl.AbstractCommandHolder;
 
 /**
  * Implementation of test class Foo
@@ -9,7 +10,15 @@ import com.devonfw.devcon.common.api.annotations.Command;
  * @author pparrado
  */
 @CmdModuleRegistry(name = "MyNameIsModuleFoo", context = "MyContextIsNotGlobal", deprecated = false)
-public class Foo {
+public class Foo extends AbstractCommandHolder {
+
+  /**
+   * The constructor.
+   */
+  public Foo() {
+
+    super();
+  }
 
   @Command(help = "This command is used to say hello.")
   @SuppressWarnings("javadoc")
