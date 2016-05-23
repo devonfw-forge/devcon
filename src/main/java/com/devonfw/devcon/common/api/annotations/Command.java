@@ -15,8 +15,15 @@ import java.lang.annotation.Target;
 public @interface Command {
   /**
    * Help info associated to the command
-   * 
+   *
    * @return help info
    */
   String help() default "";
+
+  /**
+   * Parameter for the command
+   * 
+   * @return parameter
+   */
+  String parameter() default "";
 }

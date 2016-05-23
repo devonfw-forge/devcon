@@ -6,7 +6,6 @@
   <name>devcon</name>
   <description>full life cycle command line tool for Devon apps</description>
 
-
   <dependencies>
 
     <dependency>
@@ -37,7 +36,6 @@
     </dependency>
 
   </dependencies>
-
 
 </project>
 

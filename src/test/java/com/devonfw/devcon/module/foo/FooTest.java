@@ -30,8 +30,6 @@ public class FooTest {
 
   Reflections reflections;
 
-  Reflections reflections2;
-
   @SuppressWarnings("javadoc")
   @Before
   public void init() {
@@ -130,7 +128,7 @@ public class FooTest {
     if (obj.isAnnotationPresent(CmdModuleRegistry.class)) {
       Annotation annotation = obj.getAnnotation(CmdModuleRegistry.class);
       CmdModuleRegistry module = (CmdModuleRegistry) annotation;
-      if (module.name().equals("MyNameIsModuleFoo") && module.context().equals("MyContextIsNotGlobal")
+      if (module.name().equals("foo") && module.context().equals("MyContextIsNotGlobal")
           && module.deprecated() == false) {
         result = true;
       }

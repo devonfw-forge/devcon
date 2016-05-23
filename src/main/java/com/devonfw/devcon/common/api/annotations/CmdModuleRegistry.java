@@ -15,21 +15,28 @@ import java.lang.annotation.Target;
 public @interface CmdModuleRegistry {
   /**
    * The name of the module
-   * 
+   *
    * @return name
    */
   String name() default "";
 
   /**
-   * Context of the module
+   * Description of the module
    * 
+   * @return description
+   */
+  String description() default "";
+
+  /**
+   * Context of the module
+   *
    * @return context
    */
   String context() default "";
 
   /**
    * State of the module
-   * 
+   *
    * @return state
    */
   boolean deprecated() default false;

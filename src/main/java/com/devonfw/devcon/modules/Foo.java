@@ -9,7 +9,7 @@ import com.devonfw.devcon.common.impl.AbstractCommandHolder;
  *
  * @author pparrado
  */
-@CmdModuleRegistry(name = "MyNameIsModuleFoo", context = "MyContextIsNotGlobal", deprecated = false)
+@CmdModuleRegistry(name = "foo", description = "This is only a test module.", context = "MyContextIsNotGlobal", deprecated = false)
 public class Foo extends AbstractCommandHolder {
 
   /**
@@ -33,4 +33,12 @@ public class Foo extends AbstractCommandHolder {
 
     return "Bye";
   }
+
+  @Command(help = "This command is used to say a custom bye", parameter = "name")
+  @SuppressWarnings("javadoc")
+  public String customFarewell(String name) {
+
+    return "Bye " + name;
+  }
+
 }
