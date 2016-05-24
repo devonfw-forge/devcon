@@ -1,12 +1,11 @@
 package com.devonfw.devcon.common.api.entity;
 
-import java.util.List;
+import java.util.HashMap;
 
 /**
  * TODO pparrado This type ...
  *
  * @author pparrado
- * @since 0.0.1
  */
 public class Sentence {
 
@@ -16,7 +15,11 @@ public class Sentence {
 
   public String cmd;
 
-  public List<String> params;
+  public HashMap<String, String> params;
 
   public String context;
+
+  public boolean noPrompt;
+
+  public boolean helpRequested;
 }

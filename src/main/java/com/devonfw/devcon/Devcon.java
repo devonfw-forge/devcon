@@ -1,6 +1,6 @@
 package com.devonfw.devcon;
 
-import com.devonfw.devcon.common.InputManager;
+import com.devonfw.devcon.common.InputConsole;
 
 /**
  * TODO pparrado This type ...
@@ -17,7 +17,7 @@ public class Devcon {
 
     System.out.println("Hello this is Devcon!");
 
-    new InputManager(args).parse();
+    new InputConsole(args).parse();
   }
 
 }

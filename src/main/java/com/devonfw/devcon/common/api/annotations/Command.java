@@ -14,6 +14,13 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Command {
   /**
+   * Name of the command
+   * 
+   * @return name
+   */
+  String name() default "";
+
+  /**
    * Help info associated to the command
    *
    * @return help info
@@ -22,8 +29,8 @@ public @interface Command {
 
   /**
    * Parameter for the command
-   * 
+   *
    * @return parameter
    */
-  String parameter() default "";
+  String[] parameters() default "";
 }

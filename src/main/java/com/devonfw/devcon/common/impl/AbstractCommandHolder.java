@@ -5,8 +5,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.cli.Option;
-
 import com.devonfw.devcon.common.api.CommandHolder;
 import com.devonfw.devcon.common.api.annotations.Command;
 
@@ -41,10 +39,19 @@ public class AbstractCommandHolder implements CommandHolder {
     return commandList;
   }
 
-  public Option getCommand(String name) {
+  public Command getCommand(String name) {
 
-    // TODO Auto-generated method stub
-    return null;
+    Command com = null;
+    Class<?> obj = this.getClass();
+    for (Method m : obj.getMethods()) {
+      if (m.isAnnotationPresent(Command.class)) {
+        if (m.getName().equals(name)) {
+          Annotation methodAnnotation = m.getAnnotation(Command.class);
+          com = (Command) methodAnnotation;
+        }
+      }
+    }
+    return com;
   }
 
 }

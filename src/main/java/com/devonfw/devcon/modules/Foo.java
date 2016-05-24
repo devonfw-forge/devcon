@@ -20,25 +20,35 @@ public class Foo extends AbstractCommandHolder {
     super();
   }
 
-  @Command(help = "This command is used to say hello.")
+  @Command(name = "greetings", help = "This command is used to say hello.")
   @SuppressWarnings("javadoc")
   public String greeting() {
 
     return "Hello";
   }
 
-  @Command(help = "This command is used to say bye.")
+  @Command(name = "farewell", help = "This command is used to say bye.")
   @SuppressWarnings("javadoc")
-  public String farewell() {
+  public void farewell() {
 
-    return "Bye";
+    // return "Bye";
+    System.out.println("Bye");
   }
 
-  @Command(help = "This command is used to say a custom bye", parameter = "name")
+  @Command(name = "customFarewell", help = "This command is used to say a custom bye", parameters = { "name" })
   @SuppressWarnings("javadoc")
-  public String customFarewell(String name) {
+  public void customFarewell(String name) {
 
-    return "Bye " + name;
+    // return "Bye " + name;
+    System.out.println("Bye " + name);
+  }
+
+  @Command(name = "largeCustomFarewell", help = "This command is used to say a large custom bye", parameters = {
+  "name", "surname" })
+  @SuppressWarnings("javadoc")
+  public void largeCustomFarewell(String name, String surname) {
+
+    System.out.println("Bye " + name + " " + surname);
   }
 
 }
