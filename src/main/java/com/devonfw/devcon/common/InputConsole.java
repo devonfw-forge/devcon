@@ -28,8 +28,9 @@ public class InputConsole {
 
     // String[] argsMock = { "-np", "foo", "customFarewell", "-name", "Pablo" };
     // String[] argsMock = { "-np", "foo", "largeCustomFarewell", "-name", "Pablo", "-surname", "Parra" };
-    // String[] argsMock = { "foo", "largeCustomFarewell", "-name", "Pablo"/* , "-surname", "Parra" */};
-    String[] argsMock = { "foo", "largeCustomFarewell", "-help" };
+    String[] argsMock = { "foo", "largeCustomFarewell", "-name", "Pablo" };
+    // String[] argsMock = { "foo", "customFarewell", "-help" };
+    // String[] argsMock = { "foo", "-help" };
     this.args = argsMock;
 
     // this.args = args;
@@ -94,6 +95,8 @@ public class InputConsole {
       if (argsNotParsed.size() > 1) {
         sentence.cmdModuleName = argsNotParsed.get(0).toString();
         sentence.cmd = argsNotParsed.get(1).toString();
+      } else if (argsNotParsed.size() == 1) {
+        sentence.cmdModuleName = argsNotParsed.get(0).toString();
       }
 
       new CmdManager(sentence).evaluate();

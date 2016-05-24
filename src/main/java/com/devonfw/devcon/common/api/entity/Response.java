@@ -11,6 +11,8 @@ public class Response {
 
   public String[] commandParamsList;
 
+  public String[] methodsList;
+
   public String description;
 
   public String name;

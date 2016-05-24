@@ -3,6 +3,7 @@ package com.devonfw.devcon.common;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,63 +45,45 @@ public class CmdManager {
 
   public void evaluate() throws Exception {
 
-    // System.out.println("--------------------------");
-    // System.out.println("gParam: " + this.sentence.gParam);
-    // System.out.println("cmdModuleName: " + this.sentence.cmdModuleName);
-    // System.out.println("cmd: " + this.sentence.cmd);
-
+    boolean moduleExists = false;
+    OutputConsole output = new OutputConsole();
+    Response response = new Response();
     List<String> argsList = new ArrayList<String>();
 
     Set set = this.sentence.params.entrySet();
     Iterator it = set.iterator();
     while (it.hasNext()) {
       Map.Entry m = (Map.Entry) it.next();
-      // System.out.println("Param: " + m.getKey() + " = " + m.getValue());
       argsList.add(m.getValue().toString());
     }
 
-    // System.out.println("context: " + this.sentence.context);
-    // System.out.println("noPrompt: " + this.sentence.noPrompt);
-    // System.out.println("--------------------------");
-    OutputConsole output = new OutputConsole();
-    Response response = new Response();
     List<Class> modules = getModulesAsClasses();
-    boolean moduleExists = false;
-    for (Class module : modules) {
+
+    for (Class<?> module : modules) {
 
       Annotation annotation = module.getAnnotation(CmdModuleRegistry.class);
       CmdModuleRegistry cmdModule = (CmdModuleRegistry) annotation;
       if (cmdModule.name().equals(this.sentence.cmdModuleName)) {
         moduleExists = true;
 
-        // method annotations (info only?)
-        try {
-          for (Method m : module.getMethods()) {
-            if (m.isAnnotationPresent(Command.class)) {
-              if (m.getName().equals(this.sentence.cmd)) {
-                Annotation methodAnnotation = m.getAnnotation(Command.class);
-                Command com = (Command) methodAnnotation;
-                response.commandParamsList = com.parameters();
-                response.description = com.help();
-                response.name = com.name();
-              }
-            }
-          }
-
-          if (this.sentence.helpRequested)
-            output.showCommandHelp(response);
-
-        } catch (Exception e) {
-          throw new Exception("The command " + this.sentence.cmd + " is not recognized as a valid command for "
-              + this.sentence.cmdModuleName + " module.");
+        if (this.sentence.helpRequested) {
+          showHelp(module, this.sentence);
         }
 
-        // Identification of method
+        // Method instance
         Method method = getMethod(module, this.sentence.cmd, argsList);
 
         if (method != null && method.isAnnotationPresent(Command.class)) {
           method.invoke(module.newInstance(), argsList.toArray());
         } else {
+
+          List<String> missingArguments =
+              getMissingArguments(argsList, getCommandParameters(module, this.sentence.cmd));
+
+          if (missingArguments.size() > 0) {
+            promptForMissingArguments(missingArguments, output);
+            // throw new Exception("Some argument is missing.");
+          }
 
           throw new Exception("The command " + this.sentence.cmd + " with " + argsList.size()
               + " arguments is not recognized as a valid command for " + this.sentence.cmdModuleName
@@ -118,9 +101,6 @@ public class CmdManager {
 
   public List<CmdModuleRegistry> getAvailableModules() {
 
-    // Reflections reflections =
-    // new Reflections(ClasspathHelper.forPackage(Constants.MODULES_PACKAGE), new SubTypesScanner(),
-    // new TypeAnnotationsScanner(), new MethodAnnotationsScanner());
     List<CmdModuleRegistry> modules = new ArrayList<CmdModuleRegistry>();
 
     try {
@@ -145,9 +125,6 @@ public class CmdManager {
 
   public List<Class> getModulesAsClasses() {
 
-    // Reflections reflections =
-    // new Reflections(ClasspathHelper.forPackage(Constants.MODULES_PACKAGE), new SubTypesScanner(),
-    // new TypeAnnotationsScanner(), new MethodAnnotationsScanner());
     List<Class> modules = new ArrayList<Class>();
 
     try {
@@ -168,12 +145,8 @@ public class CmdManager {
 
   public List<String> getAvailableCommandParameters() {
 
-    // Reflections reflections =
-    // new Reflections(ClasspathHelper.forPackage(Constants.MODULES_PACKAGE), new SubTypesScanner(),
-    // new TypeAnnotationsScanner(), new MethodAnnotationsScanner());
     List<String> availableCommandParams = new ArrayList<String>();
     Set<Method> annotatedMethods = this.reflections.getMethodsAnnotatedWith(Command.class);
-    // System.out.println(annotatedMethods.size());
 
     Iterator<Method> iterator = annotatedMethods.iterator();
     while (iterator.hasNext()) {
@@ -188,7 +161,7 @@ public class CmdManager {
     return availableCommandParams;
   }
 
-  private Method getMethod(Class c, String methodName, List<String> argList) {
+  private Method getMethod(Class<?> c, String methodName, List<String> argList) {
 
     try {
 
@@ -203,6 +176,131 @@ public class CmdManager {
 
     } catch (Exception e) {
       return null;
+    }
+  }
+
+  private Response getCommandInfo(Class<?> c, String commandName) throws Exception {
+
+    Response response = new Response();
+    try {
+      for (Method m : c.getMethods()) {
+        if (m.isAnnotationPresent(Command.class)) {
+          if (m.getName().equals(commandName)) {
+            Annotation methodAnnotation = m.getAnnotation(Command.class);
+            Command com = (Command) methodAnnotation;
+            response.commandParamsList = com.parameters();
+            response.description = com.help();
+            response.name = com.name();
+          }
+        }
+      }
+
+      return response;
+
+    } catch (Exception e) {
+      throw new Exception("The command " + this.sentence.cmd + " is not recognized as a valid command for "
+          + this.sentence.cmdModuleName + " module.");
+    }
+  }
+
+  private List<String> getCommandParameters(Class<?> c, String commandName) throws Exception {
+
+    List<String> commandParams = null;
+    try {
+      for (Method m : c.getMethods()) {
+        if (m.isAnnotationPresent(Command.class)) {
+          if (m.getName().equals(commandName)) {
+            Annotation methodAnnotation = m.getAnnotation(Command.class);
+            Command com = (Command) methodAnnotation;
+            commandParams = Arrays.asList(com.parameters());
+          }
+        }
+        break;
+      }
+
+      return commandParams;
+    } catch (Exception e) {
+      System.out.println("[ERROR] at getCommandParameters. " + e.getMessage());
+      throw e;
+    }
+  }
+
+  private Response getModuleInfo(Class<?> c, String moduleName) throws Exception {
+
+    Response response = new Response();
+    try {
+      Annotation classAnnotation = c.getAnnotation(CmdModuleRegistry.class);
+      CmdModuleRegistry commandModule = (CmdModuleRegistry) classAnnotation;
+      response.description = commandModule.description();
+      response.name = commandModule.name();
+      response.methodsList = getModuleCommands(c).toArray(new String[0]);
+
+      return response;
+
+    } catch (Exception e) {
+      throw e;
+    }
+  }
+
+  private void showHelp(Class<?> c, Sentence sentence) {
+
+    Response response = new Response();
+    OutputConsole output = new OutputConsole();
+
+    try {
+
+      // if command is empty then the module info will be shown
+      if (sentence.cmd == null) {
+
+        response = getModuleInfo(c, sentence.cmdModuleName);
+        output.showModuleHelp(response);
+        // else the command info will be shown.
+      } else if (sentence.cmdModuleName != null && sentence.cmd != null) {
+        response = getCommandInfo(c, sentence.cmd);
+        output.showCommandHelp(response);
+      }
+    } catch (Exception e) {
+      System.out.println("[ERROR] An error occurred trying to show help info. " + e.getMessage());
+    }
+
+  }
+
+  private List<String> getModuleCommands(Class<?> c) {
+
+    List<String> commandsList = new ArrayList<String>();
+    try {
+      for (Method m : c.getMethods()) {
+        if (m.isAnnotationPresent(Command.class)) {
+          commandsList.add(m.getName());
+        }
+      }
+      return commandsList;
+    } catch (Exception e) {
+      System.out.println("[ERROR] at getModuleCommands: " + e.getMessage());
+      return null;
+    }
+
+  }
+
+  private List<String> getMissingArguments(List<String> sentenceArgs, List<String> commandArgs) {
+
+    List<String> missingArguments = new ArrayList<String>();
+
+    if (sentenceArgs.size() == commandArgs.size()) {
+      return missingArguments;
+    } else {
+      for (String commandArg : commandArgs) {
+        if (!sentenceArgs.contains(commandArg))
+          missingArguments.add(commandArg);
+      }
+    }
+    return missingArguments;
+  }
+
+  private void promptForMissingArguments(List<String> missingArguments, OutputConsole output) {
+
+    for (String argument : missingArguments) {
+      // this.sentence.params.put(output.promptForArgument(argument));
     }
   }
 }
