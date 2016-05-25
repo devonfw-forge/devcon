@@ -1,6 +1,5 @@
-package com.devonfw.devcon.common;
+package com.devonfw.devcon.output;
 
-import java.util.HashMap;
 import java.util.Scanner;
 
 import org.apache.commons.cli.HelpFormatter;
@@ -31,7 +30,7 @@ public class OutputConsole {
     HelpFormatter formater = new HelpFormatter();
 
     formater.printHelp(response.name, response.description, this.options, null, true);
-    System.exit(0);
+    // System.exit(0);
   }
 
   public void showModuleHelp(Response response) {
@@ -45,17 +44,13 @@ public class OutputConsole {
     HelpFormatter formater = new HelpFormatter();
 
     formater.printHelp(response.name, response.description, new Options(), footerContent.toString(), true);
-    System.exit(0);
+    // System.exit(0);
   }
 
-  public HashMap promptForArgument(String argName) {
+  public String promptForArgument(String argName) {
 
     Scanner reader = new Scanner(System.in);
-    System.out.printf("Please introduce value for missing param %s", argName);
-    String value = reader.next();
-    HashMap<String, String> hmap = new HashMap();
-    hmap.put(argName, value);
-
-    return hmap;
+    System.out.printf("Please introduce value for missing param %s: ", argName);
+    return reader.next();
   }
 }

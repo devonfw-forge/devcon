@@ -1,6 +1,7 @@
 package com.devonfw.devcon.common.api.entity;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * TODO pparrado This type ...
@@ -15,7 +16,7 @@ public class Sentence {
 
   public String cmd;
 
-  public HashMap<String, String> params;
+  public List<HashMap<String, String>> params;
 
   public String context;
 

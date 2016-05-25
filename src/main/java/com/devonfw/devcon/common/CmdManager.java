@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -20,12 +21,12 @@ import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.entity.Response;
 import com.devonfw.devcon.common.api.entity.Sentence;
 import com.devonfw.devcon.common.utils.Constants;
+import com.devonfw.devcon.output.OutputConsole;
 
 /**
  * TODO pparrado This type ...
  *
  * @author pparrado
- * @since 0.0.1
  */
 public class CmdManager {
 
@@ -48,14 +49,9 @@ public class CmdManager {
     boolean moduleExists = false;
     OutputConsole output = new OutputConsole();
     Response response = new Response();
-    List<String> argsList = new ArrayList<String>();
-
-    Set set = this.sentence.params.entrySet();
-    Iterator it = set.iterator();
-    while (it.hasNext()) {
-      Map.Entry m = (Map.Entry) it.next();
-      argsList.add(m.getValue().toString());
-    }
+    List<String> argsList = getParamsValues(this.sentence.params);
+    List<String> nameArgsList = getParamsKeys(this.sentence.params);
+    List<String> commandParamsList = new ArrayList<String>();
 
     List<Class> modules = getModulesAsClasses();
 
@@ -68,23 +64,25 @@ public class CmdManager {
 
         if (this.sentence.helpRequested) {
           showHelp(module, this.sentence);
+          break;
+        }
+
+        commandParamsList = getCommandParameters(module, this.sentence.cmd);
+        List<String> missingArguments = getMissingArguments(nameArgsList, commandParamsList);
+
+        if (missingArguments.size() > 0 && !this.sentence.noPrompt) {
+          promptForMissingArguments(missingArguments, output);
+          argsList = getParamsValues(this.sentence.params);
         }
 
         // Method instance
         Method method = getMethod(module, this.sentence.cmd, argsList);
 
         if (method != null && method.isAnnotationPresent(Command.class)) {
+
           method.invoke(module.newInstance(), argsList.toArray());
+
         } else {
-
-          List<String> missingArguments =
-              getMissingArguments(argsList, getCommandParameters(module, this.sentence.cmd));
-
-          if (missingArguments.size() > 0) {
-            promptForMissingArguments(missingArguments, output);
-            // throw new Exception("Some argument is missing.");
-          }
-
           throw new Exception("The command " + this.sentence.cmd + " with " + argsList.size()
               + " arguments is not recognized as a valid command for " + this.sentence.cmdModuleName
               + " module. Please check the command name and the arguments passed.");
@@ -213,9 +211,10 @@ public class CmdManager {
             Annotation methodAnnotation = m.getAnnotation(Command.class);
             Command com = (Command) methodAnnotation;
             commandParams = Arrays.asList(com.parameters());
+            break;
           }
         }
-        break;
+
       }
 
       return commandParams;
@@ -300,7 +299,46 @@ public class CmdManager {
   private void promptForMissingArguments(List<String> missingArguments, OutputConsole output) {
 
     for (String argument : missingArguments) {
-      // this.sentence.params.put(output.promptForArgument(argument));
+      String value = output.promptForArgument(argument);
+      if (!value.isEmpty())
+        this.sentence.params.add(createParameterItem(argument, value));
     }
+  }
+
+  private List<String> getParamsKeys(List<HashMap<String, String>> params) {
+
+    List<String> keysList = new ArrayList<String>();
+
+    for (HashMap<String, String> param : params) {
+      Set<?> set = param.entrySet();
+      Iterator<?> it = set.iterator();
+      while (it.hasNext()) {
+        Map.Entry m = (Map.Entry) it.next();
+        keysList.add(m.getKey().toString());
+      }
+    }
+    return keysList;
+  }
+
+  private List<String> getParamsValues(List<HashMap<String, String>> params) {
+
+    List<String> valuesList = new ArrayList<String>();
+
+    for (HashMap<String, String> param : params) {
+      Set<?> set = param.entrySet();
+      Iterator<?> it = set.iterator();
+      while (it.hasNext()) {
+        Map.Entry m = (Map.Entry) it.next();
+        valuesList.add(m.getValue().toString());
+      }
+    }
+    return valuesList;
+  }
+
+  public static HashMap<String, String> createParameterItem(String key, String value) {
+
+    HashMap<String, String> hmap = new HashMap<String, String>();
+    hmap.put(key, value);
+    return hmap;
   }
 }

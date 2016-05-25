@@ -1,5 +1,6 @@
-package com.devonfw.devcon.common;
+package com.devonfw.devcon.input;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import com.devonfw.devcon.common.CmdManager;
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.entity.Sentence;
 
@@ -26,14 +28,11 @@ public class InputConsole {
 
   public InputConsole(String[] args) {
 
-    // String[] argsMock = { "-np", "foo", "customFarewell", "-name", "Pablo" };
-    // String[] argsMock = { "-np", "foo", "largeCustomFarewell", "-name", "Pablo", "-surname", "Parra" };
-    String[] argsMock = { "foo", "largeCustomFarewell", "-name", "Pablo" };
     // String[] argsMock = { "foo", "customFarewell", "-help" };
     // String[] argsMock = { "foo", "-help" };
-    this.args = argsMock;
+    // this.args = argsMock;
 
-    // this.args = args;
+    this.args = args;
 
     this.options = getAvailableCommandParameters();
 
@@ -44,16 +43,10 @@ public class InputConsole {
 
   }
 
-  public void parse() {
-
-    // System.out.println("----ARGS(" + this.args.length + ")----------------");
-    // for (int i = 0; i < this.args.length; i++) {
-    // System.out.println("args[" + i + "]: " + this.args[i]);
-    // }
-    // System.out.println("--------------------------");
+  public boolean parse() {
 
     Sentence sentence = new Sentence();
-    sentence.params = new HashMap<String, String>();
+    sentence.params = new ArrayList<HashMap<String, String>>();
 
     try {
 
@@ -80,17 +73,12 @@ public class InputConsole {
 
       Option[] parsedParams = cmd.getOptions();
       for (Option parsedParam : parsedParams) {
-        // System.out.println("parsedParam: " + parsedParam.getOpt() + " = " +
-        // cmd.getOptionValue(parsedParam.getOpt()));
         if (cmd.getOptionValue(parsedParam.getOpt()) != null)
-          sentence.params.put(parsedParam.getOpt(), cmd.getOptionValue(parsedParam.getOpt()));
+          sentence.params.add(CmdManager.createParameterItem(parsedParam.getOpt(),
+              cmd.getOptionValue(parsedParam.getOpt())));
       }
 
       List<?> argsNotParsed = cmd.getArgList();
-
-      // for (Object argNotParsed : argsNotParsed) {
-      // System.out.println("argNotParsed: " + argNotParsed);
-      // }
 
       if (argsNotParsed.size() > 1) {
         sentence.cmdModuleName = argsNotParsed.get(0).toString();
@@ -101,8 +89,10 @@ public class InputConsole {
 
       new CmdManager(sentence).evaluate();
 
+      return true;
     } catch (Exception e) {
-      System.out.println("[ERROR] " + e.getMessage());
+      System.out.println("[ERROR] " + e.getCause());
+      return false;
     }
 
   }

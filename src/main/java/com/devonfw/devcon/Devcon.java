@@ -1,6 +1,6 @@
 package com.devonfw.devcon;
 
-import com.devonfw.devcon.common.InputConsole;
+import com.devonfw.devcon.input.InputConsole;
 
 /**
  * TODO pparrado This type ...
