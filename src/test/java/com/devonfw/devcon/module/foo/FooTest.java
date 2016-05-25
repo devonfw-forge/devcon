@@ -15,6 +15,9 @@ import com.devonfw.devcon.input.InputConsole;
 public class FooTest {
   InputConsole input;
 
+  /**
+   * Checks if a simple command is launched successfully
+   */
   @Test
   public void simpleCommand() {
 
@@ -23,6 +26,9 @@ public class FooTest {
     assertTrue(this.input.parse());
   }
 
+  /**
+   * Checks if simple command fails
+   */
   @Test
   public void simpleCommandFail() {
 
@@ -31,6 +37,9 @@ public class FooTest {
     assertFalse(this.input.parse());
   }
 
+  /**
+   * Checks if a command with one parameter is launched successfully
+   */
   @Test
   public void commandWithOneParameter() {
 
@@ -39,6 +48,9 @@ public class FooTest {
     assertTrue(this.input.parse());
   }
 
+  /**
+   * Checks if a command with one parameter fails
+   */
   @Test
   public void commandWithOneParameterFail() {
 
@@ -47,6 +59,20 @@ public class FooTest {
     assertFalse(this.input.parse());
   }
 
+  /**
+   * Checks if a command with wrong parameter fails
+   */
+  @Test
+  public void commandWithWrongParameterFail() {
+
+    String[] args = { "-np", "foo", "customFarewell", "-surname", "Jason" };
+    this.input = new InputConsole(args);
+    assertFalse(this.input.parse());
+  }
+
+  /**
+   * Checks if a command with several parameters is launched successfully
+   */
   @Test
   public void commandWithSeveralParams() {
 
@@ -55,6 +81,9 @@ public class FooTest {
     assertTrue(this.input.parse());
   }
 
+  /**
+   * Checks if a command with less parameters than needed fails
+   */
   @Test
   public void commandWithSeveralParamsFail() {
 
@@ -63,6 +92,9 @@ public class FooTest {
     assertFalse(this.input.parse());
   }
 
+  /**
+   * Checks if the help info of a module is launched successfully
+   */
   @Test
   public void moduleHelp() {
 
@@ -71,12 +103,26 @@ public class FooTest {
     assertTrue(this.input.parse());
   }
 
+  /**
+   * Checks if the help info of a command is launched successfully
+   */
   @Test
   public void commandHelp() {
 
-    String[] args = { "foo", "customFarewell", "-help" };
+    String[] args = { "foo", "largeCustomFarewell", "-help" };
     this.input = new InputConsole(args);
     assertTrue(this.input.parse());
+  }
+
+  /**
+   * Checks if the help info of a wrong command fails
+   */
+  @Test
+  public void commandHelpFail() {
+
+    String[] args = { "foo", "fakeCommand", "-help" };
+    this.input = new InputConsole(args);
+    assertFalse(this.input.parse());
   }
 
 }

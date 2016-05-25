@@ -12,9 +12,9 @@ public class Sentence {
 
   public String gParam;
 
-  public String cmdModuleName;
+  public String moduleName;
 
-  public String cmd;
+  public String commandName;
 
   public List<HashMap<String, String>> params;
 

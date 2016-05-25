@@ -28,10 +28,6 @@ public class InputConsole {
 
   public InputConsole(String[] args) {
 
-    // String[] argsMock = { "foo", "customFarewell", "-help" };
-    // String[] argsMock = { "foo", "-help" };
-    // this.args = argsMock;
-
     this.args = args;
 
     this.options = getAvailableCommandParameters();
@@ -57,6 +53,7 @@ public class InputConsole {
       if (cmd.hasOption("v")) {
         // TODO the version must be dynamic
         System.out.println("devcon v.0.1");
+        System.exit(0);
       }
 
       if (cmd.hasOption("np")) {
@@ -81,17 +78,17 @@ public class InputConsole {
       List<?> argsNotParsed = cmd.getArgList();
 
       if (argsNotParsed.size() > 1) {
-        sentence.cmdModuleName = argsNotParsed.get(0).toString();
-        sentence.cmd = argsNotParsed.get(1).toString();
+        sentence.moduleName = argsNotParsed.get(0).toString();
+        sentence.commandName = argsNotParsed.get(1).toString();
       } else if (argsNotParsed.size() == 1) {
-        sentence.cmdModuleName = argsNotParsed.get(0).toString();
+        sentence.moduleName = argsNotParsed.get(0).toString();
       }
 
       new CmdManager(sentence).evaluate();
 
       return true;
     } catch (Exception e) {
-      System.out.println("[ERROR] " + e.getCause());
+      System.out.println("[ERROR] " + e.getMessage());
       return false;
     }
 

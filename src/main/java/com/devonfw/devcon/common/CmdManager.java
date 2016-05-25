@@ -1,6 +1,7 @@
 package com.devonfw.devcon.common;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,54 +47,51 @@ public class CmdManager {
 
   public void evaluate() throws Exception {
 
-    boolean moduleExists = false;
     OutputConsole output = new OutputConsole();
-    Response response = new Response();
-    List<String> argsList = getParamsValues(this.sentence.params);
-    List<String> nameArgsList = getParamsKeys(this.sentence.params);
-    List<String> commandParamsList = new ArrayList<String>();
+    List<String> paramsValuesList = getParamsValues(this.sentence.params);
+    List<String> paramsNamesList = getParamsKeys(this.sentence.params);
+    List<String> comandNeededParams = new ArrayList<String>();
 
-    List<Class> modules = getModulesAsClasses();
+    Class<?> module = getModule(this.sentence.moduleName);
 
-    for (Class<?> module : modules) {
+    if (module != null) {
 
-      Annotation annotation = module.getAnnotation(CmdModuleRegistry.class);
-      CmdModuleRegistry cmdModule = (CmdModuleRegistry) annotation;
-      if (cmdModule.name().equals(this.sentence.cmdModuleName)) {
-        moduleExists = true;
+      Command command = getCommand(module, this.sentence.commandName);
 
-        if (this.sentence.helpRequested) {
-          showHelp(module, this.sentence);
-          break;
-        }
+      // If helpRequested flag is 'true' the app shows the help info and ends
+      if (this.sentence.helpRequested) {
 
-        commandParamsList = getCommandParameters(module, this.sentence.cmd);
-        List<String> missingArguments = getMissingArguments(nameArgsList, commandParamsList);
+        showHelp(module, this.sentence);
 
-        if (missingArguments.size() > 0 && !this.sentence.noPrompt) {
-          promptForMissingArguments(missingArguments, output);
-          argsList = getParamsValues(this.sentence.params);
-        }
+      } else {
 
-        // Method instance
-        Method method = getMethod(module, this.sentence.cmd, argsList);
+        if (command != null) {
 
-        if (method != null && method.isAnnotationPresent(Command.class)) {
+          comandNeededParams = getCommandParameters(module, this.sentence.commandName);
+          List<String> missingParameters = getMissingParameters(paramsNamesList, comandNeededParams);
 
-          method.invoke(module.newInstance(), argsList.toArray());
+          if (missingParameters.size() > 0 && !this.sentence.noPrompt) {
+            promptForMissingArguments(missingParameters, output);
+            paramsValuesList = getParamsValues(this.sentence.params);
+          } else if (missingParameters.size() > 0) {
+            throw new Exception("You need to specify the following parameter/s: " + missingParameters.toString());
+          }
+
+          paramsValuesList = orderParameters(this.sentence.params, comandNeededParams);
+
+          LaunchCommand(module, this.sentence.commandName, paramsValuesList);
 
         } else {
-          throw new Exception("The command " + this.sentence.cmd + " with " + argsList.size()
-              + " arguments is not recognized as a valid command for " + this.sentence.cmdModuleName
-              + " module. Please check the command name and the arguments passed.");
+          // TODO implement a NotRecognizedCommandException
+          throw new Exception("The command " + this.sentence.commandName
+              + " is not recognized as valid command of the " + this.sentence.moduleName + " module");
         }
-        break;
       }
 
+    } else {
+      // TODO implement a NotRecognizedModuleException
+      throw new Exception("The module " + this.sentence.moduleName + " is not recognized as available module");
     }
-
-    if (!moduleExists)
-      throw new Exception("The module " + this.sentence.cmdModuleName + " is not recognized as available module");
 
   }
 
@@ -121,9 +119,9 @@ public class CmdManager {
 
   }
 
-  public List<Class> getModulesAsClasses() {
+  public List<Class<?>> getModulesAsClasses() {
 
-    List<Class> modules = new ArrayList<Class>();
+    List<Class<?>> modules = new ArrayList<Class<?>>();
 
     try {
       Set<Class<?>> annotatedClasses = this.reflections.getTypesAnnotatedWith(CmdModuleRegistry.class);
@@ -159,7 +157,7 @@ public class CmdManager {
     return availableCommandParams;
   }
 
-  private Method getMethod(Class<?> c, String methodName, List<String> argList) {
+  private Method getCommandInstance(Class<?> c, String methodName, List<String> argList) {
 
     try {
 
@@ -196,8 +194,8 @@ public class CmdManager {
       return response;
 
     } catch (Exception e) {
-      throw new Exception("The command " + this.sentence.cmd + " is not recognized as a valid command for "
-          + this.sentence.cmdModuleName + " module.");
+      throw new Exception("The command " + this.sentence.commandName + " is not recognized as a valid command for "
+          + this.sentence.moduleName + " module.");
     }
   }
 
@@ -210,7 +208,12 @@ public class CmdManager {
           if (m.getName().equals(commandName)) {
             Annotation methodAnnotation = m.getAnnotation(Command.class);
             Command com = (Command) methodAnnotation;
-            commandParams = Arrays.asList(com.parameters());
+            if (com.parameters().length == 1 && com.parameters()[0].equals("")) {
+              commandParams = new ArrayList<String>();
+            } else {
+              commandParams = Arrays.asList(com.parameters());
+            }
+
             break;
           }
         }
@@ -241,25 +244,25 @@ public class CmdManager {
     }
   }
 
-  private void showHelp(Class<?> c, Sentence sentence) {
+  private void showHelp(Class<?> c, Sentence s) throws Exception {
 
     Response response = new Response();
     OutputConsole output = new OutputConsole();
 
-    try {
+    // if command is empty then the module info will be shown
+    if (s.commandName == null) {
 
-      // if command is empty then the module info will be shown
-      if (sentence.cmd == null) {
-
-        response = getModuleInfo(c, sentence.cmdModuleName);
-        output.showModuleHelp(response);
-        // else the command info will be shown.
-      } else if (sentence.cmdModuleName != null && sentence.cmd != null) {
-        response = getCommandInfo(c, sentence.cmd);
-        output.showCommandHelp(response);
-      }
-    } catch (Exception e) {
-      System.out.println("[ERROR] An error occurred trying to show help info. " + e.getMessage());
+      response = getModuleInfo(c, s.moduleName);
+      output.showModuleHelp(response);
+      // else the command info will be shown.
+    } else if (s.moduleName != null && s.commandName != null) {
+      Command com = getCommand(c, this.sentence.commandName);
+      if (com == null)
+        // TODO custom NotRecognizedCommandException
+        throw new Exception("Command " + s.commandName + " not recognized as valid command of " + s.moduleName
+            + " module");
+      response = getCommandInfo(c, s.commandName);
+      output.showCommandHelp(response);
     }
 
   }
@@ -281,18 +284,15 @@ public class CmdManager {
 
   }
 
-  private List<String> getMissingArguments(List<String> sentenceArgs, List<String> commandArgs) {
+  private List<String> getMissingParameters(List<String> sentenceParams, List<String> commandParams) {
 
     List<String> missingArguments = new ArrayList<String>();
 
-    if (sentenceArgs.size() == commandArgs.size()) {
-      return missingArguments;
-    } else {
-      for (String commandArg : commandArgs) {
-        if (!sentenceArgs.contains(commandArg))
-          missingArguments.add(commandArg);
-      }
+    for (String commandArg : commandParams) {
+      if (!sentenceParams.contains(commandArg))
+        missingArguments.add(commandArg);
     }
+
     return missingArguments;
   }
 
@@ -341,4 +341,61 @@ public class CmdManager {
     hmap.put(key, value);
     return hmap;
   }
+
+  private Class<?> getModule(String moduleName) {
+
+    List<Class<?>> modules = getModulesAsClasses();
+    Class<?> matchClass = null;
+
+    for (Class<?> module : modules) {
+
+      Annotation annotation = module.getAnnotation(CmdModuleRegistry.class);
+      CmdModuleRegistry cmdModule = (CmdModuleRegistry) annotation;
+      if (cmdModule.name().equals(moduleName)) {
+        matchClass = module;
+        break;
+      }
+    }
+    return matchClass;
+  }
+
+  private Command getCommand(Class<?> module, String commandName) {
+
+    Command command = null;
+
+    for (Method m : module.getMethods()) {
+      if (m.isAnnotationPresent(Command.class)) {
+        if (m.getName().equals(commandName)) {
+          Annotation methodAnnotation = m.getAnnotation(Command.class);
+          command = (Command) methodAnnotation;
+          break;
+        }
+      }
+    }
+
+    return command;
+  }
+
+  private List<String> orderParameters(List<HashMap<String, String>> sentenceParams, List<String> commandParams) {
+
+    List<String> orderedParameters = new ArrayList<String>();
+    for (String commandParam : commandParams) {
+      for (HashMap<String, String> sentenceParam : sentenceParams) {
+        if (sentenceParam.containsKey(commandParam)) {
+          orderedParameters.add(sentenceParam.get(commandParam));
+          break;
+        }
+      }
+
+    }
+    return orderedParameters;
+  }
+
+  private void LaunchCommand(Class<?> c, String commandName, List<String> parameters) throws IllegalAccessException,
+      IllegalArgumentException, InvocationTargetException, InstantiationException {
+
+    Method method = getCommandInstance(c, this.sentence.commandName, parameters);
+    method.invoke(c.newInstance(), parameters.toArray());
+  }
+
 }
