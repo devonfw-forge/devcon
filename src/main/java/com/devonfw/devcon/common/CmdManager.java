@@ -21,11 +21,13 @@ import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.entity.Response;
 import com.devonfw.devcon.common.api.entity.Sentence;
+import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
+import com.devonfw.devcon.common.exception.NotRecognizedModuleException;
 import com.devonfw.devcon.common.utils.Constants;
 import com.devonfw.devcon.output.OutputConsole;
 
 /**
- * TODO pparrado This type ...
+ * Implementation of the Command Manager
  *
  * @author pparrado
  */
@@ -82,15 +84,12 @@ public class CmdManager {
           LaunchCommand(module, this.sentence.commandName, paramsValuesList);
 
         } else {
-          // TODO implement a NotRecognizedCommandException
-          throw new Exception("The command " + this.sentence.commandName
-              + " is not recognized as valid command of the " + this.sentence.moduleName + " module");
+          throw new NotRecognizedCommandException(this.sentence.moduleName, this.sentence.commandName);
         }
       }
 
     } else {
-      // TODO implement a NotRecognizedModuleException
-      throw new Exception("The module " + this.sentence.moduleName + " is not recognized as available module");
+      throw new NotRecognizedModuleException(this.sentence.moduleName);
     }
 
   }
@@ -113,6 +112,7 @@ public class CmdManager {
       return modules;
 
     } catch (Exception e) {
+      // TODO implement logs
       System.out.println("ERROR: An error occurred trying to obtain the available modules. Message: " + e.getMessage());
       return null;
     }
@@ -134,6 +134,7 @@ public class CmdManager {
       return modules;
 
     } catch (Exception e) {
+      // TODO implement logs
       System.out.println("ERROR: An error occurred trying to obtain the available modules. Message: " + e.getMessage());
       return null;
     }
@@ -175,28 +176,22 @@ public class CmdManager {
     }
   }
 
-  private Response getCommandInfo(Class<?> c, String commandName) throws Exception {
+  private Response getCommandInfo(Class<?> c, String commandName) {
 
     Response response = new Response();
-    try {
-      for (Method m : c.getMethods()) {
-        if (m.isAnnotationPresent(Command.class)) {
-          if (m.getName().equals(commandName)) {
-            Annotation methodAnnotation = m.getAnnotation(Command.class);
-            Command com = (Command) methodAnnotation;
-            response.commandParamsList = com.parameters();
-            response.description = com.help();
-            response.name = com.name();
-          }
+    for (Method m : c.getMethods()) {
+      if (m.isAnnotationPresent(Command.class)) {
+        if (m.getName().equals(commandName)) {
+          Annotation methodAnnotation = m.getAnnotation(Command.class);
+          Command com = (Command) methodAnnotation;
+          response.commandParamsList = com.parameters();
+          response.description = com.help();
+          response.name = com.name();
         }
       }
-
-      return response;
-
-    } catch (Exception e) {
-      throw new Exception("The command " + this.sentence.commandName + " is not recognized as a valid command for "
-          + this.sentence.moduleName + " module.");
     }
+
+    return response;
   }
 
   private List<String> getCommandParameters(Class<?> c, String commandName) throws Exception {
@@ -222,6 +217,7 @@ public class CmdManager {
 
       return commandParams;
     } catch (Exception e) {
+      // TODO implement logs
       System.out.println("[ERROR] at getCommandParameters. " + e.getMessage());
       throw e;
     }
@@ -258,9 +254,7 @@ public class CmdManager {
     } else if (s.moduleName != null && s.commandName != null) {
       Command com = getCommand(c, this.sentence.commandName);
       if (com == null)
-        // TODO custom NotRecognizedCommandException
-        throw new Exception("Command " + s.commandName + " not recognized as valid command of " + s.moduleName
-            + " module");
+        throw new NotRecognizedCommandException(s.moduleName, s.commandName);
       response = getCommandInfo(c, s.commandName);
       output.showCommandHelp(response);
     }
@@ -278,6 +272,7 @@ public class CmdManager {
       }
       return commandsList;
     } catch (Exception e) {
+      // TODO implement logs
       System.out.println("[ERROR] at getModuleCommands: " + e.getMessage());
       return null;
     }
@@ -394,7 +389,7 @@ public class CmdManager {
   private void LaunchCommand(Class<?> c, String commandName, List<String> parameters) throws IllegalAccessException,
       IllegalArgumentException, InvocationTargetException, InstantiationException {
 
-    Method method = getCommandInstance(c, this.sentence.commandName, parameters);
+    Method method = getCommandInstance(c, commandName, parameters);
     method.invoke(c.newInstance(), parameters.toArray());
   }
 

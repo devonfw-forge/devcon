@@ -3,10 +3,9 @@ package com.devonfw.devcon;
 import com.devonfw.devcon.input.InputConsole;
 
 /**
- * TODO pparrado This type ...
+ * Main class of DevCon
  *
  * @author pparrado
- * @since 0.0.1
  */
 public class Devcon {
 

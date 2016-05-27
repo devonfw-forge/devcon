@@ -14,6 +14,9 @@ import org.apache.commons.cli.Options;
 import com.devonfw.devcon.common.CmdManager;
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.entity.Sentence;
+import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
+import com.devonfw.devcon.common.exception.NotRecognizedModuleException;
+import com.devonfw.devcon.common.utils.DevconUtils;
 
 /**
  * TODO pparrado This type ...
@@ -29,13 +32,7 @@ public class InputConsole {
   public InputConsole(String[] args) {
 
     this.args = args;
-
-    this.options = getAvailableCommandParameters();
-
-    // Global parameters
-    this.options.addOption("h", "help", false, "show help");
-    this.options.addOption("np", false, "no prompt");
-    this.options.addOption("v", "version", false, "show the devcon version");
+    this.options = setOptions();
 
   }
 
@@ -77,18 +74,28 @@ public class InputConsole {
 
       List<?> argsNotParsed = cmd.getArgList();
 
-      if (argsNotParsed.size() > 1) {
-        sentence.moduleName = argsNotParsed.get(0).toString();
-        sentence.commandName = argsNotParsed.get(1).toString();
+      if (argsNotParsed.size() == 0) {
+        throw new Exception(
+            "You must specify a valid module name. Try 'devon help guide' command to know more about devcon usage.");
       } else if (argsNotParsed.size() == 1) {
         sentence.moduleName = argsNotParsed.get(0).toString();
+      } else if (argsNotParsed.size() > 1) {
+        sentence.moduleName = argsNotParsed.get(0).toString();
+        sentence.commandName = argsNotParsed.get(1).toString();
       }
 
       new CmdManager(sentence).evaluate();
 
       return true;
+    } catch (NotRecognizedModuleException e) {
+      System.out.println("[ERROR] The module " + e.moduleName + " is not recognized as available module.");
+      return false;
+    } catch (NotRecognizedCommandException e) {
+      System.out.println("The command " + e.commandName + " is not recognized as valid command of the " + e.moduleName
+          + " module");
+      return false;
     } catch (Exception e) {
-      System.out.println("[ERROR] " + e.getMessage());
+      System.out.println("[ERROR] An error occurred. Message: " + e.getMessage());
       return false;
     }
 
@@ -137,6 +144,25 @@ public class InputConsole {
       System.out.println("ERROR: " + e.getMessage());
       return new Options();
     }
+  }
+
+  private Options setOptions() {
+
+    Options opts = new Options();
+    List<Option> globalOptions = new ArrayList<Option>();
+    DevconUtils devconUtils = new DevconUtils();
+    opts = getAvailableCommandParameters();
+
+    globalOptions = devconUtils.getGlobalOptions();
+
+    if (globalOptions != null) {
+      for (Option gOpt : globalOptions) {
+        opts.addOption(gOpt);
+      }
+    }
+
+    return opts;
+
   }
 
 }

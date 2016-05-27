@@ -1,4 +1,4 @@
-package com.devonfw.devcon.module.foo;
+package com.devonfw.devcon.module;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -32,7 +32,7 @@ public class FooTest {
   @Test
   public void simpleCommandFail() {
 
-    String[] args = { "-np", "fakeModule", "fakeCommand" };
+    String[] args = { "-np", "foo", "fakeCommand" };
     this.input = new InputConsole(args);
     assertFalse(this.input.parse());
   }
@@ -92,6 +92,14 @@ public class FooTest {
     assertFalse(this.input.parse());
   }
 
+  @Test
+  public void wrongModule() {
+
+    String[] args = { "-np", "wrongModule", "command" };
+    this.input = new InputConsole(args);
+    assertFalse(this.input.parse());
+  }
+
   /**
    * Checks if the help info of a module is launched successfully
    */
@@ -109,7 +117,7 @@ public class FooTest {
   @Test
   public void commandHelp() {
 
-    String[] args = { "foo", "largeCustomFarewell", "-help" };
+    String[] args = { "foo", "largeCustomFarewell", "-h" };
     this.input = new InputConsole(args);
     assertTrue(this.input.parse());
   }

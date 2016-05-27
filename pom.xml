@@ -35,7 +35,40 @@
         <version>1.2</version>
     </dependency>
 
+    <!-- http://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
+    <dependency>
+        <groupId>com.googlecode.json-simple</groupId>
+        <artifactId>json-simple</artifactId>
+        <version>1.1.1</version>
+    </dependency>
+
+    <!-- http://mvnrepository.com/artifact/commons-io/commons-io -->
+    <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.5</version>
+    </dependency>
+
+<!--     <dependency> -->
+<!--       <groupId>net.sf.mmm</groupId> -->
+<!--       <artifactId>mmm-util-core</artifactId> -->
+<!--       <version>1.0.0</version> -->
+<!--     </dependency> -->
+
+
+
   </dependencies>
+
+<!-- <build> -->
+<!-- <resources> -->
+<!-- <resource> -->
+<!--   <directory>src/main/resources</directory> -->
+<!--     <includes> -->
+<!--       <include>globalParameters.json</include> -->
+<!--     </includes> -->
+<!-- </resource> -->
+<!-- </resources> -->
+<!-- </build> -->
 
 </project>
 

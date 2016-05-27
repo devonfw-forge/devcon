@@ -47,10 +47,29 @@ public class OutputConsole {
     // System.exit(0);
   }
 
+  public void showGeneralHelp(Response response) {
+
+    response.header = response.header != null ? response.header : "";
+    response.usage = response.usage != null ? response.usage : " ";
+    response.footer = response.footer != null ? response.footer : "";
+
+    HelpFormatter formater = new HelpFormatter();
+    // formater.printHelp(cmdLineSyntax, header, options, footer, autoUsage);
+    try {
+      formater.printHelp(response.usage, response.header, new Options(), response.footer, false);
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+      // System.out.println(response.header);
+      // System.out.println(response.footer);
+    }
+
+  }
+
   public String promptForArgument(String argName) {
 
     Scanner reader = new Scanner(System.in);
     System.out.printf("Please introduce value for missing param %s: ", argName);
     return reader.next();
   }
+
 }
