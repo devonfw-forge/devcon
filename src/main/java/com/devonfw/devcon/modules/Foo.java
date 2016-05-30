@@ -2,6 +2,8 @@ package com.devonfw.devcon.modules;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
+import com.devonfw.devcon.common.api.annotations.Parameter;
+import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.impl.AbstractCommandHolder;
 
 /**
@@ -31,20 +33,20 @@ public class Foo extends AbstractCommandHolder {
   @SuppressWarnings("javadoc")
   public void farewell() {
 
-    // return "Bye";
     System.out.println("Bye");
   }
 
-  @Command(name = "customFarewell", help = "This command is used to say a custom bye", parameters = { "name" })
+  @Command(name = "customFarewell", help = "This command is used to say a custom bye")
+  @Parameters(values = { @Parameter(name = "name", description = "this is the description for name parameter") })
   @SuppressWarnings("javadoc")
   public void customFarewell(String name) {
 
-    // return "Bye " + name;
     System.out.println("Bye " + name);
   }
 
-  @Command(name = "largeCustomFarewell", help = "This command is used to say a large custom bye", parameters = {
-  "name", "surname" })
+  @Command(name = "largeCustomFarewell", help = "This command is used to say a large custom bye")
+  @Parameters(values = { @Parameter(name = "name", description = "this is the name parameter"),
+  @Parameter(name = "surname", description = "this is the description for the surname parameter") })
   @SuppressWarnings("javadoc")
   public void largeCustomFarewell(String name, String surname) {
 

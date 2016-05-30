@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
-import com.devonfw.devcon.common.api.entity.Response;
+import com.devonfw.devcon.common.api.data.Response;
 import com.devonfw.devcon.common.utils.DevconUtils;
 import com.devonfw.devcon.output.OutputConsole;
 

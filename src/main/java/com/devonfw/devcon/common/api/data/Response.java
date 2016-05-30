@@ -1,6 +1,8 @@
-package com.devonfw.devcon.common.api.entity;
+package com.devonfw.devcon.common.api.data;
 
 import java.util.List;
+
+import com.devonfw.devcon.common.api.annotations.Parameter;
 
 /**
  * This entity encapsulates the info to be shown in the output
@@ -14,7 +16,7 @@ public class Response {
 
   public String statusMessage;
 
-  public String[] commandParamsList;
+  public List<Parameter> commandParamsList;
 
   public String[] methodsList;
 

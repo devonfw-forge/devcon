@@ -5,7 +5,8 @@ import java.util.Scanner;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
-import com.devonfw.devcon.common.api.entity.Response;
+import com.devonfw.devcon.common.api.annotations.Parameter;
+import com.devonfw.devcon.common.api.data.Response;
 
 /**
  * TODO pparrado This type ...
@@ -23,8 +24,8 @@ public class OutputConsole {
 
   public void showCommandHelp(Response response) {
 
-    for (String commandParam : response.commandParamsList) {
-      this.options.addOption(commandParam, false, null);
+    for (Parameter commandParam : response.commandParamsList) {
+      this.options.addOption(commandParam.name(), false, commandParam.description());
     }
 
     HelpFormatter formater = new HelpFormatter();

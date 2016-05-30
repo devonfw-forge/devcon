@@ -13,7 +13,7 @@ import org.apache.commons.cli.Options;
 
 import com.devonfw.devcon.common.CmdManager;
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
-import com.devonfw.devcon.common.api.entity.Sentence;
+import com.devonfw.devcon.common.api.data.Sentence;
 import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
 import com.devonfw.devcon.common.exception.NotRecognizedModuleException;
 import com.devonfw.devcon.common.utils.DevconUtils;
@@ -76,7 +76,7 @@ public class InputConsole {
 
       if (argsNotParsed.size() == 0) {
         throw new Exception(
-            "You must specify a valid module name. Try 'devon help guide' command to know more about devcon usage.");
+            "You must specify a valid module name. Try 'devon help guide' command to know more about DevCon usage.");
       } else if (argsNotParsed.size() == 1) {
         sentence.moduleName = argsNotParsed.get(0).toString();
       } else if (argsNotParsed.size() > 1) {

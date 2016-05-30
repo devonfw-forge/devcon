@@ -10,7 +10,7 @@ import com.devonfw.devcon.input.InputConsole;
 public class Devcon {
 
   /**
-   * @param args
+   * @param args command line arguments
    */
   public static void main(String[] args) {
 

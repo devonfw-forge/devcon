@@ -1,4 +1,4 @@
-package com.devonfw.devcon.common.api.entity;
+package com.devonfw.devcon.common.api.data;
 
 import java.util.HashMap;
 import java.util.List;

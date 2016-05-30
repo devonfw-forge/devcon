@@ -19,8 +19,10 @@ import org.reflections.util.ClasspathHelper;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
-import com.devonfw.devcon.common.api.entity.Response;
-import com.devonfw.devcon.common.api.entity.Sentence;
+import com.devonfw.devcon.common.api.annotations.Parameter;
+import com.devonfw.devcon.common.api.annotations.Parameters;
+import com.devonfw.devcon.common.api.data.Response;
+import com.devonfw.devcon.common.api.data.Sentence;
 import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
 import com.devonfw.devcon.common.exception.NotRecognizedModuleException;
 import com.devonfw.devcon.common.utils.Constants;
@@ -52,7 +54,7 @@ public class CmdManager {
     OutputConsole output = new OutputConsole();
     List<String> paramsValuesList = getParamsValues(this.sentence.params);
     List<String> paramsNamesList = getParamsKeys(this.sentence.params);
-    List<String> comandNeededParams = new ArrayList<String>();
+    List<String> commandNeededParams = new ArrayList<String>();
 
     Class<?> module = getModule(this.sentence.moduleName);
 
@@ -69,17 +71,19 @@ public class CmdManager {
 
         if (command != null) {
 
-          comandNeededParams = getCommandParameters(module, this.sentence.commandName);
-          List<String> missingParameters = getMissingParameters(paramsNamesList, comandNeededParams);
+          commandNeededParams = getCommandParameters(module, this.sentence.commandName);
+          if (commandNeededParams != null) {
+            List<String> missingParameters = getMissingParameters(paramsNamesList, commandNeededParams);
 
-          if (missingParameters.size() > 0 && !this.sentence.noPrompt) {
-            promptForMissingArguments(missingParameters, output);
-            paramsValuesList = getParamsValues(this.sentence.params);
-          } else if (missingParameters.size() > 0) {
-            throw new Exception("You need to specify the following parameter/s: " + missingParameters.toString());
+            if (missingParameters.size() > 0 && !this.sentence.noPrompt) {
+              promptForMissingArguments(missingParameters, output);
+              paramsValuesList = getParamsValues(this.sentence.params);
+            } else if (missingParameters.size() > 0) {
+              throw new Exception("You need to specify the following parameter/s: " + missingParameters.toString());
+            }
+
+            paramsValuesList = orderParameters(this.sentence.params, commandNeededParams);
           }
-
-          paramsValuesList = orderParameters(this.sentence.params, comandNeededParams);
 
           LaunchCommand(module, this.sentence.commandName, paramsValuesList);
 
@@ -148,10 +152,18 @@ public class CmdManager {
     Iterator<Method> iterator = annotatedMethods.iterator();
     while (iterator.hasNext()) {
       Method m = iterator.next();
-      Annotation annotation = m.getAnnotation(Command.class);
-      Command command = (Command) annotation;
-      for (String param : command.parameters()) {
-        availableCommandParams.add(param);
+      // Annotation annotation = m.getAnnotation(Command.class);
+      // Command command = (Command) annotation;
+      // for (String param : command.parameters()) {
+      // availableCommandParams.add(param);
+      // }
+      Annotation annotation = m.getAnnotation(Parameters.class);
+      if (annotation != null) {
+        Parameters params = (Parameters) annotation;
+        List<Parameter> paramsList = Arrays.asList(params.values());
+        for (Parameter param : paramsList) {
+          availableCommandParams.add(param.name());
+        }
       }
     }
 
@@ -182,11 +194,17 @@ public class CmdManager {
     for (Method m : c.getMethods()) {
       if (m.isAnnotationPresent(Command.class)) {
         if (m.getName().equals(commandName)) {
-          Annotation methodAnnotation = m.getAnnotation(Command.class);
-          Command com = (Command) methodAnnotation;
-          response.commandParamsList = com.parameters();
+          Annotation commandAnnotation = m.getAnnotation(Command.class);
+          Command com = (Command) commandAnnotation;
+          Annotation paramsAnnotation = m.getAnnotation(Parameters.class);
+          if (paramsAnnotation != null) {
+            Parameters params = (Parameters) paramsAnnotation;
+            response.commandParamsList = Arrays.asList(params.values());
+          }
+          // response.commandParamsList = com.parameters();
           response.description = com.help();
           response.name = com.name();
+          break;
         }
       }
     }
@@ -201,12 +219,23 @@ public class CmdManager {
       for (Method m : c.getMethods()) {
         if (m.isAnnotationPresent(Command.class)) {
           if (m.getName().equals(commandName)) {
-            Annotation methodAnnotation = m.getAnnotation(Command.class);
-            Command com = (Command) methodAnnotation;
-            if (com.parameters().length == 1 && com.parameters()[0].equals("")) {
+            // Annotation methodAnnotation = m.getAnnotation(Command.class);
+            // Command com = (Command) methodAnnotation;
+            // if (com.parameters().length == 1 && com.parameters()[0].equals("")) {
+            // commandParams = new ArrayList<String>();
+            // } else {
+            // commandParams = Arrays.asList(com.parameters());
+            // }
+
+            Annotation annotation = m.getAnnotation(Parameters.class);
+            if (annotation != null) {
+              Parameters params = (Parameters) annotation;
               commandParams = new ArrayList<String>();
-            } else {
-              commandParams = Arrays.asList(com.parameters());
+              List<Parameter> paramsList = Arrays.asList(params.values());
+              for (Parameter param : paramsList) {
+                if (!param.name().equals(""))
+                  commandParams.add(param.name());
+              }
             }
 
             break;

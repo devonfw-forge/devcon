@@ -6,25 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for Devcon commands
+ * TODO pparrado This type ...
  *
  * @author pparrado
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Command {
-  /**
-   * Name of the command
-   *
-   * @return name
-   */
-  String name() default "";
-
-  /**
-   * Help info associated to the command
-   *
-   * @return help info
-   */
-  String help() default "";
-
+public @interface Parameters {
+  Parameter[] values();
 }
