@@ -19,7 +19,7 @@ import org.reflections.util.ClasspathHelper;
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.impl.AbstractCommandHolder;
-import com.devonfw.devcon.modules.Foo;
+import com.devonfw.devcon.modules.foo.Foo;
 
 /**
  * Tests basic application functionalities.

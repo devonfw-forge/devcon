@@ -13,6 +13,7 @@ import org.apache.commons.cli.Options;
 
 import com.devonfw.devcon.common.CmdManager;
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
+import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Sentence;
 import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
 import com.devonfw.devcon.common.exception.NotRecognizedModuleException;
@@ -149,15 +150,15 @@ public class InputConsole {
   private Options setOptions() {
 
     Options opts = new Options();
-    List<Option> globalOptions = new ArrayList<Option>();
+    List<DevconOption> globalOptions = new ArrayList<DevconOption>();
     DevconUtils devconUtils = new DevconUtils();
     opts = getAvailableCommandParameters();
 
     globalOptions = devconUtils.getGlobalOptions();
 
     if (globalOptions != null) {
-      for (Option gOpt : globalOptions) {
-        opts.addOption(gOpt);
+      for (DevconOption gOpt : globalOptions) {
+        opts.addOption(new Option(gOpt.opt, gOpt.longOpt, false, gOpt.description));
       }
     }
 

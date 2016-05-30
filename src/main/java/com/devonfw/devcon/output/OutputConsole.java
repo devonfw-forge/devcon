@@ -55,15 +55,7 @@ public class OutputConsole {
     response.footer = response.footer != null ? response.footer : "";
 
     HelpFormatter formater = new HelpFormatter();
-    // formater.printHelp(cmdLineSyntax, header, options, footer, autoUsage);
-    try {
-      formater.printHelp(response.usage, response.header, new Options(), response.footer, false);
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
-      // System.out.println(response.header);
-      // System.out.println(response.footer);
-    }
-
+    formater.printHelp(response.usage, response.header, new Options(), response.footer, false);
   }
 
   public String promptForArgument(String argName) {
@@ -71,6 +63,11 @@ public class OutputConsole {
     Scanner reader = new Scanner(System.in);
     System.out.printf("Please introduce value for missing param %s: ", argName);
     return reader.next();
+  }
+
+  public void showError(String message) {
+
+    System.out.println("[ERROR]" + message);
   }
 
 }

@@ -2,19 +2,16 @@
   {
     "opt":"h",
     "longOpt":"help",
-    "hasArg":false,
     "description":"show help info for each module/command"
    },
    {
     "opt":"np",
     "longOpt":"noprompt",
-    "hasArg":false,
     "description":"the process will not ask for user input"
    },
    {
     "opt":"v",
     "longOpt":"version",
-    "hasArg":false,
     "description":"show devcon version"
    }
 ]

@@ -152,11 +152,6 @@ public class CmdManager {
     Iterator<Method> iterator = annotatedMethods.iterator();
     while (iterator.hasNext()) {
       Method m = iterator.next();
-      // Annotation annotation = m.getAnnotation(Command.class);
-      // Command command = (Command) annotation;
-      // for (String param : command.parameters()) {
-      // availableCommandParams.add(param);
-      // }
       Annotation annotation = m.getAnnotation(Parameters.class);
       if (annotation != null) {
         Parameters params = (Parameters) annotation;
@@ -219,14 +214,6 @@ public class CmdManager {
       for (Method m : c.getMethods()) {
         if (m.isAnnotationPresent(Command.class)) {
           if (m.getName().equals(commandName)) {
-            // Annotation methodAnnotation = m.getAnnotation(Command.class);
-            // Command com = (Command) methodAnnotation;
-            // if (com.parameters().length == 1 && com.parameters()[0].equals("")) {
-            // commandParams = new ArrayList<String>();
-            // } else {
-            // commandParams = Arrays.asList(com.parameters());
-            // }
-
             Annotation annotation = m.getAnnotation(Parameters.class);
             if (annotation != null) {
               Parameters params = (Parameters) annotation;

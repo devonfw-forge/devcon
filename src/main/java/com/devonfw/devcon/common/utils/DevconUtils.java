@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.cli.Option;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -22,6 +21,7 @@ import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
+import com.devonfw.devcon.common.api.data.DevconOption;
 
 /**
  * TODO pparrado This type ...
@@ -32,32 +32,6 @@ public class DevconUtils {
 
   Reflections reflections = new Reflections(ClasspathHelper.forPackage(Constants.MODULES_PACKAGE),
       new SubTypesScanner(), new TypeAnnotationsScanner(), new MethodAnnotationsScanner());
-
-  public List<Option> getGlobalOptions() {
-
-    List<Option> globalOptions = new ArrayList<Option>();
-
-    try {
-      ClassLoader classLoader = getClass().getClassLoader();
-      URL globalParamsFileURL = classLoader.getResource(Constants.GLOBAL_PARAMS_FILE);
-
-      if (globalParamsFileURL != null) {
-
-        globalOptions = getGlobalOptionsFromFile(globalParamsFileURL);
-
-      } else {
-        // TODO implement logs
-        System.out.println("Getting the default global options...");
-        globalOptions = getDefaultGlobalOptions();
-      }
-
-      return globalOptions;
-    } catch (Exception e) {
-      System.out.println("ERROR: " + e.getMessage());
-      return globalOptions;
-    }
-
-  }
 
   public List<String> getAvailableModules() {
 
@@ -81,13 +55,39 @@ public class DevconUtils {
     }
   }
 
-  private List<Option> getDefaultGlobalOptions() {
+  public List<DevconOption> getGlobalOptions() {
 
-    List<Option> defaultGlobalOptions = new ArrayList<Option>();
+    List<DevconOption> globalOptions = new ArrayList<DevconOption>();
 
-    Option h = new Option("h", "help", false, "show help");
-    Option np = new Option("np", false, "no prompt");
-    Option v = new Option("v", "version", false, "show the devcon version");
+    try {
+      ClassLoader classLoader = getClass().getClassLoader();
+      URL globalParamsFileURL = classLoader.getResource(Constants.GLOBAL_PARAMS_FILE);
+
+      if (globalParamsFileURL != null) {
+
+        globalOptions = getGlobalOptionsFromFile(globalParamsFileURL);
+
+      } else {
+        // TODO implement logs
+        System.out.println("Getting the default global options...");
+        globalOptions = getDefaultGlobalOptions();
+      }
+
+      return globalOptions;
+    } catch (Exception e) {
+      System.out.println("ERROR: " + e.getMessage());
+      return globalOptions;
+    }
+
+  }
+
+  private List<DevconOption> getDefaultGlobalOptions() {
+
+    List<DevconOption> defaultGlobalOptions = new ArrayList<DevconOption>();
+
+    DevconOption h = new DevconOption("h", "help", "show help info for each module/command");
+    DevconOption np = new DevconOption("np", "noprompt", "the process will not ask for user input");
+    DevconOption v = new DevconOption("v", "version", "show devcon version");
 
     defaultGlobalOptions.add(h);
     defaultGlobalOptions.add(np);
@@ -96,10 +96,11 @@ public class DevconUtils {
     return defaultGlobalOptions;
   }
 
-  private List<Option> getGlobalOptionsFromFile(URL fileURL) throws FileNotFoundException, IOException, ParseException {
+  private List<DevconOption> getGlobalOptionsFromFile(URL fileURL) throws FileNotFoundException, IOException,
+      ParseException {
 
     JSONParser parser = new JSONParser();
-    List<Option> globalOptions = new ArrayList<Option>();
+    List<DevconOption> globalOptions = new ArrayList<DevconOption>();
 
     String jsonPath = fileURL.getPath();
     Object obj = parser.parse(new FileReader(jsonPath));
@@ -142,10 +143,9 @@ public class DevconUtils {
 
         String opt = j.get("opt") != null ? j.get("opt").toString() : " ";
         String longOpt = j.get("longOpt") != null ? j.get("longOpt").toString() : " ";
-        boolean hasArg = Boolean.parseBoolean(j.get("hasArg").toString());
         String description = j.get("description") != null ? j.get("description").toString() : " ";
 
-        globalOptions.add(new Option(opt, longOpt, hasArg, description));
+        globalOptions.add(new DevconOption(opt, longOpt, description));
 
       } catch (Exception e) {
         // TODO implement logs

@@ -1,4 +1,4 @@
-package com.devonfw.devcon.modules;
+package com.devonfw.devcon.modules.foo;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
