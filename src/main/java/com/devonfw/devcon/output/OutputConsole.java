@@ -1,5 +1,6 @@
 package com.devonfw.devcon.output;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 import org.apache.commons.cli.HelpFormatter;
@@ -65,9 +66,37 @@ public class OutputConsole {
     return reader.next();
   }
 
+  public boolean askForUserConfirmation(String message) {
+
+    String[] validResponses = { "yes", "y", "no", "n" };
+    Scanner reader = new Scanner(System.in);
+    System.out.println(message);
+    System.out.println("Y/N");
+    String response = reader.next();
+    while (!Arrays.asList(validResponses).contains(response.toLowerCase())) {
+      System.out.println("Please type 'yes' or 'no'");
+      response = reader.next();
+    }
+    if (response.toLowerCase().equals("yes") || response.toLowerCase().equals("y")) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   public void showError(String message) {
 
     System.out.println("[ERROR]" + message);
+  }
+
+  public void status(String message) {
+
+    System.out.println(message);
+  }
+
+  public void success(String command) {
+
+    System.out.println("The command " + command + " has finished successfully");
   }
 
 }

@@ -30,6 +30,8 @@ public class InputConsole {
 
   private Options options = new Options();
 
+  DevconUtils dUtils = new DevconUtils();
+
   public InputConsole(String[] args) {
 
     this.args = args;
@@ -69,7 +71,7 @@ public class InputConsole {
       Option[] parsedParams = cmd.getOptions();
       for (Option parsedParam : parsedParams) {
         if (cmd.getOptionValue(parsedParam.getOpt()) != null)
-          sentence.params.add(CmdManager.createParameterItem(parsedParam.getOpt(),
+          sentence.params.add(this.dUtils.createParameterItem(parsedParam.getOpt(),
               cmd.getOptionValue(parsedParam.getOpt())));
       }
 
@@ -96,7 +98,12 @@ public class InputConsole {
           + " module");
       return false;
     } catch (Exception e) {
-      System.out.println("[ERROR] An error occurred. Message: " + e.getMessage());
+      if (e.getMessage() != null) {
+        System.out.println("[ERROR] An error occurred. Message: " + e.getMessage());
+      } else {
+        System.out.println("[ERROR] An error occurred.");
+      }
+
       return false;
     }
 
@@ -111,9 +118,8 @@ public class InputConsole {
 
   private Options getAvailableOptions() {
 
-    CmdManager commandManager = new CmdManager();
     try {
-      List<CmdModuleRegistry> availableModules = commandManager.getAvailableModules();
+      List<CmdModuleRegistry> availableModules = this.dUtils.getAvailableModules();
 
       Options availableOptions = new Options();
       for (CmdModuleRegistry module : availableModules) {
@@ -131,9 +137,8 @@ public class InputConsole {
 
   private Options getAvailableCommandParameters() {
 
-    CmdManager commandManager = new CmdManager();
     try {
-      List<String> CommandParamsList = commandManager.getAvailableCommandParameters();
+      List<String> CommandParamsList = this.dUtils.getAvailableCommandParameters();
 
       Options availableCommandParameters = new Options();
 
@@ -150,7 +155,7 @@ public class InputConsole {
   private Options setOptions() {
 
     Options opts = new Options();
-    List<DevconOption> globalOptions = new ArrayList<DevconOption>();
+    List<DevconOption> globalOptions = new ArrayList<>();
     DevconUtils devconUtils = new DevconUtils();
     opts = getAvailableCommandParameters();
 

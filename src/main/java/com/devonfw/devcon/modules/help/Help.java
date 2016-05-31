@@ -23,25 +23,20 @@ public class Help {
 
     Response response = new Response();
     OutputConsole output = new OutputConsole();
-    DevconUtils utils = new DevconUtils();
+    DevconUtils dUtils = new DevconUtils();
 
     response.usage = "devon <<module>> <<command>> [parameters...]";
     response.header =
         "Devcon is a command line tool that provides many automated tasks around the full life-cycle of Devon applications. \n\n\n"
             + "You can also use the global parameters: \n";
-    // + "-h to show help info related to each module/command \n"
-    // + "-np to avoid the app asking for user input \n" + "-v to show the devcon version \n\n";
 
-    List<DevconOption> globalOptions = utils.getGlobalOptions();
+    List<DevconOption> globalOptions = dUtils.getGlobalOptions();
     for (DevconOption option : globalOptions) {
       response.header += "-" + option.opt + "  " + option.description + "\n";
     }
-    // -------------------------------------------
-    // TODO read the global parameters from a file
-    // -------------------------------------------
 
     // getting the modules list
-    List<String> modules = utils.getAvailableModules();
+    List<String> modules = dUtils.getListOfAvailableModules();
     StringBuilder strb = new StringBuilder();
     strb.append("List of available modules: \n");
     for (String module : modules) {
