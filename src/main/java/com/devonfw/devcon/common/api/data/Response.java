@@ -16,9 +16,11 @@ public class Response {
 
   public String statusMessage;
 
-  public List<Parameter> commandParamsList;
+  public List<Info> modulesList;
 
-  public String[] methodsList;
+  public List<Info> commandsList;
+
+  public List<Parameter> commandParamsList;
 
   public List<String> globalParameters;
 

@@ -79,13 +79,15 @@ public class Extractor {
           try {
             File path = new File(MyExtractCallback.this.extractPath + filePath);
 
-            if (MyExtractCallback.this.firstNode && path.getParentFile().exists()) {
-              if (!MyExtractCallback.this.out.askForUserConfirmation(path.getParentFile().getPath()
-                  + " already exists. Do you want to continue?")) {
-                return 1;
-              }
-              MyExtractCallback.this.firstNode = false;
-            }
+            // if (MyExtractCallback.this.firstNode && path.getParentFile().exists()) {
+            // if (!MyExtractCallback.this.out.askForUserConfirmation(path.getParentFile().getPath()
+            // + " already exists. Do you want to continue?")) {
+            // return 1;
+            // }
+            //
+            // }
+
+            MyExtractCallback.this.firstNode = false;
 
             if (!path.getParentFile().exists()) {
               path.getParentFile().mkdirs();

@@ -7,6 +7,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
 import com.devonfw.devcon.common.api.annotations.Parameter;
+import com.devonfw.devcon.common.api.data.Info;
 import com.devonfw.devcon.common.api.data.Response;
 
 /**
@@ -39,13 +40,14 @@ public class OutputConsole {
 
     StringBuilder footerContent = new StringBuilder();
     footerContent.append("Available commands for module: " + response.name + "\n");
-    for (String method : response.methodsList) {
-      footerContent.append("> " + method + "\n");
+    for (Info command : response.commandsList) {
+      footerContent.append("> " + command.name + ": " + command.description + "\n");
     }
 
     HelpFormatter formater = new HelpFormatter();
 
-    formater.printHelp(response.name, response.description, new Options(), footerContent.toString(), true);
+    formater.printHelp(response.name + " <<command>>", response.description, new Options(), footerContent.toString(),
+        true);
     // System.exit(0);
   }
 

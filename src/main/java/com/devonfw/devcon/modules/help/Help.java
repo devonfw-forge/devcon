@@ -5,6 +5,7 @@ import java.util.List;
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.data.DevconOption;
+import com.devonfw.devcon.common.api.data.Info;
 import com.devonfw.devcon.common.api.data.Response;
 import com.devonfw.devcon.common.utils.DevconUtils;
 import com.devonfw.devcon.output.OutputConsole;
@@ -36,11 +37,11 @@ public class Help {
     }
 
     // getting the modules list
-    List<String> modules = dUtils.getListOfAvailableModules();
+    List<Info> modules = dUtils.getListOfAvailableModules();
     StringBuilder strb = new StringBuilder();
     strb.append("List of available modules: \n");
-    for (String module : modules) {
-      strb.append("> " + module + "\n");
+    for (Info module : modules) {
+      strb.append("> " + module.name + ": " + module.description + "\n");
     }
     response.footer = strb.toString();
 

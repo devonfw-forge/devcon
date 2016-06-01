@@ -23,7 +23,7 @@ public class DistTest {
 
     String[] args =
         { "-np", "dist", "install", "-path", "C:\\Temp\\myTemp", "-user", "[typeYourUser]", "-password",
-        "[typeYourPassword", "-type", "oasp-ide" };
+        "[typeYourPassword]", "-type", "oasp-ide" };
     this.input = new InputConsole(args);
     assertTrue(this.input.parse());
   }

@@ -30,6 +30,7 @@ import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.DevconOption;
+import com.devonfw.devcon.common.api.data.Info;
 import com.devonfw.devcon.common.api.data.Response;
 import com.devonfw.devcon.common.api.data.Sentence;
 import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
@@ -194,7 +195,7 @@ public class DevconUtils {
       CmdModuleRegistry commandModule = (CmdModuleRegistry) classAnnotation;
       response.description = commandModule.description();
       response.name = commandModule.name();
-      response.methodsList = getModuleCommands(c).toArray(new String[0]);
+      response.commandsList = getModuleCommands(c);
 
       return response;
 
@@ -224,13 +225,20 @@ public class DevconUtils {
 
   }
 
-  public List<String> getModuleCommands(Class<?> c) {
+  public List<Info> getModuleCommands(Class<?> c) {
 
-    List<String> commandsList = new ArrayList<String>();
+    List<Info> commandsList = new ArrayList<>();
     try {
       for (Method m : c.getMethods()) {
         if (m.isAnnotationPresent(Command.class)) {
-          commandsList.add(m.getName());
+          Info info = new Info();
+
+          Annotation annotation = m.getAnnotation(Command.class);
+          Command comm = (Command) annotation;
+
+          info.name = comm.name() != null ? comm.name() : "";
+          info.description = comm.help() != null ? comm.help() : "";
+          commandsList.add(info);
         }
       }
       return commandsList;
@@ -357,18 +365,24 @@ public class DevconUtils {
     method.invoke(c.newInstance(), parameters.toArray());
   }
 
-  public List<String> getListOfAvailableModules() {
+  public List<Info> getListOfAvailableModules() {
 
-    List<String> modules = new ArrayList<String>();
+    List<Info> modules = new ArrayList<>();
     try {
       Set<Class<?>> annotatedClasses = this.reflections.getTypesAnnotatedWith(CmdModuleRegistry.class);
 
       Iterator<Class<?>> iterator = annotatedClasses.iterator();
       while (iterator.hasNext()) {
         Class<?> currentClass = iterator.next();
+
         Annotation annotation = currentClass.getAnnotation(CmdModuleRegistry.class);
         CmdModuleRegistry module = (CmdModuleRegistry) annotation;
-        modules.add(module.name());
+        if (module.name() != null) {
+          Info info = new Info();
+          info.name = module.name();
+          info.description = module.description() != null ? module.description() : "";
+          modules.add(info);
+        }
       }
 
       return modules;

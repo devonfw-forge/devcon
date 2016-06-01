@@ -33,7 +33,7 @@ public class Dist {
    * @param password the password related to the user with permissions to download the Devon distribution
    * @throws Exception
    */
-  @Command(name = "largeCustomFarewell", help = "This command is used to say a large custom bye")
+  @Command(name = "install", help = "This command downloads the distribution")
   @Parameters(values = {
   @Parameter(name = "path", description = "a location for the Devon distribution download"),
   @Parameter(name = "type", description = "the type of the distribution, the options are: \n 'oasp-ide' to download OASP IDE\n 'devon-ip-ide' to download Devon IP IDE"),
