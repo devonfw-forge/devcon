@@ -117,6 +117,17 @@ public class FooTest {
   @Test
   public void commandHelp() {
 
+    String[] args = { "foo", "farewell", "-h" };
+    this.input = new InputConsole(args);
+    assertTrue(this.input.parse());
+  }
+
+  /**
+   * Checks if the help info of a command is launched successfully
+   */
+  @Test
+  public void commandWithParametersHelp() {
+
     String[] args = { "foo", "largeCustomFarewell", "-h" };
     this.input = new InputConsole(args);
     assertTrue(this.input.parse());

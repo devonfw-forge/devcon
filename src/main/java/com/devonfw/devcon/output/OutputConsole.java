@@ -7,6 +7,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
 import com.devonfw.devcon.common.api.annotations.Parameter;
+import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Info;
 import com.devonfw.devcon.common.api.data.Response;
 
@@ -26,39 +27,47 @@ public class OutputConsole {
 
   public void showCommandHelp(Response response) {
 
-    for (Parameter commandParam : response.commandParamsList) {
+    for (Parameter commandParam : response.getCommandParamsList()) {
       this.options.addOption(commandParam.name(), false, commandParam.description());
     }
 
     HelpFormatter formater = new HelpFormatter();
 
-    formater.printHelp(response.name, response.description, this.options, null, true);
-    // System.exit(0);
+    formater.printHelp(response.getName(), response.getDescription(), this.options, null, true);
   }
 
   public void showModuleHelp(Response response) {
 
     StringBuilder footerContent = new StringBuilder();
-    footerContent.append("Available commands for module: " + response.name + "\n");
-    for (Info command : response.commandsList) {
-      footerContent.append("> " + command.name + ": " + command.description + "\n");
+    footerContent.append("Available commands for module: " + response.getName() + "\n");
+    for (Info command : response.getCommandsList()) {
+      footerContent.append("> " + command.getName() + ": " + command.getDescription() + "\n");
     }
 
     HelpFormatter formater = new HelpFormatter();
 
-    formater.printHelp(response.name + " <<command>>", response.description, new Options(), footerContent.toString(),
-        true);
-    // System.exit(0);
+    formater.printHelp(response.getName() + " <<command>> [parameters...]", response.getDescription(), new Options(),
+        footerContent.toString(), true);
   }
 
   public void showGeneralHelp(Response response) {
 
-    response.header = response.header != null ? response.header : "";
-    response.usage = response.usage != null ? response.usage : " ";
-    response.footer = response.footer != null ? response.footer : "";
+    response.setHeader(response.getHeader() != null ? response.getHeader() : "");
+    response.setUsage(response.getUsage() != null ? response.getUsage() : " ");
+    response.setFooter(response.getFooter() != null ? response.getFooter() : "");
+
+    for (DevconOption opt : response.getGlobalParameters()) {
+      this.options.addOption(opt.getOpt(), opt.getLongOpt(), false, opt.getDescription());
+    }
+
+    StringBuilder footer = new StringBuilder();
+    footer.append("List of available modules: \n");
+    for (Info module : response.getModulesList()) {
+      footer.append("> " + module.getName() + ": " + module.getDescription() + "\n");
+    }
 
     HelpFormatter formater = new HelpFormatter();
-    formater.printHelp(response.usage, response.header, new Options(), response.footer, false);
+    formater.printHelp(response.getUsage(), response.getHeader(), this.options, footer.toString(), false);
   }
 
   public String promptForArgument(String argName) {

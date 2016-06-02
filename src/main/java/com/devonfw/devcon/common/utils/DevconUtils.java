@@ -142,11 +142,12 @@ public class DevconUtils {
           Annotation paramsAnnotation = m.getAnnotation(Parameters.class);
           if (paramsAnnotation != null) {
             Parameters params = (Parameters) paramsAnnotation;
-            response.commandParamsList = Arrays.asList(params.values());
+            response.setCommandParamsList(Arrays.asList(params.values()));
+          } else {
+            response.setCommandParamsList(new ArrayList<Parameter>());
           }
-          // response.commandParamsList = com.parameters();
-          response.description = com.help();
-          response.name = com.name();
+          response.setDescription(com.help());
+          response.setName(com.name());
           break;
         }
       }
@@ -193,9 +194,9 @@ public class DevconUtils {
     try {
       Annotation classAnnotation = c.getAnnotation(CmdModuleRegistry.class);
       CmdModuleRegistry commandModule = (CmdModuleRegistry) classAnnotation;
-      response.description = commandModule.description();
-      response.name = commandModule.name();
-      response.commandsList = getModuleCommands(c);
+      response.setDescription(commandModule.description());
+      response.setName(commandModule.name());
+      response.setCommandsList(getModuleCommands(c));
 
       return response;
 
@@ -210,16 +211,16 @@ public class DevconUtils {
     OutputConsole output = new OutputConsole();
 
     // if command is empty then the module info will be shown
-    if (s.commandName == null) {
+    if (s.getCommandName() == null) {
 
-      response = getModuleInfo(c, s.moduleName);
+      response = getModuleInfo(c, s.getModuleName());
       output.showModuleHelp(response);
       // else the command info will be shown.
-    } else if (s.moduleName != null && s.commandName != null) {
-      Command com = getCommand(c, s.commandName);
+    } else if (s.getModuleName() != null && s.getCommandName() != null) {
+      Command com = getCommand(c, s.getCommandName());
       if (com == null)
-        throw new NotRecognizedCommandException(s.moduleName, s.commandName);
-      response = getCommandInfo(c, s.commandName);
+        throw new NotRecognizedCommandException(s.getModuleName(), s.getCommandName());
+      response = getCommandInfo(c, s.getCommandName());
       output.showCommandHelp(response);
     }
 
@@ -236,8 +237,8 @@ public class DevconUtils {
           Annotation annotation = m.getAnnotation(Command.class);
           Command comm = (Command) annotation;
 
-          info.name = comm.name() != null ? comm.name() : "";
-          info.description = comm.help() != null ? comm.help() : "";
+          info.setName(comm.name() != null ? comm.name() : "");
+          info.setDescription(comm.help() != null ? comm.help() : "");
           commandsList.add(info);
         }
       }
@@ -252,7 +253,7 @@ public class DevconUtils {
 
   public List<String> getMissingParameters(List<String> sentenceParams, List<String> commandParams) {
 
-    List<String> missingArguments = new ArrayList<String>();
+    List<String> missingArguments = new ArrayList<>();
 
     for (String commandArg : commandParams) {
       if (!sentenceParams.contains(commandArg))
@@ -267,7 +268,7 @@ public class DevconUtils {
     for (String argument : missingArguments) {
       String value = output.promptForArgument(argument);
       if (!value.isEmpty())
-        sentence.params.add(createParameterItem(argument, value));
+        sentence.getParams().add(createParameterItem(argument, value));
     }
     return sentence;
   }
@@ -379,8 +380,8 @@ public class DevconUtils {
         CmdModuleRegistry module = (CmdModuleRegistry) annotation;
         if (module.name() != null) {
           Info info = new Info();
-          info.name = module.name();
-          info.description = module.description() != null ? module.description() : "";
+          info.setName(module.name());
+          info.setDescription(module.description() != null ? module.description() : "");
           modules.add(info);
         }
       }
