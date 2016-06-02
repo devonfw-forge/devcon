@@ -42,7 +42,7 @@ public class InputConsole {
   public boolean parse() {
 
     Sentence sentence = new Sentence();
-    sentence.params = new ArrayList<HashMap<String, String>>();
+    sentence.setParams(new ArrayList<HashMap<String, String>>());
 
     try {
 
@@ -57,22 +57,22 @@ public class InputConsole {
       }
 
       if (cmd.hasOption("np")) {
-        sentence.noPrompt = true;
+        sentence.setNoPrompt(true);
       } else {
-        sentence.noPrompt = false;
+        sentence.setNoPrompt(false);
       }
 
       if (cmd.hasOption("h")) {
-        sentence.helpRequested = true;
+        sentence.setHelpRequested(true);
       } else {
-        sentence.helpRequested = false;
+        sentence.setHelpRequested(false);
       }
 
       Option[] parsedParams = cmd.getOptions();
       for (Option parsedParam : parsedParams) {
         if (cmd.getOptionValue(parsedParam.getOpt()) != null)
-          sentence.params.add(this.dUtils.createParameterItem(parsedParam.getOpt(),
-              cmd.getOptionValue(parsedParam.getOpt())));
+          sentence.getParams().add(
+              this.dUtils.createParameterItem(parsedParam.getOpt(), cmd.getOptionValue(parsedParam.getOpt())));
       }
 
       List<?> argsNotParsed = cmd.getArgList();
@@ -81,10 +81,10 @@ public class InputConsole {
         throw new Exception(
             "You must specify a valid module name. Try 'devon help guide' command to know more about DevCon usage.");
       } else if (argsNotParsed.size() == 1) {
-        sentence.moduleName = argsNotParsed.get(0).toString();
+        sentence.setModuleName(argsNotParsed.get(0).toString());
       } else if (argsNotParsed.size() > 1) {
-        sentence.moduleName = argsNotParsed.get(0).toString();
-        sentence.commandName = argsNotParsed.get(1).toString();
+        sentence.setModuleName(argsNotParsed.get(0).toString());
+        sentence.setCommandName(argsNotParsed.get(1).toString());
       }
 
       new CmdManager(sentence).evaluate();
@@ -94,8 +94,8 @@ public class InputConsole {
       System.out.println("[ERROR] The module " + e.moduleName + " is not recognized as available module.");
       return false;
     } catch (NotRecognizedCommandException e) {
-      System.out.println("The command " + e.commandName + " is not recognized as valid command of the " + e.moduleName
-          + " module");
+      System.out.println("[ERROR] The command " + e.commandName + " is not recognized as valid command of the "
+          + e.moduleName + " module");
       return false;
     } catch (Exception e) {
       if (e.getMessage() != null) {
@@ -163,7 +163,7 @@ public class InputConsole {
 
     if (globalOptions != null) {
       for (DevconOption gOpt : globalOptions) {
-        opts.addOption(new Option(gOpt.opt, gOpt.longOpt, false, gOpt.description));
+        opts.addOption(new Option(gOpt.getOpt(), gOpt.getLongOpt(), false, gOpt.getDescription()));
       }
     }
 

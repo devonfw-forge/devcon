@@ -13,10 +13,8 @@ public class CustomAuthenticator extends Authenticator {
   @Override
   protected PasswordAuthentication getPasswordAuthentication() {
 
-    // String username = "<user>";
-    // String password = "<password>";
-    String username = "pparrado";
-    String password = "00120Tfsrcm8344";
+    String username = "<user>";
+    String password = "<password>";
     return new PasswordAuthentication(username, password.toCharArray());
   }
 }

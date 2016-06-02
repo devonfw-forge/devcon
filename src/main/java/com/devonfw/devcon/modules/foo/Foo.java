@@ -11,7 +11,7 @@ import com.devonfw.devcon.common.impl.AbstractCommandHolder;
  *
  * @author pparrado
  */
-@CmdModuleRegistry(name = "foo", description = "This is only a test module.", context = "MyContextIsNotGlobal", deprecated = false)
+@CmdModuleRegistry(name = "foo", description = "This is only a test module.", context = "fooContext", deprecated = false)
 public class Foo extends AbstractCommandHolder {
 
   /**
@@ -22,18 +22,18 @@ public class Foo extends AbstractCommandHolder {
     super();
   }
 
-  @Command(name = "greetings", help = "This command is used to say hello.")
+  @Command(name = "greeting", help = "This command is used to say hello.")
   @SuppressWarnings("javadoc")
-  public String greeting() {
+  public void greeting() {
 
-    return "Hello";
+    this.output.showMessage("Hello");
   }
 
   @Command(name = "farewell", help = "This command is used to say bye.")
   @SuppressWarnings("javadoc")
   public void farewell() {
 
-    System.out.println("Bye");
+    this.output.showMessage("Bye");
   }
 
   @Command(name = "customFarewell", help = "This command is used to say a custom bye")
@@ -41,7 +41,7 @@ public class Foo extends AbstractCommandHolder {
   @SuppressWarnings("javadoc")
   public void customFarewell(String name) {
 
-    System.out.println("Bye " + name);
+    this.output.showMessage("Bye " + name);
   }
 
   @Command(name = "largeCustomFarewell", help = "This command is used to say a large custom bye")
@@ -50,7 +50,7 @@ public class Foo extends AbstractCommandHolder {
   @SuppressWarnings("javadoc")
   public void largeCustomFarewell(String name, String surname) {
 
-    System.out.println("Bye " + name + " " + surname);
+    this.output.showMessage("Bye " + name + " " + surname);
   }
 
 }

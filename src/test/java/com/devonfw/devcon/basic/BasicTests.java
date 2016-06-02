@@ -91,13 +91,12 @@ public class BasicTests {
   @Test
   public void moduleAnnotationParameters() throws ClassNotFoundException {
 
-    Class<?> obj = Class.forName("com.devonfw.devcon.modules.Foo");
+    Class<?> obj = Class.forName("com.devonfw.devcon.modules.foo.Foo");
     boolean result = false;
     if (obj.isAnnotationPresent(CmdModuleRegistry.class)) {
       Annotation annotation = obj.getAnnotation(CmdModuleRegistry.class);
       CmdModuleRegistry module = (CmdModuleRegistry) annotation;
-      if (module.name().equals("foo") && module.context().equals("MyContextIsNotGlobal")
-          && module.deprecated() == false) {
+      if (module.name().equals("foo") && module.context().equals("fooContext") && module.deprecated() == false) {
         result = true;
       }
     }
@@ -116,7 +115,7 @@ public class BasicTests {
   public void methodAnnotationParameters() throws ClassNotFoundException, NoSuchMethodException, SecurityException {
 
     boolean result = false;
-    Class<?> obj = Class.forName("com.devonfw.devcon.modules.Foo");
+    Class<?> obj = Class.forName("com.devonfw.devcon.modules.foo.Foo");
     Method method = obj.getMethod("farewell");
     if (method != null) {
       if (method.isAnnotationPresent(Command.class)) {

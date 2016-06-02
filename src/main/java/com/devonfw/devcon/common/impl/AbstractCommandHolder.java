@@ -7,6 +7,9 @@ import java.util.List;
 
 import com.devonfw.devcon.common.api.CommandHolder;
 import com.devonfw.devcon.common.api.annotations.Command;
+import com.devonfw.devcon.common.api.data.Response;
+import com.devonfw.devcon.common.utils.DevconUtils;
+import com.devonfw.devcon.output.OutputConsole;
 
 /**
  * TODO pparrado This type ...
@@ -16,15 +19,31 @@ import com.devonfw.devcon.common.api.annotations.Command;
 public class AbstractCommandHolder implements CommandHolder {
 
   /**
+   * {@link DevconUtils} instance
+   */
+  protected DevconUtils dUtils = new DevconUtils();
+
+  /**
+   * {@link Response} instance
+   */
+  protected Response response = new Response();
+
+  /**
+   * {@link OutputConsole} instance
+   */
+  protected OutputConsole output = new OutputConsole();
+
+  /**
    * The constructor.
    */
   public AbstractCommandHolder() {
 
   }
 
+  @Override
   public List<Command> getCommands() {
 
-    List<Command> commandList = new ArrayList<Command>();
+    List<Command> commandList = new ArrayList<>();
 
     Class<?> obj = this.getClass();
 
@@ -39,6 +58,7 @@ public class AbstractCommandHolder implements CommandHolder {
     return commandList;
   }
 
+  @Override
   public Command getCommand(String name) {
 
     Command com = null;

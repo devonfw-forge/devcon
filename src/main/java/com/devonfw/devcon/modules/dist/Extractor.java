@@ -62,7 +62,6 @@ public class Extractor {
     public MyExtractCallback(IInArchive inArchive, String extractPath) {
 
       this.inArchive = inArchive;
-      // this.extractPath = StringUtils.ensurePathEndsInSlash(extractPath);
       this.extractPath = extractPath.endsWith(File.separator) ? extractPath : extractPath + File.separator;
     }
 
@@ -79,15 +78,13 @@ public class Extractor {
           try {
             File path = new File(MyExtractCallback.this.extractPath + filePath);
 
-            // if (MyExtractCallback.this.firstNode && path.getParentFile().exists()) {
-            // if (!MyExtractCallback.this.out.askForUserConfirmation(path.getParentFile().getPath()
-            // + " already exists. Do you want to continue?")) {
-            // return 1;
-            // }
-            //
-            // }
-
+            // ---------------
+            if (MyExtractCallback.this.firstNode && path.getParentFile().exists()) {
+              MyExtractCallback.this.firstNode = false;
+              throw new Exception("Directory " + path.getParentFile() + " already exists.");
+            }
             MyExtractCallback.this.firstNode = false;
+            // ---------------
 
             if (!path.getParentFile().exists()) {
               path.getParentFile().mkdirs();
@@ -95,15 +92,17 @@ public class Extractor {
 
             if (!path.exists()) {
               path.createNewFile();
-            } else {
-              System.out.println(path + " already exists");
             }
             fos = new FileOutputStream(path, true);
             fos.write(data);
           } catch (IOException e) {
             // logger.error("IOException while extracting "+filePath, e);
             System.out.println("IOException while extracting " + filePath);
+          } catch (Exception e) {
+            MyExtractCallback.this.out.showError(e.getMessage());
+            System.exit(0);
           } finally {
+
             try {
               if (fos != null) {
                 fos.flush();

@@ -1,6 +1,5 @@
 package com.devonfw.devcon.common;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.devonfw.devcon.common.api.annotations.Command;
@@ -32,18 +31,18 @@ public class CmdManager {
 
     DevconUtils dUtils = new DevconUtils();
     OutputConsole output = new OutputConsole();
-    List<String> paramsValuesList = dUtils.getParamsValues(this.sentence.params);
-    List<String> paramsNamesList = dUtils.getParamsKeys(this.sentence.params);
-    List<String> commandNeededParams = new ArrayList<>();
+    List<String> paramsValuesList = dUtils.getParamsValues(this.sentence.getParams());
+    List<String> paramsNamesList = dUtils.getParamsKeys(this.sentence.getParams());
+    List<String> commandNeededParams;
 
-    Class<?> module = dUtils.getModule(this.sentence.moduleName);
+    Class<?> module = dUtils.getModule(this.sentence.getModuleName());
 
     if (module != null) {
 
-      Command command = dUtils.getCommand(module, this.sentence.commandName);
+      Command command = dUtils.getCommand(module, this.sentence.getCommandName());
 
       // If helpRequested flag is 'true' the app shows the help info and ends
-      if (this.sentence.helpRequested) {
+      if (this.sentence.isHelpRequested()) {
 
         dUtils.showHelp(module, this.sentence);
 
@@ -51,29 +50,29 @@ public class CmdManager {
 
         if (command != null) {
 
-          commandNeededParams = dUtils.getCommandParameters(module, this.sentence.commandName);
+          commandNeededParams = dUtils.getCommandParameters(module, this.sentence.getCommandName());
           if (commandNeededParams != null) {
             List<String> missingParameters = dUtils.getMissingParameters(paramsNamesList, commandNeededParams);
 
-            if (missingParameters.size() > 0 && !this.sentence.noPrompt) {
+            if (missingParameters.size() > 0 && !this.sentence.isNoPrompt()) {
               this.sentence = dUtils.promptForMissingArguments(missingParameters, this.sentence, output);
-              paramsValuesList = dUtils.getParamsValues(this.sentence.params);
+              paramsValuesList = dUtils.getParamsValues(this.sentence.getParams());
             } else if (missingParameters.size() > 0) {
               throw new Exception("You need to specify the following parameter/s: " + missingParameters.toString());
             }
 
-            paramsValuesList = dUtils.orderParameters(this.sentence.params, commandNeededParams);
+            paramsValuesList = dUtils.orderParameters(this.sentence.getParams(), commandNeededParams);
           }
 
-          dUtils.LaunchCommand(module, this.sentence.commandName, paramsValuesList);
+          dUtils.LaunchCommand(module, this.sentence.getCommandName(), paramsValuesList);
 
         } else {
-          throw new NotRecognizedCommandException(this.sentence.moduleName, this.sentence.commandName);
+          throw new NotRecognizedCommandException(this.sentence.getModuleName(), this.sentence.getCommandName());
         }
       }
 
     } else {
-      throw new NotRecognizedModuleException(this.sentence.moduleName);
+      throw new NotRecognizedModuleException(this.sentence.getModuleName());
     }
 
   }
