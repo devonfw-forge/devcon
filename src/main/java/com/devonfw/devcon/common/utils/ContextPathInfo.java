@@ -119,7 +119,9 @@ public class ContextPathInfo {
         return Optional.absent();
       }
     } catch (Exception err) {
-      System.err.println(err);
+
+      System.err.println("Path: [" + currentDir + "]\n" + err.getMessage());
+      err.printStackTrace();
       return Optional.absent();
     }
   }

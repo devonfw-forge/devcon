@@ -42,7 +42,10 @@ public class ContextPathInfoTest {
   @Before
   public void setup() throws IOException {
 
+    // create tempFiles in fixed root in System Temp File
     // this.testRoot = Files.createTempDirectory("devcon");
+
+    // create tempFiles in fixed root
     Path tmpRoot = FileSystems.getDefault().getPath("d:/tmp");
     this.testRoot = tmpRoot.resolve("devcon");
     Files.createDirectories(this.testRoot);
@@ -83,6 +86,7 @@ public class ContextPathInfoTest {
     settingsfile = devon4sencha.resolve("devon.json").toFile();
     FileUtils.writeStringToFile(settingsfile, content, "UTF-8");
 
+    // this.testDist = FileSystems.getDefault().getPath("D:/devon-dist");
   }
 
   @SuppressWarnings("javadoc")
@@ -99,8 +103,7 @@ public class ContextPathInfoTest {
   public void testDistributionInfo() {
 
     // given Devon Dist version 2.0.0 to be tested from sub-dir workspaces/main
-    Optional<DistributionInfo> distinfo =
-        this.contextInfo.getDistributionRoot(this.testDist.resolve("workspaces/main"));
+    Optional<DistributionInfo> distinfo = this.contextInfo.getDistributionRoot(this.testDist);
     Version version = Version.forIntegers(2, 0, 0);
 
     // then
