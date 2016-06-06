@@ -27,84 +27,77 @@ import com.github.zafarkhaja.semver.Version;
 import com.google.common.base.Optional;
 
 /**
- * This class is to be used as a service/singleton
+ * This class is to be used as a service/singleton, to obtain the Distribution and ProjectInfo types from paths on the
+ * file system
  *
  * @author ivanderk
- * @since 0.0.1
  */
 public class ContextPathInfo {
 
-  /**
-   *
-   */
-  public static final String OASP_IDE = "oasp-ide";
+  private static final String OASP_IDE = "oasp-ide";
+
+  private static final String DEVON_DIST = "devon-dist";
+
+  private static final String TYPE = "type";
+
+  private static final String VERSION = "version";
+
+  private static final String CONF_SETTINGS_JSON = "conf/settings.json";
+
+  private static final String DEVON_JSON = "devon.json";
+
+  private static final String COMBINED = "combined";
+
+  private static final String DEVON4SENCHA = "devon4sencha";
+
+  private static final String OASP4JS = "oasp4js";
+
+  private static final String OASP4J = "oasp4j";
 
   /**
    *
+   * @param path get {@link Path} from Strng
+   * @return
    */
-  public static final String DEVON_DIST = "devon-dist";
-
-  /**
-   *
-   */
-  public static final String TYPE = "type";
-
-  /**
-   *
-   */
-  public static final String VERSION = "version";
-
-  /**
-   *
-   */
-  public static final String CONF_SETTINGS_JSON = "conf/settings.json";
-
-  /**
-   *
-   */
-  public static final String DEVON_JSON = "devon.json";
-
-  /**
-   *
-   */
-  public static final String COMBINED = "combined";
-
-  /**
-   *
-   */
-  public static final String DEVON4SENCHA = "devon4sencha";
-
-  /**
-   *
-   */
-  public static final String OASP4JS = "oasp4js";
-
-  /**
-   *
-   */
-  public static final String OASP4J = "oasp4j";
-
   private Path getPath(String path) {
 
     return FileSystems.getDefault().getPath(path);
   }
 
+  /**
+   * @TODO to see whether Commons has a better implementation?
+   * @return CWD - Current working directory as a Path instance
+   */
   private Path getCurrentWorkingDirectory() {
 
     File file = new File(".");
     return getPath(file.getAbsolutePath());
   }
 
+  /**
+   *
+   * @return Distribution Info if CWD within a Devon Distrubution or OASP IDE
+   */
   public Optional<DistributionInfo> getDistributionRoot() {
 
     return getDistributionRoot(getCurrentWorkingDirectory());
   }
 
+  /**
+   *
+   * @param currentDir pass directory as String
+   * @return Distribution Info if currentDir within a Devon Distrubution or OASP IDE
+   */
   public Optional<DistributionInfo> getDistributionRoot(String currentDir) {
 
     return getDistributionRoot(getPath(currentDir));
   }
 
+  /**
+   *
+   * @param currentDir pass directory as Path instance
+   * @return Distribution Info if currentDir within a Devon Distrubution or OASP IDE
+   */
   public Optional<DistributionInfo> getDistributionRoot(Path currentDir) {
 
     DistributionFolderInterceptor interceptor = new DistributionFolderInterceptor();

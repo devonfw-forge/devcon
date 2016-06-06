@@ -6,14 +6,15 @@ import java.util.List;
 
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
+import com.devonfw.devcon.common.api.utils.FolderIterceptor;
 import com.github.zafarkhaja.semver.Version;
 
 /**
- * TODO ivanderk This type ...
+ * Implementation of {@link FolderIterceptor}
  *
  * @author ivanderk
- * @since 0.0.1
  */
+@SuppressWarnings("javadoc")
 public class ProjectInfoImpl implements ProjectInfo {
 
   private Path path;

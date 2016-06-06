@@ -5,15 +5,15 @@ import java.nio.file.Path;
 import com.devonfw.devcon.common.api.utils.FolderIterceptor;
 
 /**
- * TODO ivanderk This type ...
+ * Implementation of {@link FolderIterceptor} which determines whether a particular folder or any of its parent folders
+ * contain a Devon Distribution or OASP IDE.
  *
  * @author ivanderk
- * @since 0.0.1
  */
 public class DistributionFolderInterceptor implements FolderIterceptor {
 
   /**
-   * @return found
+   * @return found Devon Distribution or OASP IDE config file
    */
   public boolean isFound() {
 
@@ -29,7 +29,7 @@ public class DistributionFolderInterceptor implements FolderIterceptor {
   }
 
   /**
-   * @return foundPath
+   * @return foundPath path to Devon Distribution or OASP IDE config file
    */
   public Path getFoundPath() {
 

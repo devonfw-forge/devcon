@@ -5,15 +5,15 @@ import java.nio.file.Path;
 import com.devonfw.devcon.common.api.utils.FolderIterceptor;
 
 /**
- * TODO ivanderk This type ...
+ * Implementation of {@link FolderIterceptor} which determines whether a particular folder or any of its parent folders
+ * contain a devon.json project settings file.
  *
  * @author ivanderk
- * @since 0.0.1
  */
 public class ProjectFolderInterceptor implements FolderIterceptor {
 
   /**
-   * @return found
+   * @return found devon.json file
    */
   public boolean isFound() {
 
@@ -29,7 +29,7 @@ public class ProjectFolderInterceptor implements FolderIterceptor {
   }
 
   /**
-   * @return foundPath
+   * @return foundPath path to devon.json settings file
    */
   public Path getFoundPath() {
 
@@ -50,7 +50,7 @@ public class ProjectFolderInterceptor implements FolderIterceptor {
 
   @Override
   public boolean onFolder(Path path) {
-    
+
     if (path.resolve("devon.json").toFile().exists()) {
       this.foundPath = path;
       // found, cancel further climbing

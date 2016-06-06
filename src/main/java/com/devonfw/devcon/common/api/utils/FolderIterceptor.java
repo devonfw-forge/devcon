@@ -2,11 +2,13 @@ package com.devonfw.devcon.common.api.utils;
 
 import java.nio.file.Path;
 
+import com.devonfw.devcon.common.utils.TreeClimber;
+
 /**
- * TODO ivanderk This type ...
+ * This interface is used to implement a class which is called by {@link TreeClimber} for each path it encounters as it
+ * "climbs" towards the root of its path
  *
  * @author ivanderk
- * @since 0.0.1
  */
 public interface FolderIterceptor {
 

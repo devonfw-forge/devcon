@@ -5,16 +5,28 @@ import java.nio.file.Path;
 import com.github.zafarkhaja.semver.Version;
 
 /**
- * TODO ivanderk This type ...
+ * Contains information about OASP-IDE or Devon Distribution
  *
  * @author ivanderk
  * @since 0.0.1
  */
 public interface DistributionInfo {
 
+  /**
+   *
+   * @return get Path of Distribution
+   */
   Path getPath();
 
+  /**
+   *
+   * @return get version of distribution as specified in the conf/settings.json file
+   */
   Version getVersion();
 
+  /**
+   *
+   * @return whether is OASP-IDE or Devon Distribution
+   */
   DistributionType getDistributionType();
 }

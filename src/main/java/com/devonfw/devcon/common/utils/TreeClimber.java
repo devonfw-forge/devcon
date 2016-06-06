@@ -5,13 +5,20 @@ import java.nio.file.Path;
 import com.devonfw.devcon.common.api.utils.FolderIterceptor;
 
 /**
- * TODO ivanderk This type ...
+ * Class which offesr a single method which allows for a filesystem path to be climbed "upward" from a leave node to the
+ * Root node. Instread of a recursive downward "walker", this implementation climbed vertally without traversing
+ * siblings.
  *
- * @author ivanderk
- * @since 0.0.1
  */
 public class TreeClimber {
 
+  /**
+   * calls {@link FolderIterceptor} for each folder encounters while "climbing" upward from {@link path} to the Root
+   * node
+   * 
+   * @param path Path to climb from
+   * @param interceptor delegate to call for each folder
+   */
   public static void climb(Path path, FolderIterceptor interceptor) {
 
     Path _path = path.toAbsolutePath();

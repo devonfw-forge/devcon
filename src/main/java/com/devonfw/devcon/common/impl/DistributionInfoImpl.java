@@ -7,11 +7,11 @@ import com.devonfw.devcon.common.api.data.DistributionType;
 import com.github.zafarkhaja.semver.Version;
 
 /**
- * TODO ivanderk This type ...
+ * Implementation of {@link DistributionInfo}
  *
  * @author ivanderk
- * @since 0.0.1
  */
+@SuppressWarnings("javadoc")
 public class DistributionInfoImpl implements DistributionInfo {
 
   private Path path;
