@@ -40,10 +40,10 @@ public class AbstractCommandHolder implements CommandHolder {
 
   }
 
-  @Override
+  // @Override
   public List<Command> getCommands() {
 
-    List<Command> commandList = new ArrayList<>();
+    List<Command> commandList = new ArrayList();
 
     Class<?> obj = this.getClass();
 
@@ -58,7 +58,7 @@ public class AbstractCommandHolder implements CommandHolder {
     return commandList;
   }
 
-  @Override
+  // @Override
   public Command getCommand(String name) {
 
     Command com = null;

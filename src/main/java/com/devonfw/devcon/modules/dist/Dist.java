@@ -1,13 +1,6 @@
 package com.devonfw.devcon.modules.dist;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.URL;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
@@ -40,94 +33,39 @@ public class Dist extends AbstractCommandHolder {
   public void install(String path, String type, String user, String password) throws Exception {
 
     // TODO: read source value from a config file
-    String source = "";
+    String frsFileId = "";
     String tempFileName = "";
 
     this.output.status("installing distribution...");
 
     try {
-      switch (type) {
-      case "oasp-ide":
-        source = "https://github.com/expressjs/express/archive/master.zip";
-        tempFileName = type;
-        break;
-      case "devon-ip-ide":
-        source = "https://github.com/expressjs/express/archive/master.zip";
-        tempFileName = type;
-        break;
-      default:
+
+      // TODO create an enum with distribution types and replace if/else with switch
+      if (type.equals("oasp-ide")) {
+        frsFileId = DistConstants.OAPS_FILE_ID;
+      } else if (type.equals("devon-ip-ide")) {
+        frsFileId = DistConstants.DEVON_FILE_ID;
+      } else {
         throw new Exception("The parameter 'type' of the install command is unknown");
       }
 
-      File distribution = new File(path + File.separator + tempFileName);
+      String fileDownloaded = Downloader.downloadFromTeamForge(path, user, password, frsFileId);
 
-      if (!distribution.exists()) {
-        this.output.status("downloading " + type + " distribution...");
-        downloadFile(source, path, tempFileName);
-        this.output.status("distribution downloaded.");
-      } else {
-        this.output.status("distribution '" + tempFileName + "' founded in the directory");
+      if (fileDownloaded != null && !fileDownloaded.equals("")) {
+        Extractor.extract(path + File.separator + fileDownloaded, path);
       }
 
-      this.output.status("extracting distribution...");
-      Extractor.extract(path + File.separator + tempFileName /* + ".zip" */, path);
-
-      this.output.status("distribution extracted");
       this.output.success("install");
     } catch (Exception e) {
       // TODO implement logs
-      System.out.println("[ERROR]" + e.getMessage());
-
-      this.output.showError(e.getMessage());
+      System.out.println("[LOG]" + e.getMessage());
       throw e;
     } finally {
 
-      File compressedFile = new File(path + File.separator + tempFileName /* + ".zip" */);
-      if (compressedFile.exists()) {
-        compressedFile.delete();
-      }
-    }
-
-  }
-
-  private void downloadFile(String source, String path, String tempFileName) throws Exception {
-
-    OutputStream outputStream = null;
-    InputStream inputStream = null;
-
-    try {
-
-      Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("1.0.5.10", 8080));
-
-      // File ZIP without authentication [OK]------------------------------------------
-
-      URL url = new URL(source);
-
-      File folder = new File(path);
-      if (!folder.exists()) {
-        folder.mkdirs();
-      }
-
-      outputStream = new BufferedOutputStream(new FileOutputStream(new File(path + File.separator + tempFileName /*
-                                                                                                                  * +
-                                                                                                                  * ".zip"
-                                                                                                                  */)));
-      inputStream = url.openConnection(proxy).getInputStream();
-      final byte[] buffer = new byte[65536];
-      while (true) {
-        final int len = inputStream.read(buffer);
-        if (len < 0) {
-          break;
-        }
-        outputStream.write(buffer, 0, len);
-
-      }
-
-    } catch (Exception e) {
-      throw e;
-    } finally {
-      if (outputStream != null)
-        outputStream.close();
+      // File compressedFile = new File(path + File.separator + tempFileName /* + ".zip" */);
+      // if (compressedFile.exists()) {
+      // compressedFile.delete();
+      // }
     }
 
   }
