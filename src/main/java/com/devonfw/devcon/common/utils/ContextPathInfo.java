@@ -18,7 +18,7 @@ import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.DistributionType;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
-import com.devonfw.devcon.common.exception.InvalidSettingsException;
+import com.devonfw.devcon.common.exception.InvalidConfigurationStateException;
 import com.devonfw.devcon.common.impl.DistributionInfoImpl;
 import com.devonfw.devcon.common.impl.ProjectInfoImpl;
 import com.devonfw.devcon.common.impl.utils.DistributionFolderInterceptor;
@@ -111,11 +111,10 @@ public class ContextPathInfo {
       } else {
         return Optional.absent();
       }
+    } catch (InvalidConfigurationStateException err) {
+      throw err;
     } catch (Exception err) {
-
-      System.err.println("Path: [" + currentDir + "]\n" + err.getMessage());
-      err.printStackTrace();
-      return Optional.absent();
+      throw new InvalidConfigurationStateException(err);
     }
   }
 
@@ -134,7 +133,7 @@ public class ContextPathInfo {
     } else if (disttype.toLowerCase().equals(OASP_IDE)) {
       distType = DistributionType.OASPIDE;
     } else {
-      throw new InvalidSettingsException("type property does not contain either 'devon-dist' nor 'oasp-ide'");
+      throw new InvalidConfigurationStateException("type property does not contain either 'devon-dist' nor 'oasp-ide'");
     }
 
     return new DistributionInfoImpl(distPath, distType, version);
@@ -163,9 +162,10 @@ public class ContextPathInfo {
       } else {
         return Optional.absent();
       }
+    } catch (InvalidConfigurationStateException err) {
+      throw err;
     } catch (Exception err) {
-      System.err.println(err);
-      return Optional.absent();
+      throw new InvalidConfigurationStateException(err);
     }
 
   }
@@ -198,7 +198,7 @@ public class ContextPathInfo {
     } else if (projtype.toLowerCase().equals(DEVON4SENCHA)) {
       projectType = ProjectType.Devon4Sencha;
     } else {
-      throw new InvalidSettingsException(
+      throw new InvalidConfigurationStateException(
           "type property does not contain valid ProjectInfoType: 'combined', 'oasp4j', 'oasp4js' or 'devon4sencha' ");
     }
 
