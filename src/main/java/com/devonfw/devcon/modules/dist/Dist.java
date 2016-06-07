@@ -20,6 +20,7 @@ public class Dist extends AbstractCommandHolder {
    * This command downloads and unzips the Devon distribution
    *
    * @param path location to download the Devon distribution
+   * @param type the type of the distribution
    * @param user a user with permissions to download the Devon distribution
    * @param password the password related to the user with permissions to download the Devon distribution
    * @throws Exception
@@ -27,23 +28,20 @@ public class Dist extends AbstractCommandHolder {
   @Command(name = "install", help = "This command downloads the distribution")
   @Parameters(values = {
   @Parameter(name = "path", description = "a location for the Devon distribution download"),
-  @Parameter(name = "type", description = "the type of the distribution, the options are: \n 'oasp-ide' to download OASP IDE\n 'devon-ip-ide' to download Devon IP IDE"),
+  @Parameter(name = "type", description = "the type of the distribution, the options are: \n 'oaspide' to download OASP IDE\n 'devondist' to download Devon IP IDE"),
   @Parameter(name = "user", description = "a user with permissions to download the Devon distribution"),
   @Parameter(name = "password", description = "the password related to the user with permissions to download the Devon distribution") })
   public void install(String path, String type, String user, String password) throws Exception {
 
-    // TODO: read source value from a config file
     String frsFileId = "";
-    String tempFileName = "";
 
     this.output.status("installing distribution...");
 
     try {
 
-      // TODO create an enum with distribution types and replace if/else with switch
-      if (type.equals("oasp-ide")) {
+      if (type.toLowerCase().equals(DistConstants.OASP_IDE)) {
         frsFileId = DistConstants.OAPS_FILE_ID;
-      } else if (type.equals("devon-ip-ide")) {
+      } else if (type.toLowerCase().equals(DistConstants.DEVON_DIST)) {
         frsFileId = DistConstants.DEVON_FILE_ID;
       } else {
         throw new Exception("The parameter 'type' of the install command is unknown");
@@ -60,12 +58,6 @@ public class Dist extends AbstractCommandHolder {
       // TODO implement logs
       System.out.println("[LOG]" + e.getMessage());
       throw e;
-    } finally {
-
-      // File compressedFile = new File(path + File.separator + tempFileName /* + ".zip" */);
-      // if (compressedFile.exists()) {
-      // compressedFile.delete();
-      // }
     }
 
   }

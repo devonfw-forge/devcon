@@ -15,7 +15,8 @@ public class DistTest {
   InputConsole input;
 
   // /**
-  // * THIS TEST NEEDS A VALID TEAM FORGE USER AND PASSWORD TO WORK PROPERLY Checks if the install command works
+  // * THIS TEST NEEDS A VALID TEAM FORGE USER AND PASSWORD TO WORK PROPERLY
+  // * Checks if the install command works
   // * successfully
   // */
   // @Test
@@ -23,7 +24,7 @@ public class DistTest {
   //
   // String[] args =
   // { "-np", "dist", "install", "-path", "C:\\Temp\\myTemp", "-user", "yourUser", "-password", "yourPassword",
-  // "-type", "oasp-ide" };
+  // "-type", "oaspide" };
   // this.input = new InputConsole(args);
   // assertTrue(this.input.parse());
   // }
@@ -36,7 +37,7 @@ public class DistTest {
 
     String[] args =
         { "-np", "dist", "install", "-path", "C:\\Temp\\myTemp", "-user", "asdf", "-password", "12345", "-type",
-        "oasp-ide" };
+        "oaspide" };
     this.input = new InputConsole(args);
     assertFalse(this.input.parse());
   }

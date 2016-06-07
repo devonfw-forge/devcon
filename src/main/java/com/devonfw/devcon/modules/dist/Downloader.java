@@ -69,11 +69,7 @@ public class Downloader {
 
           FrsFileSoapDO file = frsAppSoap.getFrsFileData(sessionId, frsFileId);
           if (file != null) {
-            // out.showMessage("FileName: " + file.getFilename());
-            // out.showMessage("Title: " + file.getTitle());
-            // out.showMessage("Size: " + file.getSize());
-            // out.showMessage("Path: " + file.getPath());
-            // out.showMessage("Hash: " + file.hashCode());
+
             fileName = file.getFilename();
 
             File fileInLocal = new File(path + File.separator + fileName);
@@ -104,6 +100,7 @@ public class Downloader {
               thread.join();
             }
 
+            // converting the temporal file to a "real" file
             if (hdl != null) {
               tempFilePath = hdl.getName();
               InputStream is = hdl.getInputStream();
