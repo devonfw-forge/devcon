@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -42,13 +41,16 @@ public class ContextPathInfoTest {
   @Before
   public void setup() throws IOException {
 
-    // create tempFiles in fixed root in System Temp File
-    // this.testRoot = Files.createTempDirectory("devcon");
+    // For testing purposes,
+    // create tempFiles in System Temp File
+    this.testRoot = Files.createTempDirectory("devcon");
 
-    // create tempFiles in fixed root
-    Path tmpRoot = FileSystems.getDefault().getPath("d:/tmp");
-    this.testRoot = tmpRoot.resolve("devcon");
-    Files.createDirectories(this.testRoot);
+    // OR
+
+    // create tempFiles in fixed root on your hard drive in an accessible path, for example:
+    // Path tmpRoot = FileSystems.getDefault().getPath("d:/tmp");
+    // this.testRoot = tmpRoot.resolve("devcon");
+    // Files.createDirectories(this.testRoot);
 
     this.testDist = this.testRoot.resolve("test-devon-dist");
     Files.createDirectories(this.testDist);

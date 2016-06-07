@@ -136,6 +136,10 @@ public class ContextPathInfo {
       throw new InvalidConfigurationStateException("type property does not contain either 'devon-dist' nor 'oasp-ide'");
     }
 
+    /**
+     * HERE WE COULD ADD DYNAMIC PROPS
+     */
+
     return new DistributionInfoImpl(distPath, distType, version);
   }
 
@@ -201,6 +205,10 @@ public class ContextPathInfo {
       throw new InvalidConfigurationStateException(
           "type property does not contain valid ProjectInfoType: 'combined', 'oasp4j', 'oasp4js' or 'devon4sencha' ");
     }
+
+    /**
+     * HERE WE COULD ADD DYNAMIC PROPS
+     */
 
     return new ProjectInfoImpl(projectPath, projectType, version, projects);
   }
