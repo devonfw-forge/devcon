@@ -1,11 +1,13 @@
 package com.devonfw.devcon.common.utils;
 
+import java.awt.Desktop;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -359,8 +361,8 @@ public class DevconUtils {
     return orderedParameters;
   }
 
-  public void LaunchCommand(Class<?> c, String commandName, List<String> parameters) throws IllegalAccessException,
-      IllegalArgumentException, InvocationTargetException, InstantiationException {
+  public void LaunchCommand(Class<?> c, String commandName, List<String> parameters)
+      throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
 
     Method method = getCommandInstance(c, commandName, parameters);
     method.invoke(c.newInstance(), parameters.toArray());
@@ -435,8 +437,8 @@ public class DevconUtils {
     return defaultGlobalOptions;
   }
 
-  private List<DevconOption> getGlobalOptionsFromFile(URL fileURL) throws FileNotFoundException, IOException,
-      ParseException {
+  private List<DevconOption> getGlobalOptionsFromFile(URL fileURL)
+      throws FileNotFoundException, IOException, ParseException {
 
     JSONParser parser = new JSONParser();
     List<DevconOption> globalOptions = new ArrayList<DevconOption>();
@@ -494,5 +496,26 @@ public class DevconUtils {
     }
 
     return globalOptions;
+  }
+
+  /**
+   *
+   * @param url Web page to open in Desktop browser
+   * @return indication whether on Desktop i.e. whether web browser could be accessed
+   *
+   */
+  public boolean openUri(String url) {
+
+    if (Desktop.isDesktopSupported()) {
+      try {
+        Desktop.getDesktop().browse(new URI(url));
+        return true;
+      } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+      }
+    } else {
+      return false;
+    }
   }
 }
