@@ -8,6 +8,7 @@ import java.util.List;
 import com.devonfw.devcon.common.api.CommandHolder;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.data.Response;
+import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.common.utils.DevconUtils;
 import com.devonfw.devcon.output.OutputConsole;
 
@@ -32,6 +33,11 @@ public class AbstractCommandHolder implements CommandHolder {
    * {@link OutputConsole} instance
    */
   protected OutputConsole output = new OutputConsole();
+
+  /**
+   * {@link ContextPathInfo} instance
+   */
+  protected ContextPathInfo contextPathInfo = new ContextPathInfo();
 
   /**
    * The constructor.
