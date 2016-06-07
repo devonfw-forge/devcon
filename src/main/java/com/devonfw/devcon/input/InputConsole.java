@@ -7,12 +7,10 @@ import java.util.List;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import com.devonfw.devcon.common.CmdManager;
-import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Sentence;
 import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
@@ -109,32 +107,6 @@ public class InputConsole {
 
   }
 
-  private void help() {
-
-    HelpFormatter formater = new HelpFormatter();
-    formater.printHelp("devon [params(opt)] [command-module] <<command>> [command-params(opt)]", this.options);
-    System.exit(0);
-  }
-
-  private Options getAvailableOptions() {
-
-    try {
-      List<CmdModuleRegistry> availableModules = this.dUtils.getAvailableModules();
-
-      Options availableOptions = new Options();
-      for (CmdModuleRegistry module : availableModules) {
-        availableOptions.addOption(module.name(), false, module.description());
-      }
-
-      return availableOptions;
-
-    } catch (Exception e) {
-      System.out.println("ERROR: " + e.getMessage());
-      return new Options();
-    }
-
-  }
-
   private Options getAvailableCommandParameters() {
 
     try {
@@ -155,7 +127,7 @@ public class InputConsole {
   private Options setOptions() {
 
     Options opts = new Options();
-    List<DevconOption> globalOptions = new ArrayList();
+    List<DevconOption> globalOptions = new ArrayList<>();
     DevconUtils devconUtils = new DevconUtils();
     opts = getAvailableCommandParameters();
 

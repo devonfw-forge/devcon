@@ -71,6 +71,63 @@
         <version>9.20-2.00beta</version>
     </dependency>
 
+    <!-- jars of the CollabNet Team Forge SDK -->
+    <dependency>
+      <groupId>activation</groupId>
+      <artifactId>activation</artifactId>
+      <scope>system</scope>
+      <version>1.0</version>
+      <systemPath>${basedir}\src\lib\activation.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>axis</groupId>
+      <artifactId>axis</artifactId>
+      <scope>system</scope>
+      <version>1.0</version>
+      <systemPath>${basedir}\src\lib\axis.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>commons-discovery</groupId>
+      <artifactId>commons-discovery</artifactId>
+      <scope>system</scope>
+      <version>1.0</version>
+      <systemPath>${basedir}\src\lib\commons-discovery.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <scope>system</scope>
+      <version>1.0</version>
+      <systemPath>${basedir}\src\lib\commons-logging.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>jaxrpc</groupId>
+      <artifactId>jaxrpc</artifactId>
+      <scope>system</scope>
+      <version>1.0</version>
+      <systemPath>${basedir}\src\lib\jaxrpc.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>mail</groupId>
+      <artifactId>mail</artifactId>
+      <scope>system</scope>
+      <version>1.0</version>
+      <systemPath>${basedir}\src\lib\mail.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>saaj</groupId>
+      <artifactId>saaj</artifactId>
+      <scope>system</scope>
+      <version>1.0</version>
+      <systemPath>${basedir}\src\lib\saaj.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>sf_soap60_sdk</groupId>
+      <artifactId>sf_soap60_sdk</artifactId>
+      <scope>system</scope>
+      <version>1.0</version>
+      <systemPath>${basedir}\src\lib\sf_soap60_sdk.jar</systemPath>
+    </dependency>
   </dependencies>
 
   <build>
