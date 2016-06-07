@@ -21,6 +21,7 @@ public class DistributionInfoImpl implements DistributionInfo {
   private Version version;
 
   public DistributionInfoImpl(Path path, DistributionType distType, Version version) {
+
     this.path = path;
     this.distType = distType;
     this.version = version;

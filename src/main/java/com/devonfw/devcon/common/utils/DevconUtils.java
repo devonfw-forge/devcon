@@ -228,7 +228,7 @@ public class DevconUtils {
 
   public List<Info> getModuleCommands(Class<?> c) {
 
-    List<Info> commandsList = new ArrayList<>();
+    List<Info> commandsList = new ArrayList<Info>();
     try {
       for (Method m : c.getMethods()) {
         if (m.isAnnotationPresent(Command.class)) {
@@ -253,7 +253,7 @@ public class DevconUtils {
 
   public List<String> getMissingParameters(List<String> sentenceParams, List<String> commandParams) {
 
-    List<String> missingArguments = new ArrayList<>();
+    List<String> missingArguments = new ArrayList();
 
     for (String commandArg : commandParams) {
       if (!sentenceParams.contains(commandArg))
@@ -368,7 +368,7 @@ public class DevconUtils {
 
   public List<Info> getListOfAvailableModules() {
 
-    List<Info> modules = new ArrayList<>();
+    List<Info> modules = new ArrayList();
     try {
       Set<Class<?>> annotatedClasses = this.reflections.getTypesAnnotatedWith(CmdModuleRegistry.class);
 

@@ -102,12 +102,17 @@ public class OutputConsole {
 
   public void status(String message) {
 
-    System.out.println(message);
+    System.out.println("\r[INFO] " + message);
+  }
+
+  public void statusInNewLine(String message) {
+
+    System.out.println("\n[INFO] " + message);
   }
 
   public void success(String command) {
 
-    System.out.println("The command " + command + " has finished successfully");
+    System.out.println("[INFO] The command " + command.toUpperCase() + " has finished successfully");
   }
 
 }

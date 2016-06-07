@@ -5,6 +5,9 @@
   <version>0.0.1-SNAPSHOT</version>
   <name>devcon</name>
   <description>full life cycle command line tool for Devon apps</description>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 
   <dependencies>
 
@@ -61,15 +64,28 @@
         <artifactId>sevenzipjbinding</artifactId>
         <version>9.20-2.00beta</version>
     </dependency>
+
     <dependency>
         <groupId>net.sf.sevenzipjbinding</groupId>
         <artifactId>sevenzipjbinding-all-platforms</artifactId>
         <version>9.20-2.00beta</version>
     </dependency>
 
-
-
   </dependencies>
+
+  <build>
+      <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.1</version>
+            <configuration>
+              <source>1.7</source>
+              <target>1.7</target>
+            </configuration>
+          </plugin>
+      </plugins>
+  </build>
 
 </project>
 

@@ -16,6 +16,7 @@ import net.sf.sevenzipjbinding.SevenZipException;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 
 import com.devonfw.devcon.output.OutputConsole;
+import com.devonfw.devcon.output.SpinningCursor;
 
 /**
  * This class includes the extracting functionality for uncompress .7z and .zip files
@@ -31,8 +32,20 @@ public class Extractor {
    * @param extractPath the path to extract the files
    * @throws SevenZipException
    * @throws IOException
+   * @throws InterruptedException
    */
-  public static void extract(String file, String extractPath) throws SevenZipException, IOException {
+  public static void extract(String file, String extractPath) throws SevenZipException, IOException,
+      InterruptedException {
+
+    OutputConsole out = new OutputConsole();
+    Thread thread;
+    SpinningCursor spin;
+
+    out.status("extracting file...");
+    // start showing spinningCursor
+    spin = new SpinningCursor();
+    thread = new Thread(spin);
+    thread.start();
 
     IInArchive inArchive = null;
     RandomAccessFile randomAccessFile = null;
@@ -47,6 +60,13 @@ public class Extractor {
       if (randomAccessFile != null) {
         randomAccessFile.close();
       }
+
+      // end spinningCursor
+      if (thread != null) {
+        spin.terminate();
+        thread.join();
+      }
+      out.status("File successfuly extracted.");
     }
   }
 
@@ -57,7 +77,7 @@ public class Extractor {
 
     OutputConsole out = new OutputConsole();
 
-    boolean firstNode = true;
+    // boolean firstNode = true;
 
     public MyExtractCallback(IInArchive inArchive, String extractPath) {
 
@@ -65,11 +85,11 @@ public class Extractor {
       this.extractPath = extractPath.endsWith(File.separator) ? extractPath : extractPath + File.separator;
     }
 
-    @Override
+    // @Override
     public ISequentialOutStream getStream(final int index, ExtractAskMode extractAskMode) throws SevenZipException {
 
       return new ISequentialOutStream() {
-        @Override
+        // @Override
         public int write(byte[] data) throws SevenZipException {
 
           String filePath = MyExtractCallback.this.inArchive.getStringProperty(index, PropID.PATH);
@@ -78,13 +98,13 @@ public class Extractor {
           try {
             File path = new File(MyExtractCallback.this.extractPath + filePath);
 
-            // ---------------
-            if (MyExtractCallback.this.firstNode && path.getParentFile().exists()) {
-              MyExtractCallback.this.firstNode = false;
-              throw new Exception("Directory " + path.getParentFile() + " already exists.");
-            }
-            MyExtractCallback.this.firstNode = false;
-            // ---------------
+            // // ---------------
+            // if (MyExtractCallback.this.firstNode && path.getParentFile().exists()) {
+            // MyExtractCallback.this.firstNode = false;
+            // throw new Exception("Directory " + path.getParentFile() + " already exists.");
+            // }
+            // MyExtractCallback.this.firstNode = false;
+            // // ---------------
 
             if (!path.getParentFile().exists()) {
               path.getParentFile().mkdirs();
@@ -95,9 +115,10 @@ public class Extractor {
             }
             fos = new FileOutputStream(path, true);
             fos.write(data);
+
           } catch (IOException e) {
             // logger.error("IOException while extracting "+filePath, e);
-            System.out.println("IOException while extracting " + filePath);
+            MyExtractCallback.this.out.showError("IOException while extracting " + filePath);
           } catch (Exception e) {
             MyExtractCallback.this.out.showError(e.getMessage());
             System.exit(0);
@@ -110,7 +131,7 @@ public class Extractor {
               }
             } catch (IOException e) {
               // logger.error("Could not close FileOutputStream", e);
-              System.out.println("Could not close FileOutputStream");
+              MyExtractCallback.this.out.showError("Could not close FileOutputStream");
             }
           }
           return data.length;
@@ -118,22 +139,22 @@ public class Extractor {
       };
     }
 
-    @Override
+    // @Override
     public void prepareOperation(ExtractAskMode extractAskMode) throws SevenZipException {
 
     }
 
-    @Override
+    // @Override
     public void setOperationResult(ExtractOperationResult extractOperationResult) throws SevenZipException {
 
     }
 
-    @Override
+    // @Override
     public void setCompleted(long completeValue) throws SevenZipException {
 
     }
 
-    @Override
+    // @Override
     public void setTotal(long total) throws SevenZipException {
 
     }

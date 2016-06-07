@@ -155,7 +155,7 @@ public class InputConsole {
   private Options setOptions() {
 
     Options opts = new Options();
-    List<DevconOption> globalOptions = new ArrayList<>();
+    List<DevconOption> globalOptions = new ArrayList();
     DevconUtils devconUtils = new DevconUtils();
     opts = getAvailableCommandParameters();
 

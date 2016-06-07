@@ -22,7 +22,7 @@ public @interface CmdModuleRegistry {
 
   /**
    * Description of the module
-   * 
+   *
    * @return description
    */
   String description() default "";
