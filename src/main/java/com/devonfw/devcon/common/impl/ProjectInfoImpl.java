@@ -6,11 +6,11 @@ import java.util.List;
 
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
-import com.devonfw.devcon.common.api.utils.FolderIterceptor;
+import com.devonfw.devcon.common.api.utils.FolderProcessor;
 import com.github.zafarkhaja.semver.Version;
 
 /**
- * Implementation of {@link FolderIterceptor}
+ * Implementation of {@link FolderProcessor}
  *
  * @author ivanderk
  */

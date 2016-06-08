@@ -47,6 +47,7 @@ public class AbstractCommandHolder implements CommandHolder {
   }
 
   // @Override
+  @Override
   public List<Command> getCommands() {
 
     List<Command> commandList = new ArrayList();
@@ -65,6 +66,7 @@ public class AbstractCommandHolder implements CommandHolder {
   }
 
   // @Override
+  @Override
   public Command getCommand(String name) {
 
     Command com = null;
@@ -78,6 +80,38 @@ public class AbstractCommandHolder implements CommandHolder {
       }
     }
     return com;
+  }
+
+  /**
+   * @return dUtils
+   */
+  public DevconUtils getUtils() {
+
+    return this.dUtils;
+  }
+
+  /**
+   * @return response
+   */
+  public Response getResponse() {
+
+    return this.response;
+  }
+
+  /**
+   * @return output
+   */
+  public OutputConsole getOutput() {
+
+    return this.output;
+  }
+
+  /**
+   * @return contextPathInfo
+   */
+  public ContextPathInfo getContextPathInfo() {
+
+    return this.contextPathInfo;
   }
 
 }

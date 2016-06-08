@@ -21,8 +21,8 @@ import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.exception.InvalidConfigurationStateException;
 import com.devonfw.devcon.common.impl.DistributionInfoImpl;
 import com.devonfw.devcon.common.impl.ProjectInfoImpl;
-import com.devonfw.devcon.common.impl.utils.DistributionFolderInterceptor;
-import com.devonfw.devcon.common.impl.utils.ProjectFolderInterceptor;
+import com.devonfw.devcon.common.impl.utils.DistributionFolderProcessor;
+import com.devonfw.devcon.common.impl.utils.ProjectFolderProcessor;
 import com.github.zafarkhaja.semver.Version;
 import com.google.common.base.Optional;
 
@@ -100,7 +100,7 @@ public class ContextPathInfo {
    */
   public Optional<DistributionInfo> getDistributionRoot(Path currentDir) {
 
-    DistributionFolderInterceptor interceptor = new DistributionFolderInterceptor();
+    DistributionFolderProcessor interceptor = new DistributionFolderProcessor();
 
     try {
       TreeClimber.climb(currentDir, interceptor);
@@ -155,7 +155,7 @@ public class ContextPathInfo {
 
   public Optional<ProjectInfo> getProjectRoot(Path currentDir) {
 
-    ProjectFolderInterceptor interceptor = new ProjectFolderInterceptor();
+    ProjectFolderProcessor interceptor = new ProjectFolderProcessor();
 
     try {
       TreeClimber.climb(currentDir, interceptor);

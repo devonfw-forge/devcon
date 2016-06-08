@@ -8,7 +8,6 @@ import com.devonfw.devcon.common.impl.AbstractCommandHolder;
  * TODO ivanderk This type ...
  *
  * @author ivanderk
- * @since 0.0.1
  */
 
 @CmdModuleRegistry(name = "doc", description = "Module with tasks related with obtaining specific documentation", context = "global", deprecated = false)
@@ -22,6 +21,10 @@ public class Doc extends AbstractCommandHolder {
   private static final String DEVON_GET_STARTED = "https://troom.capgemini.com/sites/vcc/devon/getstarted.aspx";
 
   private static final String DEVON_TROOM_SITE = "https://troom.capgemini.com/sites/vcc/devon/index.aspx";
+
+  private static final String DEVON_GUIDE = "https://google.com";
+
+  private static final String OASP4J_GUIDE = "https://google.com";
 
   /**
    * The constructor.
@@ -39,32 +42,37 @@ public class Doc extends AbstractCommandHolder {
   @Command(name = "devon", help = "Opens the Devon site in the default web browser")
   public void devon() {
 
-    if (!this.dUtils.openUri(DEVON_TROOM_SITE)) {
+    openUrl(DEVON_TROOM_SITE);
+  }
 
-      noSupported();
-    }
+  @SuppressWarnings("javadoc")
+  @Command(name = "devonguide", help = "Opens the Devon Guide")
+  public void devonguide() {
+
+    openUrl(DEVON_GUIDE);
+  }
+
+  @SuppressWarnings("javadoc")
+  @Command(name = "oasp4jguide", help = "Opens the OASP4J Guide")
+  public void oasp4jguide() {
+
+    openUrl(OASP4J_GUIDE);
   }
 
   @Command(name = "getstarted", help = "Opens the \"Getting Started\" web site")
   public void getstarted() {
 
-    if (!this.dUtils.openUri(DEVON_GET_STARTED)) {
-
-      noSupported();
-    }
+    openUrl(DEVON_GET_STARTED);
   }
 
   @Command(name = "sencha", help = "Show Sencha Ext JS 6 documentation site")
   public void sencha() {
 
-    if (!this.dUtils.openUri(SENCHA_EXTJS_DOCS)) {
-
-      noSupported();
-    }
+    openUrl(SENCHA_EXTJS_DOCS);
   }
 
-  @Command(name = "blurb", help = "Print Devonfw \"business card\" to the console")
-  public void blurb() {
+  @Command(name = "links", help = "Print Devonfw \"business card\" with info & links to the console")
+  public void links() {
 
     String blurb = "devonfw is the CSD standard platform for Capgemini APPS2. It provides a\n"
         + "standardized architecture blueprint for web and Java-applications, an open\n"
@@ -85,9 +93,13 @@ public class Doc extends AbstractCommandHolder {
     this.output.showMessage(blurb);
   }
 
-  private void noSupported() {
+  private boolean openUrl(String url) {
 
-    this.output.showMessage("Opening a web browser window not supported!\nOperation aborted");
+    boolean res = this.dUtils.openUri(url);
+    if (!res) {
+      this.output.showError("Opening a web browser window not supported!\nOperation aborted");
+    }
+    return res;
   }
 
 }
