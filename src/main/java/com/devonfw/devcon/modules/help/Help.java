@@ -17,8 +17,8 @@ public class Help extends AbstractCommandHolder {
   public void guide() {
 
     this.response.setUsage("devon <<module>> <<command>> [parameters...]");
-    this.response
-        .setHeader("Devcon is a command line tool that provides many automated tasks around the full life-cycle of Devon applications.");
+    this.response.setHeader(
+        "Devcon is a command line tool that provides many automated tasks around the full life-cycle of Devon applications.");
     this.response.setGlobalParameters(this.dUtils.getGlobalOptions());
     this.response.setModulesList(this.dUtils.getListOfAvailableModules());
     this.output.showGeneralHelp(this.response);

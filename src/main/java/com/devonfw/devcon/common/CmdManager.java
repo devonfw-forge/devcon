@@ -40,15 +40,14 @@ public class CmdManager {
 
     if (module != null) {
 
-      Command command = dUtils.getCommand(module, this.sentence.getCommandName());
-
-      // If helpRequested flag is 'true' the app shows the help info and ends
-      if (this.sentence.isHelpRequested()) {
+      // If no command given OR helpRequested flag is 'true' the app shows the help info and ends
+      if (this.sentence.getCommandName() == null || this.sentence.isHelpRequested()) {
 
         dUtils.showHelp(module, this.sentence);
 
       } else {
 
+        Command command = dUtils.getCommand(module, this.sentence.getCommandName());
         if (command != null) {
 
           commandNeededParams = dUtils.getCommandParameters(module, this.sentence.getCommandName());

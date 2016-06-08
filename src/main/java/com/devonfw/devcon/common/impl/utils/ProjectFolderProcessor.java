@@ -2,18 +2,18 @@ package com.devonfw.devcon.common.impl.utils;
 
 import java.nio.file.Path;
 
-import com.devonfw.devcon.common.api.utils.FolderIterceptor;
+import com.devonfw.devcon.common.api.utils.FolderProcessor;
 
 /**
- * Implementation of {@link FolderIterceptor} which determines whether a particular folder or any of its parent folders
- * contain a Devon Distribution or OASP IDE.
+ * Implementation of {@link FolderProcessor} which determines whether a particular folder or any of its parent folders
+ * contain a devon.json project settings file.
  *
  * @author ivanderk
  */
-public class DistributionFolderInterceptor implements FolderIterceptor {
+public class ProjectFolderProcessor implements FolderProcessor {
 
   /**
-   * @return found Devon Distribution or OASP IDE config file
+   * @return found devon.json file
    */
   public boolean isFound() {
 
@@ -29,7 +29,7 @@ public class DistributionFolderInterceptor implements FolderIterceptor {
   }
 
   /**
-   * @return foundPath path to Devon Distribution or OASP IDE config file
+   * @return foundPath path to devon.json settings file
    */
   public Path getFoundPath() {
 
@@ -51,8 +51,7 @@ public class DistributionFolderInterceptor implements FolderIterceptor {
   @Override
   public boolean onFolder(Path path) {
 
-    Path settingsPath = path.resolve("conf/settings.json");
-    if (settingsPath.toFile().exists() && path.resolve("workspaces").toFile().exists()) {
+    if (path.resolve("devon.json").toFile().exists()) {
       this.foundPath = path;
       // found, cancel further climbing
       this.found = true;
