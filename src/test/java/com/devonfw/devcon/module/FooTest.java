@@ -92,6 +92,20 @@ public class FooTest {
     assertFalse(this.input.parse());
   }
 
+  /**
+   * Checks if a command with optional parameter works
+   */
+  @Test
+  public void commandWithOptionalParameter() {
+
+    String[] args = { "-np", "foo", "saySomething", "-message", "This is a message", "-sign", "Test" };
+    this.input = new InputConsole(args);
+    assertTrue(this.input.parse());
+  }
+
+  /**
+   * Checks if getting a unknown module fails
+   */
   @Test
   public void wrongModule() {
 

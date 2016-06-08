@@ -3,6 +3,7 @@ package com.devonfw.devcon.common;
 import java.util.List;
 
 import com.devonfw.devcon.common.api.annotations.Command;
+import com.devonfw.devcon.common.api.data.CommandParameter;
 import com.devonfw.devcon.common.api.data.Sentence;
 import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
 import com.devonfw.devcon.common.exception.NotRecognizedModuleException;
@@ -32,8 +33,8 @@ public class CmdManager {
     DevconUtils dUtils = new DevconUtils();
     OutputConsole output = new OutputConsole();
     List<String> paramsValuesList = dUtils.getParamsValues(this.sentence.getParams());
-    List<String> paramsNamesList = dUtils.getParamsKeys(this.sentence.getParams());
-    List<String> commandNeededParams;
+    List<String> sentenceParams = dUtils.getParamsKeys(this.sentence.getParams());
+    List<CommandParameter> commandNeededParams;
 
     Class<?> module = dUtils.getModule(this.sentence.getModuleName());
 
@@ -52,13 +53,21 @@ public class CmdManager {
 
           commandNeededParams = dUtils.getCommandParameters(module, this.sentence.getCommandName());
           if (commandNeededParams != null) {
-            List<String> missingParameters = dUtils.getMissingParameters(paramsNamesList, commandNeededParams);
+            List<CommandParameter> missingParameters = dUtils.getMissingParameters(sentenceParams, commandNeededParams);
 
-            if (missingParameters.size() > 0 && !this.sentence.isNoPrompt()) {
-              this.sentence = dUtils.promptForMissingArguments(missingParameters, this.sentence, output);
+            if (missingParameters.size() > 0) {
+
+              this.sentence = dUtils.obtainValueForMissingParameters(missingParameters, this.sentence, output);
+
+              // check again for missing parameters
+              sentenceParams = dUtils.getParamsKeys(this.sentence.getParams());
+              missingParameters = dUtils.getMissingParameters(sentenceParams, commandNeededParams);
+              if (missingParameters.size() > 0) {
+                dUtils.endAndShowMissingParameters(missingParameters);
+              }
+
               paramsValuesList = dUtils.getParamsValues(this.sentence.getParams());
-            } else if (missingParameters.size() > 0) {
-              throw new Exception("You need to specify the following parameter/s: " + missingParameters.toString());
+
             }
 
             paramsValuesList = dUtils.orderParameters(this.sentence.getParams(), commandNeededParams);

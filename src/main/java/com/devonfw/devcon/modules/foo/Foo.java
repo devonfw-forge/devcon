@@ -36,7 +36,7 @@ public class Foo extends AbstractCommandHolder {
     this.output.showMessage("Bye");
   }
 
-  @Command(name = "customFarewell", help = "This command is used to say a custom bye")
+  @Command(name = "customFarewell", help = "This command is used to say a custom farewell")
   @Parameters(values = { @Parameter(name = "name", description = "this is the description for name parameter") })
   @SuppressWarnings("javadoc")
   public void customFarewell(String name) {
@@ -51,6 +51,15 @@ public class Foo extends AbstractCommandHolder {
   public void largeCustomFarewell(String name, String surname) {
 
     this.output.showMessage("Bye " + name + " " + surname);
+  }
+
+  @Command(name = "saySomething", help = "This command is for say something")
+  @Parameters(values = { @Parameter(name = "message", description = "the message to be written"),
+  @Parameter(name = "sign", description = "the sign", isOptional = "true") })
+  @SuppressWarnings("javadoc")
+  public void saySomething(String message, String sign) {
+
+    this.output.showMessage(message + "\n" + sign);
   }
 
 }
