@@ -6,7 +6,11 @@ import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
+import com.devonfw.devcon.common.api.data.DistributionInfo;
+import com.devonfw.devcon.common.api.data.DistributionType;
+import com.devonfw.devcon.common.exception.InvalidConfigurationStateException;
 import com.devonfw.devcon.common.impl.AbstractCommandHolder;
+import com.google.common.base.Optional;
 
 /**
  * Module with general tasks related to the distribution itself
@@ -20,7 +24,7 @@ public class Dist extends AbstractCommandHolder {
    * This command downloads and unzips the Devon distribution
    *
    * @param path location to download the Devon distribution
-   * @param type the type of the distribution
+   * @param type the {@link DistributionType} of the distribution
    * @param user a user with permissions to download the Devon distribution
    * @param password the password related to the user with permissions to download the Devon distribution
    * @throws Exception
@@ -59,6 +63,51 @@ public class Dist extends AbstractCommandHolder {
       System.out.println("[LOG]" + e.getMessage());
       throw e;
     }
+
+  }
+
+  /**
+   * This command initializes a Devon distribution for use with Shared Services
+   *
+   * @param projectname the name for the new project
+   * @param artuser the user with permissions in the artifactory repository
+   * @param artencpass the encrypted password of the user with permissions in the artifactory repository
+   * @param svnurl the URL of the svn repository to do the checkout
+   * @param svnuser the user with permissions in the svn repository
+   * @param svnpass the password of the user with permissions in the svn repository
+   */
+  @Command(name = "s2", help = "Initializes a Devon distribution for use with Shared Services.")
+  @Parameters(values = {
+  @Parameter(name = "projectname", description = "the name for the new project"),
+  @Parameter(name = "artuser", description = "the user with permissions in the artifactory repository"),
+  @Parameter(name = "artencpass", description = "the encrypted password of the user with permissions in the artifactory repository"),
+  @Parameter(name = "svnurl", description = "the URL of the svn repository to do the checkout"),
+  @Parameter(name = "svnuser", description = "the user with permissions in the svn repository"),
+  @Parameter(name = "svnpass", description = "the password of the user with permissions in the svn repository") })
+  public void s2(String projectname, String artuser, String artencpass, String svnurl, String svnuser, String svnpass) {
+
+    String currentDir = System.getProperty("user.dir");
+    Optional<DistributionInfo> distInfo = this.contextPathInfo.getDistributionRoot(currentDir);
+    try {
+      if (distInfo.isPresent()) {
+        System.out.println(distInfo.get().getDistributionType().toString());
+        if (distInfo.get().getDistributionType().equals(DistributionType.DevonDist)) {
+          configureS2(projectname, artuser, artencpass, svnuser, svnpass);
+        } else {
+          throw new InvalidConfigurationStateException("The conf/settings.json seems to ve invalid");
+        }
+      } else {
+        this.output.showMessage("Seems that you are not in a Devon distribution.");
+      }
+
+    } catch (Exception e) {
+      // TODO implement logs
+      System.out.println("[LOG]" + e.getMessage());
+      throw e;
+    }
+  }
+
+  private void configureS2(String projectName, String artUser, String artEncPass, String svnUser, String svnPass) {
 
   }
 
