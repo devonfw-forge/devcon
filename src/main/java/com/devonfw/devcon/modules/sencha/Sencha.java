@@ -20,9 +20,9 @@ public class Sencha extends AbstractCommandHolder {
   @Command(name = "run", help = "compiles in DEBUG mode and then runs the internal Sencha web server (\"app watch\")")
   public void run() {
 
-    // TODO Test on MacOSX & Unix
+    // TODO ivanderk Implementatin for MacOSX & Unix
     if (!SystemUtils.IS_OS_WINDOWS) {
-      getOutput().showMessage("Currently only supported on Windows");
+      getOutput().showMessage("This task is currently only supported on Windows");
       return;
     }
     Optional<ProjectInfo> project = getContextPathInfo().getProjectRoot();
