@@ -63,7 +63,9 @@ public class OutputConsole {
     StringBuilder footer = new StringBuilder();
     footer.append("List of available modules: \n");
     for (Info module : response.getModulesList()) {
-      footer.append("> " + module.getName() + ": " + module.getDescription() + "\n");
+      // hide module is hidden
+      if (module.isVisible())
+        footer.append("> " + module.getName() + ": " + module.getDescription() + "\n");
     }
 
     HelpFormatter formater = new HelpFormatter();

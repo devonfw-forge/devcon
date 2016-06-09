@@ -263,7 +263,8 @@ public class DevconUtils {
 
   }
 
-  public List<CommandParameter> getMissingParameters(List<String> sentenceParams, List<CommandParameter> commandParams) {
+  public List<CommandParameter> getMissingParameters(List<String> sentenceParams,
+      List<CommandParameter> commandParams) {
 
     List<CommandParameter> missingArguments = new ArrayList<>();
 
@@ -308,8 +309,8 @@ public class DevconUtils {
     return sentence;
   }
 
-  public String getOptionalValueFromFile(String parameterName) throws FileNotFoundException, IOException,
-      ParseException {
+  public String getOptionalValueFromFile(String parameterName)
+      throws FileNotFoundException, IOException, ParseException {
 
     String paramValue = "";
     try {
@@ -430,7 +431,8 @@ public class DevconUtils {
     return command;
   }
 
-  public List<String> orderParameters(List<HashMap<String, String>> sentenceParams, List<CommandParameter> commandParams) {
+  public List<String> orderParameters(List<HashMap<String, String>> sentenceParams,
+      List<CommandParameter> commandParams) {
 
     List<String> orderedParameters = new ArrayList<String>();
     for (CommandParameter commandParam : commandParams) {
@@ -445,8 +447,8 @@ public class DevconUtils {
     return orderedParameters;
   }
 
-  public void LaunchCommand(Class<?> c, String commandName, List<String> parameters) throws IllegalAccessException,
-      IllegalArgumentException, InvocationTargetException, InstantiationException {
+  public void LaunchCommand(Class<?> c, String commandName, List<String> parameters)
+      throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
 
     Method method = getCommandInstance(c, commandName, parameters);
     method.invoke(c.newInstance(), parameters.toArray());
@@ -468,6 +470,7 @@ public class DevconUtils {
           Info info = new Info();
           info.setName(module.name());
           info.setDescription(module.description() != null ? module.description() : "");
+          info.setVisible(module.visible());
           modules.add(info);
         }
       }
@@ -521,8 +524,8 @@ public class DevconUtils {
     return defaultGlobalOptions;
   }
 
-  private List<DevconOption> getGlobalOptionsFromFile(URL fileURL) throws FileNotFoundException, IOException,
-      ParseException {
+  private List<DevconOption> getGlobalOptionsFromFile(URL fileURL)
+      throws FileNotFoundException, IOException, ParseException {
 
     JSONParser parser = new JSONParser();
     List<DevconOption> globalOptions = new ArrayList<>();

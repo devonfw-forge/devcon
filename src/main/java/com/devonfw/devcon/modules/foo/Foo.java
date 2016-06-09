@@ -7,11 +7,12 @@ import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.impl.AbstractCommandHolder;
 
 /**
- * Implementation of test class Foo
+ * Implementation of test class Foo Hidden from console with Annotation parameter hidden=true
  *
  * @author pparrado
  */
-@CmdModuleRegistry(name = "foo", description = "This is only a test module.", context = "fooContext", deprecated = false)
+
+@CmdModuleRegistry(name = "foo", description = "This is only a test module.", context = "fooContext", visible = false)
 public class Foo extends AbstractCommandHolder {
 
   /**

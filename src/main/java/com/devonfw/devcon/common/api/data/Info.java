@@ -18,6 +18,27 @@ public class Info {
   private String description;
 
   /**
+   * determines whether component is visible on the console
+   */
+  private boolean visible = true;
+
+  /**
+   * @return visible
+   */
+  public boolean isVisible() {
+
+    return this.visible;
+  }
+
+  /**
+   * @param visible new value of {@link #getvisible}.
+   */
+  public void setVisible(boolean visible) {
+
+    this.visible = visible;
+  }
+
+  /**
    * @return name
    */
   public String getName() {
