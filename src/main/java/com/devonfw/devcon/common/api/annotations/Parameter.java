@@ -8,15 +8,22 @@ package com.devonfw.devcon.common.api.annotations;
 public @interface Parameter {
   /**
    * Name of the parameter
-   * 
+   *
    * @return the name
    */
   String name() default "";
 
   /**
    * Description of the parameter
-   * 
+   *
    * @return the description
    */
   String description() default "";
+
+  /**
+   * Is Optional
+   * 
+   * @return if the parameter is optional
+   */
+  String isOptional() default "false";
 }
