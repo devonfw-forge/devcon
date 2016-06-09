@@ -3,6 +3,13 @@ package com.devonfw.devcon.module;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Test;
 
 import com.devonfw.devcon.input.InputConsole;
@@ -92,6 +99,37 @@ public class FooTest {
     assertFalse(this.input.parse());
   }
 
+  /**
+   * Checks if a command with optional parameter works. It reads the optional parameter 'signature' from a json temp
+   * file
+   *
+   * @throws IOException
+   */
+  @Test
+  public void commandWithOptionalParameter() throws IOException {
+
+    Path tmp = FileSystems.getDefault().getPath(System.getProperty("user.dir"));
+    String content =
+        "{\"version\": \"2.0.0\",\n\"type\":\"oasp4j\",\n\"optionalParameters\": {\"signature\":\"from json\"}\n}";
+    File tempSettings = tmp.resolve("devon.json").toFile();
+    FileUtils.writeStringToFile(tempSettings, content, "UTF-8");
+
+    String[] args = { "-np", "foo", "saySomething", "-message", "This is a message" };
+    this.input = new InputConsole(args);
+    assertTrue(this.input.parse());
+  }
+
+  @After
+  public void end() throws IOException {
+
+    File tempSettings = new File(System.getProperty("user.dir") + File.separator + "devon.json");
+    if (tempSettings.exists())
+      FileUtils.forceDeleteOnExit(tempSettings);
+  }
+
+  /**
+   * Checks if getting a unknown module fails
+   */
   @Test
   public void wrongModule() {
 
