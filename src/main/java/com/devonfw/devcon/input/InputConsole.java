@@ -77,8 +77,10 @@ public class InputConsole {
       List<?> argsNotParsed = cmd.getArgList();
 
       if (argsNotParsed.size() == 0) {
-        throw new Exception(
-            "You must specify a valid module name. Try 'devon help guide' command to know more about DevCon usage.");
+        // If not command line parameters given, show main help ("usage")
+        new CmdManager().showMainHelp();
+        return false;
+
       } else if (argsNotParsed.size() == 1) {
         sentence.setModuleName(argsNotParsed.get(0).toString());
       } else if (argsNotParsed.size() > 1) {

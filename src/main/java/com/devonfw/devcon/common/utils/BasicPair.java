@@ -9,6 +9,25 @@ import com.devonfw.devcon.common.api.utils.Pair;
  */
 public class BasicPair<T, Y> implements Pair<T, Y> {
 
+  @Override
+  public int hashCode() {
+
+    return getFirst().hashCode() + getLast().hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+
+    Pair<T, Y> other = (Pair<T, Y>) obj;
+    return this.getFirst().equals(other.getFirst()) && this.getLast().equals(other.getLast());
+  }
+
+  @Override
+  public String toString() {
+
+    return "(" + getFirst().toString() + ", " + getLast().toString() + ")";
+  }
+
   private T first;
 
   private Y last;

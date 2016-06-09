@@ -430,7 +430,21 @@ public class DevconUtils {
     return orderedParameters;
   }
 
-  public void LaunchCommand(Class<?> c, String commandName, List<String> parameters)
+  public void launchCommand(String moduleName, String commandName)
+      throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
+
+    launchCommand(moduleName, commandName, new ArrayList<String>());
+  }
+
+  public void launchCommand(String moduleName, String commandName, List<String> parameters)
+      throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
+
+    Class<?> module = getModule(moduleName);
+    Method method = getCommandInstance(module, commandName, parameters);
+    method.invoke(module.newInstance(), parameters.toArray());
+  }
+
+  public void launchCommand(Class<?> c, String commandName, List<String> parameters)
       throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
 
     Method method = getCommandInstance(c, commandName, parameters);
