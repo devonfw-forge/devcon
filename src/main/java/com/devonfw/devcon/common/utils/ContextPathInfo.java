@@ -227,4 +227,9 @@ public class ContextPathInfo {
     }
   }
 
+  public Optional<ProjectInfo> getCombinedProjectRoot() {
+
+    return this.getCombinedProjectRoot(getCurrentWorkingDirectory());
+  }
+
 }

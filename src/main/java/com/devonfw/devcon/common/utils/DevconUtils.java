@@ -1,7 +1,6 @@
 package com.devonfw.devcon.common.utils;
 
 import java.awt.Desktop;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -10,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,10 +35,12 @@ import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.CommandParameter;
 import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Info;
+import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.Response;
 import com.devonfw.devcon.common.api.data.Sentence;
 import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
 import com.devonfw.devcon.output.OutputConsole;
+import com.google.common.base.Optional;
 
 /**
  * TODO pparrado This type ...
@@ -49,6 +51,10 @@ public class DevconUtils {
 
   Reflections reflections = new Reflections(ClasspathHelper.forPackage(Constants.MODULES_PACKAGE),
       new SubTypesScanner(), new TypeAnnotationsScanner(), new MethodAnnotationsScanner());
+
+  private static final String DEVON_JSON = "devon.json";
+
+  private static final String OPTIONAL = "optionalParameters";
 
   public List<CmdModuleRegistry> getAvailableModules() {
 
@@ -173,8 +179,6 @@ public class DevconUtils {
               commandParams = new ArrayList<>();
               List<Parameter> paramsList = Arrays.asList(params.values());
               for (Parameter param : paramsList) {
-                // if (!param.name().equals(""))
-                // commandParams.add(param.name());
                 String name = param.name();
                 String description = param.description();
                 boolean isOptional = Boolean.parseBoolean(param.isOptional());
@@ -307,37 +311,33 @@ public class DevconUtils {
   public String getOptionalValueFromFile(String parameterName) throws FileNotFoundException, IOException,
       ParseException {
 
+    String paramValue = "";
     try {
-      // ContextPathInfo contextPathInfo = new ContextPathInfo();
-      // String currentDir = System.getProperty("user.dir");
-      //
-      // Optional<DistributionInfo> info = contextPathInfo.getDistributionRoot(currentDir);
-      //
-      // if (info.isPresent()) {
-      // System.out.println("Is present");
-      // }
+      ContextPathInfo contextPathInfo = new ContextPathInfo();
+      Optional<ProjectInfo> info = contextPathInfo.getCombinedProjectRoot();
 
-      // Path settingsPath = projectPath.resolve(DEVON_JSON);
-      JSONParser parser = new JSONParser();
-      Object obj =
-          parser.parse(new FileReader("D:\\zTest\\devon-dist\\workspaces\\project\\client" + File.separator
-              + "devon.json"));
+      if (info.isPresent()) {
+        Path jsonPath = info.get().getPath().resolve(DEVON_JSON);
+        JSONParser parser = new JSONParser();
+        Object obj = parser.parse(new FileReader(jsonPath.toFile()));
 
-      JSONObject json = (JSONObject) obj;
-      JSONObject optParams = (JSONObject) json.get("optionalParameters");
-      String paramValue = "";
-      if (optParams != null) {
-        try {
-          paramValue = optParams.get(parameterName).toString();
-        } catch (Exception e) {
+        JSONObject json = (JSONObject) obj;
+        JSONObject optParams = (JSONObject) json.get(OPTIONAL);
 
+        if (optParams != null) {
+          try {
+            paramValue = optParams.get(parameterName).toString();
+          } catch (Exception e) {
+
+          }
         }
+
       }
       return paramValue;
 
     } catch (FileNotFoundException e) {
       // TODO implement logs
-      System.out.println("[LOG] The config file for optional parameters could not be found.");
+      // System.out.println("[LOG] The config file for optional parameters could not be found.");
       return "";
     } catch (Exception e) {
       // TODO implement logs
