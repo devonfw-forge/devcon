@@ -1,6 +1,7 @@
 package com.devonfw.devcon.modules.dist;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
@@ -86,16 +87,21 @@ public class Dist extends AbstractCommandHolder {
   @Parameter(name = "svnpass", description = "the password of the user with permissions in the svn repository") })
   public void s2(String projectname, String artuser, String artencpass, String svnurl, String svnuser, String svnpass) {
 
-    String currentDir = System.getProperty("user.dir");
-    Optional<DistributionInfo> distInfo = this.contextPathInfo.getDistributionRoot(currentDir);
+    Optional<DistributionInfo> distInfo = this.contextPathInfo.getDistributionRoot();
     try {
       if (distInfo.isPresent()) {
-        System.out.println(distInfo.get().getDistributionType().toString());
+        Path distPath = distInfo.get().getPath();
+
         if (distInfo.get().getDistributionType().equals(DistributionType.DevonDist)) {
-          configureS2(projectname, artuser, artencpass, svnuser, svnpass);
+          int initR = SharedServices.init(distPath, artuser, artencpass);
+
+          System.out.println("INIT RESULT: " + initR);
+
+          // SharedServices.create(distPath, projectname, svnurl, svnuser, svnpass);
         } else {
-          throw new InvalidConfigurationStateException("The conf/settings.json seems to ve invalid");
+          throw new InvalidConfigurationStateException("The conf/settings.json seems to be invalid");
         }
+
       } else {
         this.output.showMessage("Seems that you are not in a Devon distribution.");
       }
@@ -103,12 +109,7 @@ public class Dist extends AbstractCommandHolder {
     } catch (Exception e) {
       // TODO implement logs
       System.out.println("[LOG]" + e.getMessage());
-      throw e;
     }
-  }
-
-  private void configureS2(String projectName, String artUser, String artEncPass, String svnUser, String svnPass) {
-
   }
 
 }

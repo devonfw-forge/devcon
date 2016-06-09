@@ -33,4 +33,14 @@ public final class DistConstants {
    */
   public static final String DEVON_DIST = DistributionType.DevonDist.toString().toLowerCase();
 
+  /**
+   * script to create new workspace with checkout of svn repository
+   */
+  public static final String CREATE_SCRIPT = "s2-create.bat";
+
+  /**
+   * script to configure settings.xml for Shared Services
+   */
+  public static final String INIT_SCRIPT = "s2-init.bat";
+
 }
