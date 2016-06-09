@@ -181,7 +181,7 @@ public class DevconUtils {
               for (Parameter param : paramsList) {
                 String name = param.name();
                 String description = param.description();
-                boolean isOptional = Boolean.parseBoolean(param.isOptional());
+                boolean isOptional = param.optional();
                 commandParams.add(new CommandParameter(name, description, isOptional));
               }
             }

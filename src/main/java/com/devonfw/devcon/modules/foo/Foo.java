@@ -56,7 +56,7 @@ public class Foo extends AbstractCommandHolder {
 
   @Command(name = "saySomething", help = "This command is for say something")
   @Parameters(values = { @Parameter(name = "message", description = "the message to be written"),
-  @Parameter(name = "signature", description = "the signature", isOptional = "true") })
+  @Parameter(name = "signature", description = "the signature", optional = true) })
   @SuppressWarnings("javadoc")
   public void saySomething(String message, String signature) {
 

@@ -22,8 +22,8 @@ public @interface Parameter {
 
   /**
    * Is Optional
-   * 
+   *
    * @return if the parameter is optional
    */
-  String isOptional() default "false";
+  boolean optional() default false;
 }
