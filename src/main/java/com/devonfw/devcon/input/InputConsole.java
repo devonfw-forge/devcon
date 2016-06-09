@@ -1,7 +1,6 @@
 package com.devonfw.devcon.input;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.cli.BasicParser;
@@ -14,8 +13,10 @@ import com.devonfw.devcon.Devcon;
 import com.devonfw.devcon.common.CmdManager;
 import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Sentence;
+import com.devonfw.devcon.common.api.utils.Pair;
 import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
 import com.devonfw.devcon.common.exception.NotRecognizedModuleException;
+import com.devonfw.devcon.common.utils.BasicPair;
 import com.devonfw.devcon.common.utils.DevconUtils;
 
 /**
@@ -41,7 +42,7 @@ public class InputConsole {
   public boolean parse() {
 
     Sentence sentence = new Sentence();
-    sentence.setParams(new ArrayList<HashMap<String, String>>());
+    sentence.setParams(new ArrayList<Pair<String, String>>());
 
     try {
 
@@ -70,7 +71,7 @@ public class InputConsole {
       for (Option parsedParam : parsedParams) {
         if (cmd.getOptionValue(parsedParam.getOpt()) != null)
           sentence.getParams()
-              .add(this.dUtils.createParameterItem(parsedParam.getOpt(), cmd.getOptionValue(parsedParam.getOpt())));
+              .add(new BasicPair<String, String>(parsedParam.getOpt(), cmd.getOptionValue(parsedParam.getOpt())));
       }
 
       List<?> argsNotParsed = cmd.getArgList();
@@ -140,7 +141,5 @@ public class InputConsole {
     }
 
     return opts;
-
   }
-
 }

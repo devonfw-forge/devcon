@@ -13,17 +13,14 @@ public class Devcon {
 
   public static String DEVCON_VERSION = "devcon v." + VERSION;
 
-  /**
-   *
-   */
-  private static final String banner = "Hello, this is Devcon!\n" + "Copyright (c) 2016 Capgemini";
+  public static final String DEVCON_BANNER = "Hello, this is Devcon!\n" + "Copyright (c) 2016 Capgemini";
 
   /**
    * @param args command line arguments
    */
   public static void main(String[] args) {
 
-    System.out.println(banner);
+    System.out.println(DEVCON_BANNER);
 
     new InputConsole(args).parse();
   }

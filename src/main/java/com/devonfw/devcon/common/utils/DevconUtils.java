@@ -12,10 +12,8 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.json.simple.JSONArray;
@@ -38,6 +36,7 @@ import com.devonfw.devcon.common.api.data.Info;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.Response;
 import com.devonfw.devcon.common.api.data.Sentence;
+import com.devonfw.devcon.common.api.utils.Pair;
 import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
 import com.devonfw.devcon.output.OutputConsole;
 import com.google.common.base.Optional;
@@ -297,11 +296,11 @@ public class DevconUtils {
           value = promptForMissingParameter(parameter.getName(), output);
         }
         if (value != "")
-          sentence.getParams().add(createParameterItem(parameter.getName(), value));
+          sentence.getParams().add(new BasicPair<String, String>(parameter.getName(), value));
       } else {
         if (!sentence.isNoPrompt()) {
           value = promptForMissingParameter(parameter.getName(), output);
-          sentence.getParams().add(createParameterItem(parameter.getName(), value));
+          sentence.getParams().add(new BasicPair<String, String>(parameter.getName(), value));
         }
       }
     }
@@ -360,41 +359,27 @@ public class DevconUtils {
     throw new Exception("You need to specify the following parameter/s: " + sb.toString());
   }
 
-  public List<String> getParamsKeys(List<HashMap<String, String>> params) {
+  public List<String> getParamsKeys(List<Pair<String, String>> params) {
 
     List<String> keysList = new ArrayList<String>();
 
-    for (HashMap<String, String> param : params) {
-      Set<?> set = param.entrySet();
-      Iterator<?> it = set.iterator();
-      while (it.hasNext()) {
-        Map.Entry m = (Map.Entry) it.next();
-        keysList.add(m.getKey().toString());
-      }
+    for (Pair<String, String> param : params) {
+
+      keysList.add(param.getFirst());
     }
+
     return keysList;
   }
 
-  public List<String> getParamsValues(List<HashMap<String, String>> params) {
+  public List<String> getParamsValues(List<Pair<String, String>> params) {
 
     List<String> valuesList = new ArrayList<String>();
 
-    for (HashMap<String, String> param : params) {
-      Set<?> set = param.entrySet();
-      Iterator<?> it = set.iterator();
-      while (it.hasNext()) {
-        Map.Entry m = (Map.Entry) it.next();
-        valuesList.add(m.getValue().toString());
-      }
+    for (Pair<String, String> param : params) {
+
+      valuesList.add(param.getLast());
     }
     return valuesList;
-  }
-
-  public HashMap<String, String> createParameterItem(String key, String value) {
-
-    HashMap<String, String> hmap = new HashMap<String, String>();
-    hmap.put(key, value);
-    return hmap;
   }
 
   public Class<?> getModule(String moduleName) {
@@ -431,18 +416,16 @@ public class DevconUtils {
     return command;
   }
 
-  public List<String> orderParameters(List<HashMap<String, String>> sentenceParams,
-      List<CommandParameter> commandParams) {
+  public List<String> orderParameters(List<Pair<String, String>> sentenceParams, List<CommandParameter> commandParams) {
 
     List<String> orderedParameters = new ArrayList<String>();
     for (CommandParameter commandParam : commandParams) {
-      for (HashMap<String, String> sentenceParam : sentenceParams) {
-        if (sentenceParam.containsKey(commandParam.getName())) {
-          orderedParameters.add(sentenceParam.get(commandParam.getName()));
+      for (Pair<String, String> sentenceParam : sentenceParams) {
+        if (sentenceParam.getFirst().equals(commandParam.getName())) {
+          orderedParameters.add(sentenceParam.getLast());
           break;
         }
       }
-
     }
     return orderedParameters;
   }
