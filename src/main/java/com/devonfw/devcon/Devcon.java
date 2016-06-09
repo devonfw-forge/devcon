@@ -9,6 +9,10 @@ import com.devonfw.devcon.input.InputConsole;
  */
 public class Devcon {
 
+  public static String VERSION = "0.1.0";
+
+  public static String DEVCON_VERSION = "devcon v." + VERSION;
+
   /**
    *
    */

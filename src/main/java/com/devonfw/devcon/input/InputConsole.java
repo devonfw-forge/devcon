@@ -10,6 +10,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import com.devonfw.devcon.Devcon;
 import com.devonfw.devcon.common.CmdManager;
 import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Sentence;
@@ -49,8 +50,7 @@ public class InputConsole {
       cmd = parser.parse(this.options, this.args);
 
       if (cmd.hasOption("v")) {
-        // TODO the version must be dynamic
-        System.out.println("devcon v.0.1");
+        System.out.println(Devcon.DEVCON_VERSION);
         System.exit(0);
       }
 
@@ -69,8 +69,8 @@ public class InputConsole {
       Option[] parsedParams = cmd.getOptions();
       for (Option parsedParam : parsedParams) {
         if (cmd.getOptionValue(parsedParam.getOpt()) != null)
-          sentence.getParams().add(
-              this.dUtils.createParameterItem(parsedParam.getOpt(), cmd.getOptionValue(parsedParam.getOpt())));
+          sentence.getParams()
+              .add(this.dUtils.createParameterItem(parsedParam.getOpt(), cmd.getOptionValue(parsedParam.getOpt())));
       }
 
       List<?> argsNotParsed = cmd.getArgList();
