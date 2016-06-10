@@ -3,8 +3,6 @@ package com.devonfw.devcon.modules.dist;
 import java.io.File;
 import java.nio.file.Path;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
@@ -98,17 +96,14 @@ public class Dist extends AbstractCommandHolder {
 
         if (distInfo.get().getDistributionType().equals(DistributionType.DevonDist)) {
 
-          Pair<Integer, String> initResult = SharedServices.init(distPath, artuser, artencpass);
-          if (initResult.getKey() > 0)
+          int initResult = SharedServices.init(distPath, artuser, artencpass);
+          if (initResult > 0)
             this.output
-                .showMessage("The configuration of the conf/settings.xml file could not be completed successfully. Please verify it. The execution of the script has been registered in "
-                    + initResult.getValue());
+                .showMessage("The configuration of the conf/settings.xml file could not be completed successfully. Please verify it");
 
-          Pair<Integer, String> createResult = SharedServices.create(distPath, projectname, svnurl, svnuser, svnpass);
-          if (createResult.getKey() > 0)
-            throw new Exception(
-                "An error occurred while project creation. The execution of the script has been registered in "
-                    + createResult.getValue());
+          int createResult = SharedServices.create(distPath, projectname, svnurl, svnuser, svnpass);
+          if (createResult > 0)
+            throw new Exception("An error occurred while project creation.");
 
         } else {
           throw new InvalidConfigurationStateException("The conf/settings.json seems to be invalid");

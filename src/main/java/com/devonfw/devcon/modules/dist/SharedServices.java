@@ -1,9 +1,10 @@
 package com.devonfw.devcon.modules.dist;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Path;
-
-import org.apache.commons.lang3.tuple.Pair;
 
 import com.devonfw.devcon.output.OutputConsole;
 
@@ -14,49 +15,54 @@ import com.devonfw.devcon.output.OutputConsole;
  */
 public class SharedServices {
 
-  public static Pair<Integer, String> init(Path distPath, String artUser, String artEncPass) throws Exception {
+  public static int init(Path distPath, String artUser, String artEncPass) throws Exception {
 
-    Pair<Integer, String> result;
     OutputConsole out = new OutputConsole();
     try {
-      File outputFile = File.createTempFile("devconS2init_", ".txt");
 
       File batchFile = new File(distPath.toString() + File.separator + DistConstants.INIT_SCRIPT);
       ProcessBuilder processBuilder = new ProcessBuilder(batchFile.getAbsolutePath(), artUser, artEncPass);
       processBuilder.redirectErrorStream(true);
-      processBuilder.redirectOutput(outputFile);
+      processBuilder.redirectOutput(Redirect.PIPE);
 
       processBuilder.directory(new File(distPath.toString()));
       Process process = processBuilder.start();
 
+      BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+      String line = null;
+      while ((line = in.readLine()) != null) {
+        out.showMessage(line);
+      }
+
       int exitStatus = process.waitFor();
-      out.status(DistConstants.INIT_SCRIPT + " finished with status: " + exitStatus);
-      return result = Pair.of(exitStatus, outputFile.getPath());
+      return exitStatus;
     } catch (Exception e) {
       throw e;
     }
   }
 
-  public static Pair<Integer, String> create(Path distPath, String projectName, String svnUrl, String svnUser,
-      String svnPass) throws Exception {
+  public static int create(Path distPath, String projectName, String svnUrl, String svnUser, String svnPass)
+      throws Exception {
 
-    Pair<Integer, String> result;
     OutputConsole out = new OutputConsole();
     try {
-      File outputFile = File.createTempFile("devconS2create_", ".txt");
 
       File batchFile = new File(distPath.toString() + File.separator + DistConstants.CREATE_SCRIPT);
       ProcessBuilder processBuilder =
           new ProcessBuilder(batchFile.getAbsolutePath(), projectName, svnUrl, svnUser, svnPass);
       processBuilder.redirectErrorStream(true);
-      processBuilder.redirectOutput(outputFile);
+      processBuilder.redirectOutput(Redirect.PIPE);
 
       processBuilder.directory(new File(distPath.toString()));
       Process process = processBuilder.start();
 
+      BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+      String line = null;
+      while ((line = in.readLine()) != null) {
+        out.showMessage(line);
+      }
       int exitStatus = process.waitFor();
-      out.status(DistConstants.CREATE_SCRIPT + " finished with status: " + exitStatus);
-      return result = Pair.of(exitStatus, outputFile.getPath());
+      return exitStatus;
     } catch (Exception e) {
       throw e;
     }
