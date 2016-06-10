@@ -25,6 +25,7 @@ import com.collabnet.ce.soap60.webservices.frs.FrsFileSoapDO;
 import com.collabnet.ce.soap60.webservices.frs.IFrsAppSoap;
 import com.devonfw.devcon.output.DownloadingProgress;
 import com.devonfw.devcon.output.OutputConsole;
+import com.google.common.base.Optional;
 
 /**
  * Class to encapsulate the functionality related to the Team Forge download process.
@@ -42,7 +43,7 @@ public class Downloader {
    * @param frsFileId the id of the distribution in Team Forge
    * @throws Exception
    */
-  public static String downloadFromTeamForge(String path, String user, String password, String frsFileId)
+  public static Optional<String> downloadFromTeamForge(String path, String user, String password, String frsFileId)
       throws Exception {
 
     Thread thread = null;
@@ -119,19 +120,21 @@ public class Downloader {
 
       }
 
+      return Optional.of(fileName);
+
     } catch (RemoteException e) {
       out.showError("Download failed. " + e.getMessage());
-      throw e;
+      return null;
     } catch (FileNotFoundException e) {
       out.showError("Download failed. File " + fileName + " not found in the repository "
           + DistConstants.REPOSITORY_URL + ". " + e.getMessage());
-      throw e;
+      return null;
     } catch (FileAlreadyExistsException e) {
       out.showError("Download failed. File " + e.getFile() + " already exists.");
-      throw e;
+      return null;
     } catch (Exception e) {
       out.showError(e.getMessage());
-      throw e;
+      return null;
     } finally {
       File tempFile = new File(tempFilePath);
       if (tempFile.exists()) {
@@ -142,7 +145,7 @@ public class Downloader {
       }
 
     }
-    return fileName;
+
   }
 
   /**

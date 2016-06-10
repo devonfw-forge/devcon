@@ -1,7 +1,6 @@
 package com.devonfw.devcon.module;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -55,18 +54,4 @@ public class DistTest {
     assertFalse(this.input.parse());
   }
 
-  /**
-   * Checks if the s2 command works properly
-   */
-  @Test
-  public void s2() {
-
-    String[] args =
-        { "dist", "s2", "-projectname", "prjTest", "-artuser", "ivanderk", "-artencpass", "APD2YimfA4A8Ge3Vh5pgnQxHyM",
-        "-svnurl", "https://coconet-svn-apps2-01.capgemini.com/svn/repos/dfw_poc/acmeFooProject/", "-svnuser",
-        "aferreri", "-svnpass", "Beburu53" };
-    this.input = new InputConsole(args);
-    assertTrue(this.input.parse());
-
-  }
 }

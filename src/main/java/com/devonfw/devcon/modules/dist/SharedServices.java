@@ -1,8 +1,9 @@
 package com.devonfw.devcon.modules.dist;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.devonfw.devcon.output.OutputConsole;
 
@@ -13,11 +14,12 @@ import com.devonfw.devcon.output.OutputConsole;
  */
 public class SharedServices {
 
-  public static int init(Path distPath, String artUser, String artEncPass) {
+  public static Pair<Integer, String> init(Path distPath, String artUser, String artEncPass) throws Exception {
 
+    Pair<Integer, String> result;
     OutputConsole out = new OutputConsole();
     try {
-      File outputFile = File.createTempFile("devconS2create_", ".txt");
+      File outputFile = File.createTempFile("devconS2init_", ".txt");
 
       File batchFile = new File(distPath.toString() + File.separator + DistConstants.INIT_SCRIPT);
       ProcessBuilder processBuilder = new ProcessBuilder(batchFile.getAbsolutePath(), artUser, artEncPass);
@@ -29,16 +31,16 @@ public class SharedServices {
 
       int exitStatus = process.waitFor();
       out.status(DistConstants.INIT_SCRIPT + " finished with status: " + exitStatus);
-      return exitStatus;
+      return result = Pair.of(exitStatus, outputFile.getPath());
     } catch (Exception e) {
-      out.showError(e.getMessage());
-      return -1;
+      throw e;
     }
   }
 
-  public static int create(Path distPath, String projectName, String svnUrl, String svnUser, String svnPass)
-      throws IOException, InterruptedException {
+  public static Pair<Integer, String> create(Path distPath, String projectName, String svnUrl, String svnUser,
+      String svnPass) throws Exception {
 
+    Pair<Integer, String> result;
     OutputConsole out = new OutputConsole();
     try {
       File outputFile = File.createTempFile("devconS2create_", ".txt");
@@ -54,10 +56,9 @@ public class SharedServices {
 
       int exitStatus = process.waitFor();
       out.status(DistConstants.CREATE_SCRIPT + " finished with status: " + exitStatus);
-      return exitStatus;
+      return result = Pair.of(exitStatus, outputFile.getPath());
     } catch (Exception e) {
-      out.showError(e.getMessage());
-      return -1;
+      throw e;
     }
 
   }

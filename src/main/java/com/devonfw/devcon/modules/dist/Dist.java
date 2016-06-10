@@ -3,6 +3,8 @@ package com.devonfw.devcon.modules.dist;
 import java.io.File;
 import java.nio.file.Path;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
@@ -52,13 +54,15 @@ public class Dist extends AbstractCommandHolder {
         throw new Exception("The parameter 'type' of the install command is unknown");
       }
 
-      String fileDownloaded = Downloader.downloadFromTeamForge(path, user, password, frsFileId);
+      Optional<String> fileDownloaded = Downloader.downloadFromTeamForge(path, user, password, frsFileId);
 
-      if (fileDownloaded != null && !fileDownloaded.equals("")) {
+      if (fileDownloaded.isPresent()) {
         Extractor.extract(path + File.separator + fileDownloaded, path);
+        this.output.success("install");
+      } else {
+        throw new Exception("An error occurred while downloading the file.");
       }
 
-      this.output.success("install");
     } catch (Exception e) {
       // TODO implement logs
       System.out.println("[LOG]" + e.getMessage());
@@ -93,11 +97,19 @@ public class Dist extends AbstractCommandHolder {
         Path distPath = distInfo.get().getPath();
 
         if (distInfo.get().getDistributionType().equals(DistributionType.DevonDist)) {
-          int initR = SharedServices.init(distPath, artuser, artencpass);
 
-          System.out.println("INIT RESULT: " + initR);
+          Pair<Integer, String> initResult = SharedServices.init(distPath, artuser, artencpass);
+          if (initResult.getKey() > 0)
+            this.output
+                .showMessage("The configuration of the conf/settings.xml file could not be completed successfully. Please verify it. The execution of the script has been registered in "
+                    + initResult.getValue());
 
-          // SharedServices.create(distPath, projectname, svnurl, svnuser, svnpass);
+          Pair<Integer, String> createResult = SharedServices.create(distPath, projectname, svnurl, svnuser, svnpass);
+          if (createResult.getKey() > 0)
+            throw new Exception(
+                "An error occurred while project creation. The execution of the script has been registered in "
+                    + createResult.getValue());
+
         } else {
           throw new InvalidConfigurationStateException("The conf/settings.json seems to be invalid");
         }
@@ -108,7 +120,8 @@ public class Dist extends AbstractCommandHolder {
 
     } catch (Exception e) {
       // TODO implement logs
-      System.out.println("[LOG]" + e.getMessage());
+
+      this.output.showError(e.getMessage());
     }
   }
 
