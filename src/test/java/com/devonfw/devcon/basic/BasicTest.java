@@ -26,7 +26,7 @@ import com.devonfw.devcon.modules.foo.Foo;
  *
  * @author pparrado
  */
-public class BasicTests {
+public class BasicTest {
   Reflections reflections;
 
   @SuppressWarnings("javadoc")

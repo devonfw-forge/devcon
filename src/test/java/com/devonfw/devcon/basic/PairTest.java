@@ -13,7 +13,7 @@ import org.junit.Test;
  *
  * @author ivanderk
  */
-public class PairTests {
+public class PairTest {
 
   @Test
   public void testPairs() {
@@ -27,7 +27,7 @@ public class PairTests {
     System.out.println(p1.toString());
     assertEquals("(One hundred,100)", p1.toString());
 
-    ////////////////////////////////////////////////////////////
+    // //////////////////////////////////////////////////////////
 
     HashMap<String, Integer> somedata1 = new HashMap<>();
     somedata1.put("Two hundred", 200);
