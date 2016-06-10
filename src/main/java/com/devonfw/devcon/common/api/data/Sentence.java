@@ -1,7 +1,8 @@
 package com.devonfw.devcon.common.api.data;
 
-import java.util.HashMap;
 import java.util.List;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * TODO pparrado This type ...
@@ -16,7 +17,7 @@ public class Sentence {
 
   private String commandName;
 
-  private List<HashMap<String, String>> params;
+  private List<Pair<String, String>> params;
 
   private String context;
 
@@ -75,7 +76,7 @@ public class Sentence {
   /**
    * @return params
    */
-  public List<HashMap<String, String>> getParams() {
+  public List<Pair<String, String>> getParams() {
 
     return this.params;
   }
@@ -83,7 +84,7 @@ public class Sentence {
   /**
    * @param params new value of {@link #getparams}.
    */
-  public void setParams(List<HashMap<String, String>> params) {
+  public void setParams(List<Pair<String, String>> params) {
 
     this.params = params;
   }

@@ -26,7 +26,6 @@ import com.google.common.base.Optional;
  * TODO ivanderk This type ...
  *
  * @author ivanderk
- * @since 0.0.1
  */
 public class ContextPathInfoTest {
 

@@ -19,6 +19,10 @@ public class CmdManager {
 
   public Sentence sentence;
 
+  DevconUtils dUtils = new DevconUtils();
+
+  OutputConsole output = new OutputConsole();
+
   public CmdManager() {
 
   }
@@ -28,51 +32,56 @@ public class CmdManager {
     this.sentence = sentence;
   }
 
+  public void showMainHelp() throws Exception {
+
+    this.dUtils.launchCommand("help", "guide");
+  }
+
   public void evaluate() throws Exception {
 
-    DevconUtils dUtils = new DevconUtils();
-    OutputConsole output = new OutputConsole();
-    List<String> paramsValuesList = dUtils.getParamsValues(this.sentence.getParams());
-    List<String> sentenceParams = dUtils.getParamsKeys(this.sentence.getParams());
+    List<String> paramsValuesList = this.dUtils.getParamsValues(this.sentence.getParams());
+    List<String> sentenceParams = this.dUtils.getParamsKeys(this.sentence.getParams());
     List<CommandParameter> commandNeededParams;
 
-    Class<?> module = dUtils.getModule(this.sentence.getModuleName());
+    Class<?> module = this.dUtils.getModule(this.sentence.getModuleName());
 
     if (module != null) {
 
       // If no command given OR helpRequested flag is 'true' the app shows the help info and ends
       if (this.sentence.getCommandName() == null || this.sentence.isHelpRequested()) {
 
-        dUtils.showHelp(module, this.sentence);
+        this.dUtils.showHelp(module, this.sentence);
 
       } else {
 
-        Command command = dUtils.getCommand(module, this.sentence.getCommandName());
+        Command command = this.dUtils.getCommand(module, this.sentence.getCommandName());
         if (command != null) {
 
-          commandNeededParams = dUtils.getCommandParameters(module, this.sentence.getCommandName());
+          commandNeededParams = this.dUtils.getCommandParameters(module, this.sentence.getCommandName());
           if (commandNeededParams != null) {
-            List<CommandParameter> missingParameters = dUtils.getMissingParameters(sentenceParams, commandNeededParams);
+            List<CommandParameter> missingParameters =
+                this.dUtils.getMissingParameters(sentenceParams, commandNeededParams);
 
             if (missingParameters.size() > 0) {
 
-              this.sentence = dUtils.obtainValueForMissingParameters(missingParameters, this.sentence, output);
+              this.sentence =
+                  this.dUtils.obtainValueForMissingParameters(missingParameters, this.sentence, this.output);
 
               // check again for missing parameters
-              sentenceParams = dUtils.getParamsKeys(this.sentence.getParams());
-              missingParameters = dUtils.getMissingParameters(sentenceParams, commandNeededParams);
+              sentenceParams = this.dUtils.getParamsKeys(this.sentence.getParams());
+              missingParameters = this.dUtils.getMissingParameters(sentenceParams, commandNeededParams);
               if (missingParameters.size() > 0) {
-                dUtils.endAndShowMissingParameters(missingParameters);
+                this.dUtils.endAndShowMissingParameters(missingParameters);
               }
 
-              paramsValuesList = dUtils.getParamsValues(this.sentence.getParams());
+              paramsValuesList = this.dUtils.getParamsValues(this.sentence.getParams());
 
             }
 
-            paramsValuesList = dUtils.orderParameters(this.sentence.getParams(), commandNeededParams);
+            paramsValuesList = this.dUtils.orderParameters(this.sentence.getParams(), commandNeededParams);
           }
 
-          dUtils.LaunchCommand(module, this.sentence.getCommandName(), paramsValuesList);
+          this.dUtils.launchCommand(module, this.sentence.getCommandName(), paramsValuesList);
 
         } else {
           throw new NotRecognizedCommandException(this.sentence.getModuleName(), this.sentence.getCommandName());

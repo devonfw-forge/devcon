@@ -7,11 +7,12 @@ import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.impl.AbstractCommandHolder;
 
 /**
- * Implementation of test class Foo
+ * Implementation of test class Foo Hidden from console with Annotation parameter hidden=true
  *
  * @author pparrado
  */
-@CmdModuleRegistry(name = "foo", description = "This is only a test module.", context = "fooContext", deprecated = false)
+
+@CmdModuleRegistry(name = "foo", description = "This is only a test module.", context = "fooContext", visible = false)
 public class Foo extends AbstractCommandHolder {
 
   /**
@@ -55,7 +56,7 @@ public class Foo extends AbstractCommandHolder {
 
   @Command(name = "saySomething", help = "This command is for say something")
   @Parameters(values = { @Parameter(name = "message", description = "the message to be written"),
-  @Parameter(name = "signature", description = "the signature", isOptional = "true") })
+  @Parameter(name = "signature", description = "the signature", optional = true) })
   @SuppressWarnings("javadoc")
   public void saySomething(String message, String signature) {
 

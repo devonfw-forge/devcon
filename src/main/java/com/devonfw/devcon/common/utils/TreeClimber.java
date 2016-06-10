@@ -16,14 +16,14 @@ public class TreeClimber {
    * calls {@link FolderProcessor} for each folder encounters while "climbing" upward from {@link path} to the Root node
    *
    * @param path Path to climb from
-   * @param interceptor delegate to call for each folder
+   * @param processor delegate to processor which is called for each folder
    */
-  public static void climb(Path path, FolderProcessor interceptor) {
+  public static void climb(Path path, FolderProcessor processor) {
 
     Path _path = path.toAbsolutePath();
     Path root = path.getRoot();
 
-    while (interceptor.onFolder(_path)) {
+    while (processor.onFolder(_path)) {
       if (_path.equals(root)) {
         break;
       }

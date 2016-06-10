@@ -1,7 +1,6 @@
 package com.devonfw.devcon.input;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.cli.BasicParser;
@@ -9,7 +8,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.lang3.tuple.Pair;
 
+import com.devonfw.devcon.Devcon;
 import com.devonfw.devcon.common.CmdManager;
 import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Sentence;
@@ -40,7 +41,7 @@ public class InputConsole {
   public boolean parse() {
 
     Sentence sentence = new Sentence();
-    sentence.setParams(new ArrayList<HashMap<String, String>>());
+    sentence.setParams(new ArrayList<Pair<String, String>>());
 
     try {
 
@@ -49,8 +50,7 @@ public class InputConsole {
       cmd = parser.parse(this.options, this.args);
 
       if (cmd.hasOption("v")) {
-        // TODO the version must be dynamic
-        System.out.println("devcon v.0.1");
+        System.out.println(Devcon.DEVCON_VERSION);
         System.exit(0);
       }
 
@@ -69,15 +69,16 @@ public class InputConsole {
       Option[] parsedParams = cmd.getOptions();
       for (Option parsedParam : parsedParams) {
         if (cmd.getOptionValue(parsedParam.getOpt()) != null)
-          sentence.getParams().add(
-              this.dUtils.createParameterItem(parsedParam.getOpt(), cmd.getOptionValue(parsedParam.getOpt())));
+          sentence.getParams().add(Pair.of(parsedParam.getOpt(), cmd.getOptionValue(parsedParam.getOpt())));
       }
 
       List<?> argsNotParsed = cmd.getArgList();
 
       if (argsNotParsed.size() == 0) {
-        throw new Exception(
-            "You must specify a valid module name. Try 'devon help guide' command to know more about DevCon usage.");
+        // If not command line parameters given, show main help ("usage")
+        new CmdManager().showMainHelp();
+        return false;
+
       } else if (argsNotParsed.size() == 1) {
         sentence.setModuleName(argsNotParsed.get(0).toString());
       } else if (argsNotParsed.size() > 1) {
@@ -140,7 +141,5 @@ public class InputConsole {
     }
 
     return opts;
-
   }
-
 }
