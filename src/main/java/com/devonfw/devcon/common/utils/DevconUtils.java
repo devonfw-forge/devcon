@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -36,7 +37,6 @@ import com.devonfw.devcon.common.api.data.Info;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.Response;
 import com.devonfw.devcon.common.api.data.Sentence;
-import com.devonfw.devcon.common.api.utils.Pair;
 import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
 import com.devonfw.devcon.output.OutputConsole;
 import com.google.common.base.Optional;
@@ -296,11 +296,11 @@ public class DevconUtils {
           value = promptForMissingParameter(parameter.getName(), output);
         }
         if (value != "")
-          sentence.getParams().add(new BasicPair<String, String>(parameter.getName(), value));
+          sentence.getParams().add(Pair.of(parameter.getName(), value));
       } else {
         if (!sentence.isNoPrompt()) {
           value = promptForMissingParameter(parameter.getName(), output);
-          sentence.getParams().add(new BasicPair<String, String>(parameter.getName(), value));
+          sentence.getParams().add(Pair.of(parameter.getName(), value));
         }
       }
     }
@@ -365,7 +365,7 @@ public class DevconUtils {
 
     for (Pair<String, String> param : params) {
 
-      keysList.add(param.getFirst());
+      keysList.add(param.getLeft());
     }
 
     return keysList;
@@ -377,7 +377,7 @@ public class DevconUtils {
 
     for (Pair<String, String> param : params) {
 
-      valuesList.add(param.getLast());
+      valuesList.add(param.getRight());
     }
     return valuesList;
   }
@@ -421,8 +421,8 @@ public class DevconUtils {
     List<String> orderedParameters = new ArrayList<String>();
     for (CommandParameter commandParam : commandParams) {
       for (Pair<String, String> sentenceParam : sentenceParams) {
-        if (sentenceParam.getFirst().equals(commandParam.getName())) {
-          orderedParameters.add(sentenceParam.getLast());
+        if (sentenceParam.getLeft().equals(commandParam.getName())) {
+          orderedParameters.add(sentenceParam.getRight());
           break;
         }
       }
@@ -453,7 +453,7 @@ public class DevconUtils {
 
   public List<Info> getListOfAvailableModules() {
 
-    List<Info> modules = new ArrayList();
+    List<Info> modules = new ArrayList<>();
     try {
       Set<Class<?>> annotatedClasses = this.reflections.getTypesAnnotatedWith(CmdModuleRegistry.class);
 

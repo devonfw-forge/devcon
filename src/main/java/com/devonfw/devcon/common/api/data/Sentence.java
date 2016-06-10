@@ -2,7 +2,7 @@ package com.devonfw.devcon.common.api.data;
 
 import java.util.List;
 
-import com.devonfw.devcon.common.api.utils.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * TODO pparrado This type ...

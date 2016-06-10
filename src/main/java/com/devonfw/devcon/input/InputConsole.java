@@ -8,15 +8,14 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.devonfw.devcon.Devcon;
 import com.devonfw.devcon.common.CmdManager;
 import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Sentence;
-import com.devonfw.devcon.common.api.utils.Pair;
 import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
 import com.devonfw.devcon.common.exception.NotRecognizedModuleException;
-import com.devonfw.devcon.common.utils.BasicPair;
 import com.devonfw.devcon.common.utils.DevconUtils;
 
 /**
@@ -70,8 +69,7 @@ public class InputConsole {
       Option[] parsedParams = cmd.getOptions();
       for (Option parsedParam : parsedParams) {
         if (cmd.getOptionValue(parsedParam.getOpt()) != null)
-          sentence.getParams()
-              .add(new BasicPair<String, String>(parsedParam.getOpt(), cmd.getOptionValue(parsedParam.getOpt())));
+          sentence.getParams().add(Pair.of(parsedParam.getOpt(), cmd.getOptionValue(parsedParam.getOpt())));
       }
 
       List<?> argsNotParsed = cmd.getArgList();

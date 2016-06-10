@@ -50,7 +50,7 @@ public class AbstractCommandHolder implements CommandHolder {
   @Override
   public List<Command> getCommands() {
 
-    List<Command> commandList = new ArrayList();
+    List<Command> commandList = new ArrayList<>();
 
     Class<?> obj = this.getClass();
 
