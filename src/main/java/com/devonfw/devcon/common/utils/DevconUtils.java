@@ -29,6 +29,7 @@ import org.reflections.util.ClasspathHelper;
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
+import com.devonfw.devcon.common.api.annotations.ParameterType;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.CommandParameter;
 import com.devonfw.devcon.common.api.data.DevconOption;
@@ -180,7 +181,7 @@ public class DevconUtils {
               for (Parameter param : paramsList) {
                 String name = param.name();
                 String description = param.description();
-                boolean isOptional = param.optional();
+                boolean isOptional = param.type().equals(ParameterType.Optional);
                 commandParams.add(new CommandParameter(name, description, isOptional));
               }
             }
