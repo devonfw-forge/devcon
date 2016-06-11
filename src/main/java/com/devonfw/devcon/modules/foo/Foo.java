@@ -3,6 +3,7 @@ package com.devonfw.devcon.modules.foo;
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
+import com.devonfw.devcon.common.api.annotations.ParameterType;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.impl.AbstractCommandHolder;
 
@@ -56,7 +57,7 @@ public class Foo extends AbstractCommandHolder {
 
   @Command(name = "saySomething", help = "This command is for say something")
   @Parameters(values = { @Parameter(name = "message", description = "the message to be written"),
-  @Parameter(name = "signature", description = "the signature", optional = true) })
+  @Parameter(name = "signature", description = "the signature", type = ParameterType.Optional) })
   @SuppressWarnings("javadoc")
   public void saySomething(String message, String signature) {
 
