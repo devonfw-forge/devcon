@@ -28,13 +28,6 @@ public @interface CmdModuleRegistry {
   String description() default "";
 
   /**
-   * Context of the module
-   *
-   * @return context
-   */
-  String context() default "";
-
-  /**
    * State of the module
    *
    * @return state

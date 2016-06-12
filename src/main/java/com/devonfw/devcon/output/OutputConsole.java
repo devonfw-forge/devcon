@@ -6,6 +6,7 @@ import java.util.Scanner;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
+import com.devonfw.devcon.common.api.CommandModule;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Info;
@@ -62,8 +63,8 @@ public class OutputConsole {
 
     StringBuilder footer = new StringBuilder();
     footer.append("List of available modules: \n");
-    for (Info module : response.getModulesList()) {
-      // hide module is hidden
+    for (Info moduleInfo : response.getModulesList()) {
+      CommandModule module = (CommandModule) moduleInfo;
       if (module.isVisible())
         footer.append("> " + module.getName() + ": " + module.getDescription() + "\n");
     }

@@ -1,9 +1,12 @@
 package com.devonfw.devcon.basic;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -16,18 +19,22 @@ import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 
+import com.devonfw.devcon.common.api.Command;
+import com.devonfw.devcon.common.api.CommandModule;
+import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
-import com.devonfw.devcon.common.api.annotations.Command;
-import com.devonfw.devcon.common.impl.AbstractCommandHolder;
-import com.devonfw.devcon.modules.foo.Foo;
+import com.devonfw.devcon.common.api.data.CommandParameter;
+import com.devonfw.devcon.common.impl.CommandRegistryImpl;
 
 /**
  * Tests basic application functionalities.
  *
  * @author pparrado
  */
-public class BasicTests {
+public class BasicTest {
   Reflections reflections;
+
+  CommandRegistry registry;;
 
   @SuppressWarnings("javadoc")
   @Before
@@ -36,10 +43,10 @@ public class BasicTests {
     // This way only works for classes
     // this.reflections = new Reflections("com.devonfw.devcon.modules");
 
-    this.reflections =
-        new Reflections(ClasspathHelper.forPackage("com.devonfw.devcon.modules"), new SubTypesScanner(),
-            new TypeAnnotationsScanner(), new MethodAnnotationsScanner());
+    this.reflections = new Reflections(ClasspathHelper.forPackage("com.devonfw.devcon.modules"), new SubTypesScanner(),
+        new TypeAnnotationsScanner(), new MethodAnnotationsScanner());
 
+    this.registry = new CommandRegistryImpl("com.devonfw.devcon.modules.*");
   }
 
   /**
@@ -71,7 +78,8 @@ public class BasicTests {
   @Test
   public void methodScanner() {
 
-    Set<Method> annotatedMethods = this.reflections.getMethodsAnnotatedWith(Command.class);
+    Set<Method> annotatedMethods =
+        this.reflections.getMethodsAnnotatedWith(com.devonfw.devcon.common.api.annotations.Command.class);
     System.out.println(annotatedMethods.size());
 
     Iterator<Method> iterator = annotatedMethods.iterator();
@@ -96,7 +104,7 @@ public class BasicTests {
     if (obj.isAnnotationPresent(CmdModuleRegistry.class)) {
       Annotation annotation = obj.getAnnotation(CmdModuleRegistry.class);
       CmdModuleRegistry module = (CmdModuleRegistry) annotation;
-      if (module.name().equals("foo") && module.context().equals("fooContext") && module.deprecated() == false) {
+      if (module.name().equals("foo") /* && module.context().equals("fooContext") */ && module.deprecated() == false) {
         result = true;
       }
     }
@@ -118,9 +126,10 @@ public class BasicTests {
     Class<?> obj = Class.forName("com.devonfw.devcon.modules.foo.Foo");
     Method method = obj.getMethod("farewell");
     if (method != null) {
-      if (method.isAnnotationPresent(Command.class)) {
-        Annotation methodAnnotation = method.getAnnotation(Command.class);
-        Command com = (Command) methodAnnotation;
+      if (method.isAnnotationPresent(com.devonfw.devcon.common.api.annotations.Command.class)) {
+        Annotation methodAnnotation = method.getAnnotation(com.devonfw.devcon.common.api.annotations.Command.class);
+        com.devonfw.devcon.common.api.annotations.Command com =
+            (com.devonfw.devcon.common.api.annotations.Command) methodAnnotation;
         if (!com.help().isEmpty())
           result = true;
       }
@@ -130,33 +139,38 @@ public class BasicTests {
 
   }
 
-  /**
-   * Tests the getCommands method of the {@link AbstractCommandHolder} class
-   */
-  @Test
-  public void getCommandsBySuperClass() {
+  ///////////////////////////
+  //// After refactoring
+  //////////////////////////
 
-    Foo f = new Foo();
-    List<Command> commands = f.getCommands();
-    assertTrue(commands.size() > 0);
+  @Test
+  public void testCommandRegistry() {
+
+    // given setup registry with Foo module
+
+    // then
+    assertTrue(this.registry.getCommandModule("foo").isPresent());
+    assertFalse(this.registry.getCommandModule("fooNotPresent").isPresent());
+
+    // given
+    CommandModule module = this.registry.getCommandModule("foo").get();
+
+    // then
+    assertEquals("foo", module.getName());
+    assertTrue(module.getCommand("greeting").isPresent());
+    assertFalse(module.getCommand("greetingNotPresent").isPresent());
+
+    // given
+    Command cmd = module.getCommand("largeCustomFarewell").get();
+
+    // then
+    assertEquals("largeCustomFarewell", cmd.getName());
+    assertEquals(2, cmd.getDefinedParameters().size());
+
+    // given
+    List<CommandParameter> params_ = new ArrayList<>(cmd.getDefinedParameters());
+    assertEquals("surname", params_.get(1).getName());
+
   }
 
-  /**
-   * Tests the capability to get an annotation using the {@link AbstractCommandHolder} class
-   */
-  @Test
-  public void getCommandsAnnotationBySuperClass() {
-
-    boolean result = true;
-    Foo f = new Foo();
-    List<Command> commands = f.getCommands();
-    for (Command command : commands) {
-      if (command.help().isEmpty() || command.help() == null) {
-        result = false;
-        break;
-      }
-    }
-
-    assertTrue(result);
-  }
 }

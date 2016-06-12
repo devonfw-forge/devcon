@@ -13,7 +13,7 @@ import org.junit.Test;
  *
  * @author ivanderk
  */
-public class PairTests {
+public class PairTest {
 
   @Test
   public void testPairs() {

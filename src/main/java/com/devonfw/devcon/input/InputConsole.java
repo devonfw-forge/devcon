@@ -11,7 +11,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.devonfw.devcon.Devcon;
-import com.devonfw.devcon.common.CmdManager;
+import com.devonfw.devcon.common.CommandManager;
 import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Sentence;
 import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
@@ -34,7 +34,7 @@ public class InputConsole {
   public InputConsole(String[] args) {
 
     this.args = args;
-    this.options = setOptions();
+    // this.options = setOptions();
 
   }
 
@@ -76,7 +76,7 @@ public class InputConsole {
 
       if (argsNotParsed.size() == 0) {
         // If not command line parameters given, show main help ("usage")
-        new CmdManager().showMainHelp();
+        new CommandManager().showMainHelp();
         return false;
 
       } else if (argsNotParsed.size() == 1) {
@@ -86,7 +86,7 @@ public class InputConsole {
         sentence.setCommandName(argsNotParsed.get(1).toString());
       }
 
-      new CmdManager(sentence).evaluate();
+      new CommandManager(sentence).evaluate();
 
       return true;
     } catch (NotRecognizedModuleException e) {
@@ -111,7 +111,7 @@ public class InputConsole {
   private Options getAvailableCommandParameters() {
 
     try {
-      List<String> CommandParamsList = this.dUtils.getAvailableCommandParameters();
+      List<String> CommandParamsList = null; // this.dUtils.getAvailableCommandParameters();
 
       Options availableCommandParameters = new Options();
 

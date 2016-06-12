@@ -22,7 +22,8 @@ public class Devcon {
 
     System.out.println(DEVCON_BANNER);
 
-    new InputConsole(args).parse();
+    InputConsole input = new InputConsole(args);
+    input.parse();
   }
 
 }

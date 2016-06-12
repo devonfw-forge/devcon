@@ -6,15 +6,15 @@ import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
-import com.devonfw.devcon.common.impl.AbstractCommandHolder;
+import com.devonfw.devcon.common.impl.AbstractCommandModule;
 
 /**
  * Module with general tasks related to the distribution itself
  *
  * @author pparrado
  */
-@CmdModuleRegistry(name = "dist", description = "Module with general tasks related to the distribution itself", context = "global", deprecated = false)
-public class Dist extends AbstractCommandHolder {
+@CmdModuleRegistry(name = "dist", description = "Module with general tasks related to the distribution itself", deprecated = false)
+public class Dist extends AbstractCommandModule {
 
   /**
    * This command downloads and unzips the Devon distribution
@@ -26,8 +26,7 @@ public class Dist extends AbstractCommandHolder {
    * @throws Exception
    */
   @Command(name = "install", help = "This command downloads the distribution")
-  @Parameters(values = {
-  @Parameter(name = "path", description = "a location for the Devon distribution download"),
+  @Parameters(values = { @Parameter(name = "path", description = "a location for the Devon distribution download"),
   @Parameter(name = "type", description = "the type of the distribution, the options are: \n 'oaspide' to download OASP IDE\n 'devondist' to download Devon IP IDE"),
   @Parameter(name = "user", description = "a user with permissions to download the Devon distribution"),
   @Parameter(name = "password", description = "the password related to the user with permissions to download the Devon distribution") })

@@ -6,15 +6,15 @@ import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
-import com.devonfw.devcon.common.impl.AbstractCommandHolder;
+import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.google.common.base.Optional;
 
 /**
  *
  * @author ivanderk
  */
-@CmdModuleRegistry(name = "sencha", description = "Sencha related commands", context = "global", deprecated = false)
-public class Sencha extends AbstractCommandHolder {
+@CmdModuleRegistry(name = "sencha", description = "Sencha related commands", deprecated = false)
+public class Sencha extends AbstractCommandModule {
 
   @SuppressWarnings("javadoc")
   @Command(name = "run", help = "compiles in DEBUG mode and then runs the internal Sencha web server (\"app watch\")")

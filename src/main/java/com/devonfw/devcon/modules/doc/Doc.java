@@ -2,7 +2,7 @@ package com.devonfw.devcon.modules.doc;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
-import com.devonfw.devcon.common.impl.AbstractCommandHolder;
+import com.devonfw.devcon.common.impl.AbstractCommandModule;
 
 /**
  * TODO ivanderk This type ...
@@ -10,8 +10,8 @@ import com.devonfw.devcon.common.impl.AbstractCommandHolder;
  * @author ivanderk
  */
 
-@CmdModuleRegistry(name = "doc", description = "Module with tasks related with obtaining specific documentation", context = "global", deprecated = false)
-public class Doc extends AbstractCommandHolder {
+@CmdModuleRegistry(name = "doc", description = "Module with tasks related with obtaining specific documentation", deprecated = false)
+public class Doc extends AbstractCommandModule {
 
   /**
    *

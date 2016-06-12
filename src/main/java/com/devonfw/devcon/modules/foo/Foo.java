@@ -5,7 +5,7 @@ import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.ParameterType;
 import com.devonfw.devcon.common.api.annotations.Parameters;
-import com.devonfw.devcon.common.impl.AbstractCommandHolder;
+import com.devonfw.devcon.common.impl.AbstractCommandModule;
 
 /**
  * Implementation of test class Foo Hidden from console with Annotation parameter hidden=true
@@ -13,8 +13,8 @@ import com.devonfw.devcon.common.impl.AbstractCommandHolder;
  * @author pparrado
  */
 
-@CmdModuleRegistry(name = "foo", description = "This is only a test module.", context = "fooContext", visible = false)
-public class Foo extends AbstractCommandHolder {
+@CmdModuleRegistry(name = "foo", description = "This is only a test module.", visible = false)
+public class Foo extends AbstractCommandModule {
 
   /**
    * The constructor.
@@ -26,7 +26,7 @@ public class Foo extends AbstractCommandHolder {
 
   @Command(name = "greeting", help = "This command is used to say hello.")
   @SuppressWarnings("javadoc")
-  public void greeting() {
+  public void greetingMethod() {
 
     this.output.showMessage("Hello");
   }

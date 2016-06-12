@@ -7,15 +7,15 @@ import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.ParameterType;
 import com.devonfw.devcon.common.api.annotations.Parameters;
-import com.devonfw.devcon.common.impl.AbstractCommandHolder;
+import com.devonfw.devcon.common.impl.AbstractCommandModule;
 
 /**
  * TODO ssarmoka This class contains command to generate a new workspace with default configuration.
  *
  * @author ssarmoka
  */
-@CmdModuleRegistry(name = "workspace", description = "Module to create a new workspace with all default configuration", context = "MyContextIsNotGlobal", deprecated = false)
-public class Workspace extends AbstractCommandHolder {
+@CmdModuleRegistry(name = "workspace", description = "Module to create a new workspace with all default configuration", deprecated = false)
+public class Workspace extends AbstractCommandModule {
 
   public Workspace() {
     super();
