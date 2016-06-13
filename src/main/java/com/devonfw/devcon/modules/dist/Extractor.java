@@ -15,7 +15,8 @@ import net.sf.sevenzipjbinding.SevenZip;
 import net.sf.sevenzipjbinding.SevenZipException;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 
-import com.devonfw.devcon.output.OutputConsole;
+import com.devonfw.devcon.output.Output;
+import com.devonfw.devcon.output.ConsoleOutput;
 import com.devonfw.devcon.output.SpinningCursor;
 
 /**
@@ -37,7 +38,7 @@ public class Extractor {
   public static void extract(String file, String extractPath) throws SevenZipException, IOException,
       InterruptedException {
 
-    OutputConsole out = new OutputConsole();
+    Output out = new ConsoleOutput();
     Thread thread;
     SpinningCursor spin;
 
@@ -75,7 +76,7 @@ public class Extractor {
 
     private final String extractPath;
 
-    OutputConsole out = new OutputConsole();
+    Output out = new ConsoleOutput();
 
     // boolean firstNode = true;
 

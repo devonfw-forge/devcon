@@ -24,7 +24,8 @@ import com.collabnet.ce.soap60.webservices.filestorage.IFileStorageAppSoap;
 import com.collabnet.ce.soap60.webservices.frs.FrsFileSoapDO;
 import com.collabnet.ce.soap60.webservices.frs.IFrsAppSoap;
 import com.devonfw.devcon.output.DownloadingProgress;
-import com.devonfw.devcon.output.OutputConsole;
+import com.devonfw.devcon.output.Output;
+import com.devonfw.devcon.output.ConsoleOutput;
 
 /**
  * Class to encapsulate the functionality related to the Team Forge download process.
@@ -47,7 +48,7 @@ public class Downloader {
 
     Thread thread = null;
     DownloadingProgress progressBar = null;
-    OutputConsole out = new OutputConsole();
+    Output out = new ConsoleOutput();
     String fileName = "";
     String tempFilePath = "";
     String userTempDir = System.getProperty("java.io.tmpdir");

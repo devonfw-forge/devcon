@@ -27,7 +27,8 @@ import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Info;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.Sentence;
-import com.devonfw.devcon.output.OutputConsole;
+import com.devonfw.devcon.output.Output;
+import com.devonfw.devcon.output.ConsoleOutput;
 import com.google.common.base.Optional;
 
 /**
@@ -191,7 +192,7 @@ public class DevconUtils {
 
   }
 
-  public String promptForMissingParameter(String missingParameter, OutputConsole output) {
+  public String promptForMissingParameter(String missingParameter, Output output) {
 
     String result = "";
     String value = output.promptForArgument(missingParameter);
@@ -202,7 +203,7 @@ public class DevconUtils {
   }
 
   public Sentence obtainValueForMissingParameters(List<CommandParameter> missingParameters, Sentence sentence,
-      OutputConsole output) throws FileNotFoundException, IOException, ParseException {
+      Output output) throws FileNotFoundException, IOException, ParseException {
 
     for (CommandParameter parameter : missingParameters) {
       String value = "";
@@ -265,7 +266,7 @@ public class DevconUtils {
 
   public void endAndShowMissingParameters(List<CommandParameter> missingParameters) throws Exception {
 
-    OutputConsole output = new OutputConsole();
+    Output output = new ConsoleOutput();
     StringBuilder sb = new StringBuilder();
     for (CommandParameter missingParameter : missingParameters) {
       sb.append("[-");

@@ -12,7 +12,7 @@ import com.devonfw.devcon.common.api.data.Sentence;
 import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
 import com.devonfw.devcon.common.exception.NotRecognizedModuleException;
 import com.devonfw.devcon.common.utils.DevconUtils;
-import com.devonfw.devcon.output.OutputConsole;
+import com.devonfw.devcon.output.Output;
 import com.google.common.base.Optional;
 
 /**
@@ -24,35 +24,18 @@ public class CommandManager {
 
   private CommandRegistry registry;
 
-  /**
-   * @return registry
-   */
-  public CommandRegistry getRegistry() {
+  private Output output;
 
-    return this.registry;
-  }
-
-  /**
-   * @param registry new value of {@link #getregistry}.
-   */
-  public void setRegistry(CommandRegistry registry) {
-
-    this.registry = registry;
-  }
-
-  public Sentence sentence;
-
-  DevconUtils dUtils = new DevconUtils();
-
-  OutputConsole output = new OutputConsole();
+  private DevconUtils dUtils = new DevconUtils();
 
   public CommandManager() {
 
   }
 
-  public CommandManager(Sentence sentence) {
-
-    this.sentence = sentence;
+  public CommandManager(CommandRegistry registry, Output output) {
+    this();
+    this.registry = registry;
+    this.output = output;
   }
 
   public void showMainHelp() throws Exception {
@@ -77,24 +60,24 @@ public class CommandManager {
 
   }
 
-  public void evaluate() throws Exception {
+  public void evaluate(Sentence sentence) throws Exception {
 
-    List<String> paramsValuesList = this.dUtils.getParamsValues(this.sentence.getParams());
-    List<String> sentenceParams = this.dUtils.getParamsKeys(this.sentence.getParams());
+    List<String> paramsValuesList = this.dUtils.getParamsValues(sentence.getParams());
+    List<String> sentenceParams = this.dUtils.getParamsKeys(sentence.getParams());
     Collection<CommandParameter> commandNeededParams;
 
-    Optional<CommandModule> module = this.registry.getCommandModule(this.sentence.getModuleName());
+    Optional<CommandModule> module = this.registry.getCommandModule(sentence.getModuleName());
 
     if (module.isPresent()) {
 
       // If no command given OR helpRequested flag is 'true' the app shows the help info and ends
-      if (this.sentence.getCommandName() == null || this.sentence.isHelpRequested()) {
+      if (sentence.getCommandName() == null || sentence.isHelpRequested()) {
 
         // this.dUtils.showHelp(module, this.sentence);
 
       } else {
 
-        Optional<Command> command = module.get().getCommand(this.sentence.getCommandName());
+        Optional<Command> command = module.get().getCommand(sentence.getCommandName());
         if (command.isPresent()) {
           Command cmd = command.get();
           commandNeededParams = cmd.getDefinedParameters();
@@ -125,14 +108,46 @@ public class CommandManager {
           cmd.exec(arguments);
 
         } else {
-          throw new NotRecognizedCommandException(this.sentence.getModuleName(), this.sentence.getCommandName());
+          throw new NotRecognizedCommandException(sentence.getModuleName(), sentence.getCommandName());
         }
       }
 
     } else {
-      throw new NotRecognizedModuleException(this.sentence.getModuleName());
+      throw new NotRecognizedModuleException(sentence.getModuleName());
     }
 
+  }
+
+  /**
+   * @return output
+   */
+  public Output getOutput() {
+
+    return this.output;
+  }
+
+  /**
+   * @param output new value of {@link #getoutput}.
+   */
+  public void setOutput(Output output) {
+
+    this.output = output;
+  }
+
+  /**
+   * @return registry
+   */
+  public CommandRegistry getRegistry() {
+
+    return this.registry;
+  }
+
+  /**
+   * @param registry new value of {@link #getregistry}.
+   */
+  public void setRegistry(CommandRegistry registry) {
+
+    this.registry = registry;
   }
 
 }

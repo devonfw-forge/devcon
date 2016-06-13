@@ -1,2 +1,3 @@
 # devcon
-Dev©n (“devcon”), a command line tool for Devon
+Devcon, a command line tool for Devon
+

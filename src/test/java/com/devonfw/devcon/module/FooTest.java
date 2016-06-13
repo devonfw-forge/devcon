@@ -10,9 +10,15 @@ import java.nio.file.Path;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
-import com.devonfw.devcon.input.InputConsole;
+import com.devonfw.devcon.common.CommandManager;
+import com.devonfw.devcon.common.api.CommandRegistry;
+import com.devonfw.devcon.common.impl.CommandRegistryImpl;
+import com.devonfw.devcon.input.ConsoleInput;
+import com.devonfw.devcon.output.Output;
+import com.devonfw.devcon.output.ConsoleOutput;
 
 /**
  * Class for prototype tests
@@ -20,7 +26,24 @@ import com.devonfw.devcon.input.InputConsole;
  * @author pparrado
  */
 public class FooTest {
-  InputConsole input;
+
+  private ConsoleInput input;
+
+  private CommandManager commandManager;
+
+  private CommandRegistry registry;
+
+  private Output output;
+
+  @SuppressWarnings("javadoc")
+  @Before
+  public void setup() {
+
+    this.registry = new CommandRegistryImpl("com.devonfw.devcon.modules.*");
+    this.output = new ConsoleOutput();
+    this.commandManager = new CommandManager(this.registry, this.output);
+    this.input = new ConsoleInput(this.commandManager);
+  }
 
   /**
    * Checks if a simple command is launched successfully
@@ -29,8 +52,7 @@ public class FooTest {
   public void simpleCommand() {
 
     String[] args = { "-np", "foo", "farewell" };
-    this.input = new InputConsole(args);
-    assertTrue(this.input.parse());
+    assertTrue(this.input.parse(args));
   }
 
   /**
@@ -40,8 +62,7 @@ public class FooTest {
   public void simpleCommandFail() {
 
     String[] args = { "-np", "foo", "fakeCommand" };
-    this.input = new InputConsole(args);
-    assertFalse(this.input.parse());
+    assertFalse(this.input.parse(args));
   }
 
   /**
@@ -51,8 +72,7 @@ public class FooTest {
   public void commandWithOneParameter() {
 
     String[] args = { "-np", "foo", "customFarewell", "-name", "Jason" };
-    this.input = new InputConsole(args);
-    assertTrue(this.input.parse());
+    assertTrue(this.input.parse(args));
   }
 
   /**
@@ -62,8 +82,7 @@ public class FooTest {
   public void commandWithOneParameterFail() {
 
     String[] args = { "-np", "foo", "customFarewell" };
-    this.input = new InputConsole(args);
-    assertFalse(this.input.parse());
+    assertFalse(this.input.parse(args));
   }
 
   /**
@@ -73,8 +92,8 @@ public class FooTest {
   public void commandWithWrongParameterFail() {
 
     String[] args = { "-np", "foo", "customFarewell", "-surname", "Jason" };
-    this.input = new InputConsole(args);
-    assertFalse(this.input.parse());
+
+    assertFalse(this.input.parse(args));
   }
 
   /**
@@ -84,8 +103,7 @@ public class FooTest {
   public void commandWithSeveralParams() {
 
     String[] args = { "-np", "foo", "largeCustomFarewell", "-name", "Jason", "-surname", "Lytle" };
-    this.input = new InputConsole(args);
-    assertTrue(this.input.parse());
+    assertTrue(this.input.parse(args));
   }
 
   /**
@@ -95,8 +113,7 @@ public class FooTest {
   public void commandWithSeveralParamsFail() {
 
     String[] args = { "-np", "foo", "largeCustomFarewell", "-name", "Jason" };
-    this.input = new InputConsole(args);
-    assertFalse(this.input.parse());
+    assertFalse(this.input.parse(args));
   }
 
   /**
@@ -115,8 +132,8 @@ public class FooTest {
     FileUtils.writeStringToFile(tempSettings, content, "UTF-8");
 
     String[] args = { "-np", "foo", "saySomething", "-message", "This is a message" };
-    this.input = new InputConsole(args);
-    assertTrue(this.input.parse());
+
+    assertTrue(this.input.parse(args));
   }
 
   @After
@@ -134,8 +151,8 @@ public class FooTest {
   public void wrongModule() {
 
     String[] args = { "-np", "wrongModule", "command" };
-    this.input = new InputConsole(args);
-    assertFalse(this.input.parse());
+
+    assertFalse(this.input.parse(args));
   }
 
   /**
@@ -145,8 +162,8 @@ public class FooTest {
   public void moduleHelp() {
 
     String[] args = { "foo", "-help" };
-    this.input = new InputConsole(args);
-    assertTrue(this.input.parse());
+
+    assertTrue(this.input.parse(args));
   }
 
   /**
@@ -156,8 +173,7 @@ public class FooTest {
   public void commandHelp() {
 
     String[] args = { "foo", "farewell", "-h" };
-    this.input = new InputConsole(args);
-    assertTrue(this.input.parse());
+    assertTrue(this.input.parse(args));
   }
 
   /**
@@ -167,8 +183,8 @@ public class FooTest {
   public void commandWithParametersHelp() {
 
     String[] args = { "foo", "largeCustomFarewell", "-h" };
-    this.input = new InputConsole(args);
-    assertTrue(this.input.parse());
+
+    assertTrue(this.input.parse(args));
   }
 
   /**
@@ -178,8 +194,8 @@ public class FooTest {
   public void commandHelpFail() {
 
     String[] args = { "foo", "fakeCommand", "-help" };
-    this.input = new InputConsole(args);
-    assertFalse(this.input.parse());
+
+    assertFalse(this.input.parse(args));
   }
 
 }

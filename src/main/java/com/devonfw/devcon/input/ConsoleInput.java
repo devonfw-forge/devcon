@@ -12,7 +12,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.devonfw.devcon.Devcon;
 import com.devonfw.devcon.common.CommandManager;
-import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Sentence;
 import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
 import com.devonfw.devcon.common.exception.NotRecognizedModuleException;
@@ -23,22 +22,22 @@ import com.devonfw.devcon.common.utils.DevconUtils;
  *
  * @author pparrado
  */
-public class InputConsole {
+public class ConsoleInput {
 
-  private String[] args = null;
+  private CommandManager commandManager;
 
-  private Options options = new Options();
+  // private String[] args = null;
 
   DevconUtils dUtils = new DevconUtils();
 
-  public InputConsole(String[] args) {
+  public ConsoleInput(CommandManager commandManager) {
 
-    this.args = args;
-    // this.options = setOptions();
+    // this.args = args;
+    this.commandManager = commandManager;
 
   }
 
-  public boolean parse() {
+  public boolean parse(String[] args) {
 
     Sentence sentence = new Sentence();
     sentence.setParams(new ArrayList<Pair<String, String>>());
@@ -47,27 +46,17 @@ public class InputConsole {
 
       CommandLineParser parser = new BasicParser();
       CommandLine cmd = null;
-      cmd = parser.parse(this.options, this.args);
+      cmd = parser.parse(new Options(), args);
 
       if (cmd.hasOption("v")) {
         System.out.println(Devcon.DEVCON_VERSION);
         System.exit(0);
       }
 
-      if (cmd.hasOption("np")) {
-        sentence.setNoPrompt(true);
-      } else {
-        sentence.setNoPrompt(false);
-      }
+      sentence.setNoPrompt(cmd.hasOption("np"));
+      sentence.setHelpRequested(cmd.hasOption("h"));
 
-      if (cmd.hasOption("h")) {
-        sentence.setHelpRequested(true);
-      } else {
-        sentence.setHelpRequested(false);
-      }
-
-      Option[] parsedParams = cmd.getOptions();
-      for (Option parsedParam : parsedParams) {
+      for (Option parsedParam : cmd.getOptions()) {
         if (cmd.getOptionValue(parsedParam.getOpt()) != null)
           sentence.getParams().add(Pair.of(parsedParam.getOpt(), cmd.getOptionValue(parsedParam.getOpt())));
       }
@@ -76,7 +65,7 @@ public class InputConsole {
 
       if (argsNotParsed.size() == 0) {
         // If not command line parameters given, show main help ("usage")
-        new CommandManager().showMainHelp();
+        this.commandManager.showMainHelp();
         return false;
 
       } else if (argsNotParsed.size() == 1) {
@@ -86,7 +75,7 @@ public class InputConsole {
         sentence.setCommandName(argsNotParsed.get(1).toString());
       }
 
-      new CommandManager(sentence).evaluate();
+      this.commandManager.evaluate(sentence);
 
       return true;
     } catch (NotRecognizedModuleException e) {
@@ -125,21 +114,21 @@ public class InputConsole {
     }
   }
 
-  private Options setOptions() {
-
-    Options opts = new Options();
-    List<DevconOption> globalOptions = new ArrayList<>();
-    DevconUtils devconUtils = new DevconUtils();
-    opts = getAvailableCommandParameters();
-
-    globalOptions = devconUtils.getGlobalOptions();
-
-    if (globalOptions != null) {
-      for (DevconOption gOpt : globalOptions) {
-        opts.addOption(new Option(gOpt.getOpt(), gOpt.getLongOpt(), false, gOpt.getDescription()));
-      }
-    }
-
-    return opts;
-  }
+  // private Options setOptions() {
+  //
+  // Options opts = new Options();
+  // List<DevconOption> globalOptions = new ArrayList<>();
+  // DevconUtils devconUtils = new DevconUtils();
+  // opts = getAvailableCommandParameters();
+  //
+  // globalOptions = devconUtils.getGlobalOptions();
+  //
+  // if (globalOptions != null) {
+  // for (DevconOption gOpt : globalOptions) {
+  // opts.addOption(new Option(gOpt.getOpt(), gOpt.getLongOpt(), false, gOpt.getDescription()));
+  // }
+  // }
+  //
+  // return opts;
+  // }
 }

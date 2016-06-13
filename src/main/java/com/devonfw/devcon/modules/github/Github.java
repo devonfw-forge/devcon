@@ -10,7 +10,7 @@ import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
-import com.devonfw.devcon.output.OutputConsole;
+import com.devonfw.devcon.output.Output;
 
 /**
  * This class contains command to clone oasp4j and devon repositories.
@@ -20,7 +20,7 @@ import com.devonfw.devcon.output.OutputConsole;
 @CmdModuleRegistry(name = "github", description = "Module to create a new workspace with all default configuration", deprecated = false)
 public class Github extends AbstractCommandModule {
 
-  OutputConsole out;
+  Output out;
 
   /**
    * This command is to clone oasp4j repository.

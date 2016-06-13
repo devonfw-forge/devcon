@@ -1,5 +1,7 @@
 package com.devonfw.devcon.output;
 
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -17,26 +19,41 @@ import com.devonfw.devcon.common.api.data.Response;
  *
  * @author pparrado
  */
-public class OutputConsole {
+public class ConsoleOutput implements Output {
 
-  private Options options = new Options();
+  private PrintStream out_;
 
+  public ConsoleOutput() {
+    this.out_ = System.out;
+  }
+
+  public ConsoleOutput(PrintStream out) {
+    this();
+    this.out_ = out;
+  }
+
+  @Override
   public void showMessage(String message) {
 
-    System.out.println(message);
+    this.out_.println(message);
   }
 
+  @Override
   public void showCommandHelp(Response response) {
 
+    Options options = new Options();
     for (Parameter commandParam : response.getCommandParamsList()) {
-      this.options.addOption(commandParam.name(), false, commandParam.description());
+      options.addOption(commandParam.name(), false, commandParam.description());
     }
 
-    HelpFormatter formater = new HelpFormatter();
+    HelpFormatter formatter = new HelpFormatter();
 
-    formater.printHelp(response.getName(), response.getDescription(), this.options, null, true);
+    formatter.printHelp(new PrintWriter(this.out_), 80, response.getName(), response.getDescription(), options, 0, 0,
+        null, true);
+    // formatter.printHelp(response.getName(), response.getDescription(), options, null, true);
   }
 
+  @Override
   public void showModuleHelp(Response response) {
 
     StringBuilder footerContent = new StringBuilder();
@@ -45,20 +62,24 @@ public class OutputConsole {
       footerContent.append("> " + command.getName() + ": " + command.getDescription() + "\n");
     }
 
-    HelpFormatter formater = new HelpFormatter();
-
-    formater.printHelp(response.getName() + " <<command>> [parameters...]", response.getDescription(), new Options(),
-        footerContent.toString(), true);
+    Options options = new Options();
+    String header = response.getName() + " <<command>> [parameters...]";
+    HelpFormatter formatter = new HelpFormatter();
+    formatter.printHelp(new PrintWriter(this.out_), 80, header, response.getDescription(), options, 0, 0, null, true);
+    // formater.printHelp(response.getName() + " <<command>> [parameters...]", response.getDescription(), new
+    // Options(),footerContent.toString(), true);
   }
 
+  @Override
   public void showGeneralHelp(Response response) {
 
+    Options options = new Options();
     response.setHeader(response.getHeader() != null ? response.getHeader() : "");
     response.setUsage(response.getUsage() != null ? response.getUsage() : " ");
     response.setFooter(response.getFooter() != null ? response.getFooter() : "");
 
     for (DevconOption opt : response.getGlobalParameters()) {
-      this.options.addOption(opt.getOpt(), opt.getLongOpt(), false, opt.getDescription());
+      options.addOption(opt.getOpt(), opt.getLongOpt(), false, opt.getDescription());
     }
 
     StringBuilder footer = new StringBuilder();
@@ -69,26 +90,30 @@ public class OutputConsole {
         footer.append("> " + module.getName() + ": " + module.getDescription() + "\n");
     }
 
-    HelpFormatter formater = new HelpFormatter();
-    formater.printHelp(response.getUsage(), response.getHeader(), this.options, footer.toString(), false);
+    HelpFormatter formatter = new HelpFormatter();
+    formatter.printHelp(new PrintWriter(this.out_), 80, response.getUsage(), response.getHeader(), options, 0, 0, null,
+        true);
+    // formater.printHelp(response.getUsage(), response.getHeader(), options, footer.toString(), false);
   }
 
+  @Override
   public String promptForArgument(String argName) {
 
     Scanner reader = new Scanner(System.in);
-    System.out.printf("Please introduce value for missing param %s: ", argName);
+    this.out_.printf("Please introduce value for missing param %s: ", argName);
     return reader.next();
   }
 
+  @Override
   public boolean askForUserConfirmation(String message) {
 
     String[] validResponses = { "yes", "y", "no", "n" };
     Scanner reader = new Scanner(System.in);
-    System.out.println(message);
-    System.out.println("Y/N");
+    this.out_.println(message);
+    this.out_.println("Y/N");
     String response = reader.next();
     while (!Arrays.asList(validResponses).contains(response.toLowerCase())) {
-      System.out.println("Please type 'yes' or 'no'");
+      this.out_.println("Please type 'yes' or 'no'");
       response = reader.next();
     }
     if (response.toLowerCase().equals("yes") || response.toLowerCase().equals("y")) {
@@ -98,24 +123,28 @@ public class OutputConsole {
     }
   }
 
+  @Override
   public void showError(String message) {
 
-    System.out.println("[ERROR]" + message);
+    this.out_.println("[ERROR]" + message);
   }
 
+  @Override
   public void status(String message) {
 
-    System.out.println("\r[INFO] " + message);
+    this.out_.println("\r[INFO] " + message);
   }
 
+  @Override
   public void statusInNewLine(String message) {
 
-    System.out.println("\n[INFO] " + message);
+    this.out_.println("\n[INFO] " + message);
   }
 
+  @Override
   public void success(String command) {
 
-    System.out.println("[INFO] The command " + command.toUpperCase() + " has finished successfully");
+    this.out_.println("[INFO] The command " + command.toUpperCase() + " has finished successfully");
   }
 
 }

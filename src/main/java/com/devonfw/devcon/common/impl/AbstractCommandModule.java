@@ -3,7 +3,8 @@ package com.devonfw.devcon.common.impl;
 import com.devonfw.devcon.common.api.data.Response;
 import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.common.utils.DevconUtils;
-import com.devonfw.devcon.output.OutputConsole;
+import com.devonfw.devcon.output.Output;
+import com.devonfw.devcon.output.ConsoleOutput;
 
 /**
  * TODO pparrado This type ...
@@ -23,9 +24,9 @@ public class AbstractCommandModule {
   protected Response response;
 
   /**
-   * {@link OutputConsole} instance
+   * {@link ConsoleOutput} instance
    */
-  protected OutputConsole output;
+  protected Output output;
 
   /**
    * {@link ContextPathInfo} instance
@@ -83,7 +84,7 @@ public class AbstractCommandModule {
   /**
    * @return output
    */
-  public OutputConsole getOutput() {
+  public Output getOutput() {
 
     return this.output;
   }

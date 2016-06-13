@@ -34,11 +34,11 @@ import com.devonfw.devcon.common.impl.CommandRegistryImpl;
 public class BasicTest {
   Reflections reflections;
 
-  CommandRegistry registry;;
+  CommandRegistry registry;
 
   @SuppressWarnings("javadoc")
   @Before
-  public void init() {
+  public void setup() {
 
     // This way only works for classes
     // this.reflections = new Reflections("com.devonfw.devcon.modules");
