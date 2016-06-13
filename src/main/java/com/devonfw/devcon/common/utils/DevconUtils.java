@@ -262,8 +262,7 @@ public class DevconUtils {
 
   }
 
-  public List<CommandParameter> getMissingParameters(List<String> sentenceParams,
-      List<CommandParameter> commandParams) {
+  public List<CommandParameter> getMissingParameters(List<String> sentenceParams, List<CommandParameter> commandParams) {
 
     List<CommandParameter> missingArguments = new ArrayList<>();
 
@@ -308,8 +307,8 @@ public class DevconUtils {
     return sentence;
   }
 
-  public String getOptionalValueFromFile(String parameterName)
-      throws FileNotFoundException, IOException, ParseException {
+  public String getOptionalValueFromFile(String parameterName) throws FileNotFoundException, IOException,
+      ParseException {
 
     String paramValue = "";
     try {
@@ -430,8 +429,8 @@ public class DevconUtils {
     return orderedParameters;
   }
 
-  public void launchCommand(String moduleName, String commandName)
-      throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
+  public void launchCommand(String moduleName, String commandName) throws IllegalAccessException,
+      IllegalArgumentException, InvocationTargetException, InstantiationException {
 
     launchCommand(moduleName, commandName, new ArrayList<String>());
   }
@@ -444,8 +443,8 @@ public class DevconUtils {
     method.invoke(module.newInstance(), parameters.toArray());
   }
 
-  public void launchCommand(Class<?> c, String commandName, List<String> parameters)
-      throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
+  public void launchCommand(Class<?> c, String commandName, List<String> parameters) throws IllegalAccessException,
+      IllegalArgumentException, InvocationTargetException, InstantiationException {
 
     Method method = getCommandInstance(c, commandName, parameters);
     method.invoke(c.newInstance(), parameters.toArray());
@@ -494,7 +493,7 @@ public class DevconUtils {
 
       } else {
         // TODO implement logs
-        System.out.println("Getting the default global options...");
+        // System.out.println("Getting the default global options...");
         globalOptions = getDefaultGlobalOptions();
       }
 
@@ -521,8 +520,8 @@ public class DevconUtils {
     return defaultGlobalOptions;
   }
 
-  private List<DevconOption> getGlobalOptionsFromFile(URL fileURL)
-      throws FileNotFoundException, IOException, ParseException {
+  private List<DevconOption> getGlobalOptionsFromFile(URL fileURL) throws FileNotFoundException, IOException,
+      ParseException {
 
     JSONParser parser = new JSONParser();
     List<DevconOption> globalOptions = new ArrayList<>();
