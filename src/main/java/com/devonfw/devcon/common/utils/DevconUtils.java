@@ -24,11 +24,10 @@ import org.reflections.util.ClasspathHelper;
 
 import com.devonfw.devcon.common.api.data.CommandParameter;
 import com.devonfw.devcon.common.api.data.DevconOption;
-import com.devonfw.devcon.common.api.data.Info;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.Sentence;
-import com.devonfw.devcon.output.Output;
 import com.devonfw.devcon.output.ConsoleOutput;
+import com.devonfw.devcon.output.Output;
 import com.google.common.base.Optional;
 
 /**
@@ -44,153 +43,6 @@ public class DevconUtils {
   private static final String DEVON_JSON = "devon.json";
 
   private static final String OPTIONAL = "optionalParameters";
-
-  /*
-   * public List<CmdModuleRegistry> getAvailableModules() {
-   *
-   * List<CmdModuleRegistry> modules = new ArrayList<CmdModuleRegistry>();
-   *
-   * try { Set<Class<?>> annotatedClasses = this.reflections.getTypesAnnotatedWith(CmdModuleRegistry.class);
-   *
-   * Iterator<Class<?>> iterator = annotatedClasses.iterator(); while (iterator.hasNext()) { Class<?> currentClass =
-   * iterator.next(); Annotation annotation = currentClass.getAnnotation(CmdModuleRegistry.class); CmdModuleRegistry
-   * module = (CmdModuleRegistry) annotation; modules.add(module); }
-   *
-   * return modules;
-   *
-   * } catch (Exception e) { // TODO implement logs System.out.println(
-   * "ERROR: An error occurred trying to obtain the available modules. Message: " + e.getMessage()); return null; }
-   *
-   * }
-   */
-
-  /*
-   * public List<Class<?>> getModulesAsClasses() {
-   *
-   * List<Class<?>> modules = new ArrayList<Class<?>>();
-   *
-   * try { Set<Class<?>> annotatedClasses = this.reflections.getTypesAnnotatedWith(CmdModuleRegistry.class);
-   *
-   * Iterator<Class<?>> iterator = annotatedClasses.iterator(); while (iterator.hasNext()) { Class<?> currentClass =
-   * iterator.next(); modules.add(currentClass); } return modules;
-   *
-   * } catch (Exception e) { // TODO implement logs System.out.println(
-   * "ERROR: An error occurred trying to obtain the available modules. Message: " + e.getMessage()); return null; } }
-   */
-
-  /*
-   * public List<String> getAvailableCommandParameters() {
-   *
-   * List<String> availableCommandParams = new ArrayList<String>(); Set<Method> annotatedMethods =
-   * this.reflections.getMethodsAnnotatedWith(Command.class);
-   *
-   * Iterator<Method> iterator = annotatedMethods.iterator(); while (iterator.hasNext()) { Method m = iterator.next();
-   * Annotation annotation = m.getAnnotation(Parameters.class); if (annotation != null) { Parameters params =
-   * (Parameters) annotation; List<Parameter> paramsList = Arrays.asList(params.values()); for (Parameter param :
-   * paramsList) { availableCommandParams.add(param.name()); } } }
-   *
-   * return availableCommandParams; }
-   */
-
-  /*
-   * public Method getCommandInstance(Class<?> c, String methodName, List<String> argList) {
-   *
-   * try {
-   *
-   * Class<?> params[] = new Class[argList.size()]; for (int i = 0; i < argList.size(); i++) { params[i] = String.class;
-   * }
-   *
-   * Method method = c.getMethod(methodName, params);
-   *
-   * return method;
-   *
-   * } catch (Exception e) { return null; } }
-   */
-  /*
-   * public Response getCommandInfo(Class<?> c, String commandName) {
-   *
-   * Response response = new Response(); for (Method m : c.getMethods()) { if (m.isAnnotationPresent(Command.class)) {
-   * if (m.getName().equals(commandName)) { Annotation commandAnnotation = m.getAnnotation(Command.class); Command com =
-   * (Command) commandAnnotation; Annotation paramsAnnotation = m.getAnnotation(Parameters.class); if (paramsAnnotation
-   * != null) { Parameters params = (Parameters) paramsAnnotation;
-   * response.setCommandParamsList(Arrays.asList(params.values())); } else { response.setCommandParamsList(new
-   * ArrayList<Parameter>()); } response.setDescription(com.help()); response.setName(com.name()); break; } } }
-   *
-   * return response; }
-   */
-
-  /*
-   * public List<CommandParameter> getCommandParameters(Class<?> c, String commandName) throws Exception {
-   *
-   * List<CommandParameter> commandParams = null; try { for (Method m : c.getMethods()) { if
-   * (m.isAnnotationPresent(Command.class)) { if (m.getName().equals(commandName)) { Annotation annotation =
-   * m.getAnnotation(Parameters.class); if (annotation != null) { Parameters params = (Parameters) annotation;
-   * commandParams = new ArrayList<>(); List<Parameter> paramsList = Arrays.asList(params.values()); for (Parameter
-   * param : paramsList) { String name = param.name(); String description = param.description(); boolean isOptional =
-   * param.type().equals(ParameterType.Optional); commandParams.add(new CommandParameter(name, description,
-   * isOptional)); } }
-   *
-   * break; } }
-   *
-   * }
-   *
-   * return commandParams; } catch (Exception e) { // TODO implement logs System.out.println(
-   * "[ERROR] at getCommandParameters. " + e.getMessage()); throw e; } }
-   */
-
-  /*
-   * public Response getModuleInfo(Class<?> c, String moduleName) throws Exception {
-   *
-   * Response response = new Response(); try { Annotation classAnnotation = c.getAnnotation(CmdModuleRegistry.class);
-   * CmdModuleRegistry commandModule = (CmdModuleRegistry) classAnnotation;
-   * response.setDescription(commandModule.description()); response.setName(commandModule.name());
-   * response.setCommandsList(getModuleCommands(c));
-   *
-   * return response;
-   *
-   * } catch (Exception e) { throw e; } }
-   */
-
-  /*
-   * public void showHelp(Class<?> c, Sentence s) throws Exception {
-   *
-   * Response response = new Response(); OutputConsole output = new OutputConsole();
-   *
-   * // if command is empty then the module info will be shown if (s.getCommandName() == null) {
-   *
-   * response = getModuleInfo(c, s.getModuleName()); output.showModuleHelp(response); // else the command info will be
-   * shown. } else if (s.getModuleName() != null && s.getCommandName() != null) { Command com = getCommand(c,
-   * s.getCommandName()); if (com == null) throw new NotRecognizedCommandException(s.getModuleName(),
-   * s.getCommandName()); response = getCommandInfo(c, s.getCommandName()); output.showCommandHelp(response); }
-   *
-   * }
-   */
-
-  public List<Info> getModuleCommands(Class<?> c) {
-
-    // List<Info> commandsList = new ArrayList<Info>();
-    // try {
-    // for (Method m : c.getMethods()) {
-    // if (m.isAnnotationPresent(Command.class)) {
-    // Info info = new Info();
-    //
-    // Annotation annotation = m.getAnnotation(Command.class);
-    // Command comm = (Command) annotation;
-    //
-    // info.setName(comm.name() != null ? comm.name() : "");
-    // info.setDescription(comm.help() != null ? comm.help() : "");
-    // commandsList.add(info);
-    // }
-    // }
-    // return commandsList;
-    // } catch (Exception e) {
-    // // TODO implement logs
-    // System.out.println("[ERROR] at getModuleCommands: " + e.getMessage());
-    // return null;
-    // }
-    return null;
-
-  }
 
   public String promptForMissingParameter(String missingParameter, Output output) {
 
@@ -299,30 +151,6 @@ public class DevconUtils {
     return valuesList;
   }
 
-  /*
-   * public Class<?> getModule(String moduleName) {
-   *
-   * List<Class<?>> modules = getModulesAsClasses(); Class<?> matchClass = null;
-   *
-   * for (Class<?> module : modules) {
-   *
-   * Annotation annotation = module.getAnnotation(CmdModuleRegistry.class); CmdModuleRegistry cmdModule =
-   * (CmdModuleRegistry) annotation; if (cmdModule.name().equals(moduleName)) { matchClass = module; break; } } return
-   * matchClass; }
-   */
-
-  /*
-   * public Command getCommand(Class<?> module, String commandName) {
-   *
-   * Command command = null;
-   *
-   * for (Method m : module.getMethods()) { if (m.isAnnotationPresent(Command.class)) { if
-   * (m.getName().equals(commandName)) { Annotation methodAnnotation = m.getAnnotation(Command.class); command =
-   * (Command) methodAnnotation; break; } } }
-   *
-   * return command; }
-   */
-
   public List<String> orderParameters(List<Pair<String, String>> sentenceParams, List<CommandParameter> commandParams) {
 
     List<String> orderedParameters = new ArrayList<String>();
@@ -337,49 +165,6 @@ public class DevconUtils {
     return orderedParameters;
   }
 
-  /*
-   * public void launchCommand(String moduleName, String commandName) throws IllegalAccessException,
-   * IllegalArgumentException, InvocationTargetException, InstantiationException {
-   * 
-   * launchCommand(moduleName, commandName, new ArrayList<String>()); }
-   */
-
-  /*
-   * public void launchCommand(String moduleName, String commandName, List<String> parameters) throws
-   * IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
-   *
-   * Class<?> module = getModule(moduleName); Method method = getCommandInstance(module, commandName, parameters);
-   * method.invoke(module.newInstance(), parameters.toArray()); }
-   */
-
-  /*
-   * public void launchCommand(Class<?> c, String commandName, List<String> parameters) throws IllegalAccessException,
-   * IllegalArgumentException, InvocationTargetException, InstantiationException {
-   *
-   * Method method = getCommandInstance(c, commandName, parameters); method.invoke(c.newInstance(),
-   * parameters.toArray()); }
-   */
-
-  /*
-   * public List<Info> getListOfAvailableModules() {
-   *
-   * List<Info> modules = new ArrayList<>(); try { Set<Class<?>> annotatedClasses =
-   * this.reflections.getTypesAnnotatedWith(CmdModuleRegistry.class);
-   *
-   * Iterator<Class<?>> iterator = annotatedClasses.iterator(); while (iterator.hasNext()) { Class<?> currentClass =
-   * iterator.next();
-   *
-   * Annotation annotation = currentClass.getAnnotation(CmdModuleRegistry.class); CmdModuleRegistry module =
-   * (CmdModuleRegistry) annotation; if (module.name() != null) { // Info info = new Info(); //
-   * info.setName(module.name()); // info.setDescription(module.description() != null ? module.description() : ""); //
-   * info.setVisible(module.visible()); // modules.add(info); } }
-   *
-   * return modules;
-   *
-   * } catch (Exception e) { System.out.println("An error occurred trying to obtain the available modules. Message: " +
-   * e.getMessage()); return modules; } }
-   *
-   */
   public List<DevconOption> getGlobalOptions() {
 
     List<DevconOption> globalOptions = new ArrayList<DevconOption>();
@@ -429,35 +214,6 @@ public class DevconUtils {
 
     String jsonPath = fileURL.getPath();
     Object obj = parser.parse(new FileReader(jsonPath));
-    // ****************
-
-    // InputStream in = DevconUtils.class.getResourceAsStream("/" + Constants.GLOBAL_PARAMS_FILE);
-    // StringWriter writer = new StringWriter();
-    // IOUtils.copy(in, writer, StandardCharsets.UTF_8);
-    // String s = writer.toString();
-    // System.out.println(s);
-    // System.out.println(s.length());
-
-    // URL url = DevconUtils.class.getResource("/" + Constants.GLOBAL_PARAMS_FILE);
-    // Object obj = parser.parse(new FileReader(url.getPath()));
-
-    // ***************
-    // File f = new File(DevconUtils.class.getResource("/" + Constants.GLOBAL_PARAMS_FILE).toURI());
-    // Object obj = parser.parse(new FileReader(f));
-    // ***************
-
-    // Object obj = null;
-    // try {
-    // obj = parser.parse(s);
-    // } catch (Exception e) {
-    // System.out.println(e.getMessage());
-    // }
-
-    // ------------------------------------------
-    // WORKS WITH BOTH COMMAND LINE AND ECLIPSE
-    // Object obj = parser.parse(new FileReader("C:\\Temp\\" + Constants.GLOBAL_PARAMS_FILE));
-    // ------------------------------------------
-
     JSONArray json = (JSONArray) obj;
 
     Iterator<Object> it = json.iterator();

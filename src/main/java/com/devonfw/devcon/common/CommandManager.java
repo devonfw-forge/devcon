@@ -1,13 +1,17 @@
 package com.devonfw.devcon.common;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.devonfw.devcon.common.api.Command;
 import com.devonfw.devcon.common.api.CommandModule;
 import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.api.data.CommandParameter;
+import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Sentence;
 import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
 import com.devonfw.devcon.common.exception.NotRecognizedModuleException;
@@ -60,7 +64,7 @@ public class CommandManager {
 
   }
 
-  public void evaluate(Sentence sentence) throws Exception {
+  public Pair<CommandResult, String> evaluate(Sentence sentence) throws Exception {
 
     List<String> paramsValuesList = this.dUtils.getParamsValues(sentence.getParams());
     List<String> sentenceParams = this.dUtils.getParamsKeys(sentence.getParams());
@@ -108,13 +112,19 @@ public class CommandManager {
           cmd.exec(arguments);
 
         } else {
-          throw new NotRecognizedCommandException(sentence.getModuleName(), sentence.getCommandName());
+          this.output.showError("[ERROR] The command " + sentence.getCommandName()
+              + " is not recognized as valid command of the " + sentence.getModuleName() + " module");
+          return Pair.of(CommandResult.CommandNotRecognized,
+              sentence.getModuleName() + " " + sentence.getCommandName());
         }
       }
-
     } else {
-      throw new NotRecognizedModuleException(sentence.getModuleName());
+
+      this.output
+          .showError("[ERROR] The module " + sentence.getModuleName() + " is not recognized as available module.");
+      return Pair.of(CommandResult.ModuleNotRecognized, sentence.getModuleName());
     }
+    return Pair.of(CommandResult.OK, CommandResult.OK_MSG);
 
   }
 
@@ -148,6 +158,21 @@ public class CommandManager {
   public void setRegistry(CommandRegistry registry) {
 
     this.registry = registry;
+  }
+
+  /**
+   * @return
+   */
+  public List<DevconOption> getCommandOptions() {
+
+    List<DevconOption> options = new ArrayList<>();
+    for (CommandModule module : this.registry.getCommandModules()) {
+      for (Command command : module.getCommands()) {
+        options.add(new DevconOption(command.getName(), command.getName(), command.getDescription()));
+      }
+    }
+
+    return options;
   }
 
 }

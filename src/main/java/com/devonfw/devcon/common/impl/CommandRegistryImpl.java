@@ -1,6 +1,7 @@
 package com.devonfw.devcon.common.impl;
 
 import java.lang.annotation.Annotation;
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.reflections.Reflections;
@@ -132,6 +133,12 @@ public class CommandRegistryImpl implements CommandRegistry {
   public void setDescription(String description) {
 
     this.description = description;
+  }
+
+  @Override
+  public Collection<CommandModule> getCommandModules() {
+
+    return this.modules.values();
   }
 
 }

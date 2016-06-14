@@ -12,9 +12,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.devonfw.devcon.Devcon;
 import com.devonfw.devcon.common.CommandManager;
+import com.devonfw.devcon.common.CommandResult;
+import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Sentence;
-import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
-import com.devonfw.devcon.common.exception.NotRecognizedModuleException;
 import com.devonfw.devcon.common.utils.DevconUtils;
 
 /**
@@ -26,15 +26,11 @@ public class ConsoleInput {
 
   private CommandManager commandManager;
 
-  // private String[] args = null;
-
-  DevconUtils dUtils = new DevconUtils();
+  private DevconUtils dUtils = new DevconUtils();
 
   public ConsoleInput(CommandManager commandManager) {
 
-    // this.args = args;
     this.commandManager = commandManager;
-
   }
 
   public boolean parse(String[] args) {
@@ -45,8 +41,7 @@ public class ConsoleInput {
     try {
 
       CommandLineParser parser = new BasicParser();
-      CommandLine cmd = null;
-      cmd = parser.parse(new Options(), args);
+      CommandLine cmd = parser.parse(getOptions(), args);
 
       if (cmd.hasOption("v")) {
         System.out.println(Devcon.DEVCON_VERSION);
@@ -66,6 +61,7 @@ public class ConsoleInput {
       if (argsNotParsed.size() == 0) {
         // If not command line parameters given, show main help ("usage")
         this.commandManager.showMainHelp();
+
         return false;
 
       } else if (argsNotParsed.size() == 1) {
@@ -75,60 +71,50 @@ public class ConsoleInput {
         sentence.setCommandName(argsNotParsed.get(1).toString());
       }
 
-      this.commandManager.evaluate(sentence);
+      Pair<CommandResult, String> result = this.commandManager.evaluate(sentence);
 
-      return true;
-    } catch (NotRecognizedModuleException e) {
-      System.out.println("[ERROR] The module " + e.moduleName + " is not recognized as available module.");
-      return false;
-    } catch (NotRecognizedCommandException e) {
-      System.out.println("[ERROR] The command " + e.commandName + " is not recognized as valid command of the "
-          + e.moduleName + " module");
-      return false;
+      return (result.getLeft() == CommandResult.OK);
+
     } catch (Exception e) {
       if (e.getMessage() != null) {
         System.out.println("[ERROR] An error occurred. Message: " + e.getMessage());
       } else {
         System.out.println("[ERROR] An error occurred.");
       }
-
       return false;
     }
-
   }
 
-  private Options getAvailableCommandParameters() {
+  // private Options getAvailableCommandParameters() {
+  //
+  // try {
+  // List<String> CommandParamsList = null; // this.dUtils.getAvailableCommandParameters();
+  //
+  // Options availableCommandParameters = new Options();
+  //
+  // for (String commandParam : CommandParamsList) {
+  // availableCommandParameters.addOption(commandParam, true, null);
+  // }
+  // return availableCommandParameters;
+  // } catch (Exception e) {
+  // System.out.println("ERROR: " + e.getMessage());
+  // return new Options();
+  // }
+  // }
 
-    try {
-      List<String> CommandParamsList = null; // this.dUtils.getAvailableCommandParameters();
+  private Options getOptions() {
 
-      Options availableCommandParameters = new Options();
+    List<DevconOption> devconOptions = this.dUtils.getGlobalOptions();
+    Options options = new Options();
 
-      for (String commandParam : CommandParamsList) {
-        availableCommandParameters.addOption(commandParam, true, null);
-      }
-      return availableCommandParameters;
-    } catch (Exception e) {
-      System.out.println("ERROR: " + e.getMessage());
-      return new Options();
+    for (DevconOption gOpt : devconOptions) {
+      options.addOption(new Option(gOpt.getOpt(), gOpt.getLongOpt(), false, gOpt.getDescription()));
     }
-  }
 
-  // private Options setOptions() {
-  //
-  // Options opts = new Options();
-  // List<DevconOption> globalOptions = new ArrayList<>();
-  // DevconUtils devconUtils = new DevconUtils();
-  // opts = getAvailableCommandParameters();
-  //
-  // globalOptions = devconUtils.getGlobalOptions();
-  //
-  // if (globalOptions != null) {
-  // for (DevconOption gOpt : globalOptions) {
-  // opts.addOption(new Option(gOpt.getOpt(), gOpt.getLongOpt(), false, gOpt.getDescription()));
-  // }
-  // }
-  //
-  // return opts;
-  // }
+    for (DevconOption commandOpt : this.commandManager.getCommandOptions()) {
+      options.addOption(new Option(commandOpt.getOpt(), commandOpt.getLongOpt(), false, commandOpt.getDescription()));
+    }
+
+    return options;
+  }
 }
