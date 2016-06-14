@@ -1,16 +1,15 @@
 package com.devonfw.devcon.common.impl;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 import com.devonfw.devcon.common.api.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
-import com.devonfw.devcon.common.api.annotations.ParameterType;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.CommandParameter;
 
@@ -26,6 +25,8 @@ public class CommandImpl implements Command {
 
   private String description;
 
+  private Class<?> module;
+
   private Method method;
 
   private List<CommandParameter> definedParameters;
@@ -34,11 +35,12 @@ public class CommandImpl implements Command {
     this.definedParameters = new ArrayList<>();
   }
 
-  public CommandImpl(String name, String description, Method method) {
+  public CommandImpl(String name, String description, Method method, Class<?> module) {
     this();
     this.name = name;
     this.description = description;
     this.method = method;
+    this.module = module;
     addParameters(method);
   }
 
@@ -67,9 +69,10 @@ public class CommandImpl implements Command {
       Parameters params = (Parameters) annotation;
 
       List<Parameter> paramsList = Arrays.asList(params.values());
+      int pos = 0;
       for (Parameter param : paramsList) {
         CommandParameter cmdParam =
-            new CommandParameter(param.name(), param.description(), param.type().equals(ParameterType.Optional));
+            new CommandParameter(param.name(), param.description(), pos++, param.parametertype());
         this.definedParameters.add(cmdParam);
       }
     }
@@ -84,20 +87,23 @@ public class CommandImpl implements Command {
       if (!sentenceParams.contains(commandArg.getName()))
         missingParam.add(commandArg);
     }
-
     return missingParam;
   }
 
   @Override
-  public void exec(HashMap<String, String> arguments) {
+  public Object exec(List<String> arguments)
+      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
+    Object cmd = this.module.newInstance();
+    return this.method.invoke(cmd, arguments.toArray());
   }
 
   @Override
-  public void exec() {
+  public Object exec()
+      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-    HashMap<String, String> arguments = new HashMap<>();
-    exec(arguments);
+    Object cmd = this.module.newInstance();
+    return this.method.invoke(cmd);
 
   }
 }

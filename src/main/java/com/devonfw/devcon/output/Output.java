@@ -18,10 +18,6 @@ public interface Output {
 
   void showGeneralHelp(Response response);
 
-  String promptForArgument(String argName);
-
-  boolean askForUserConfirmation(String message);
-
   void showError(String message);
 
   void status(String message);

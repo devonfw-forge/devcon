@@ -1,21 +1,25 @@
 package com.devonfw.devcon.common;
 
+import static com.devonfw.devcon.common.utils.DevconUtils.unzipList;
+
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 
 import com.devonfw.devcon.common.api.Command;
 import com.devonfw.devcon.common.api.CommandModule;
 import com.devonfw.devcon.common.api.CommandRegistry;
+import com.devonfw.devcon.common.api.annotations.ParameterType;
 import com.devonfw.devcon.common.api.data.CommandParameter;
-import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Sentence;
-import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
-import com.devonfw.devcon.common.exception.NotRecognizedModuleException;
 import com.devonfw.devcon.common.utils.DevconUtils;
+import com.devonfw.devcon.input.Input;
 import com.devonfw.devcon.output.Output;
 import com.google.common.base.Optional;
 
@@ -30,15 +34,18 @@ public class CommandManager {
 
   private Output output;
 
+  private Input input;
+
   private DevconUtils dUtils = new DevconUtils();
 
   public CommandManager() {
 
   }
 
-  public CommandManager(CommandRegistry registry, Output output) {
+  public CommandManager(CommandRegistry registry, Input input, Output output) {
     this();
     this.registry = registry;
+    this.input = this.input;
     this.output = output;
   }
 
@@ -47,7 +54,8 @@ public class CommandManager {
     execCommand("help", "guide");
   }
 
-  public void execCommand(String moduleName, String commandName) {
+  public Pair<CommandResult, String> execCommand(String moduleName, String commandName)
+      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
     Optional<CommandModule> module = this.registry.getCommandModule(moduleName);
     if (module.isPresent()) {
@@ -55,20 +63,21 @@ public class CommandManager {
       if (command.isPresent()) {
 
         command.get().exec();
+        return Pair.of(CommandResult.OK, CommandResult.OK_MSG);
 
       } else
-        throw new NotRecognizedCommandException(moduleName, commandName);
-    } else {
-      throw new NotRecognizedModuleException(moduleName);
-    }
 
+        this.output.showError("[ERROR] The command " + commandName + " is not recognized as valid command of the "
+            + moduleName + " module");
+      return Pair.of(CommandResult.CommandNotRecognized, moduleName + " " + commandName);
+
+    } else {
+      this.output.showError("[ERROR] The module " + moduleName + " is not recognized as available module.");
+      return Pair.of(CommandResult.ModuleNotRecognized, moduleName);
+    }
   }
 
-  public Pair<CommandResult, String> evaluate(Sentence sentence) throws Exception {
-
-    List<String> paramsValuesList = this.dUtils.getParamsValues(sentence.getParams());
-    List<String> sentenceParams = this.dUtils.getParamsKeys(sentence.getParams());
-    Collection<CommandParameter> commandNeededParams;
+  public Pair<CommandResult, String> execCmdLine(Sentence sentence) throws Exception {
 
     Optional<CommandModule> module = this.registry.getCommandModule(sentence.getModuleName());
 
@@ -77,39 +86,42 @@ public class CommandManager {
       // If no command given OR helpRequested flag is 'true' the app shows the help info and ends
       if (sentence.getCommandName() == null || sentence.isHelpRequested()) {
 
-        // this.dUtils.showHelp(module, this.sentence);
+        // WHAT about flow
+        // this.dUtils.showHelp(module, sentence);
 
       } else {
 
         Optional<Command> command = module.get().getCommand(sentence.getCommandName());
         if (command.isPresent()) {
           Command cmd = command.get();
-          commandNeededParams = cmd.getDefinedParameters();
+          Collection<CommandParameter> commandNeededParams = cmd.getDefinedParameters();
 
-          Collection<CommandParameter> missingParameters = cmd.getParametersDiff(sentenceParams);
+          Collection<CommandParameter> missingParameters =
+              cmd.getParametersDiff(unzipList(sentence.getParams()).getLeft());
 
+          List<String> givenParameters;
           if (missingParameters.size() > 0) {
 
-            // this.sentence = this.dUtils.obtainValueForMissingParameters(missingParameters, this.sentence,
-            // this.output);
+            Pair<Boolean, String> mandatoryMissing = mandatoryParamsMissing(missingParameters);
+            if (mandatoryMissing.getLeft()) {
+              this.output.showError("Missing mandatory parameter(s): " + mandatoryMissing.getRight());
+              return Pair.of(CommandResult.MandatoryParameterMissing, mandatoryMissing.getRight());
+            }
 
-            // check again for missing parameters
-            // sentenceParams = this.dUtils.getParamsKeys(this.sentence.getParams());
-            // missingParameters = this.dUtils.getMissingParameters(sentenceParams, commandNeededParams);
-            // if (missingParameters.size() > 0) {
-            // this.dUtils.endAndShowMissingParameters(missingParameters);
-            // }
+            Triple<Boolean, String, List<String>> withAllParams =
+                completeWithMissingParameters(sentence, commandNeededParams, missingParameters);
+            if (!withAllParams.getLeft()) {
 
-            // paramsValuesList = this.dUtils.getParamsValues(this.sentence.getParams());
+              this.output.showError("Missing  parameter(s): " + withAllParams.getMiddle());
+              return Pair.of(CommandResult.OptionalParameterMissing, withAllParams.getMiddle());
+            }
 
+            givenParameters = withAllParams.getRight();
+          } else {
+            givenParameters = unzipList(sentence.getParams()).getRight();
           }
 
-          // paramsValuesList = this.dUtils.orderParameters(this.sentence.getParams(), commandNeededParams);
-
-          // this.dUtils.launchCommand(module, this.sentence.getCommandName(), paramsValuesList);
-
-          HashMap<String, String> arguments = new HashMap<>();
-          cmd.exec(arguments);
+          cmd.exec(givenParameters);
 
         } else {
           this.output.showError("[ERROR] The command " + sentence.getCommandName()
@@ -163,16 +175,57 @@ public class CommandManager {
   /**
    * @return
    */
-  public List<DevconOption> getCommandOptions() {
+  public Set<String> getParameterNames() {
 
-    List<DevconOption> options = new ArrayList<>();
+    Set<String> options = new HashSet<>();
     for (CommandModule module : this.registry.getCommandModules()) {
       for (Command command : module.getCommands()) {
-        options.add(new DevconOption(command.getName(), command.getName(), command.getDescription()));
+        for (CommandParameter param : command.getDefinedParameters()) {
+          String name = param.getName();
+          if (!options.contains(name)) {
+            options.add(name);
+          }
+        }
+      }
+    }
+    return options;
+  }
+
+  /**
+   * @param missingParameters
+   * @return
+   */
+  private Pair<Boolean, String> mandatoryParamsMissing(Collection<CommandParameter> missingParameters) {
+
+    boolean mandatoryMissing = false;
+    StringBuilder sb = new StringBuilder();
+    for (CommandParameter param : missingParameters) {
+      if (param.getParameterType() == ParameterType.Mandatory) {
+        sb.append((mandatoryMissing) ? ", " : "" + param.getName());
+        mandatoryMissing = true;
       }
     }
 
-    return options;
+    return Pair.of(mandatoryMissing, sb.toString());
+  }
+
+  /**
+   * @param sentence
+   * @param commandNeededParams
+   * @param missingParameters
+   * @return
+   */
+  private Triple<Boolean, String, List<String>> completeWithMissingParameters(Sentence sentence,
+      Collection<CommandParameter> definedParams, Collection<CommandParameter> missingParameters) {
+
+    List<CommandParameter> allParams = new ArrayList<>();
+    for (CommandParameter definedParam : definedParams) {
+
+    }
+
+    unzipList(sentence.getParams()).getRight();
+
+    return null;
   }
 
 }

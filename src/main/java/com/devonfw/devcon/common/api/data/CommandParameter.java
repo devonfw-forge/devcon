@@ -1,5 +1,7 @@
 package com.devonfw.devcon.common.api.data;
 
+import com.devonfw.devcon.common.api.annotations.ParameterType;
+
 /**
  * Contains info about a command parameter
  *
@@ -11,13 +13,16 @@ public class CommandParameter {
 
   private String description;
 
-  private boolean isOptional;
+  private int position;
 
-  public CommandParameter(String name, String description, boolean isOptional) {
+  private ParameterType paramType;
+
+  public CommandParameter(String name, String description, int position, ParameterType paramType) {
 
     this.name = name;
     this.description = description;
-    this.isOptional = isOptional;
+    this.position = position;
+    this.paramType = paramType;
   }
 
   /**
@@ -29,14 +34,6 @@ public class CommandParameter {
   }
 
   /**
-   * @param name new value of {@link #getname}.
-   */
-  public void setName(String name) {
-
-    this.name = name;
-  }
-
-  /**
    * @return description
    */
   public String getDescription() {
@@ -45,27 +42,18 @@ public class CommandParameter {
   }
 
   /**
-   * @param description new value of {@link #getdescription}.
+   * @return whether parameter is mandatory or optional and, if the latter, whether the value comes from a config or not
    */
-  public void setDescription(String description) {
+  public ParameterType getParameterType() {
 
-    this.description = description;
+    return this.paramType;
   }
 
   /**
-   * @return isOptional
+   * @return position
    */
-  public boolean isOptional() {
+  public int getPosition() {
 
-    return this.isOptional;
+    return this.position;
   }
-
-  /**
-   * @param isOptional new value of {@link #getisOptional}.
-   */
-  public void setOptional(boolean isOptional) {
-
-    this.isOptional = isOptional;
-  }
-
 }

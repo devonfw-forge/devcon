@@ -22,12 +22,8 @@ import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 
-import com.devonfw.devcon.common.api.data.CommandParameter;
 import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
-import com.devonfw.devcon.common.api.data.Sentence;
-import com.devonfw.devcon.output.ConsoleOutput;
-import com.devonfw.devcon.output.Output;
 import com.google.common.base.Optional;
 
 /**
@@ -44,39 +40,45 @@ public class DevconUtils {
 
   private static final String OPTIONAL = "optionalParameters";
 
-  public String promptForMissingParameter(String missingParameter, Output output) {
+  public static <T, U> Pair<List<T>, List<U>> unzipList(List<Pair<T, U>> lst) {
 
-    String result = "";
-    String value = output.promptForArgument(missingParameter);
-    if (!value.isEmpty()) {
-      result = value;
+    List<T> left = new ArrayList<>();
+    List<U> right = new ArrayList<>();
+    for (Pair<T, U> pair : lst) {
+      left.add(pair.getLeft());
+      right.add(pair.getRight());
     }
-    return result;
+    return Pair.of(left, right);
   }
 
-  public Sentence obtainValueForMissingParameters(List<CommandParameter> missingParameters, Sentence sentence,
-      Output output) throws FileNotFoundException, IOException, ParseException {
+  public static <T, U> List<Pair<T, U>> zipLists(List<T> left, List<U> right) {
 
-    for (CommandParameter parameter : missingParameters) {
-      String value = "";
-      if (parameter.isOptional()) {
-        value = getOptionalValueFromFile(parameter.getName());
-        if (value == "" && !sentence.isNoPrompt()) {
-          value = promptForMissingParameter(parameter.getName(), output);
-        }
-        if (value != "")
-          sentence.getParams().add(Pair.of(parameter.getName(), value));
-      } else {
-        if (!sentence.isNoPrompt()) {
-          value = promptForMissingParameter(parameter.getName(), output);
-          sentence.getParams().add(Pair.of(parameter.getName(), value));
-        }
-      }
+    List<Pair<T, U>> lst = new ArrayList<>();
+    for (int i = 0; i < left.size(); i++) {
+      lst.add(Pair.of(left.get(i), right.get(i)));
     }
-
-    return sentence;
+    return lst;
   }
 
+  /*
+   * public String promptForMissingParameter(String missingParameter, Output output) {
+   *
+   * String result = ""; String value = output.promptForArgument(missingParameter); if (!value.isEmpty()) { result =
+   * value; } return result; }
+   */
+
+  /*
+   * public Sentence obtainValueForMissingParameters(Collection<CommandParameter> missingParameters, Sentence sentence,
+   * Output output) throws FileNotFoundException, IOException, ParseException {
+   *
+   * for (CommandParameter parameter : missingParameters) { String value = ""; if (parameter.getParameterType() ==
+   * ParameterType.OptionalFromConfig) { value = getOptionalValueFromFile(parameter.getName()); if (value == "" &&
+   * !sentence.isNoPrompt()) { value = promptForMissingParameter(parameter.getName(), output); } if (value != "")
+   * sentence.addParam(parameter.getName(), value); } else { if (!sentence.isNoPrompt()) { value =
+   * promptForMissingParameter(parameter.getName(), output); sentence.addParam(parameter.getName(), value); } } }
+   *
+   * return sentence; }
+   */
   public String getOptionalValueFromFile(String parameterName)
       throws FileNotFoundException, IOException, ParseException {
 
@@ -114,55 +116,6 @@ public class DevconUtils {
       return "";
     }
 
-  }
-
-  public void endAndShowMissingParameters(List<CommandParameter> missingParameters) throws Exception {
-
-    Output output = new ConsoleOutput();
-    StringBuilder sb = new StringBuilder();
-    for (CommandParameter missingParameter : missingParameters) {
-      sb.append("[-");
-      sb.append(missingParameter.getName());
-      sb.append("] ");
-    }
-    throw new Exception("You need to specify the following parameter/s: " + sb.toString());
-  }
-
-  public List<String> getParamsKeys(List<Pair<String, String>> params) {
-
-    List<String> keysList = new ArrayList<String>();
-
-    for (Pair<String, String> param : params) {
-
-      keysList.add(param.getLeft());
-    }
-
-    return keysList;
-  }
-
-  public List<String> getParamsValues(List<Pair<String, String>> params) {
-
-    List<String> valuesList = new ArrayList<String>();
-
-    for (Pair<String, String> param : params) {
-
-      valuesList.add(param.getRight());
-    }
-    return valuesList;
-  }
-
-  public List<String> orderParameters(List<Pair<String, String>> sentenceParams, List<CommandParameter> commandParams) {
-
-    List<String> orderedParameters = new ArrayList<String>();
-    for (CommandParameter commandParam : commandParams) {
-      for (Pair<String, String> sentenceParam : sentenceParams) {
-        if (sentenceParam.getLeft().equals(commandParam.getName())) {
-          orderedParameters.add(sentenceParam.getRight());
-          break;
-        }
-      }
-    }
-    return orderedParameters;
   }
 
   public List<DevconOption> getGlobalOptions() {
@@ -244,7 +197,7 @@ public class DevconUtils {
    * @return indication whether on Desktop i.e. whether web browser could be accessed
    *
    */
-  public boolean openUri(String url) {
+  public static boolean openUri(String url) {
 
     if (Desktop.isDesktopSupported()) {
       try {

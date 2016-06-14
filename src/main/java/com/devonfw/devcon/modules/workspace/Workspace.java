@@ -30,7 +30,7 @@ public class Workspace extends AbstractCommandModule {
    */
   @Command(name = "create", help = "This command is used to create new workspace with all default configuration")
   @Parameters(values = { @Parameter(name = "foldername", description = "This is the name of workspace to create"),
-  @Parameter(name = "devonpath", description = "This is the location of devon distribution", type = ParameterType.Optional) })
+  @Parameter(name = "devonpath", description = "This is the location of devon distribution", parametertype = ParameterType.OptionalFromConfig) })
   public void create(String foldername, String devonpath) throws Exception {
 
     String workspace_path = devonpath + File.separator + "workspaces" + File.separator + foldername;

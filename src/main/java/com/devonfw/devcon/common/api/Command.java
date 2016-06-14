@@ -1,7 +1,7 @@
 package com.devonfw.devcon.common.api;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 import com.devonfw.devcon.common.api.data.CommandParameter;
@@ -19,9 +19,11 @@ public interface Command extends Info {
 
   Collection<CommandParameter> getParametersDiff(List<String> sentenceParams);
 
-  void exec();
+  Object exec(List<String> arguments)
+      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 
-  void exec(HashMap<String, String> arguments);
+  Object exec()
+      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 
   /**
    * @param sentenceParams

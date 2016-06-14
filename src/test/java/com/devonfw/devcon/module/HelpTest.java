@@ -9,8 +9,10 @@ import com.devonfw.devcon.common.CommandManager;
 import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.impl.CommandRegistryImpl;
 import com.devonfw.devcon.input.ConsoleInput;
-import com.devonfw.devcon.output.Output;
+import com.devonfw.devcon.input.ConsoleInputManager;
+import com.devonfw.devcon.input.Input;
 import com.devonfw.devcon.output.ConsoleOutput;
+import com.devonfw.devcon.output.Output;
 
 /**
  * Tests the Help module
@@ -19,7 +21,7 @@ import com.devonfw.devcon.output.ConsoleOutput;
  */
 public class HelpTest {
 
-  ConsoleInput input;
+  ConsoleInputManager inputMgr;
 
   private CommandManager commandManager;
 
@@ -27,14 +29,17 @@ public class HelpTest {
 
   private Output output;
 
+  private Input input;
+
   @SuppressWarnings("javadoc")
   @Before
   public void setup() {
 
     this.registry = new CommandRegistryImpl("com.devonfw.devcon.modules.*");
     this.output = new ConsoleOutput();
-    this.commandManager = new CommandManager(this.registry, this.output);
-    this.input = new ConsoleInput(this.commandManager);
+    this.input = new ConsoleInput();
+    this.commandManager = new CommandManager(this.registry, this.input, this.output);
+    this.inputMgr = new ConsoleInputManager(this.commandManager);
   }
 
   /**
@@ -44,6 +49,6 @@ public class HelpTest {
   public void guide() {
 
     String[] args = { "-np", "help", "guide" };
-    assertTrue(this.input.parse(args));
+    assertTrue(this.inputMgr.parse(args));
   }
 }

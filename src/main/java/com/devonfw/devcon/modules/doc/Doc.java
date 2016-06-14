@@ -3,6 +3,7 @@ package com.devonfw.devcon.modules.doc;
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
+import com.devonfw.devcon.common.utils.DevconUtils;
 
 /**
  * TODO ivanderk This type ...
@@ -22,9 +23,9 @@ public class Doc extends AbstractCommandModule {
 
   private static final String DEVON_TROOM_SITE = "https://troom.capgemini.com/sites/vcc/devon/index.aspx";
 
-  private static final String DEVON_GUIDE = "https://google.com";
+  private static final String DEVON_GUIDE = "https://github.com/devonfw/devon/wiki";
 
-  private static final String OASP4J_GUIDE = "https://google.com";
+  private static final String OASP4J_GUIDE = "https://github.com/oasp/oasp4j/wiki";
 
   /**
    * The constructor.
@@ -38,7 +39,6 @@ public class Doc extends AbstractCommandModule {
    * This command shows the main devon web site
    *
    */
-  @SuppressWarnings("javadoc")
   @Command(name = "devon", help = "Opens the Devon site in the default web browser")
   public void devon() {
 
@@ -95,7 +95,7 @@ public class Doc extends AbstractCommandModule {
 
   private boolean openUrl(String url) {
 
-    boolean res = this.dUtils.openUri(url);
+    boolean res = DevconUtils.openUri(url);
     if (!res) {
       this.output.showError("Opening a web browser window not supported!\nOperation aborted");
     }

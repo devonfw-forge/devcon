@@ -2,8 +2,6 @@ package com.devonfw.devcon.output;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.Scanner;
 
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
@@ -50,7 +48,6 @@ public class ConsoleOutput implements Output {
 
     formatter.printHelp(new PrintWriter(this.out_), 80, response.getName(), response.getDescription(), options, 0, 0,
         null, true);
-    // formatter.printHelp(response.getName(), response.getDescription(), options, null, true);
   }
 
   @Override
@@ -66,8 +63,6 @@ public class ConsoleOutput implements Output {
     String header = response.getName() + " <<command>> [parameters...]";
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp(new PrintWriter(this.out_), 80, header, response.getDescription(), options, 0, 0, null, true);
-    // formater.printHelp(response.getName() + " <<command>> [parameters...]", response.getDescription(), new
-    // Options(),footerContent.toString(), true);
   }
 
   @Override
@@ -93,40 +88,12 @@ public class ConsoleOutput implements Output {
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp(new PrintWriter(this.out_), 80, response.getUsage(), response.getHeader(), options, 0, 0, null,
         true);
-    // formater.printHelp(response.getUsage(), response.getHeader(), options, footer.toString(), false);
-  }
-
-  @Override
-  public String promptForArgument(String argName) {
-
-    Scanner reader = new Scanner(System.in);
-    this.out_.printf("Please introduce value for missing param %s: ", argName);
-    return reader.next();
-  }
-
-  @Override
-  public boolean askForUserConfirmation(String message) {
-
-    String[] validResponses = { "yes", "y", "no", "n" };
-    Scanner reader = new Scanner(System.in);
-    this.out_.println(message);
-    this.out_.println("Y/N");
-    String response = reader.next();
-    while (!Arrays.asList(validResponses).contains(response.toLowerCase())) {
-      this.out_.println("Please type 'yes' or 'no'");
-      response = reader.next();
-    }
-    if (response.toLowerCase().equals("yes") || response.toLowerCase().equals("y")) {
-      return true;
-    } else {
-      return false;
-    }
   }
 
   @Override
   public void showError(String message) {
 
-    this.out_.println("[ERROR]" + message);
+    this.out_.println("[ERROR] " + message);
   }
 
   @Override

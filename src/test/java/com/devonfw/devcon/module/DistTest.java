@@ -9,8 +9,10 @@ import com.devonfw.devcon.common.CommandManager;
 import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.impl.CommandRegistryImpl;
 import com.devonfw.devcon.input.ConsoleInput;
-import com.devonfw.devcon.output.Output;
+import com.devonfw.devcon.input.ConsoleInputManager;
+import com.devonfw.devcon.input.Input;
 import com.devonfw.devcon.output.ConsoleOutput;
+import com.devonfw.devcon.output.Output;
 
 /**
  * Tests the Dist module
@@ -18,7 +20,7 @@ import com.devonfw.devcon.output.ConsoleOutput;
  * @author pparrado
  */
 public class DistTest {
-  ConsoleInput input;
+  ConsoleInputManager inputMgr;
 
   // /**
   // * THIS TEST NEEDS A VALID TEAM FORGE USER AND PASSWORD TO WORK PROPERLY
@@ -41,14 +43,17 @@ public class DistTest {
 
   private Output output;
 
+  private Input input;
+
   @SuppressWarnings("javadoc")
   @Before
   public void setup() {
 
     this.registry = new CommandRegistryImpl("com.devonfw.devcon.modules.*");
     this.output = new ConsoleOutput();
-    this.commandManager = new CommandManager(this.registry, this.output);
-    this.input = new ConsoleInput(this.commandManager);
+    this.input = new ConsoleInput();
+    this.commandManager = new CommandManager(this.registry, this.input, this.output);
+    this.inputMgr = new ConsoleInputManager(this.commandManager);
   }
 
   /**
@@ -60,7 +65,7 @@ public class DistTest {
     String[] args = { "-np", "dist", "install", "-path", "C:\\Temp\\myTemp", "-user", "asdf", "-password", "12345",
     "-type", "oaspide" };
 
-    assertFalse(this.input.parse(args));
+    assertFalse(this.inputMgr.parse(args));
   }
 
   /**
@@ -72,6 +77,6 @@ public class DistTest {
     String[] args = { "-np", "dist", "install", "-path", "C:\\Temp\\myTemp", "-user", "asdf", "-password", "12345",
     "-type", "wrongType" };
 
-    assertFalse(this.input.parse(args));
+    assertFalse(this.inputMgr.parse(args));
   }
 }

@@ -57,7 +57,7 @@ public class Foo extends AbstractCommandModule {
 
   @Command(name = "saySomething", help = "This command is for say something")
   @Parameters(values = { @Parameter(name = "message", description = "the message to be written"),
-  @Parameter(name = "signature", description = "the signature", type = ParameterType.Optional) })
+  @Parameter(name = "signature", description = "the signature", parametertype = ParameterType.OptionalFromConfig) })
   @SuppressWarnings("javadoc")
   public void saySomething(String message, String signature) {
 

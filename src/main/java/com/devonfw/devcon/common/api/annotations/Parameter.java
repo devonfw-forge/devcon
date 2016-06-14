@@ -23,8 +23,8 @@ public @interface Parameter {
   /**
    * Is Optional
    *
-   * @return if the parameter is optional
+   * @return The parameter type
    */
-  ParameterType type() default ParameterType.Mandatory;
+  ParameterType parametertype() default ParameterType.Mandatory;
   // boolean optional() default false;
 }

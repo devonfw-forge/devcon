@@ -7,5 +7,5 @@ package com.devonfw.devcon.common.api.annotations;
  * @since 0.0.1
  */
 public enum ParameterType {
-  Mandatory, Contextual, Optional
+  Mandatory, OptionalFromConfig, OptionalDelegateToCmd
 }

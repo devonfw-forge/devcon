@@ -1,120 +1,57 @@
 package com.devonfw.devcon.input;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.cli.BasicParser;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.lang3.tuple.Pair;
-
-import com.devonfw.devcon.Devcon;
-import com.devonfw.devcon.common.CommandManager;
-import com.devonfw.devcon.common.CommandResult;
-import com.devonfw.devcon.common.api.data.DevconOption;
-import com.devonfw.devcon.common.api.data.Sentence;
-import com.devonfw.devcon.common.utils.DevconUtils;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.Scanner;
 
 /**
- * TODO pparrado This type ...
+ * TODO ivanderk This type ...
  *
- * @author pparrado
+ * @author ivanderk
+ * @since 0.0.1
  */
-public class ConsoleInput {
+public class ConsoleInput implements Input {
 
-  private CommandManager commandManager;
+  private PrintStream out_;
 
-  private DevconUtils dUtils = new DevconUtils();
+  private InputStream in_;
 
-  public ConsoleInput(CommandManager commandManager) {
-
-    this.commandManager = commandManager;
+  public ConsoleInput() {
+    this.in_ = System.in;
+    this.out_ = System.out;
   }
 
-  public boolean parse(String[] args) {
+  public ConsoleInput(InputStream in, PrintStream out) {
+    this();
+    this.in_ = in;
+    this.out_ = out;
+  }
 
-    Sentence sentence = new Sentence();
-    sentence.setParams(new ArrayList<Pair<String, String>>());
+  @Override
+  public String promptForArgument(String argName) {
 
-    try {
+    Scanner reader = new Scanner(this.in_); // new Scanner(System.in);
+    this.out_.printf("Please introduce value for missing param %s: ", argName);
+    return reader.next();
+  }
 
-      CommandLineParser parser = new BasicParser();
-      CommandLine cmd = parser.parse(getOptions(), args);
+  @Override
+  public boolean askForUserConfirmation(String message) {
 
-      if (cmd.hasOption("v")) {
-        System.out.println(Devcon.DEVCON_VERSION);
-        System.exit(0);
-      }
-
-      sentence.setNoPrompt(cmd.hasOption("np"));
-      sentence.setHelpRequested(cmd.hasOption("h"));
-
-      for (Option parsedParam : cmd.getOptions()) {
-        if (cmd.getOptionValue(parsedParam.getOpt()) != null)
-          sentence.getParams().add(Pair.of(parsedParam.getOpt(), cmd.getOptionValue(parsedParam.getOpt())));
-      }
-
-      List<?> argsNotParsed = cmd.getArgList();
-
-      if (argsNotParsed.size() == 0) {
-        // If not command line parameters given, show main help ("usage")
-        this.commandManager.showMainHelp();
-
-        return false;
-
-      } else if (argsNotParsed.size() == 1) {
-        sentence.setModuleName(argsNotParsed.get(0).toString());
-      } else if (argsNotParsed.size() > 1) {
-        sentence.setModuleName(argsNotParsed.get(0).toString());
-        sentence.setCommandName(argsNotParsed.get(1).toString());
-      }
-
-      Pair<CommandResult, String> result = this.commandManager.evaluate(sentence);
-
-      return (result.getLeft() == CommandResult.OK);
-
-    } catch (Exception e) {
-      if (e.getMessage() != null) {
-        System.out.println("[ERROR] An error occurred. Message: " + e.getMessage());
-      } else {
-        System.out.println("[ERROR] An error occurred.");
-      }
+    String[] validResponses = { "yes", "y", "no", "n" };
+    Scanner reader = new Scanner(this.in_); // new Scanner(System.in);
+    this.out_.println(message);
+    this.out_.println("Y/N");
+    String response = reader.next();
+    while (!Arrays.asList(validResponses).contains(response.toLowerCase())) {
+      this.out_.println("Please type 'yes' or 'no'");
+      response = reader.next();
+    }
+    if (response.toLowerCase().equals("yes") || response.toLowerCase().equals("y")) {
+      return true;
+    } else {
       return false;
     }
-  }
-
-  // private Options getAvailableCommandParameters() {
-  //
-  // try {
-  // List<String> CommandParamsList = null; // this.dUtils.getAvailableCommandParameters();
-  //
-  // Options availableCommandParameters = new Options();
-  //
-  // for (String commandParam : CommandParamsList) {
-  // availableCommandParameters.addOption(commandParam, true, null);
-  // }
-  // return availableCommandParameters;
-  // } catch (Exception e) {
-  // System.out.println("ERROR: " + e.getMessage());
-  // return new Options();
-  // }
-  // }
-
-  private Options getOptions() {
-
-    List<DevconOption> devconOptions = this.dUtils.getGlobalOptions();
-    Options options = new Options();
-
-    for (DevconOption gOpt : devconOptions) {
-      options.addOption(new Option(gOpt.getOpt(), gOpt.getLongOpt(), false, gOpt.getDescription()));
-    }
-
-    for (DevconOption commandOpt : this.commandManager.getCommandOptions()) {
-      options.addOption(new Option(commandOpt.getOpt(), commandOpt.getLongOpt(), false, commandOpt.getDescription()));
-    }
-
-    return options;
   }
 }
