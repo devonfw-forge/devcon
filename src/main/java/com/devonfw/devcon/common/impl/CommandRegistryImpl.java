@@ -1,8 +1,9 @@
 package com.devonfw.devcon.common.impl;
 
 import java.lang.annotation.Annotation;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.reflections.Reflections;
 import org.reflections.scanners.MethodAnnotationsScanner;
@@ -11,7 +12,7 @@ import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 
 import com.devonfw.devcon.common.api.Command;
-import com.devonfw.devcon.common.api.CommandModule;
+import com.devonfw.devcon.common.api.CommandModuleInfo;
 import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.utils.Constants;
@@ -25,7 +26,7 @@ import com.google.common.base.Optional;
  */
 public class CommandRegistryImpl implements CommandRegistry {
 
-  private HashMap<String, CommandModule> modules;
+  private HashMap<String, CommandModuleInfo> modules;
 
   private Reflections reflections = new Reflections(ClasspathHelper.forPackage(Constants.MODULES_PACKAGE),
       new SubTypesScanner(), new TypeAnnotationsScanner(), new MethodAnnotationsScanner());
@@ -46,14 +47,14 @@ public class CommandRegistryImpl implements CommandRegistry {
       Annotation annotation = moduleClass.getAnnotation(CmdModuleRegistry.class);
       CmdModuleRegistry moduleAnnotation = (CmdModuleRegistry) annotation;
 
-      CommandModule cmdmodule = new CommandModuleImpl(moduleAnnotation.name(), moduleAnnotation.description(),
+      CommandModuleInfo cmdmodule = new CommandModuleInfoImpl(moduleAnnotation.name(), moduleAnnotation.description(),
           moduleAnnotation.visible(), moduleClass);
       this.modules.put(cmdmodule.getName(), cmdmodule);
     }
   }
 
   @Override
-  public Optional<CommandModule> getCommandModule(String module) {
+  public Optional<CommandModuleInfo> getCommandModule(String module) {
 
     if (this.modules.containsKey(module)) {
       return Optional.of(this.modules.get(module));
@@ -65,7 +66,7 @@ public class CommandRegistryImpl implements CommandRegistry {
   @Override
   public Optional<Command> getCommand(String module, String command) {
 
-    Optional<CommandModule> mod_ = getCommandModule(module);
+    Optional<CommandModuleInfo> mod_ = getCommandModule(module);
     if (mod_.isPresent())
       return mod_.get().getCommand(command);
     else
@@ -136,9 +137,10 @@ public class CommandRegistryImpl implements CommandRegistry {
   }
 
   @Override
-  public Collection<CommandModule> getCommandModules() {
+  public List<CommandModuleInfo> getCommandModules() {
 
-    return this.modules.values();
+    // TODO Refactot to Collection?
+    return new ArrayList<CommandModuleInfo>(this.modules.values());
   }
 
 }

@@ -2,11 +2,12 @@ package com.devonfw.devcon.output;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.util.List;
 
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
-import com.devonfw.devcon.common.api.CommandModule;
+import com.devonfw.devcon.common.api.CommandModuleInfo;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Info;
@@ -66,28 +67,24 @@ public class ConsoleOutput implements Output {
   }
 
   @Override
-  public void showGeneralHelp(Response response) {
+  public void showGeneralHelp(String header, String usage, List<DevconOption> options,
+      List<CommandModuleInfo> modules) {
 
-    Options options = new Options();
-    response.setHeader(response.getHeader() != null ? response.getHeader() : "");
-    response.setUsage(response.getUsage() != null ? response.getUsage() : " ");
-    response.setFooter(response.getFooter() != null ? response.getFooter() : "");
+    Options options_ = new Options();
 
-    for (DevconOption opt : response.getGlobalParameters()) {
-      options.addOption(opt.getOpt(), opt.getLongOpt(), false, opt.getDescription());
+    for (DevconOption opt : options) {
+      options_.addOption(opt.getOpt(), opt.getLongOpt(), false, opt.getDescription());
     }
 
     StringBuilder footer = new StringBuilder();
     footer.append("List of available modules: \n");
-    for (Info moduleInfo : response.getModulesList()) {
-      CommandModule module = (CommandModule) moduleInfo;
-      if (module.isVisible())
-        footer.append("> " + module.getName() + ": " + module.getDescription() + "\n");
+    for (CommandModuleInfo moduleInfo : modules) {
+      if (moduleInfo.isVisible())
+        footer.append("> " + moduleInfo.getName() + ": " + moduleInfo.getDescription() + "\n");
     }
 
     HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp(new PrintWriter(this.out_), 80, response.getUsage(), response.getHeader(), options, 0, 0, null,
-        true);
+    formatter.printHelp(new PrintWriter(this.out_), 80, usage, header, options_, 0, 0, null, true);
   }
 
   @Override

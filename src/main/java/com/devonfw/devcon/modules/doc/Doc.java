@@ -3,7 +3,7 @@ package com.devonfw.devcon.modules.doc;
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
-import com.devonfw.devcon.common.utils.DevconUtils;
+import com.devonfw.devcon.common.utils.Utils;
 
 /**
  * TODO ivanderk This type ...
@@ -95,7 +95,7 @@ public class Doc extends AbstractCommandModule {
 
   private boolean openUrl(String url) {
 
-    boolean res = DevconUtils.openUri(url);
+    boolean res = Utils.openUri(url);
     if (!res) {
       this.output.showError("Opening a web browser window not supported!\nOperation aborted");
     }

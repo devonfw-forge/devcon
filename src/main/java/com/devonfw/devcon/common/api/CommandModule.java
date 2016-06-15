@@ -1,28 +1,67 @@
 package com.devonfw.devcon.common.api;
 
-import java.util.Collection;
-
-import com.devonfw.devcon.common.api.data.Info;
-import com.google.common.base.Optional;
+import com.devonfw.devcon.common.api.data.Response;
+import com.devonfw.devcon.common.utils.ContextPathInfo;
+import com.devonfw.devcon.input.Input;
+import com.devonfw.devcon.output.Output;
 
 /**
- * TODO pparrado This type ...
+ * TODO ivanderk This type ...
  *
- * @author pparrado
+ * @author ivanderk
+ * @since 0.0.1
  */
-public interface CommandModule extends Info {
-
-  public boolean isVisible();
+public interface CommandModule {
 
   /**
-   * @return the list of available {@link @Command} commands
+   *
+   * @return registry
    */
-  Collection<Command> getCommands();
+  CommandRegistry getRegistry();
 
   /**
-   * @param name of the {@link Command}
-   * @return a {@link Command}
+   * @return response
    */
-  Optional<Command> getCommand(String name);
+  Response getResponse();
+
+  /**
+   * @return output
+   */
+  Output getOutput();
+
+  /**
+   * @return contextPathInfo
+   */
+  ContextPathInfo getContextPathInfo();
+
+  /**
+   * @return input
+   */
+  Input getInput();
+
+  /**
+   * @param registry new value of {@link #getRegistry}
+   */
+  void setRegistry(CommandRegistry registry);
+
+  /**
+   * @param input new value of {@link #getinput}.
+   */
+  void setInput(Input input);
+
+  /**
+   * @param response new value of {@link #getresponse}.
+   */
+  void setResponse(Response response);
+
+  /**
+   * @param output new value of {@link #getoutput}.
+   */
+  void setOutput(Output output);
+
+  /**
+   * @param contextPathInfo new value of {@link #getcontextPathInfo}.
+   */
+  void setContextPathInfo(ContextPathInfo contextPathInfo);
 
 }

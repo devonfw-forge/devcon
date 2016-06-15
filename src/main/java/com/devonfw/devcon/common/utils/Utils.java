@@ -31,7 +31,7 @@ import com.google.common.base.Optional;
  *
  * @author pparrado
  */
-public class DevconUtils {
+public class Utils {
 
   Reflections reflections = new Reflections(ClasspathHelper.forPackage(Constants.MODULES_PACKAGE),
       new SubTypesScanner(), new TypeAnnotationsScanner(), new MethodAnnotationsScanner());
@@ -79,7 +79,7 @@ public class DevconUtils {
    *
    * return sentence; }
    */
-  public String getOptionalValueFromFile(String parameterName)
+  public static String getOptionalValueFromFile(String parameterName)
       throws FileNotFoundException, IOException, ParseException {
 
     String paramValue = "";
@@ -118,13 +118,13 @@ public class DevconUtils {
 
   }
 
-  public List<DevconOption> getGlobalOptions() {
+  public static List<DevconOption> getGlobalOptions() {
 
     List<DevconOption> globalOptions = new ArrayList<DevconOption>();
 
     try {
-      ClassLoader classLoader = getClass().getClassLoader();
-      URL globalParamsFileURL = classLoader.getResource(Constants.GLOBAL_PARAMS_FILE);
+
+      URL globalParamsFileURL = Utils.class.getClassLoader().getResource(Constants.GLOBAL_PARAMS_FILE);
 
       if (globalParamsFileURL != null) {
 
@@ -144,7 +144,7 @@ public class DevconUtils {
 
   }
 
-  private List<DevconOption> getDefaultGlobalOptions() {
+  private static List<DevconOption> getDefaultGlobalOptions() {
 
     List<DevconOption> defaultGlobalOptions = new ArrayList<DevconOption>();
 
@@ -159,7 +159,7 @@ public class DevconUtils {
     return defaultGlobalOptions;
   }
 
-  private List<DevconOption> getGlobalOptionsFromFile(URL fileURL)
+  private static List<DevconOption> getGlobalOptionsFromFile(URL fileURL)
       throws FileNotFoundException, IOException, ParseException {
 
     JSONParser parser = new JSONParser();

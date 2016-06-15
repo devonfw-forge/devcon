@@ -14,7 +14,7 @@ import com.devonfw.devcon.common.CommandManager;
 import com.devonfw.devcon.common.CommandResult;
 import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Sentence;
-import com.devonfw.devcon.common.utils.DevconUtils;
+import com.devonfw.devcon.common.utils.Utils;
 
 /**
  * TODO pparrado This type ...
@@ -25,7 +25,7 @@ public class ConsoleInputManager {
 
   private CommandManager commandManager;
 
-  private DevconUtils dUtils = new DevconUtils();
+  private Utils dUtils = new Utils();
 
   public ConsoleInputManager(CommandManager commandManager) {
 
@@ -51,7 +51,6 @@ public class ConsoleInputManager {
 
       for (Option parsedParam : cmd.getOptions()) {
         if (cmd.getOptionValue(parsedParam.getOpt()) != null)
-          // sentence.getParams().add(Pair.of(parsedParam.getOpt(), cmd.getOptionValue(parsedParam.getOpt())));
           sentence.addParam(parsedParam.getOpt(), parsedParam.getOpt());
       }
 
@@ -84,26 +83,9 @@ public class ConsoleInputManager {
     }
   }
 
-  // private Options getAvailableCommandParameters() {
-  //
-  // try {
-  // List<String> CommandParamsList = null; // this.dUtils.getAvailableCommandParameters();
-  //
-  // Options availableCommandParameters = new Options();
-  //
-  // for (String commandParam : CommandParamsList) {
-  // availableCommandParameters.addOption(commandParam, true, null);
-  // }
-  // return availableCommandParameters;
-  // } catch (Exception e) {
-  // System.out.println("ERROR: " + e.getMessage());
-  // return new Options();
-  // }
-  // }
-
   private Options getOptions() {
 
-    List<DevconOption> devconOptions = this.dUtils.getGlobalOptions();
+    List<DevconOption> devconOptions = Utils.getGlobalOptions();
     Options options = new Options();
 
     for (DevconOption gOpt : devconOptions) {

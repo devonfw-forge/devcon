@@ -1,7 +1,7 @@
 package com.devonfw.devcon.basic;
 
-import static com.devonfw.devcon.common.utils.DevconUtils.unzipList;
-import static com.devonfw.devcon.common.utils.DevconUtils.zipLists;
+import static com.devonfw.devcon.common.utils.Utils.unzipList;
+import static com.devonfw.devcon.common.utils.Utils.zipLists;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

@@ -20,7 +20,7 @@ import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 
 import com.devonfw.devcon.common.api.Command;
-import com.devonfw.devcon.common.api.CommandModule;
+import com.devonfw.devcon.common.api.CommandModuleInfo;
 import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.data.CommandParameter;
@@ -153,7 +153,7 @@ public class BasicTest {
     assertFalse(this.registry.getCommandModule("fooNotPresent").isPresent());
 
     // given
-    CommandModule module = this.registry.getCommandModule("foo").get();
+    CommandModuleInfo module = this.registry.getCommandModule("foo").get();
 
     // then
     assertEquals("foo", module.getName());

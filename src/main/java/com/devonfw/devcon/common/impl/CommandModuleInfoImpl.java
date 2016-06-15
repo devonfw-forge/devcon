@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import com.devonfw.devcon.common.api.Command;
-import com.devonfw.devcon.common.api.CommandModule;
+import com.devonfw.devcon.common.api.CommandModuleInfo;
 import com.google.common.base.Optional;
 
 /**
@@ -15,7 +15,7 @@ import com.google.common.base.Optional;
  * @author ivanderk
  * @since 0.0.1
  */
-public class CommandModuleImpl implements CommandModule {
+public class CommandModuleInfoImpl implements CommandModuleInfo {
 
   private String name;
 
@@ -25,11 +25,11 @@ public class CommandModuleImpl implements CommandModule {
 
   private HashMap<String, Command> commands;
 
-  public CommandModuleImpl() {
+  public CommandModuleInfoImpl() {
     this.commands = new HashMap<>();
   }
 
-  public CommandModuleImpl(String name, String description, boolean isVisible, Class<?> moduleClass) {
+  public CommandModuleInfoImpl(String name, String description, boolean isVisible, Class<?> moduleClass) {
     this();
     this.name = name;
     this.description = description;
@@ -82,7 +82,7 @@ public class CommandModuleImpl implements CommandModule {
           Annotation annotation = method.getAnnotation(klass);
           com.devonfw.devcon.common.api.annotations.Command cmd =
               (com.devonfw.devcon.common.api.annotations.Command) annotation;
-          CommandImpl cmdImpl = new CommandImpl(cmd.name(), cmd.help(), method, moduleClass);
+          Command cmdImpl = new CommandImpl(cmd.name(), cmd.help(), method, moduleClass);
           this.commands.put(cmd.name(), cmdImpl);
         }
       }

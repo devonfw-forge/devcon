@@ -1,6 +1,6 @@
 package com.devonfw.devcon.common;
 
-import static com.devonfw.devcon.common.utils.DevconUtils.unzipList;
+import static com.devonfw.devcon.common.utils.Utils.unzipList;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -13,12 +13,13 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
 import com.devonfw.devcon.common.api.Command;
-import com.devonfw.devcon.common.api.CommandModule;
+import com.devonfw.devcon.common.api.CommandModuleInfo;
 import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.api.annotations.ParameterType;
 import com.devonfw.devcon.common.api.data.CommandParameter;
+import com.devonfw.devcon.common.api.data.Response;
 import com.devonfw.devcon.common.api.data.Sentence;
-import com.devonfw.devcon.common.utils.DevconUtils;
+import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.input.Input;
 import com.devonfw.devcon.output.Output;
 import com.google.common.base.Optional;
@@ -36,17 +37,29 @@ public class CommandManager {
 
   private Input input;
 
-  private DevconUtils dUtils = new DevconUtils();
+  private ContextPathInfo contextPathInfo;
 
   public CommandManager() {
 
   }
 
-  public CommandManager(CommandRegistry registry, Input input, Output output) {
+  public CommandManager(CommandRegistry registry, Input input, Output output, ContextPathInfo contextPathInfo) {
     this();
     this.registry = registry;
-    this.input = this.input;
+    this.input = input;
     this.output = output;
+    this.contextPathInfo = contextPathInfo;
+  }
+
+  public CommandManager(CommandRegistry registry, Input input, Output output) {
+
+    this(registry, input, output, new ContextPathInfo());
+
+  }
+
+  public void showModuleHelp(String module) throws Exception {
+
+    execCommand(module, "--help");
   }
 
   public void showMainHelp() throws Exception {
@@ -57,12 +70,16 @@ public class CommandManager {
   public Pair<CommandResult, String> execCommand(String moduleName, String commandName)
       throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-    Optional<CommandModule> module = this.registry.getCommandModule(moduleName);
+    Optional<CommandModuleInfo> module = this.registry.getCommandModule(moduleName);
     if (module.isPresent()) {
       Optional<Command> command = module.get().getCommand(commandName);
       if (command.isPresent()) {
 
-        command.get().exec();
+        Command cmd = command.get();
+        Response response = new Response(); // REMOVE
+        cmd.injectEnvironment(this.registry, this.input, this.output, response, this.contextPathInfo);
+
+        cmd.exec();
         return Pair.of(CommandResult.OK, CommandResult.OK_MSG);
 
       } else
@@ -79,21 +96,24 @@ public class CommandManager {
 
   public Pair<CommandResult, String> execCmdLine(Sentence sentence) throws Exception {
 
-    Optional<CommandModule> module = this.registry.getCommandModule(sentence.getModuleName());
+    Optional<CommandModuleInfo> module = this.registry.getCommandModule(sentence.getModuleName());
 
     if (module.isPresent()) {
 
       // If no command given OR helpRequested flag is 'true' the app shows the help info and ends
       if (sentence.getCommandName() == null || sentence.isHelpRequested()) {
 
-        // WHAT about flow
-        // this.dUtils.showHelp(module, sentence);
+        showMainHelp();
 
       } else {
 
         Optional<Command> command = module.get().getCommand(sentence.getCommandName());
         if (command.isPresent()) {
           Command cmd = command.get();
+
+          Response response = new Response();
+          cmd.injectEnvironment(this.registry, this.input, this.output, response, this.contextPathInfo);
+
           Collection<CommandParameter> commandNeededParams = cmd.getDefinedParameters();
 
           Collection<CommandParameter> missingParameters =
@@ -178,7 +198,7 @@ public class CommandManager {
   public Set<String> getParameterNames() {
 
     Set<String> options = new HashSet<>();
-    for (CommandModule module : this.registry.getCommandModules()) {
+    for (CommandModuleInfo module : this.registry.getCommandModules()) {
       for (Command command : module.getCommands()) {
         for (CommandParameter param : command.getDefinedParameters()) {
           String name = param.getName();
@@ -226,6 +246,22 @@ public class CommandManager {
     unzipList(sentence.getParams()).getRight();
 
     return null;
+  }
+
+  /**
+   * @return contextPathInfo
+   */
+  public ContextPathInfo getContextPathInfo() {
+
+    return this.contextPathInfo;
+  }
+
+  /**
+   * @param contextPathInfo new value of {@link #getcontextPathInfo}.
+   */
+  public void setContextPathInfo(ContextPathInfo contextPathInfo) {
+
+    this.contextPathInfo = contextPathInfo;
   }
 
 }
