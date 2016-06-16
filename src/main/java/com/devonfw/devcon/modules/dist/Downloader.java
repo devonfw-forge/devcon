@@ -109,7 +109,7 @@ public class Downloader {
               IOUtils.copy(is, os);
               IOUtils.closeQuietly(os);
               IOUtils.closeQuietly(is);
-              out.statusInNewLine("File downloaded successfuly.");
+              out.statusInNewLine("File downloaded successfully.");
             }
 
           } else {
