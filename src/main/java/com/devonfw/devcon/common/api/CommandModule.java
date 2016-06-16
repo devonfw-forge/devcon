@@ -1,6 +1,5 @@
 package com.devonfw.devcon.common.api;
 
-import com.devonfw.devcon.common.api.data.Response;
 import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.input.Input;
 import com.devonfw.devcon.output.Output;
@@ -18,11 +17,6 @@ public interface CommandModule {
    * @return registry
    */
   CommandRegistry getRegistry();
-
-  /**
-   * @return response
-   */
-  Response getResponse();
 
   /**
    * @return output
@@ -48,11 +42,6 @@ public interface CommandModule {
    * @param input new value of {@link #getinput}.
    */
   void setInput(Input input);
-
-  /**
-   * @param response new value of {@link #getresponse}.
-   */
-  void setResponse(Response response);
 
   /**
    * @param output new value of {@link #getoutput}.

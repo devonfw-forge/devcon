@@ -7,11 +7,11 @@ import java.util.List;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
+import com.devonfw.devcon.common.api.Command;
 import com.devonfw.devcon.common.api.CommandModuleInfo;
-import com.devonfw.devcon.common.api.annotations.Parameter;
+import com.devonfw.devcon.common.api.data.CommandParameter;
 import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Info;
-import com.devonfw.devcon.common.api.data.Response;
 
 /**
  * TODO pparrado This type ...
@@ -38,32 +38,32 @@ public class ConsoleOutput implements Output {
   }
 
   @Override
-  public void showCommandHelp(Response response) {
+  public void showCommandHelp(Command command) {
 
     Options options = new Options();
-    for (Parameter commandParam : response.getCommandParamsList()) {
-      options.addOption(commandParam.name(), false, commandParam.description());
+    for (CommandParameter commandParam : command.getDefinedParameters()) {
+      options.addOption(commandParam.getName(), false, commandParam.getDescription());
     }
 
     HelpFormatter formatter = new HelpFormatter();
 
-    formatter.printHelp(new PrintWriter(this.out_), 80, response.getName(), response.getDescription(), options, 0, 0,
+    formatter.printHelp(new PrintWriter(this.out_), 80, command.getName(), command.getDescription(), options, 0, 0,
         null, true);
   }
 
   @Override
-  public void showModuleHelp(Response response) {
+  public void showModuleHelp(CommandModuleInfo module) {
 
-    StringBuilder footerContent = new StringBuilder();
-    footerContent.append("Available commands for module: " + response.getName() + "\n");
-    for (Info command : response.getCommandsList()) {
-      footerContent.append("> " + command.getName() + ": " + command.getDescription() + "\n");
+    StringBuilder footer = new StringBuilder();
+    footer.append("Available commands for module: " + module.getName() + "\n");
+    for (Info command : module.getCommands()) {
+      footer.append("> " + command.getName() + ": " + command.getDescription() + "\n");
     }
 
     Options options = new Options();
-    String header = response.getName() + " <<command>> [parameters...]";
+    String header = module.getName() + " <<command>> [parameters...]";
     HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp(new PrintWriter(this.out_), 80, header, response.getDescription(), options, 0, 0, null, true);
+    formatter.printHelp(new PrintWriter(this.out_), 80, header, footer.toString(), options, 0, 0, null, true);
   }
 
   @Override

@@ -14,7 +14,6 @@ import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.CommandParameter;
-import com.devonfw.devcon.common.api.data.Response;
 import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.input.Input;
 import com.devonfw.devcon.output.Output;
@@ -45,8 +44,6 @@ public class CommandImpl implements Command {
 
   private Output output;
 
-  private Response response;
-
   public CommandImpl() {
     this.definedParameters = new ArrayList<>();
   }
@@ -61,14 +58,13 @@ public class CommandImpl implements Command {
   }
 
   @Override
-  public void injectEnvironment(CommandRegistry registry, Input input, Output output, Response response,
-      ContextPathInfo contextPathInfo) {
+  public void injectEnvironment(CommandRegistry registry, Input input, Output output, ContextPathInfo contextPathInfo) {
 
     this.registry = registry;
     this.contextPathInfo = contextPathInfo;
     this.input = input;
     this.output = output;
-    this.response = response;
+
   }
 
   @Override
@@ -152,7 +148,6 @@ public class CommandImpl implements Command {
       module_.setContextPathInfo(this.contextPathInfo);
       module_.setInput(this.input);
       module_.setOutput(this.output);
-      module_.setResponse(this.response);
     }
   }
 
@@ -194,14 +189,6 @@ public class CommandImpl implements Command {
   public Output getOutput() {
 
     return this.output;
-  }
-
-  /**
-   * @return response
-   */
-  public Response getResponse() {
-
-    return this.response;
   }
 
   /**

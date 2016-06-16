@@ -17,7 +17,6 @@ import com.devonfw.devcon.common.api.CommandModuleInfo;
 import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.api.annotations.ParameterType;
 import com.devonfw.devcon.common.api.data.CommandParameter;
-import com.devonfw.devcon.common.api.data.Response;
 import com.devonfw.devcon.common.api.data.Sentence;
 import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.input.Input;
@@ -57,11 +56,6 @@ public class CommandManager {
 
   }
 
-  public void showModuleHelp(String module) throws Exception {
-
-    execCommand(module, "--help");
-  }
-
   public void showMainHelp() throws Exception {
 
     execCommand("help", "guide");
@@ -76,8 +70,8 @@ public class CommandManager {
       if (command.isPresent()) {
 
         Command cmd = command.get();
-        Response response = new Response(); // REMOVE
-        cmd.injectEnvironment(this.registry, this.input, this.output, response, this.contextPathInfo);
+
+        cmd.injectEnvironment(this.registry, this.input, this.output, this.contextPathInfo);
 
         cmd.exec();
         return Pair.of(CommandResult.OK, CommandResult.OK_MSG);
@@ -100,20 +94,25 @@ public class CommandManager {
 
     if (module.isPresent()) {
 
-      // If no command given OR helpRequested flag is 'true' the app shows the help info and ends
-      if (sentence.getCommandName() == null || sentence.isHelpRequested()) {
+      CommandModuleInfo mod = module.get();
+      // If no command given and helpRequested flag is 'true' the app shows the help info and ends
+      if (sentence.getCommandName() == null && sentence.isHelpRequested()) {
 
-        showMainHelp();
+        this.output.showModuleHelp(mod);
+        return Pair.of(CommandResult.HelpShown, "module: " + mod);
 
       } else {
 
         Optional<Command> command = module.get().getCommand(sentence.getCommandName());
         if (command.isPresent()) {
+
           Command cmd = command.get();
+          if (sentence.isHelpRequested()) {
+            this.output.showCommandHelp(cmd);
+            return Pair.of(CommandResult.HelpShown, "command: " + cmd.getName());
+          }
 
-          Response response = new Response();
-          cmd.injectEnvironment(this.registry, this.input, this.output, response, this.contextPathInfo);
-
+          cmd.injectEnvironment(this.registry, this.input, this.output, this.contextPathInfo);
           Collection<CommandParameter> commandNeededParams = cmd.getDefinedParameters();
 
           Collection<CommandParameter> missingParameters =

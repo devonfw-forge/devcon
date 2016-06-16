@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.devonfw.devcon.common.api.data.CommandParameter;
 import com.devonfw.devcon.common.api.data.Info;
-import com.devonfw.devcon.common.api.data.Response;
 import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.input.Input;
 import com.devonfw.devcon.output.Output;
@@ -29,7 +28,6 @@ public interface Command extends Info {
   Object exec()
       throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 
-  void injectEnvironment(CommandRegistry registry, Input input, Output output, Response response,
-      ContextPathInfo contextPathInfo);
+  void injectEnvironment(CommandRegistry registry, Input input, Output output, ContextPathInfo contextPathInfo);
 
 }

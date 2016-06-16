@@ -2,7 +2,6 @@ package com.devonfw.devcon.common.impl;
 
 import com.devonfw.devcon.common.api.CommandModule;
 import com.devonfw.devcon.common.api.CommandRegistry;
-import com.devonfw.devcon.common.api.data.Response;
 import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.input.Input;
 import com.devonfw.devcon.output.ConsoleOutput;
@@ -14,11 +13,6 @@ import com.devonfw.devcon.output.Output;
  * @author pparrado
  */
 public class AbstractCommandModule implements CommandModule {
-
-  /**
-   * {@link Response} instance
-   */
-  protected Response response;
 
   /**
    * {@link ConsoleOutput} instance
@@ -45,15 +39,6 @@ public class AbstractCommandModule implements CommandModule {
    */
   public AbstractCommandModule() {
 
-  }
-
-  /**
-   * @return response
-   */
-  @Override
-  public Response getResponse() {
-
-    return this.response;
   }
 
   /**
@@ -90,15 +75,6 @@ public class AbstractCommandModule implements CommandModule {
   public void setInput(Input input) {
 
     this.input = input;
-  }
-
-  /**
-   * @param response new value of {@link #getresponse}.
-   */
-  @Override
-  public void setResponse(Response response) {
-
-    this.response = response;
   }
 
   /**
