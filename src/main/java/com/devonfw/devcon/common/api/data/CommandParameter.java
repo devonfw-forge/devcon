@@ -1,41 +1,23 @@
 package com.devonfw.devcon.common.api.data;
 
 /**
- * Class to encapsulate the info related to an element (module, command, etc.)
+ * Contains info about a command parameter
  *
  * @author pparrado
  */
-public class Info {
+public class CommandParameter {
 
-  /**
-   * the name for the element
-   */
   private String name;
 
-  /**
-   * the description of the element
-   */
   private String description;
 
-  /**
-   * determines whether component is visible on the console
-   */
-  private boolean visible = true;
+  private boolean isOptional;
 
-  /**
-   * @return visible
-   */
-  public boolean isVisible() {
+  public CommandParameter(String name, String description, boolean isOptional) {
 
-    return this.visible;
-  }
-
-  /**
-   * @param visible new value of {@link #getvisible}.
-   */
-  public void setVisible(boolean visible) {
-
-    this.visible = visible;
+    this.name = name;
+    this.description = description;
+    this.isOptional = isOptional;
   }
 
   /**
@@ -68,6 +50,22 @@ public class Info {
   public void setDescription(String description) {
 
     this.description = description;
+  }
+
+  /**
+   * @return isOptional
+   */
+  public boolean isOptional() {
+
+    return this.isOptional;
+  }
+
+  /**
+   * @param isOptional new value of {@link #getisOptional}.
+   */
+  public void setOptional(boolean isOptional) {
+
+    this.isOptional = isOptional;
   }
 
 }

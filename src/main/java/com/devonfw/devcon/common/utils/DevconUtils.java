@@ -9,14 +9,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -31,12 +31,15 @@ import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
+import com.devonfw.devcon.common.api.data.CommandParameter;
 import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Info;
+import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.Response;
 import com.devonfw.devcon.common.api.data.Sentence;
 import com.devonfw.devcon.common.exception.NotRecognizedCommandException;
 import com.devonfw.devcon.output.OutputConsole;
+import com.google.common.base.Optional;
 
 /**
  * TODO pparrado This type ...
@@ -47,6 +50,10 @@ public class DevconUtils {
 
   Reflections reflections = new Reflections(ClasspathHelper.forPackage(Constants.MODULES_PACKAGE),
       new SubTypesScanner(), new TypeAnnotationsScanner(), new MethodAnnotationsScanner());
+
+  private static final String DEVON_JSON = "devon.json";
+
+  private static final String OPTIONAL = "optionalParameters";
 
   public List<CmdModuleRegistry> getAvailableModules() {
 
@@ -158,9 +165,9 @@ public class DevconUtils {
     return response;
   }
 
-  public List<String> getCommandParameters(Class<?> c, String commandName) throws Exception {
+  public List<CommandParameter> getCommandParameters(Class<?> c, String commandName) throws Exception {
 
-    List<String> commandParams = null;
+    List<CommandParameter> commandParams = null;
     try {
       for (Method m : c.getMethods()) {
         if (m.isAnnotationPresent(Command.class)) {
@@ -168,11 +175,13 @@ public class DevconUtils {
             Annotation annotation = m.getAnnotation(Parameters.class);
             if (annotation != null) {
               Parameters params = (Parameters) annotation;
-              commandParams = new ArrayList<String>();
+              commandParams = new ArrayList<>();
               List<Parameter> paramsList = Arrays.asList(params.values());
               for (Parameter param : paramsList) {
-                if (!param.name().equals(""))
-                  commandParams.add(param.name());
+                String name = param.name();
+                String description = param.description();
+                boolean isOptional = param.optional();
+                commandParams.add(new CommandParameter(name, description, isOptional));
               }
             }
 
@@ -253,63 +262,124 @@ public class DevconUtils {
 
   }
 
-  public List<String> getMissingParameters(List<String> sentenceParams, List<String> commandParams) {
+  public List<CommandParameter> getMissingParameters(List<String> sentenceParams,
+      List<CommandParameter> commandParams) {
 
-    List<String> missingArguments = new ArrayList();
+    List<CommandParameter> missingArguments = new ArrayList<>();
 
-    for (String commandArg : commandParams) {
-      if (!sentenceParams.contains(commandArg))
+    for (CommandParameter commandArg : commandParams) {
+      if (!sentenceParams.contains(commandArg.getName()))
         missingArguments.add(commandArg);
     }
 
     return missingArguments;
   }
 
-  public Sentence promptForMissingArguments(List<String> missingArguments, Sentence sentence, OutputConsole output) {
+  public String promptForMissingParameter(String missingParameter, OutputConsole output) {
 
-    for (String argument : missingArguments) {
-      String value = output.promptForArgument(argument);
-      if (!value.isEmpty())
-        sentence.getParams().add(createParameterItem(argument, value));
+    String result = "";
+    String value = output.promptForArgument(missingParameter);
+    if (!value.isEmpty()) {
+      result = value;
     }
+    return result;
+  }
+
+  public Sentence obtainValueForMissingParameters(List<CommandParameter> missingParameters, Sentence sentence,
+      OutputConsole output) throws FileNotFoundException, IOException, ParseException {
+
+    for (CommandParameter parameter : missingParameters) {
+      String value = "";
+      if (parameter.isOptional()) {
+        value = getOptionalValueFromFile(parameter.getName());
+        if (value == "" && !sentence.isNoPrompt()) {
+          value = promptForMissingParameter(parameter.getName(), output);
+        }
+        if (value != "")
+          sentence.getParams().add(Pair.of(parameter.getName(), value));
+      } else {
+        if (!sentence.isNoPrompt()) {
+          value = promptForMissingParameter(parameter.getName(), output);
+          sentence.getParams().add(Pair.of(parameter.getName(), value));
+        }
+      }
+    }
+
     return sentence;
   }
 
-  public List<String> getParamsKeys(List<HashMap<String, String>> params) {
+  public String getOptionalValueFromFile(String parameterName)
+      throws FileNotFoundException, IOException, ParseException {
+
+    String paramValue = "";
+    try {
+      ContextPathInfo contextPathInfo = new ContextPathInfo();
+      Optional<ProjectInfo> info = contextPathInfo.getCombinedProjectRoot();
+
+      if (info.isPresent()) {
+        Path jsonPath = info.get().getPath().resolve(DEVON_JSON);
+        JSONParser parser = new JSONParser();
+        Object obj = parser.parse(new FileReader(jsonPath.toFile()));
+
+        JSONObject json = (JSONObject) obj;
+        JSONObject optParams = (JSONObject) json.get(OPTIONAL);
+
+        if (optParams != null) {
+          try {
+            paramValue = optParams.get(parameterName).toString();
+          } catch (Exception e) {
+
+          }
+        }
+
+      }
+      return paramValue;
+
+    } catch (FileNotFoundException e) {
+      // TODO implement logs
+      // System.out.println("[LOG] The config file for optional parameters could not be found.");
+      return "";
+    } catch (Exception e) {
+      // TODO implement logs
+      System.out.println("[LOG] " + e.getMessage());
+      return "";
+    }
+
+  }
+
+  public void endAndShowMissingParameters(List<CommandParameter> missingParameters) throws Exception {
+
+    OutputConsole output = new OutputConsole();
+    StringBuilder sb = new StringBuilder();
+    for (CommandParameter missingParameter : missingParameters) {
+      sb.append("[-");
+      sb.append(missingParameter.getName());
+      sb.append("] ");
+    }
+    throw new Exception("You need to specify the following parameter/s: " + sb.toString());
+  }
+
+  public List<String> getParamsKeys(List<Pair<String, String>> params) {
 
     List<String> keysList = new ArrayList<String>();
 
-    for (HashMap<String, String> param : params) {
-      Set<?> set = param.entrySet();
-      Iterator<?> it = set.iterator();
-      while (it.hasNext()) {
-        Map.Entry m = (Map.Entry) it.next();
-        keysList.add(m.getKey().toString());
-      }
+    for (Pair<String, String> param : params) {
+
+      keysList.add(param.getLeft());
     }
+
     return keysList;
   }
 
-  public List<String> getParamsValues(List<HashMap<String, String>> params) {
+  public List<String> getParamsValues(List<Pair<String, String>> params) {
 
     List<String> valuesList = new ArrayList<String>();
 
-    for (HashMap<String, String> param : params) {
-      Set<?> set = param.entrySet();
-      Iterator<?> it = set.iterator();
-      while (it.hasNext()) {
-        Map.Entry m = (Map.Entry) it.next();
-        valuesList.add(m.getValue().toString());
-      }
+    for (Pair<String, String> param : params) {
+
+      valuesList.add(param.getRight());
     }
     return valuesList;
-  }
-
-  public HashMap<String, String> createParameterItem(String key, String value) {
-
-    HashMap<String, String> hmap = new HashMap<String, String>();
-    hmap.put(key, value);
-    return hmap;
   }
 
   public Class<?> getModule(String moduleName) {
@@ -346,22 +416,35 @@ public class DevconUtils {
     return command;
   }
 
-  public List<String> orderParameters(List<HashMap<String, String>> sentenceParams, List<String> commandParams) {
+  public List<String> orderParameters(List<Pair<String, String>> sentenceParams, List<CommandParameter> commandParams) {
 
     List<String> orderedParameters = new ArrayList<String>();
-    for (String commandParam : commandParams) {
-      for (HashMap<String, String> sentenceParam : sentenceParams) {
-        if (sentenceParam.containsKey(commandParam)) {
-          orderedParameters.add(sentenceParam.get(commandParam));
+    for (CommandParameter commandParam : commandParams) {
+      for (Pair<String, String> sentenceParam : sentenceParams) {
+        if (sentenceParam.getLeft().equals(commandParam.getName())) {
+          orderedParameters.add(sentenceParam.getRight());
           break;
         }
       }
-
     }
     return orderedParameters;
   }
 
-  public void LaunchCommand(Class<?> c, String commandName, List<String> parameters)
+  public void launchCommand(String moduleName, String commandName)
+      throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
+
+    launchCommand(moduleName, commandName, new ArrayList<String>());
+  }
+
+  public void launchCommand(String moduleName, String commandName, List<String> parameters)
+      throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
+
+    Class<?> module = getModule(moduleName);
+    Method method = getCommandInstance(module, commandName, parameters);
+    method.invoke(module.newInstance(), parameters.toArray());
+  }
+
+  public void launchCommand(Class<?> c, String commandName, List<String> parameters)
       throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
 
     Method method = getCommandInstance(c, commandName, parameters);
@@ -370,7 +453,7 @@ public class DevconUtils {
 
   public List<Info> getListOfAvailableModules() {
 
-    List<Info> modules = new ArrayList();
+    List<Info> modules = new ArrayList<>();
     try {
       Set<Class<?>> annotatedClasses = this.reflections.getTypesAnnotatedWith(CmdModuleRegistry.class);
 
@@ -384,6 +467,7 @@ public class DevconUtils {
           Info info = new Info();
           info.setName(module.name());
           info.setDescription(module.description() != null ? module.description() : "");
+          info.setVisible(module.visible());
           modules.add(info);
         }
       }
@@ -441,7 +525,7 @@ public class DevconUtils {
       throws FileNotFoundException, IOException, ParseException {
 
     JSONParser parser = new JSONParser();
-    List<DevconOption> globalOptions = new ArrayList<DevconOption>();
+    List<DevconOption> globalOptions = new ArrayList<>();
 
     String jsonPath = fileURL.getPath();
     Object obj = parser.parse(new FileReader(jsonPath));

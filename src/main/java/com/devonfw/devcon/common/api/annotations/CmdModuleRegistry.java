@@ -40,4 +40,12 @@ public @interface CmdModuleRegistry {
    * @return state
    */
   boolean deprecated() default false;
+
+  /**
+   * Show in console or not
+   *
+   * @return
+   */
+  boolean visible() default true;
+
 }
