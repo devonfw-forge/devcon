@@ -48,7 +48,7 @@ public class HelpTest {
   @Test
   public void guide() {
 
-    String[] args = { "-np", "help", "guide" };
+    String[] args = { "help", "guide" };
     assertTrue(this.inputMgr.parse(args));
   }
 }

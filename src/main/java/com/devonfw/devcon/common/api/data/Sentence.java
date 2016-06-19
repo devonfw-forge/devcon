@@ -22,8 +22,6 @@ public class Sentence {
 
   private String context;
 
-  private boolean noPrompt;
-
   private boolean helpRequested;
 
   public Sentence() {
@@ -101,22 +99,6 @@ public class Sentence {
   public void setContext(String context) {
 
     this.context = context;
-  }
-
-  /**
-   * @return noPrompt
-   */
-  public boolean isNoPrompt() {
-
-    return this.noPrompt;
-  }
-
-  /**
-   * @param noPrompt new value of {@link #getnoPrompt}.
-   */
-  public void setNoPrompt(boolean noPrompt) {
-
-    this.noPrompt = noPrompt;
   }
 
   /**

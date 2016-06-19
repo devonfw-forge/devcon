@@ -5,7 +5,6 @@ import java.io.File;
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
-import com.devonfw.devcon.common.api.annotations.ParameterType;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 
@@ -30,7 +29,7 @@ public class Workspace extends AbstractCommandModule {
    */
   @Command(name = "create", help = "This command is used to create new workspace with all default configuration")
   @Parameters(values = { @Parameter(name = "foldername", description = "This is the name of workspace to create"),
-  @Parameter(name = "devonpath", description = "This is the location of devon distribution", parametertype = ParameterType.OptionalFromConfig) })
+  @Parameter(name = "devonpath", description = "This is the location of devon distribution") })
   public void create(String foldername, String devonpath) throws Exception {
 
     String workspace_path = devonpath + File.separator + "workspaces" + File.separator + foldername;

@@ -1,20 +1,25 @@
 package com.devonfw.devcon.module;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.devonfw.devcon.common.CommandManager;
+import com.devonfw.devcon.common.CommandResult;
 import com.devonfw.devcon.common.api.CommandRegistry;
+import com.devonfw.devcon.common.api.data.Sentence;
 import com.devonfw.devcon.common.impl.CommandRegistryImpl;
 import com.devonfw.devcon.input.ConsoleInput;
 import com.devonfw.devcon.input.ConsoleInputManager;
@@ -29,6 +34,11 @@ import com.devonfw.devcon.output.Output;
  */
 public class FooTest {
 
+  // Directory where tests files are to be created, i.e. <<system temp folder/
+  private Path testRoot;
+
+  private Path testFoo;
+
   private ConsoleInputManager inputMgr;
 
   private CommandManager commandManager;
@@ -41,13 +51,28 @@ public class FooTest {
 
   @SuppressWarnings("javadoc")
   @Before
-  public void setup() {
+  public void setup() throws IOException {
 
     this.registry = new CommandRegistryImpl("com.devonfw.devcon.modules.*");
     this.output = new ConsoleOutput();
     this.input = new ConsoleInput();
     this.commandManager = new CommandManager(this.registry, this.input, this.output);
     this.inputMgr = new ConsoleInputManager(this.commandManager);
+
+    // For testing purposes,
+    // create tempFiles in System Temp File
+    this.testRoot = Files.createTempDirectory("devcon");
+
+    // OR
+
+    // create tempFiles in fixed root on your hard drive in an accessible path, for example:
+    // Path tmpRoot = FileSystems.getDefault().getPath("d:/tmp");
+    // this.testRoot = tmpRoot.resolve("devcon");
+    // Files.createDirectories(this.testRoot);
+
+    this.testFoo = this.testRoot.resolve("test-devcon-foo");
+    Files.createDirectories(this.testFoo);
+
   }
 
   /**
@@ -56,7 +81,7 @@ public class FooTest {
   @Test
   public void simpleCommand() {
 
-    String[] args = { "-np", "foo", "farewell" };
+    String[] args = { "foo", "farewell" };
     assertTrue(this.inputMgr.parse(args));
   }
 
@@ -66,7 +91,7 @@ public class FooTest {
   @Test
   public void simpleCommandFail() {
 
-    String[] args = { "-np", "foo", "fakeCommand" };
+    String[] args = { "foo", "fakeCommand" };
     assertFalse(this.inputMgr.parse(args));
   }
 
@@ -76,7 +101,7 @@ public class FooTest {
   @Test
   public void commandWithOneParameter() {
 
-    String[] args = { "-np", "foo", "customFarewell", "-name", "Jason" };
+    String[] args = { "foo", "customFarewell", "-name", "Jason" };
     assertTrue(this.inputMgr.parse(args));
   }
 
@@ -86,7 +111,7 @@ public class FooTest {
   @Test
   public void commandWithOneParameterFail() {
 
-    String[] args = { "-np", "foo", "customFarewell" };
+    String[] args = { "foo", "customFarewell" };
     assertFalse(this.inputMgr.parse(args));
   }
 
@@ -96,7 +121,7 @@ public class FooTest {
   @Test
   public void commandWithWrongParameterFail() {
 
-    String[] args = { "-np", "foo", "customFarewell", "-surname", "Jason" };
+    String[] args = { "foo", "customFarewell", "-surname", "Jason" };
 
     assertFalse(this.inputMgr.parse(args));
   }
@@ -107,7 +132,7 @@ public class FooTest {
   @Test
   public void commandWithSeveralParams() {
 
-    String[] args = { "-np", "foo", "largeCustomFarewell", "-name", "Jason", "-surname", "Lytle" };
+    String[] args = { "foo", "largeCustomFarewell", "-name", "Jason", "-surname", "Lytle" };
     assertTrue(this.inputMgr.parse(args));
   }
 
@@ -117,7 +142,7 @@ public class FooTest {
   @Test
   public void commandWithSeveralParamsFail() {
 
-    String[] args = { "-np", "foo", "largeCustomFarewell", "-name", "Jason" };
+    String[] args = { "foo", "largeCustomFarewell", "-name", "Jason" };
     assertFalse(this.inputMgr.parse(args));
   }
 
@@ -131,12 +156,11 @@ public class FooTest {
   public void commandWithOptionalParameter() throws IOException {
 
     Path tmp = FileSystems.getDefault().getPath(System.getProperty("user.dir"));
-    String content =
-        "{\"version\": \"2.0.0\",\n\"type\":\"oasp4j\",\n\"optionalParameters\": {\"signature\":\"from json\"}\n}";
+    String content = "{\"version\": \"2.0.0\",\n\"type\":\"oasp4j\",\n\"signature\":\"from json\"}";
     File tempSettings = tmp.resolve("devon.json").toFile();
     FileUtils.writeStringToFile(tempSettings, content, "UTF-8");
 
-    String[] args = { "-np", "foo", "saySomething", "-message", "This is a message" };
+    String[] args = { "foo", "saySomething", "-message", "This is a message" };
 
     assertTrue(this.inputMgr.parse(args));
   }
@@ -201,6 +225,41 @@ public class FooTest {
     String[] args = { "foo", "fakeCommand", "-help" };
 
     assertFalse(this.inputMgr.parse(args));
+  }
+
+  @Test
+  public void testExecParametersFromConfig() throws Exception {
+
+    Sentence sentence = new Sentence();
+    sentence.setModuleName("foo");
+    sentence.setCommandName("multipleWords");
+
+    sentence.addParam("second", "Brown");
+
+    // Devon project containing missing values
+    String content = "{\"version\": \"2.0.0\",\n\"type\":\"oasp4j\",\n\"first\": \"The\",\n\"fourth\": \"Fox\"\n}";
+    File settingsfile = this.testFoo.resolve("devon.json").toFile();
+    FileUtils.writeStringToFile(settingsfile, content, "UTF-8");
+
+    sentence.addParam("path", this.testFoo.toString());
+    Pair<CommandResult, String> result = this.commandManager.execCmdLine(sentence);
+
+    assertEquals("TheBrownFox", result.getRight());
+  }
+
+  @Test
+  public void testExecParameterOrderChanged() throws Exception {
+
+    Sentence sentence = new Sentence();
+    sentence.setModuleName("foo");
+    sentence.setCommandName("multipleWordsNoContext");
+
+    sentence.addParam("fourth", "Fox");
+    sentence.addParam("SECOND", "Brown");
+
+    Pair<CommandResult, String> result = this.commandManager.execCmdLine(sentence);
+
+    assertEquals("BrownFox", result.getRight());
   }
 
 }

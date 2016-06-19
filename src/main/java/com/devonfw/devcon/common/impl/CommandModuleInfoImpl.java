@@ -82,7 +82,7 @@ public class CommandModuleInfoImpl implements CommandModuleInfo {
           Annotation annotation = method.getAnnotation(klass);
           com.devonfw.devcon.common.api.annotations.Command cmd =
               (com.devonfw.devcon.common.api.annotations.Command) annotation;
-          Command cmdImpl = new CommandImpl(cmd.name(), cmd.help(), method, moduleClass);
+          Command cmdImpl = new CommandImpl(cmd.name(), cmd.help(), cmd.context(), method, moduleClass);
           this.commands.put(cmd.name(), cmdImpl);
         }
       }

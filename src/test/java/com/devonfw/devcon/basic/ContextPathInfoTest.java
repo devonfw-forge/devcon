@@ -140,7 +140,7 @@ public class ContextPathInfoTest {
     assertTrue(projectInfo.isPresent());
     assertEquals(0, projectInfo.get().getVersion().compareTo(version));
     assertEquals(extSample.toUri().toString(), projectInfo.get().getPath().toUri().toString());
-    assertEquals(ProjectType.Devon4Sencha, projectInfo.get().getProjecType());
+    assertEquals(ProjectType.DEVON4SENCHA, projectInfo.get().getProjecType());
 
     // given combined project to be tested from sub-dir workspaces/main
     Path combined = this.testDist.resolve("workspaces/main");
@@ -153,7 +153,7 @@ public class ContextPathInfoTest {
     assertTrue(projectInfo.isPresent());
     assertEquals(0, projectInfo.get().getVersion().compareTo(version));
     assertEquals(combined.toUri().toString(), projectInfo.get().getPath().toUri().toString());
-    assertEquals(ProjectType.Combined, projectInfo.get().getProjecType());
+    assertEquals(ProjectType.COMBINED, projectInfo.get().getProjecType());
     assertEquals(2, projectInfo.get().getSubProjects().size());
 
     // given Devon4Sencha project to be tested from sub-dir workspaces/main
@@ -168,7 +168,7 @@ public class ContextPathInfoTest {
     assertTrue(projectInfo.isPresent());
     assertEquals(0, projectInfo.get().getVersion().compareTo(version));
     assertEquals(combined.toUri().toString(), projectInfo.get().getPath().toUri().toString());
-    assertEquals(ProjectType.Combined, projectInfo.get().getProjecType());
+    assertEquals(ProjectType.COMBINED, projectInfo.get().getProjecType());
     assertEquals(2, projectInfo.get().getSubProjects().size());
 
   }

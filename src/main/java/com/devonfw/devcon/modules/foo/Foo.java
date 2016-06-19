@@ -3,8 +3,8 @@ package com.devonfw.devcon.modules.foo;
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
-import com.devonfw.devcon.common.api.annotations.ParameterType;
 import com.devonfw.devcon.common.api.annotations.Parameters;
+import com.devonfw.devcon.common.api.data.ContextType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 
 /**
@@ -55,13 +55,41 @@ public class Foo extends AbstractCommandModule {
     this.output.showMessage("Bye " + name + " " + surname);
   }
 
-  @Command(name = "saySomething", help = "This command is for say something")
+  @Command(name = "saySomething", help = "This command is for say something", context = ContextType.PROJECT)
   @Parameters(values = { @Parameter(name = "message", description = "the message to be written"),
-  @Parameter(name = "signature", description = "the signature", parametertype = ParameterType.OptionalFromConfig) })
+  @Parameter(name = "signature", description = "the signature", optional = true) })
   @SuppressWarnings("javadoc")
   public void saySomething(String message, String signature) {
 
-    this.output.showMessage(message + "\n" + signature);
+    this.output.showMessage(message + "\n" + signature + "\n" + this.projectInfo.get().getPath().toString());
+  }
+
+  @Command(name = "multipleWords", help = "This command is to say multiple words", context = ContextType.PROJECT)
+  @Parameters(values = { @Parameter(name = "first", description = "the first word", optional = true),
+  @Parameter(name = "second", description = "the second word", optional = true),
+  @Parameter(name = "third", description = "the third word", optional = true),
+  @Parameter(name = "fourth", description = "the fourth word", optional = true) })
+  @SuppressWarnings("javadoc")
+  public String multipleWords(String first, String second, String third, String fourth) {
+
+    if (this.projectInfo.isPresent()) {
+      return first + second + third + fourth;
+    } else {
+      return "Project Info not Preset";
+    }
+
+  }
+
+  @Command(name = "multipleWordsNoContext", help = "This command is to say multiple words (without context)")
+  @Parameters(values = { @Parameter(name = "first", description = "the first word", optional = true),
+  @Parameter(name = "second", description = "the second word", optional = true),
+  @Parameter(name = "third", description = "the third word", optional = true),
+  @Parameter(name = "FOURTH", description = "the fourth word", optional = true) })
+  @SuppressWarnings("javadoc")
+  public String multipleWordsNoCtx(String first, String second, String third, String fourth) {
+
+    return first + second + third + fourth;
+
   }
 
 }

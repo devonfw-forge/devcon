@@ -2,10 +2,12 @@ package com.devonfw.devcon.common.impl;
 
 import com.devonfw.devcon.common.api.CommandModule;
 import com.devonfw.devcon.common.api.CommandRegistry;
+import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.input.Input;
 import com.devonfw.devcon.output.ConsoleOutput;
 import com.devonfw.devcon.output.Output;
+import com.google.common.base.Optional;
 
 /**
  * TODO pparrado This type ...
@@ -27,7 +29,7 @@ public class AbstractCommandModule implements CommandModule {
   /**
    * {@link ContextPathInfo} instance
    */
-  protected ContextPathInfo contextPathInfo;
+  protected Optional<ProjectInfo> projectInfo;
 
   /**
    * {@link CommandRegistry} instance
@@ -54,9 +56,9 @@ public class AbstractCommandModule implements CommandModule {
    * @return contextPathInfo
    */
   @Override
-  public ContextPathInfo getContextPathInfo() {
+  public Optional<ProjectInfo> getProjectInfo() {
 
-    return this.contextPathInfo;
+    return this.projectInfo;
   }
 
   /**
@@ -90,9 +92,9 @@ public class AbstractCommandModule implements CommandModule {
    * @param contextPathInfo new value of {@link #getcontextPathInfo}.
    */
   @Override
-  public void setContextPathInfo(ContextPathInfo contextPathInfo) {
+  public void setProjectInfo(Optional<ProjectInfo> projectInfo) {
 
-    this.contextPathInfo = contextPathInfo;
+    this.projectInfo = projectInfo;
   }
 
   @Override

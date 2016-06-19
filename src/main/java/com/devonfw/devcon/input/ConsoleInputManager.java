@@ -46,7 +46,6 @@ public class ConsoleInputManager {
         System.exit(0);
       }
 
-      sentence.setNoPrompt(cmd.hasOption("np"));
       sentence.setHelpRequested(cmd.hasOption("h"));
 
       for (Option parsedParam : cmd.getOptions()) {

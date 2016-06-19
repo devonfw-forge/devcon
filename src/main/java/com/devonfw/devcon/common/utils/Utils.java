@@ -6,10 +6,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.json.simple.JSONArray;
@@ -23,8 +24,6 @@ import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 
 import com.devonfw.devcon.common.api.data.DevconOption;
-import com.devonfw.devcon.common.api.data.ProjectInfo;
-import com.google.common.base.Optional;
 
 /**
  * TODO pparrado This type ...
@@ -60,6 +59,34 @@ public class Utils {
     return lst;
   }
 
+  /**
+   * @param list List of Pairs
+   * @return Map
+   */
+  public static <T, U> Map<T, U> pairsToMap(List<Pair<T, U>> list) {
+
+    LinkedHashMap<T, U> map = new LinkedHashMap<>();
+    for (Pair<T, U> pair : list) {
+
+      map.put(pair.getLeft(), pair.getRight());
+    }
+    return map;
+  }
+
+  /**
+   * @param list List of Pairs
+   * @return Map
+   */
+  public static <T, U> List<Pair<T, U>> mapToPairs(Map<T, U> map) {
+
+    ArrayList<Pair<T, U>> list = new ArrayList<>();
+    for (T key : map.keySet()) {
+
+      list.add(Pair.of(key, map.get(key)));
+    }
+    return list;
+  }
+
   /*
    * public String promptForMissingParameter(String missingParameter, Output output) {
    *
@@ -79,45 +106,30 @@ public class Utils {
    *
    * return sentence; }
    */
-  public static String getOptionalValueFromFile(String parameterName)
-      throws FileNotFoundException, IOException, ParseException {
-
-    String paramValue = "";
-    try {
-      ContextPathInfo contextPathInfo = new ContextPathInfo();
-      Optional<ProjectInfo> info = contextPathInfo.getCombinedProjectRoot();
-
-      if (info.isPresent()) {
-        Path jsonPath = info.get().getPath().resolve(DEVON_JSON);
-        JSONParser parser = new JSONParser();
-        Object obj = parser.parse(new FileReader(jsonPath.toFile()));
-
-        JSONObject json = (JSONObject) obj;
-        JSONObject optParams = (JSONObject) json.get(OPTIONAL);
-
-        if (optParams != null) {
-          try {
-            paramValue = optParams.get(parameterName).toString();
-          } catch (Exception e) {
-
-          }
-        }
-
-      }
-      return paramValue;
-
-    } catch (FileNotFoundException e) {
-      // TODO implement logs
-      // System.out.println("[LOG] The config file for optional parameters could not be found.");
-      return "";
-    } catch (Exception e) {
-      // TODO implement logs
-      System.out.println("[LOG] " + e.getMessage());
-      return "";
-    }
-
-  }
-
+  /*
+   * public static String getOptionalValueFromFile(String parameterName) throws FileNotFoundException, IOException,
+   * ParseException {
+   *
+   * String paramValue = ""; try { ContextPathInfo contextPathInfo = new ContextPathInfo(); Optional<ProjectInfo> info =
+   * contextPathInfo.getCombinedProjectRoot();
+   *
+   * if (info.isPresent()) { Path jsonPath = info.get().getPath().resolve(DEVON_JSON); JSONParser parser = new
+   * JSONParser(); Object obj = parser.parse(new FileReader(jsonPath.toFile()));
+   *
+   * JSONObject json = (JSONObject) obj; JSONObject optParams = (JSONObject) json.get(OPTIONAL);
+   *
+   * if (optParams != null) { try { paramValue = optParams.get(parameterName).toString(); } catch (Exception e) {
+   *
+   * } }
+   *
+   * } return paramValue;
+   *
+   * } catch (FileNotFoundException e) { // TODO implement logs // System.out.println(
+   * "[LOG] The config file for optional parameters could not be found."); return ""; } catch (Exception e) { // TODO
+   * implement logs System.out.println("[LOG] " + e.getMessage()); return ""; }
+   *
+   * }
+   */
   public static List<DevconOption> getGlobalOptions() {
 
     List<DevconOption> globalOptions = new ArrayList<DevconOption>();

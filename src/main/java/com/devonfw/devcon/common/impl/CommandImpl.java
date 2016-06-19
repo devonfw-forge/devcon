@@ -5,8 +5,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.devonfw.devcon.common.api.Command;
 import com.devonfw.devcon.common.api.CommandModule;
@@ -14,9 +17,11 @@ import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.CommandParameter;
-import com.devonfw.devcon.common.utils.ContextPathInfo;
+import com.devonfw.devcon.common.api.data.ContextType;
+import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.input.Input;
 import com.devonfw.devcon.output.Output;
+import com.google.common.base.Optional;
 
 /**
  * TODO ivanderk This type ...
@@ -38,33 +43,52 @@ public class CommandImpl implements Command {
 
   private CommandRegistry registry;
 
-  private ContextPathInfo contextPathInfo;
+  private Optional<ProjectInfo> projectInfo;
 
   private Input input;
 
   private Output output;
 
+  private ContextType context;
+
   public CommandImpl() {
     this.definedParameters = new ArrayList<>();
   }
 
-  public CommandImpl(String name, String description, Method method, Class<?> module) {
+  public CommandImpl(String name, String description, ContextType context, Method method, Class<?> module) {
     this();
     this.name = name;
     this.description = description;
+    this.context = context;
     this.method = method;
     this.module = module;
     addParameters(method);
   }
 
   @Override
-  public void injectEnvironment(CommandRegistry registry, Input input, Output output, ContextPathInfo contextPathInfo) {
+  public void injectEnvironment(CommandRegistry registry, Input input, Output output,
+      Optional<ProjectInfo> projectInfo) {
 
     this.registry = registry;
-    this.contextPathInfo = contextPathInfo;
+    this.projectInfo = projectInfo;
     this.input = input;
     this.output = output;
 
+  }
+
+  /**
+   * @param module
+   */
+  private void injectEnvIfCommandModule(Object module) {
+
+    // When Command Module, inject environment
+    if (module instanceof CommandModule) {
+      CommandModule module_ = (CommandModule) module;
+      module_.setRegistry(this.registry);
+      module_.setProjectInfo(this.projectInfo);
+      module_.setInput(this.input);
+      module_.setOutput(this.output);
+    }
   }
 
   @Override
@@ -80,37 +104,57 @@ public class CommandImpl implements Command {
   }
 
   @Override
-  public Collection<CommandParameter> getDefinedParameters() {
+  public List<CommandParameter> getDefinedParameters() {
 
     return this.definedParameters;
   }
 
   void addParameters(Method method) {
 
+    int pos = 0;
+
     Annotation annotation = method.getAnnotation(Parameters.class);
     if (annotation != null) {
       Parameters params = (Parameters) annotation;
 
       List<Parameter> paramsList = Arrays.asList(params.values());
-      int pos = 0;
+
       for (Parameter param : paramsList) {
-        CommandParameter cmdParam =
-            new CommandParameter(param.name(), param.description(), pos++, param.parametertype());
+        CommandParameter cmdParam = new CommandParameter(param.name(), param.description(), pos++, param.optional());
         this.definedParameters.add(cmdParam);
       }
+    }
+
+    // When a context is given, a default --path parameter is added to the end
+    if (this.context != ContextType.NONE) {
+
+      this.definedParameters.add(
+          new CommandParameter("path", "Give path to project (current directory used when not given)", pos++, true));
     }
   }
 
   @Override
-  public Collection<CommandParameter> getParametersDiff(List<String> sentenceParams) {
+  public List<CommandParameter> getParametersWithInput(List<Pair<String, String>> givenParameters) {
 
-    List<CommandParameter> missingParam = new ArrayList<>();
-
-    for (CommandParameter commandArg : getDefinedParameters()) {
-      if (!sentenceParams.contains(commandArg.getName()))
-        missingParam.add(commandArg);
+    Map<String, String> given = new HashMap<>();
+    for (Pair<String, String> param : givenParameters) {
+      given.put(param.getLeft().toLowerCase(), param.getRight());
     }
-    return missingParam;
+
+    List<CommandParameter> parameters = new ArrayList<>();
+
+    for (CommandParameter defined : getDefinedParameters()) {
+      CommandParameter val = new CommandParameter(defined.getName().toLowerCase(), defined.getDescription(),
+          defined.getPosition(), defined.isOptional());
+
+      if (given.containsKey(val.getName())) {
+        val.setValue(given.get(val.getName()));
+      }
+
+      parameters.add(val);
+    }
+    return parameters;
+
   }
 
   @Override
@@ -137,21 +181,6 @@ public class CommandImpl implements Command {
   }
 
   /**
-   * @param module
-   */
-  private void injectEnvIfCommandModule(Object module) {
-
-    // When Command Module, inject environment
-    if (module instanceof CommandModule) {
-      CommandModule module_ = (CommandModule) module;
-      module_.setRegistry(this.registry);
-      module_.setContextPathInfo(this.contextPathInfo);
-      module_.setInput(this.input);
-      module_.setOutput(this.output);
-    }
-  }
-
-  /**
    * @return module
    */
   public Class<?> getModule() {
@@ -165,14 +194,6 @@ public class CommandImpl implements Command {
   public Method getMethod() {
 
     return this.method;
-  }
-
-  /**
-   * @return contextPathInfo
-   */
-  public ContextPathInfo getContextPathInfo() {
-
-    return this.contextPathInfo;
   }
 
   /**
@@ -197,5 +218,11 @@ public class CommandImpl implements Command {
   public CommandRegistry getRegistry() {
 
     return this.registry;
+  }
+
+  @Override
+  public ContextType getContext() {
+
+    return this.context;
   }
 }

@@ -1,7 +1,5 @@
 package com.devonfw.devcon.common;
 
-import static com.devonfw.devcon.common.utils.Utils.unzipList;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,13 +8,14 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
+import org.json.simple.JSONObject;
 
 import com.devonfw.devcon.common.api.Command;
 import com.devonfw.devcon.common.api.CommandModuleInfo;
 import com.devonfw.devcon.common.api.CommandRegistry;
-import com.devonfw.devcon.common.api.annotations.ParameterType;
 import com.devonfw.devcon.common.api.data.CommandParameter;
+import com.devonfw.devcon.common.api.data.ContextType;
+import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.Sentence;
 import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.input.Input;
@@ -61,6 +60,14 @@ public class CommandManager {
     execCommand("help", "guide");
   }
 
+  /**
+   * Execute command without parameters
+   *
+   * @param moduleName
+   * @param commandName
+   * @return Result of execution of command
+   */
+
   public Pair<CommandResult, String> execCommand(String moduleName, String commandName)
       throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
@@ -70,11 +77,15 @@ public class CommandManager {
       if (command.isPresent()) {
 
         Command cmd = command.get();
+        Optional<ProjectInfo> projectInfo = Optional.absent();
+        cmd.injectEnvironment(this.registry, this.input, this.output, projectInfo);
 
-        cmd.injectEnvironment(this.registry, this.input, this.output, this.contextPathInfo);
-
-        cmd.exec();
-        return Pair.of(CommandResult.OK, CommandResult.OK_MSG);
+        Object result = cmd.exec();
+        if (result == null) {
+          return Pair.of(CommandResult.OK, CommandResult.OK_MSG);
+        } else {
+          return Pair.of(CommandResult.OK, result.toString());
+        }
 
       } else
 
@@ -88,6 +99,13 @@ public class CommandManager {
     }
   }
 
+  /**
+   * Execute command with command line input
+   *
+   * @param sentence
+   * @return
+   * @throws Exception
+   */
   public Pair<CommandResult, String> execCmdLine(Sentence sentence) throws Exception {
 
     Optional<CommandModuleInfo> module = this.registry.getCommandModule(sentence.getModuleName());
@@ -107,40 +125,7 @@ public class CommandManager {
         if (command.isPresent()) {
 
           Command cmd = command.get();
-          if (sentence.isHelpRequested()) {
-            this.output.showCommandHelp(cmd);
-            return Pair.of(CommandResult.HelpShown, "command: " + cmd.getName());
-          }
-
-          cmd.injectEnvironment(this.registry, this.input, this.output, this.contextPathInfo);
-          Collection<CommandParameter> commandNeededParams = cmd.getDefinedParameters();
-
-          Collection<CommandParameter> missingParameters =
-              cmd.getParametersDiff(unzipList(sentence.getParams()).getLeft());
-
-          List<String> givenParameters;
-          if (missingParameters.size() > 0) {
-
-            Pair<Boolean, String> mandatoryMissing = mandatoryParamsMissing(missingParameters);
-            if (mandatoryMissing.getLeft()) {
-              this.output.showError("Missing mandatory parameter(s): " + mandatoryMissing.getRight());
-              return Pair.of(CommandResult.MandatoryParameterMissing, mandatoryMissing.getRight());
-            }
-
-            Triple<Boolean, String, List<String>> withAllParams =
-                completeWithMissingParameters(sentence, commandNeededParams, missingParameters);
-            if (!withAllParams.getLeft()) {
-
-              this.output.showError("Missing  parameter(s): " + withAllParams.getMiddle());
-              return Pair.of(CommandResult.OptionalParameterMissing, withAllParams.getMiddle());
-            }
-
-            givenParameters = withAllParams.getRight();
-          } else {
-            givenParameters = unzipList(sentence.getParams()).getRight();
-          }
-
-          cmd.exec(givenParameters);
+          return execCommand(cmd, sentence);
 
         } else {
           this.output.showError("[ERROR] The command " + sentence.getCommandName()
@@ -155,8 +140,129 @@ public class CommandManager {
           .showError("[ERROR] The module " + sentence.getModuleName() + " is not recognized as available module.");
       return Pair.of(CommandResult.ModuleNotRecognized, sentence.getModuleName());
     }
-    return Pair.of(CommandResult.OK, CommandResult.OK_MSG);
 
+  }
+
+  /**
+   * Execute command
+   *
+   * @param sentence
+   * @param cmd
+   * @return
+   * @throws InstantiationException
+   * @throws IllegalAccessException
+   * @throws InvocationTargetException
+   */
+  private Pair<CommandResult, String> execCommand(Command cmd, Sentence sentence)
+      throws InstantiationException, IllegalAccessException, InvocationTargetException {
+
+    if (sentence.isHelpRequested()) {
+      this.output.showCommandHelp(cmd);
+      return Pair.of(CommandResult.HelpShown, "command: " + cmd.getName());
+    }
+
+    List<CommandParameter> givenParameters = cmd.getParametersWithInput(sentence.getParams());
+    Pair<Boolean, String> mandatoryMissing = mandatoryParamsMissing(givenParameters);
+    if (mandatoryMissing.getLeft()) {
+      this.output.showError("Missing mandatory parameter(s): " + mandatoryMissing.getRight());
+      return Pair.of(CommandResult.MandatoryParameterMissing, mandatoryMissing.getRight());
+    }
+
+    // if context needs to be given; add projectinfo from last parameter --path (optional)
+    // then remove it from the parameters to be passed to the command
+    Optional<ProjectInfo> projectInfo;
+    if (cmd.getContext() == ContextType.NONE) {
+      projectInfo = Optional.absent();
+    } else if (cmd.getContext() == ContextType.COMBINEDPROJECT) {
+
+      CommandParameter pathParam = givenParameters.get(givenParameters.size() - 1);
+      String path = (pathParam.getValue().isPresent()) ? pathParam.getValue().get() : "";
+      projectInfo = getContextPathInfo().getCombinedProjectRoot(path);
+      givenParameters.remove(givenParameters.size() - 1);
+
+    } else {
+      CommandParameter pathParam = givenParameters.get(givenParameters.size() - 1);
+      String path = (pathParam.getValue().isPresent()) ? pathParam.getValue().get() : "";
+      projectInfo = getContextPathInfo().getProjectRoot(path);
+      givenParameters.remove(givenParameters.size() - 1);
+    }
+
+    // optionally load missing values from config files
+    List<String> completedparameters = completeParameters(projectInfo, givenParameters);
+
+    // load environment api for command
+    cmd.injectEnvironment(this.registry, this.input, this.output, projectInfo);
+    Object result = cmd.exec(completedparameters);
+    if (result == null) {
+      return Pair.of(CommandResult.OK, CommandResult.OK_MSG);
+    } else {
+      return Pair.of(CommandResult.OK, result.toString());
+    }
+
+  }
+
+  /**
+   * Get Possible missing parameter values from Project file (if Context != None), otherwise set missing values to empty
+   * string (not null)
+   *
+   * @param projectInfo
+   * @param commandNeededParams
+   * @return
+   */
+  private List<String> completeParameters(Optional<ProjectInfo> projectInfo, List<CommandParameter> parameters) {
+
+    if (projectInfo.isPresent()) {
+      return completeParametersfrom(projectInfo.get(), parameters);
+    } else {
+      return completeParameters(parameters);
+    }
+  }
+
+  /**
+   * Get Possible missing parameter values from Project file
+   *
+   * @param projectInfo
+   * @param parameters
+   * @return
+   */
+  private List<String> completeParametersfrom(ProjectInfo projectInfo, List<CommandParameter> parameters) {
+
+    List<String> values = new ArrayList<>();
+    JSONObject config = projectInfo.getConfig();
+
+    for (CommandParameter param : parameters) {
+
+      String key = param.getName();
+      if (param.getValue().isPresent()) {
+        values.add(param.getValue().get());
+      } else {
+
+        if (config.containsKey(key)) {
+          values.add(config.get(key).toString());
+        } else {
+          values.add("");
+        }
+      }
+    }
+    return values;
+  }
+
+  /**
+   * @param parameters
+   * @return
+   */
+  private List<String> completeParameters(List<CommandParameter> parameters) {
+
+    List<String> values = new ArrayList<>();
+    for (CommandParameter param : parameters) {
+
+      if (param.getValue().isPresent()) {
+        values.add(param.getValue().get());
+      } else {
+        values.add("");
+      }
+    }
+    return values;
   }
 
   /**
@@ -219,32 +325,15 @@ public class CommandManager {
     boolean mandatoryMissing = false;
     StringBuilder sb = new StringBuilder();
     for (CommandParameter param : missingParameters) {
-      if (param.getParameterType() == ParameterType.Mandatory) {
+
+      // If no value while parameter is mandatory
+      if (!param.isOptional() && !param.getValue().isPresent()) {
         sb.append((mandatoryMissing) ? ", " : "" + param.getName());
         mandatoryMissing = true;
       }
     }
 
     return Pair.of(mandatoryMissing, sb.toString());
-  }
-
-  /**
-   * @param sentence
-   * @param commandNeededParams
-   * @param missingParameters
-   * @return
-   */
-  private Triple<Boolean, String, List<String>> completeWithMissingParameters(Sentence sentence,
-      Collection<CommandParameter> definedParams, Collection<CommandParameter> missingParameters) {
-
-    List<CommandParameter> allParams = new ArrayList<>();
-    for (CommandParameter definedParam : definedParams) {
-
-    }
-
-    unzipList(sentence.getParams()).getRight();
-
-    return null;
   }
 
   /**

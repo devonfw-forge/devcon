@@ -3,6 +3,8 @@ package com.devonfw.devcon.common.api.data;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.json.simple.JSONObject;
+
 import com.github.zafarkhaja.semver.Version;
 
 /**
@@ -27,13 +29,19 @@ public interface ProjectInfo {
 
   /**
    *
+   * @return get JSON representations of the devon.json file itself)
+   */
+  JSONObject getConfig();
+
+  /**
+   *
    * @return whether is Combined project, oasp4j, oasp4js or devon4secha
    */
   ProjectType getProjecType();
 
   /**
    * In case of projecType == Combined, contains subprojects as defined in the devon.json file
-   * 
+   *
    * @return
    */
   List<ProjectInfo> getSubProjects();

@@ -25,8 +25,8 @@ public class Sencha extends AbstractCommandModule {
       getOutput().showMessage("This task is currently only supported on Windows");
       return;
     }
-    Optional<ProjectInfo> project = getContextPathInfo().getProjectRoot();
-    if (project.isPresent() && project.get().getProjecType().equals(ProjectType.Devon4Sencha)) {
+    Optional<ProjectInfo> project = getProjectInfo();
+    if (project.isPresent() && project.get().getProjecType().equals(ProjectType.DEVON4SENCHA)) {
 
       getOutput().showMessage("Sencha starting");
 

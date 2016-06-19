@@ -1,8 +1,9 @@
 package com.devonfw.devcon.common.api;
 
-import com.devonfw.devcon.common.utils.ContextPathInfo;
+import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.input.Input;
 import com.devonfw.devcon.output.Output;
+import com.google.common.base.Optional;
 
 /**
  * TODO ivanderk This type ...
@@ -26,7 +27,7 @@ public interface CommandModule {
   /**
    * @return contextPathInfo
    */
-  ContextPathInfo getContextPathInfo();
+  Optional<ProjectInfo> getProjectInfo();
 
   /**
    * @return input
@@ -49,8 +50,8 @@ public interface CommandModule {
   void setOutput(Output output);
 
   /**
-   * @param contextPathInfo new value of {@link #getcontextPathInfo}.
+   * @param projectInfo
    */
-  void setContextPathInfo(ContextPathInfo contextPathInfo);
+  void setProjectInfo(Optional<ProjectInfo> projectInfo);
 
 }

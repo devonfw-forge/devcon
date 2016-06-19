@@ -1,6 +1,6 @@
 package com.devonfw.devcon.common.api.data;
 
-import com.devonfw.devcon.common.api.annotations.ParameterType;
+import com.google.common.base.Optional;
 
 /**
  * Contains info about a command parameter
@@ -15,14 +15,26 @@ public class CommandParameter {
 
   private int position;
 
-  private ParameterType paramType;
+  private boolean optional;
 
-  public CommandParameter(String name, String description, int position, ParameterType paramType) {
+  private Optional<String> value;;
+
+  public CommandParameter(String name, String description, int position, boolean isoptional) {
 
     this.name = name;
     this.description = description;
     this.position = position;
-    this.paramType = paramType;
+    this.optional = isoptional;
+    this.value = Optional.absent();
+  }
+
+  public CommandParameter(CommandParameter other) {
+    this(other.name, other.description, other.position, other.optional);
+  }
+
+  public static CommandParameter copy(CommandParameter other) {
+
+    return new CommandParameter(other);
   }
 
   /**
@@ -42,11 +54,11 @@ public class CommandParameter {
   }
 
   /**
-   * @return whether parameter is mandatory or optional and, if the latter, whether the value comes from a config or not
+   * @return whether parameter is mandatory or optional
    */
-  public ParameterType getParameterType() {
+  public boolean isOptional() {
 
-    return this.paramType;
+    return this.optional;
   }
 
   /**
@@ -55,5 +67,21 @@ public class CommandParameter {
   public int getPosition() {
 
     return this.position;
+  }
+
+  /**
+   * @return value
+   */
+  public Optional<String> getValue() {
+
+    return this.value;
+  }
+
+  /**
+   * @param value new value of {@link #getvalue}.
+   */
+  public void setValue(String value) {
+
+    this.value = Optional.of(value);
   }
 }
