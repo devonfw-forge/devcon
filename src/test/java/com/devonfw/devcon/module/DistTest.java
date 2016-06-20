@@ -24,8 +24,7 @@ public class DistTest {
 
   // /**
   // * THIS TEST NEEDS A VALID TEAM FORGE USER AND PASSWORD TO WORK PROPERLY
-  // * Checks if the install command works
-  // * successfully
+  // * Checks if the install command works successfully
   // */
   // @Test
   // public void install() {
@@ -79,4 +78,5 @@ public class DistTest {
 
     assertFalse(this.inputMgr.parse(args));
   }
+
 }

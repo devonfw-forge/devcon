@@ -23,9 +23,10 @@ import com.collabnet.ce.soap60.webservices.cemain.ICollabNetSoap;
 import com.collabnet.ce.soap60.webservices.filestorage.IFileStorageAppSoap;
 import com.collabnet.ce.soap60.webservices.frs.FrsFileSoapDO;
 import com.collabnet.ce.soap60.webservices.frs.IFrsAppSoap;
+import com.devonfw.devcon.output.ConsoleOutput;
 import com.devonfw.devcon.output.DownloadingProgress;
 import com.devonfw.devcon.output.Output;
-import com.devonfw.devcon.output.ConsoleOutput;
+import com.google.common.base.Optional;
 
 /**
  * Class to encapsulate the functionality related to the Team Forge download process.
@@ -43,7 +44,7 @@ public class Downloader {
    * @param frsFileId the id of the distribution in Team Forge
    * @throws Exception
    */
-  public static String downloadFromTeamForge(String path, String user, String password, String frsFileId)
+  public static Optional<String> downloadFromTeamForge(String path, String user, String password, String frsFileId)
       throws Exception {
 
     Thread thread = null;
@@ -61,9 +62,8 @@ public class Downloader {
 
         String sessionId = _sfSoap.login(user, password);
         if (sessionId != null) {
-          IFileStorageAppSoap _fileStorageAppSoap =
-              (IFileStorageAppSoap) ClientSoapStubFactory.getSoapStub(IFileStorageAppSoap.class,
-                  DistConstants.REPOSITORY_URL);
+          IFileStorageAppSoap _fileStorageAppSoap = (IFileStorageAppSoap) ClientSoapStubFactory
+              .getSoapStub(IFileStorageAppSoap.class, DistConstants.REPOSITORY_URL);
 
           IFrsAppSoap frsAppSoap =
               (IFrsAppSoap) ClientSoapStubFactory.getSoapStub(IFrsAppSoap.class, DistConstants.REPOSITORY_URL);
@@ -85,7 +85,8 @@ public class Downloader {
             DecimalFormat df = new DecimalFormat("#.##");
             df.setRoundingMode(RoundingMode.CEILING);
 
-            out.status("Downloading " + file.getFilename() + " (" + df.format(size) + "MB). It may take a few minutes.");
+            out.status(
+                "Downloading " + file.getFilename() + " (" + df.format(size) + "MB). It may take a few minutes.");
 
             // start showing progressBar
             progressBar = new DownloadingProgress(file.getSize(), userTempDir);
@@ -120,19 +121,21 @@ public class Downloader {
 
       }
 
+      return Optional.of(fileName);
+
     } catch (RemoteException e) {
       out.showError("Download failed. " + e.getMessage());
-      throw e;
+      return null;
     } catch (FileNotFoundException e) {
-      out.showError("Download failed. File " + fileName + " not found in the repository "
-          + DistConstants.REPOSITORY_URL + ". " + e.getMessage());
-      throw e;
+      out.showError("Download failed. File " + fileName + " not found in the repository " + DistConstants.REPOSITORY_URL
+          + ". " + e.getMessage());
+      return null;
     } catch (FileAlreadyExistsException e) {
       out.showError("Download failed. File " + e.getFile() + " already exists.");
-      throw e;
+      return null;
     } catch (Exception e) {
       out.showError(e.getMessage());
-      throw e;
+      return null;
     } finally {
       File tempFile = new File(tempFilePath);
       if (tempFile.exists()) {
@@ -143,7 +146,7 @@ public class Downloader {
       }
 
     }
-    return fileName;
+
   }
 
   /**
@@ -172,10 +175,10 @@ public class Downloader {
         folder.mkdirs();
       }
 
-      outputStream = new BufferedOutputStream(new FileOutputStream(new File(path + File.separator + tempFileName /*
-                                                                                                                  * +
-                                                                                                                  * ".zip"
-                                                                                                                  */)));
+      outputStream =
+          new BufferedOutputStream(new FileOutputStream(new File(path + File.separator + tempFileName /*
+                                                                                                       * + ".zip"
+                                                                                                       */)));
       inputStream = url.openConnection(proxy).getInputStream();
       final byte[] buffer = new byte[65536];
       while (true) {
