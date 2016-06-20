@@ -5,8 +5,9 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.devonfw.devcon.common.CommandManager;
+import com.devonfw.devcon.common.api.CommandManager;
 import com.devonfw.devcon.common.api.CommandRegistry;
+import com.devonfw.devcon.common.impl.CommandManagerImpl;
 import com.devonfw.devcon.common.impl.CommandRegistryImpl;
 import com.devonfw.devcon.input.ConsoleInput;
 import com.devonfw.devcon.input.ConsoleInputManager;
@@ -38,7 +39,7 @@ public class HelpTest {
     this.registry = new CommandRegistryImpl("com.devonfw.devcon.modules.*");
     this.output = new ConsoleOutput();
     this.input = new ConsoleInput();
-    this.commandManager = new CommandManager(this.registry, this.input, this.output);
+    this.commandManager = new CommandManagerImpl(this.registry, this.input, this.output);
     this.inputMgr = new ConsoleInputManager(this.commandManager);
   }
 

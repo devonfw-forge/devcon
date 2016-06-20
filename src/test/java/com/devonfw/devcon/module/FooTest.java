@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -16,14 +17,17 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.devonfw.devcon.common.CommandManager;
 import com.devonfw.devcon.common.CommandResult;
+import com.devonfw.devcon.common.api.CommandManager;
 import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.api.data.Sentence;
+import com.devonfw.devcon.common.impl.CommandManagerImpl;
 import com.devonfw.devcon.common.impl.CommandRegistryImpl;
+import com.devonfw.devcon.common.utils.Utils;
 import com.devonfw.devcon.input.ConsoleInput;
 import com.devonfw.devcon.input.ConsoleInputManager;
 import com.devonfw.devcon.input.Input;
+import com.devonfw.devcon.mocks.MockCommandManager;
 import com.devonfw.devcon.output.ConsoleOutput;
 import com.devonfw.devcon.output.Output;
 
@@ -56,7 +60,7 @@ public class FooTest {
     this.registry = new CommandRegistryImpl("com.devonfw.devcon.modules.*");
     this.output = new ConsoleOutput();
     this.input = new ConsoleInput();
-    this.commandManager = new CommandManager(this.registry, this.input, this.output);
+    this.commandManager = new CommandManagerImpl(this.registry, this.input, this.output);
     this.inputMgr = new ConsoleInputManager(this.commandManager);
 
     // For testing purposes,
@@ -228,6 +232,38 @@ public class FooTest {
   }
 
   @Test
+  public void testInputManager() {
+
+    // given
+    MockCommandManager cm = new MockCommandManager(this.registry, this.output);
+    ConsoleInputManager inputMgr_ = new ConsoleInputManager(cm);
+
+    // when
+    String[] args = { "foo", "multipleWordsNoContext", "-first", "The", "-third", "Brown", "-fourth", "Fox" };
+
+    boolean ignore = inputMgr_.parse(args);
+    Sentence sentence = cm.getSentence();
+    Map<String, String> params = Utils.pairsToMap(sentence.getParams());
+
+    // then
+    assertTrue(params.containsKey("first"));
+    assertTrue(params.containsKey("third"));
+    assertTrue(params.containsKey("fourth"));
+
+    assertEquals("The", params.get("first"));
+    assertEquals("Brown", params.get("third"));
+    assertEquals("Fox", params.get("fourth"));
+
+    // when
+    String[] args2 = { "foo", "multipleWordsNoContext", "-help" };
+    ignore = inputMgr_.parse(args2);
+    sentence = cm.getSentence();
+
+    // then
+    assertTrue(sentence.isHelpRequested());
+  }
+
+  @Test
   public void testExecParametersFromConfig() throws Exception {
 
     Sentence sentence = new Sentence();
@@ -242,7 +278,7 @@ public class FooTest {
     FileUtils.writeStringToFile(settingsfile, content, "UTF-8");
 
     sentence.addParam("path", this.testFoo.toString());
-    Pair<CommandResult, String> result = this.commandManager.execCmdLine(sentence);
+    Pair<CommandResult, Object> result = this.commandManager.execCmdLine(sentence);
 
     assertEquals("TheBrownFox", result.getRight());
   }
@@ -259,7 +295,7 @@ public class FooTest {
     sentence.addParam("SECOND", "Brown");
 
     // when
-    Pair<CommandResult, String> result = this.commandManager.execCmdLine(sentence);
+    Pair<CommandResult, Object> result = this.commandManager.execCmdLine(sentence);
 
     // then
     assertEquals("BrownFox", result.getRight());
@@ -274,7 +310,7 @@ public class FooTest {
     // when
     sentence.setModuleName("fooP");
     sentence.setCommandName("multipleWordsNoContext");
-    Pair<CommandResult, String> result = this.commandManager.execCmdLine(sentence);
+    Pair<CommandResult, Object> result = this.commandManager.execCmdLine(sentence);
 
     // then
     assertEquals(CommandResult.UNKNOWN_MODULE, result.getLeft());
@@ -333,7 +369,7 @@ public class FooTest {
     sentence.addParam("SECOND", "Hello");
 
     // when
-    Pair<CommandResult, String> result = this.commandManager.execCmdLine(sentence);
+    Pair<CommandResult, Object> result = this.commandManager.execCmdLine(sentence);
 
     // then
     assertEquals("TheBigBrownFox", result.getRight());

@@ -1,5 +1,7 @@
 package com.devonfw.devcon.common.api;
 
+import java.nio.file.Path;
+
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.input.Input;
@@ -75,5 +77,11 @@ public interface CommandModule {
    * @return
    */
   Optional<Command> getCommand(String module, String command);
+
+  /**
+   * @param path
+   * @return
+   */
+  Path getPath(String path);
 
 }

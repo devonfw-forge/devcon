@@ -1,5 +1,8 @@
 package com.devonfw.devcon.modules.sencha;
 
+import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Path;
+
 import org.apache.commons.lang3.SystemUtils;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
@@ -7,7 +10,6 @@ import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.ContextType;
-import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
@@ -59,20 +61,33 @@ public class Sencha extends AbstractCommandModule {
 
   @SuppressWarnings("javadoc")
   @Command(name = "create", help = "Creates a new Sencha Ext JS6 project in a workspace")
-  @Parameters(values = {
-  @Parameter(name = "distribution", description = "Path to distribution (current dir by default)", optional = true),
-  @Parameter(name = "workspace", description = "Name of workspace (\"main\" by default)", optional = true),
-  @Parameter(name = "projectname", description = "Name of workspace (\"main\" by default)", optional = true) })
-  public void create(String distribution, String workspace, String projectname) {
+  @Parameters(values = { @Parameter(name = "projectname", description = "Name of project"),
+  @Parameter(name = "workspace", description = "Path to Sencha Workspace (currentDir if not given)", optional = true) })
+  public void create(String projectname, String workspace)
+      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-    Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot(distribution);
+    Optional<Path> workspacePath = getContextPathInfo().getSenchaWorkspaceRoot(workspace);
 
-    if (distInfo.isPresent()) {
+    if (workspacePath.isPresent()) {
+      Path wsPath = workspacePath.get();
 
+      Path projectPath = wsPath.resolve(projectname);
+      if (!projectPath.toFile().exists()) {
+
+        projectPath.toFile().mkdirs();
+
+        // create workspace here
+      } else {
+        getOutput().showError("Project exists!");
+      }
     } else {
-      getOutput().showMessage("Not a Devon distribution");
-
+      getOutput().showError("Not a Sencha Workspace");
     }
   }
+
+  /**
+   * @param path
+   * @return
+   */
 
 }

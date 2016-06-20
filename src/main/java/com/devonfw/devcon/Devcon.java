@@ -1,7 +1,7 @@
 package com.devonfw.devcon;
 
-import com.devonfw.devcon.common.CommandManager;
 import com.devonfw.devcon.common.api.CommandRegistry;
+import com.devonfw.devcon.common.impl.CommandManagerImpl;
 import com.devonfw.devcon.common.impl.CommandRegistryImpl;
 import com.devonfw.devcon.input.ConsoleInput;
 import com.devonfw.devcon.input.ConsoleInputManager;
@@ -33,7 +33,7 @@ public class Devcon {
     Output output = new ConsoleOutput(System.out);
     CommandRegistry registry = new CommandRegistryImpl("com.devonfw.devcon.modules.*");
 
-    ConsoleInputManager inputmanager = new ConsoleInputManager(new CommandManager(registry, input, output));
+    ConsoleInputManager inputmanager = new ConsoleInputManager(new CommandManagerImpl(registry, input, output));
     inputmanager.parse(args);
   }
 

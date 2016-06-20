@@ -23,6 +23,7 @@ import com.devonfw.devcon.common.impl.DistributionInfoImpl;
 import com.devonfw.devcon.common.impl.ProjectInfoImpl;
 import com.devonfw.devcon.common.impl.utils.DistributionFolderProcessor;
 import com.devonfw.devcon.common.impl.utils.ProjectFolderProcessor;
+import com.devonfw.devcon.common.impl.utils.SenchaWorkspaceFolderProcessor;
 import com.github.zafarkhaja.semver.Version;
 import com.google.common.base.Optional;
 
@@ -95,15 +96,15 @@ public class ContextPathInfo {
 
   /**
    *
-   * @param currentDir pass directory as Path instance
+   * @param aPath pass directory as Path instance
    * @return Distribution Info if currentDir within a Devon Distrubution or OASP IDE
    */
-  public Optional<DistributionInfo> getDistributionRoot(Path currentDir) {
+  public Optional<DistributionInfo> getDistributionRoot(Path aPath) {
 
     DistributionFolderProcessor interceptor = new DistributionFolderProcessor();
 
     try {
-      TreeClimber.climb(currentDir, interceptor);
+      TreeClimber.climb(aPath, interceptor);
       if (interceptor.isFound()) {
 
         DistributionInfo info = getDistributionInfo(interceptor.getFoundPath());
@@ -245,4 +246,30 @@ public class ContextPathInfo {
     return this.getCombinedProjectRoot(getCurrentWorkingDirectory());
   }
 
+  public Optional<Path> getSenchaWorkspaceRoot(Path path) {
+
+    SenchaWorkspaceFolderProcessor interceptor = new SenchaWorkspaceFolderProcessor();
+
+    TreeClimber.climb(path, interceptor);
+    if (interceptor.isFound()) {
+
+      return Optional.of(interceptor.getFoundPath());
+    } else {
+      return Optional.absent();
+    }
+  }
+
+  public Optional<Path> getSenchaWorkspaceRoot(String dir) {
+
+    if ((dir == null) || (dir.isEmpty())) {
+      return this.getSenchaWorkspaceRoot();
+    } else {
+      return this.getSenchaWorkspaceRoot(getPath(dir));
+    }
+  }
+
+  public Optional<Path> getSenchaWorkspaceRoot() {
+
+    return this.getSenchaWorkspaceRoot(getCurrentWorkingDirectory());
+  }
 }

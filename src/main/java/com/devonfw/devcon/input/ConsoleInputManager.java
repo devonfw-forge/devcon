@@ -10,8 +10,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.devonfw.devcon.Devcon;
-import com.devonfw.devcon.common.CommandManager;
 import com.devonfw.devcon.common.CommandResult;
+import com.devonfw.devcon.common.api.CommandManager;
 import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Sentence;
 import com.devonfw.devcon.common.utils.Utils;
@@ -50,7 +50,7 @@ public class ConsoleInputManager {
 
       for (Option parsedParam : cmd.getOptions()) {
         if (cmd.getOptionValue(parsedParam.getOpt()) != null)
-          sentence.addParam(parsedParam.getOpt(), parsedParam.getOpt());
+          sentence.addParam(parsedParam.getOpt(), parsedParam.getValue());
       }
 
       List<?> argList = cmd.getArgList();
@@ -68,7 +68,7 @@ public class ConsoleInputManager {
         sentence.setCommandName(argList.get(1).toString());
       }
 
-      Pair<CommandResult, String> result = this.commandManager.execCmdLine(sentence);
+      Pair<CommandResult, Object> result = this.commandManager.execCmdLine(sentence);
 
       return ((result.getLeft() == CommandResult.OK) || (result.getLeft() == CommandResult.HELP_SHOWN));
 

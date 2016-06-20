@@ -1,4 +1,4 @@
-package com.devonfw.devcon.common;
+package com.devonfw.devcon.common.impl;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -10,7 +10,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.json.simple.JSONObject;
 
+import com.devonfw.devcon.common.CommandResult;
 import com.devonfw.devcon.common.api.Command;
+import com.devonfw.devcon.common.api.CommandManager;
 import com.devonfw.devcon.common.api.CommandModuleInfo;
 import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.api.data.CommandParameter;
@@ -27,7 +29,7 @@ import com.google.common.base.Optional;
  *
  * @author pparrado
  */
-public class CommandManager {
+public class CommandManagerImpl implements CommandManager {
 
   private CommandRegistry registry;
 
@@ -37,11 +39,11 @@ public class CommandManager {
 
   private ContextPathInfo contextPathInfo;
 
-  public CommandManager() {
+  public CommandManagerImpl() {
 
   }
 
-  public CommandManager(CommandRegistry registry, Input input, Output output, ContextPathInfo contextPathInfo) {
+  public CommandManagerImpl(CommandRegistry registry, Input input, Output output, ContextPathInfo contextPathInfo) {
     this();
     this.registry = registry;
     this.input = input;
@@ -49,12 +51,13 @@ public class CommandManager {
     this.contextPathInfo = contextPathInfo;
   }
 
-  public CommandManager(CommandRegistry registry, Input input, Output output) {
+  public CommandManagerImpl(CommandRegistry registry, Input input, Output output) {
 
     this(registry, input, output, new ContextPathInfo());
 
   }
 
+  @Override
   public void showMainHelp() throws Exception {
 
     execCommand("help", "guide");
@@ -68,7 +71,8 @@ public class CommandManager {
    * @return Result of execution of command
    */
 
-  public Pair<CommandResult, String> execCommand(String moduleName, String commandName)
+  @Override
+  public Pair<CommandResult, Object> execCommand(String moduleName, String commandName, String... params)
       throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
     Optional<CommandModuleInfo> module = this.registry.getCommandModule(moduleName);
@@ -80,22 +84,18 @@ public class CommandManager {
         Optional<ProjectInfo> projectInfo = Optional.absent();
         cmd.injectEnvironment(this.registry, this.input, this.output, this.contextPathInfo, projectInfo);
 
-        Object result = cmd.exec();
-        if (result == null) {
-          return Pair.of(CommandResult.OK, CommandResult.OK_MSG);
-        } else {
-          return Pair.of(CommandResult.OK, result.toString());
-        }
+        Object result = cmd.exec(params);
+        return Pair.of(CommandResult.OK, result);
 
       } else
 
         this.output.showError("[ERROR] The command " + commandName + " is not recognized as valid command of the "
             + moduleName + " module");
-      return Pair.of(CommandResult.UNKNOWN_COMMAND, moduleName + " " + commandName);
+      return Pair.of(CommandResult.UNKNOWN_COMMAND, (Object) (moduleName + " " + commandName));
 
     } else {
       this.output.showError("[ERROR] The module " + moduleName + " is not recognized as available module.");
-      return Pair.of(CommandResult.UNKNOWN_MODULE, moduleName);
+      return Pair.of(CommandResult.UNKNOWN_MODULE, (Object) moduleName);
     }
   }
 
@@ -106,7 +106,8 @@ public class CommandManager {
    * @return
    * @throws Exception
    */
-  public Pair<CommandResult, String> execCmdLine(Sentence sentence) throws Exception {
+  @Override
+  public Pair<CommandResult, Object> execCmdLine(Sentence sentence) throws Exception {
 
     Optional<CommandModuleInfo> module = this.registry.getCommandModule(sentence.getModuleName());
 
@@ -117,7 +118,7 @@ public class CommandManager {
       if (sentence.getCommandName() == null && sentence.isHelpRequested()) {
 
         this.output.showModuleHelp(mod);
-        return Pair.of(CommandResult.HELP_SHOWN, "module: " + mod);
+        return Pair.of(CommandResult.HELP_SHOWN, (Object) ("module: " + mod));
 
       } else {
 
@@ -130,14 +131,15 @@ public class CommandManager {
         } else {
           this.output.showError("[ERROR] The command " + sentence.getCommandName()
               + " is not recognized as valid command of the " + sentence.getModuleName() + " module");
-          return Pair.of(CommandResult.UNKNOWN_COMMAND, sentence.getModuleName() + " " + sentence.getCommandName());
+          return Pair.of(CommandResult.UNKNOWN_COMMAND,
+              (Object) (sentence.getModuleName() + " " + sentence.getCommandName()));
         }
       }
     } else {
 
       this.output
           .showError("[ERROR] The module " + sentence.getModuleName() + " is not recognized as available module.");
-      return Pair.of(CommandResult.UNKNOWN_MODULE, sentence.getModuleName());
+      return Pair.of(CommandResult.UNKNOWN_MODULE, (Object) sentence.getModuleName());
     }
 
   }
@@ -152,12 +154,12 @@ public class CommandManager {
    * @throws IllegalAccessException
    * @throws InvocationTargetException
    */
-  private Pair<CommandResult, String> execCommand(Command cmd, Sentence sentence)
+  private Pair<CommandResult, Object> execCommand(Command cmd, Sentence sentence)
       throws InstantiationException, IllegalAccessException, InvocationTargetException {
 
     if (sentence.isHelpRequested()) {
       this.output.showCommandHelp(cmd);
-      return Pair.of(CommandResult.HELP_SHOWN, "command: " + cmd.getName());
+      return Pair.of(CommandResult.HELP_SHOWN, (Object) ("command: " + cmd.getName()));
     }
 
     Triple<CommandResult, String, List<CommandParameter>> completedResult =
@@ -168,10 +170,10 @@ public class CommandManager {
     String msg = completedResult.getMiddle();
     if (cmdRes == CommandResult.MANDATORY_PARAMS_MISSING) {
       this.output.showError("Mandatory parameter missing: " + msg);
-      return Pair.of(cmdRes, msg);
+      return Pair.of(cmdRes, (Object) msg);
     } else if (cmdRes == CommandResult.UNKNOWN_PARAMS) {
       this.output.showError("Invalid parameter(s): " + msg);
-      return Pair.of(cmdRes, msg);
+      return Pair.of(cmdRes, (Object) msg);
     }
 
     List<CommandParameter> givenParameters = completedResult.getRight();
@@ -201,12 +203,8 @@ public class CommandManager {
     // load environment api for command
     cmd.injectEnvironment(this.registry, this.input, this.output, new ContextPathInfo(), projectInfo);
     Object result = cmd.exec(completedparameters);
-    if (result == null) {
-      return Pair.of(CommandResult.OK, CommandResult.OK_MSG);
-    } else {
-      return Pair.of(CommandResult.OK, result.toString());
-    }
 
+    return Pair.of(CommandResult.OK, result);
   }
 
   /**
@@ -276,6 +274,7 @@ public class CommandManager {
   /**
    * @return output
    */
+  @Override
   public Output getOutput() {
 
     return this.output;
@@ -284,6 +283,7 @@ public class CommandManager {
   /**
    * @param output new value of {@link #getoutput}.
    */
+  @Override
   public void setOutput(Output output) {
 
     this.output = output;
@@ -292,6 +292,7 @@ public class CommandManager {
   /**
    * @return registry
    */
+  @Override
   public CommandRegistry getRegistry() {
 
     return this.registry;
@@ -300,6 +301,7 @@ public class CommandManager {
   /**
    * @param registry new value of {@link #getregistry}.
    */
+  @Override
   public void setRegistry(CommandRegistry registry) {
 
     this.registry = registry;
@@ -308,6 +310,7 @@ public class CommandManager {
   /**
    * @return
    */
+  @Override
   public Set<String> getParameterNames() {
 
     Set<String> options = new HashSet<>();
@@ -327,6 +330,7 @@ public class CommandManager {
   /**
    * @return contextPathInfo
    */
+  @Override
   public ContextPathInfo getContextPathInfo() {
 
     return this.contextPathInfo;
@@ -335,6 +339,7 @@ public class CommandManager {
   /**
    * @param contextPathInfo new value of {@link #getcontextPathInfo}.
    */
+  @Override
   public void setContextPathInfo(ContextPathInfo contextPathInfo) {
 
     this.contextPathInfo = contextPathInfo;

@@ -1,5 +1,8 @@
 package com.devonfw.devcon.common.impl;
 
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+
 import com.devonfw.devcon.common.api.Command;
 import com.devonfw.devcon.common.api.CommandModule;
 import com.devonfw.devcon.common.api.CommandRegistry;
@@ -139,6 +142,13 @@ public class AbstractCommandModule implements CommandModule {
   public void setContextPathInfo(ContextPathInfo contextPathInfo) {
 
     this.contextPathInfo = contextPathInfo;
+  }
+
+  @Override
+  public Path getPath(String path) {
+
+    return FileSystems.getDefault().getPath(path);
+
   }
 
 }
