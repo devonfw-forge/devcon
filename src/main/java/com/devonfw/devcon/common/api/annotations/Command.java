@@ -5,6 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.devonfw.devcon.common.api.data.ContextType;
+
 /**
  * Annotation for Devcon commands
  *
@@ -26,5 +28,12 @@ public @interface Command {
    * @return help info
    */
   String help() default "";
+
+  /**
+   * Help info associated to the command
+   *
+   * @return help info
+   */
+  ContextType context() default ContextType.NONE;
 
 }

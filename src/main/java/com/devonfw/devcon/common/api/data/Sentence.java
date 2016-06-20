@@ -1,5 +1,6 @@
 package com.devonfw.devcon.common.api.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -21,9 +22,12 @@ public class Sentence {
 
   private String context;
 
-  private boolean noPrompt;
-
   private boolean helpRequested;
+
+  public Sentence() {
+
+    this.params = new ArrayList<Pair<String, String>>();
+  }
 
   /**
    * @return gParam
@@ -82,14 +86,6 @@ public class Sentence {
   }
 
   /**
-   * @param params new value of {@link #getparams}.
-   */
-  public void setParams(List<Pair<String, String>> params) {
-
-    this.params = params;
-  }
-
-  /**
    * @return context
    */
   public String getContext() {
@@ -106,22 +102,6 @@ public class Sentence {
   }
 
   /**
-   * @return noPrompt
-   */
-  public boolean isNoPrompt() {
-
-    return this.noPrompt;
-  }
-
-  /**
-   * @param noPrompt new value of {@link #getnoPrompt}.
-   */
-  public void setNoPrompt(boolean noPrompt) {
-
-    this.noPrompt = noPrompt;
-  }
-
-  /**
    * @return helpRequested
    */
   public boolean isHelpRequested() {
@@ -135,6 +115,15 @@ public class Sentence {
   public void setHelpRequested(boolean helpRequested) {
 
     this.helpRequested = helpRequested;
+  }
+
+  /**
+   * @param optName parameter name given
+   * @param optValue parameter value
+   */
+  public void addParam(String optName, String optValue) {
+
+    this.params.add(Pair.of(optName, optValue));
   }
 
 }

@@ -1,6 +1,13 @@
 package com.devonfw.devcon;
 
-import com.devonfw.devcon.input.InputConsole;
+import com.devonfw.devcon.common.CommandManager;
+import com.devonfw.devcon.common.api.CommandRegistry;
+import com.devonfw.devcon.common.impl.CommandRegistryImpl;
+import com.devonfw.devcon.input.ConsoleInput;
+import com.devonfw.devcon.input.ConsoleInputManager;
+import com.devonfw.devcon.input.Input;
+import com.devonfw.devcon.output.ConsoleOutput;
+import com.devonfw.devcon.output.Output;
 
 /**
  * Main class of DevCon
@@ -22,7 +29,12 @@ public class Devcon {
 
     System.out.println(DEVCON_BANNER);
 
-    new InputConsole(args).parse();
+    Input input = new ConsoleInput(System.in, System.out);
+    Output output = new ConsoleOutput(System.out);
+    CommandRegistry registry = new CommandRegistryImpl("com.devonfw.devcon.modules.*");
+
+    ConsoleInputManager inputmanager = new ConsoleInputManager(new CommandManager(registry, input, output));
+    inputmanager.parse(args);
   }
 
 }

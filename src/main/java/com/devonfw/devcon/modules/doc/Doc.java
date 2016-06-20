@@ -2,7 +2,8 @@ package com.devonfw.devcon.modules.doc;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
-import com.devonfw.devcon.common.impl.AbstractCommandHolder;
+import com.devonfw.devcon.common.impl.AbstractCommandModule;
+import com.devonfw.devcon.common.utils.Utils;
 
 /**
  * TODO ivanderk This type ...
@@ -10,8 +11,8 @@ import com.devonfw.devcon.common.impl.AbstractCommandHolder;
  * @author ivanderk
  */
 
-@CmdModuleRegistry(name = "doc", description = "Module with tasks related with obtaining specific documentation", context = "global", deprecated = false)
-public class Doc extends AbstractCommandHolder {
+@CmdModuleRegistry(name = "doc", description = "Module with tasks related with obtaining specific documentation", deprecated = false)
+public class Doc extends AbstractCommandModule {
 
   /**
    *
@@ -22,9 +23,9 @@ public class Doc extends AbstractCommandHolder {
 
   private static final String DEVON_TROOM_SITE = "https://troom.capgemini.com/sites/vcc/devon/index.aspx";
 
-  private static final String DEVON_GUIDE = "https://google.com";
+  private static final String DEVON_GUIDE = "https://github.com/devonfw/devon/wiki";
 
-  private static final String OASP4J_GUIDE = "https://google.com";
+  private static final String OASP4J_GUIDE = "https://github.com/oasp/oasp4j/wiki";
 
   /**
    * The constructor.
@@ -38,7 +39,6 @@ public class Doc extends AbstractCommandHolder {
    * This command shows the main devon web site
    *
    */
-  @SuppressWarnings("javadoc")
   @Command(name = "devon", help = "Opens the Devon site in the default web browser")
   public void devon() {
 
@@ -95,7 +95,7 @@ public class Doc extends AbstractCommandHolder {
 
   private boolean openUrl(String url) {
 
-    boolean res = this.dUtils.openUri(url);
+    boolean res = Utils.openUri(url);
     if (!res) {
       this.output.showError("Opening a web browser window not supported!\nOperation aborted");
     }

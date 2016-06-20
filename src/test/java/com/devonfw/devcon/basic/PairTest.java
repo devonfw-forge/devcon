@@ -1,9 +1,17 @@
 package com.devonfw.devcon.basic;
 
+import static com.devonfw.devcon.common.utils.Utils.mapToPairs;
+import static com.devonfw.devcon.common.utils.Utils.pairsToMap;
+import static com.devonfw.devcon.common.utils.Utils.unzipList;
+import static com.devonfw.devcon.common.utils.Utils.zipLists;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
@@ -27,7 +35,7 @@ public class PairTest {
     System.out.println(p1.toString());
     assertEquals("(One hundred,100)", p1.toString());
 
-    // //////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
 
     HashMap<String, Integer> somedata1 = new HashMap<>();
     somedata1.put("Two hundred", 200);
@@ -45,4 +53,57 @@ public class PairTest {
     assertEquals("(Two hundred,{Two hundred=200})", p3.toString());
 
   }
+
+  @Test
+  public void testZip() {
+
+    // given
+    List<String> left = new ArrayList<>(
+        Arrays.asList(new String[] { "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine" }));
+    List<Integer> right = new ArrayList<>(Arrays.asList(new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }));
+
+    // when
+    List<Pair<String, Integer>> zipped = zipLists(left, right);
+
+    // then
+    assertEquals(zipped.get(3).getLeft(), "Three");
+    assertEquals(zipped.get(1).getRight(), (Integer) 1);
+    assertEquals(zipped.size(), 10);
+
+    // when
+    Pair<List<String>, List<Integer>> unzipped = unzipList(zipped);
+
+    // then
+    assertEquals(unzipped.getLeft().get(3), "Three");
+    assertEquals(unzipped.getRight().get(1), (Integer) 1);
+    assertEquals(unzipped.getLeft().size(), 10);
+
+  }
+
+  @Test
+  public void testMap() {
+
+    // given
+    List<String> left = new ArrayList<>(
+        Arrays.asList(new String[] { "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine" }));
+    List<Integer> right = new ArrayList<>(Arrays.asList(new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }));
+
+    // when
+    List<Pair<String, Integer>> zipped = zipLists(left, right);
+    Map<String, Integer> map = pairsToMap(zipped);
+
+    // then
+    assertEquals((Integer) 3, map.get("Three"));
+    assertEquals((Integer) 1, map.get("One"));
+
+    // when
+    zipped = mapToPairs(map);
+
+    // then
+    assertEquals(zipped.get(3).getLeft(), "Three");
+    assertEquals(zipped.get(1).getRight(), (Integer) 1);
+    assertEquals(zipped.size(), 10);
+
+  }
+
 }

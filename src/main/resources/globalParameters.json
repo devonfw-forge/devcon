@@ -5,11 +5,6 @@
     "description":"show help info for each module/command"
    },
    {
-    "opt":"np",
-    "longOpt":"noprompt",
-    "description":"the process will not ask for user input"
-   },
-   {
     "opt":"v",
     "longOpt":"version",
     "description":"show devcon version"

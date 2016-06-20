@@ -148,9 +148,13 @@ public class ContextPathInfo {
     return getProjectRoot(getCurrentWorkingDirectory());
   }
 
-  public Optional<ProjectInfo> getProjectRoot(String currentDir) {
+  public Optional<ProjectInfo> getProjectRoot(String dir) {
 
-    return getProjectRoot(getPath(currentDir));
+    if ((dir == null) || (dir.isEmpty())) {
+      return this.getProjectRoot();
+    } else {
+      return this.getProjectRoot(getPath(dir));
+    }
   }
 
   public Optional<ProjectInfo> getProjectRoot(Path currentDir) {
@@ -180,16 +184,16 @@ public class ContextPathInfo {
     JSONParser parser = new JSONParser();
     Object obj = parser.parse(new FileReader(settingsPath.toFile()));
 
-    JSONObject json = (JSONObject) obj;
-    Version version = Version.valueOf(json.get(VERSION).toString());
+    JSONObject config = (JSONObject) obj;
+    Version version = Version.valueOf(config.get(VERSION).toString());
     List<ProjectInfo> projects = new ArrayList<>();
     ProjectType projectType;
 
-    String projtype = json.get(TYPE).toString();
+    String projtype = config.get(TYPE).toString();
     if (projtype.toLowerCase().equals(COMBINED)) {
-      projectType = ProjectType.Combined;
+      projectType = ProjectType.COMBINED;
 
-      JSONArray subJson = (JSONArray) json.get("projects");
+      JSONArray subJson = (JSONArray) config.get("projects");
       for (Object e : subJson) {
         Path resolved = projectPath.resolve(e.toString());
         projects.add(getProjectInfo(resolved));
@@ -200,7 +204,7 @@ public class ContextPathInfo {
     } else if (projtype.toLowerCase().equals(OASP4JS)) {
       projectType = ProjectType.OASP4JS;
     } else if (projtype.toLowerCase().equals(DEVON4SENCHA)) {
-      projectType = ProjectType.Devon4Sencha;
+      projectType = ProjectType.DEVON4SENCHA;
     } else {
       throw new InvalidConfigurationStateException(
           "type property does not contain valid ProjectInfoType: 'combined', 'oasp4j', 'oasp4js' or 'devon4sencha' ");
@@ -210,7 +214,7 @@ public class ContextPathInfo {
      * HERE WE COULD ADD DYNAMIC PROPS
      */
 
-    return new ProjectInfoImpl(projectPath, projectType, version, projects);
+    return new ProjectInfoImpl(projectPath, projectType, version, config, projects);
   }
 
   /**
@@ -220,10 +224,19 @@ public class ContextPathInfo {
   public Optional<ProjectInfo> getCombinedProjectRoot(Path projectPath) {
 
     Optional<ProjectInfo> projectInfo = getProjectRoot(projectPath);
-    if (!projectInfo.isPresent() || projectInfo.get().getProjecType().equals(ProjectType.Combined)) {
+    if (!projectInfo.isPresent() || projectInfo.get().getProjecType().equals(ProjectType.COMBINED)) {
       return projectInfo;
     } else {
       return getProjectRoot(projectPath.getParent());
+    }
+  }
+
+  public Optional<ProjectInfo> getCombinedProjectRoot(String dir) {
+
+    if ((dir == null) || (dir.isEmpty())) {
+      return this.getCombinedProjectRoot();
+    } else {
+      return this.getCombinedProjectRoot(getPath(dir));
     }
   }
 

@@ -1,5 +1,7 @@
 package com.devonfw.devcon.common.api.data;
 
+import com.google.common.base.Optional;
+
 /**
  * Contains info about a command parameter
  *
@@ -11,13 +13,28 @@ public class CommandParameter {
 
   private String description;
 
-  private boolean isOptional;
+  private int position;
 
-  public CommandParameter(String name, String description, boolean isOptional) {
+  private boolean optional;
+
+  private Optional<String> value;;
+
+  public CommandParameter(String name, String description, int position, boolean isoptional) {
 
     this.name = name;
     this.description = description;
-    this.isOptional = isOptional;
+    this.position = position;
+    this.optional = isoptional;
+    this.value = Optional.absent();
+  }
+
+  public CommandParameter(CommandParameter other) {
+    this(other.name, other.description, other.position, other.optional);
+  }
+
+  public static CommandParameter copy(CommandParameter other) {
+
+    return new CommandParameter(other);
   }
 
   /**
@@ -29,14 +46,6 @@ public class CommandParameter {
   }
 
   /**
-   * @param name new value of {@link #getname}.
-   */
-  public void setName(String name) {
-
-    this.name = name;
-  }
-
-  /**
    * @return description
    */
   public String getDescription() {
@@ -45,27 +54,34 @@ public class CommandParameter {
   }
 
   /**
-   * @param description new value of {@link #getdescription}.
-   */
-  public void setDescription(String description) {
-
-    this.description = description;
-  }
-
-  /**
-   * @return isOptional
+   * @return whether parameter is mandatory or optional
    */
   public boolean isOptional() {
 
-    return this.isOptional;
+    return this.optional;
   }
 
   /**
-   * @param isOptional new value of {@link #getisOptional}.
+   * @return position
    */
-  public void setOptional(boolean isOptional) {
+  public int getPosition() {
 
-    this.isOptional = isOptional;
+    return this.position;
   }
 
+  /**
+   * @return value
+   */
+  public Optional<String> getValue() {
+
+    return this.value;
+  }
+
+  /**
+   * @param value new value of {@link #getvalue}.
+   */
+  public void setValue(String value) {
+
+    this.value = Optional.of(value);
+  }
 }

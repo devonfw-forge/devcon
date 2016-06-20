@@ -9,18 +9,18 @@ import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
-import com.devonfw.devcon.common.impl.AbstractCommandHolder;
-import com.devonfw.devcon.output.OutputConsole;
+import com.devonfw.devcon.common.impl.AbstractCommandModule;
+import com.devonfw.devcon.output.Output;
 
 /**
  * This class contains command to clone oasp4j and devon repositories.
  *
  * @author ssarmoka
  */
-@CmdModuleRegistry(name = "github", description = "Module to create a new workspace with all default configuration", context = "MyContextIsNotGlobal", deprecated = false)
-public class Github extends AbstractCommandHolder {
+@CmdModuleRegistry(name = "github", description = "Module to create a new workspace with all default configuration", deprecated = false)
+public class Github extends AbstractCommandModule {
 
-  OutputConsole out;
+  Output out;
 
   /**
    * This command is to clone oasp4j repository.
@@ -52,7 +52,7 @@ public class Github extends AbstractCommandHolder {
 
   /**
    * This command clones devon ditribution. This requires authentication as devon is private repository.
-   * 
+   *
    * @param path
    * @param username
    * @param password
