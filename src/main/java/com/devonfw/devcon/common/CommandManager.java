@@ -91,7 +91,7 @@ public class CommandManager {
 
         this.output.showError("[ERROR] The command " + commandName + " is not recognized as valid command of the "
             + moduleName + " module");
-      return Pair.of(CommandResult.UNKOWN_COMMAND, moduleName + " " + commandName);
+      return Pair.of(CommandResult.UNKNOWN_COMMAND, moduleName + " " + commandName);
 
     } else {
       this.output.showError("[ERROR] The module " + moduleName + " is not recognized as available module.");
@@ -130,7 +130,7 @@ public class CommandManager {
         } else {
           this.output.showError("[ERROR] The command " + sentence.getCommandName()
               + " is not recognized as valid command of the " + sentence.getModuleName() + " module");
-          return Pair.of(CommandResult.UNKOWN_COMMAND, sentence.getModuleName() + " " + sentence.getCommandName());
+          return Pair.of(CommandResult.UNKNOWN_COMMAND, sentence.getModuleName() + " " + sentence.getCommandName());
         }
       }
     } else {
@@ -169,7 +169,7 @@ public class CommandManager {
     if (cmdRes == CommandResult.MANDATORY_PARAMS_MISSING) {
       this.output.showError("Mandatory parameter missing: " + msg);
       return Pair.of(cmdRes, msg);
-    } else if (cmdRes == CommandResult.UNKOWN_PARAMS) {
+    } else if (cmdRes == CommandResult.UNKNOWN_PARAMS) {
       this.output.showError("Invalid parameter(s): " + msg);
       return Pair.of(cmdRes, msg);
     }

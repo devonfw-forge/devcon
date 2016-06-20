@@ -172,7 +172,7 @@ public class CommandImpl implements Command {
     // not existing parameters given
     if (given.size() > 0) {
       String msg = "Unknown parameters : " + given.keySet().toString();
-      return Triple.of(CommandResult.UNKOWN_PARAMS, msg, None);
+      return Triple.of(CommandResult.UNKNOWN_PARAMS, msg, None);
     }
     return Triple.of(CommandResult.OK, CommandResult.OK_MSG, parameters);
 

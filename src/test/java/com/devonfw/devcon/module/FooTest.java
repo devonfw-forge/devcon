@@ -286,7 +286,7 @@ public class FooTest {
     result = this.commandManager.execCmdLine(sentence);
 
     // then
-    assertEquals(CommandResult.UNKOWN_COMMAND, result.getLeft());
+    assertEquals(CommandResult.UNKNOWN_COMMAND, result.getLeft());
 
     // when
     sentence = new Sentence();
@@ -306,7 +306,7 @@ public class FooTest {
     result = this.commandManager.execCmdLine(sentence);
 
     // then NOT CORRECT
-    assertEquals(CommandResult.UNKOWN_PARAMS, result.getLeft());
+    assertEquals(CommandResult.UNKNOWN_PARAMS, result.getLeft());
 
     // when
     sentence = new Sentence();

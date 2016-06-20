@@ -8,7 +8,7 @@ package com.devonfw.devcon.common;
  */
 public enum CommandResult {
 
-  OK, HELP_SHOWN, UNKNOWN_MODULE, UNKOWN_COMMAND, MANDATORY_PARAMS_MISSING, UNKOWN_PARAMS;
+  OK, HELP_SHOWN, UNKNOWN_MODULE, UNKNOWN_COMMAND, MANDATORY_PARAMS_MISSING, UNKNOWN_PARAMS;
 
   public static String OK_MSG = "OK";
 }
