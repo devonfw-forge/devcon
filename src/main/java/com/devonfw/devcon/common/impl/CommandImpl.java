@@ -179,6 +179,13 @@ public class CommandImpl implements Command {
   }
 
   @Override
+  public Object exec(String... arguments)
+      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+
+    return this.exec(Arrays.asList(arguments));
+  }
+
+  @Override
   public Object exec(List<String> arguments)
       throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
@@ -254,4 +261,5 @@ public class CommandImpl implements Command {
 
     return this.contextPathInfo;
   }
+
 }

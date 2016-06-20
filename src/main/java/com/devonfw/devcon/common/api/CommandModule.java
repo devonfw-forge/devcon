@@ -67,4 +67,13 @@ public interface CommandModule {
    */
   void setContextPathInfo(ContextPathInfo contextPathInfo);
 
+  /**
+   * get {@link Command} instance
+   *
+   * @param module
+   * @param command
+   * @return
+   */
+  Optional<Command> getCommand(String module, String command);
+
 }

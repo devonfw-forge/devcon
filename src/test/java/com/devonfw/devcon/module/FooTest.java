@@ -319,4 +319,24 @@ public class FooTest {
 
   }
 
+  @Test
+  public void testDelegateCommand() throws Exception {
+
+    // given
+    Sentence sentence = new Sentence();
+    sentence.setModuleName("foo");
+    sentence.setCommandName("delegateCommand");
+
+    sentence.addParam("first", "The");
+    sentence.addParam("fourth", "Fox");
+    sentence.addParam("third", "Brown");
+    sentence.addParam("SECOND", "Hello");
+
+    // when
+    Pair<CommandResult, String> result = this.commandManager.execCmdLine(sentence);
+
+    // then
+    assertEquals("TheBigBrownFox", result.getRight());
+  }
+
 }

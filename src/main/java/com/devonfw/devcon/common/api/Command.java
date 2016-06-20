@@ -30,6 +30,9 @@ public interface Command extends Info {
 
   Triple<CommandResult, String, List<CommandParameter>> getParametersWithInput(List<Pair<String, String>> list);
 
+  Object exec(String... arguments)
+      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException;
+
   Object exec(List<String> arguments)
       throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 

@@ -7,6 +7,7 @@ import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.ContextType;
+import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
@@ -55,4 +56,23 @@ public class Sencha extends AbstractCommandModule {
       getOutput().showMessage("Not a Sencha project (or does not have a corresponding devon.json file)");
     }
   }
+
+  @SuppressWarnings("javadoc")
+  @Command(name = "create", help = "Creates a new Sencha Ext JS6 project in a workspace")
+  @Parameters(values = {
+  @Parameter(name = "distribution", description = "Path to distribution (current dir by default)", optional = true),
+  @Parameter(name = "workspace", description = "Name of workspace (\"main\" by default)", optional = true),
+  @Parameter(name = "projectname", description = "Name of workspace (\"main\" by default)", optional = true) })
+  public void create(String distribution, String workspace, String projectname) {
+
+    Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot(distribution);
+
+    if (distInfo.isPresent()) {
+
+    } else {
+      getOutput().showMessage("Not a Devon distribution");
+
+    }
+  }
+
 }

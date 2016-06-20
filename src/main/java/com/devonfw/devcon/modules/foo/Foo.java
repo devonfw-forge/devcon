@@ -1,11 +1,14 @@
 package com.devonfw.devcon.modules.foo;
 
+import java.lang.reflect.InvocationTargetException;
+
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.ContextType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
+import com.google.common.base.Optional;
 
 /**
  * Implementation of test class Foo Hidden from console with Annotation parameter hidden=true
@@ -89,6 +92,20 @@ public class Foo extends AbstractCommandModule {
   public String multipleWordsNoCtx(String first, String second, String third, String fourth) {
 
     return first + second + third + fourth;
+
+  }
+
+  @Command(name = "delegateCommand", help = "This command is to delegate to another")
+  @Parameters(values = { @Parameter(name = "first", description = "the first word", optional = true),
+  @Parameter(name = "second", description = "the second word", optional = true),
+  @Parameter(name = "third", description = "the third word", optional = true),
+  @Parameter(name = "FOURTH", description = "the fourth word", optional = true) })
+  @SuppressWarnings("javadoc")
+  public String delegateCommand(String first, String second, String third, String fourth)
+      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+
+    Optional<com.devonfw.devcon.common.api.Command> cmd = getCommand("foo", "multipleWordsNoContext");
+    return (String) cmd.get().exec(first, "Big", third, fourth);
 
   }
 
