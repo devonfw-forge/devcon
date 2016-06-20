@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 
+import com.devonfw.devcon.common.CommandResult;
 import com.devonfw.devcon.common.api.Command;
 import com.devonfw.devcon.common.api.CommandModule;
 import com.devonfw.devcon.common.api.CommandRegistry;
@@ -134,7 +136,8 @@ public class CommandImpl implements Command {
   }
 
   @Override
-  public List<CommandParameter> getParametersWithInput(List<Pair<String, String>> givenParameters) {
+  public Triple<CommandResult, String, List<CommandParameter>> getParametersWithInput(
+      List<Pair<String, String>> givenParameters) {
 
     Map<String, String> given = new HashMap<>();
     for (Pair<String, String> param : givenParameters) {
@@ -142,18 +145,31 @@ public class CommandImpl implements Command {
     }
 
     List<CommandParameter> parameters = new ArrayList<>();
+    List<CommandParameter> None = new ArrayList<>();
 
     for (CommandParameter defined : getDefinedParameters()) {
       CommandParameter val = new CommandParameter(defined.getName().toLowerCase(), defined.getDescription(),
           defined.getPosition(), defined.isOptional());
 
+      // take value when given
       if (given.containsKey(val.getName())) {
         val.setValue(given.get(val.getName()));
+        given.remove(val.getName());
       }
 
+      // error when mandatory and no value
+      if (!val.isOptional() && !val.getValue().isPresent()) {
+        return Triple.of(CommandResult.MANDATORY_PARAMS_MISSING, val.getName(), None);
+      }
       parameters.add(val);
     }
-    return parameters;
+
+    // not existing parameters given
+    if (given.size() > 0) {
+      String msg = "Unknown parameters : " + given.keySet().toString();
+      return Triple.of(CommandResult.UNKOWN_PARAMS, msg, None);
+    }
+    return Triple.of(CommandResult.OK, CommandResult.OK_MSG, parameters);
 
   }
 

@@ -70,7 +70,7 @@ public class ConsoleInputManager {
 
       Pair<CommandResult, String> result = this.commandManager.execCmdLine(sentence);
 
-      return ((result.getLeft() == CommandResult.OK) || (result.getLeft() == CommandResult.HelpShown));
+      return ((result.getLeft() == CommandResult.OK) || (result.getLeft() == CommandResult.HELP_SHOWN));
 
     } catch (Exception e) {
       if (e.getMessage() != null) {

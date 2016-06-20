@@ -2,12 +2,12 @@ package com.devonfw.devcon.common;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.json.simple.JSONObject;
 
 import com.devonfw.devcon.common.api.Command;
@@ -91,11 +91,11 @@ public class CommandManager {
 
         this.output.showError("[ERROR] The command " + commandName + " is not recognized as valid command of the "
             + moduleName + " module");
-      return Pair.of(CommandResult.CommandNotRecognized, moduleName + " " + commandName);
+      return Pair.of(CommandResult.UNKOWN_COMMAND, moduleName + " " + commandName);
 
     } else {
       this.output.showError("[ERROR] The module " + moduleName + " is not recognized as available module.");
-      return Pair.of(CommandResult.ModuleNotRecognized, moduleName);
+      return Pair.of(CommandResult.UNKNOWN_MODULE, moduleName);
     }
   }
 
@@ -117,7 +117,7 @@ public class CommandManager {
       if (sentence.getCommandName() == null && sentence.isHelpRequested()) {
 
         this.output.showModuleHelp(mod);
-        return Pair.of(CommandResult.HelpShown, "module: " + mod);
+        return Pair.of(CommandResult.HELP_SHOWN, "module: " + mod);
 
       } else {
 
@@ -130,7 +130,7 @@ public class CommandManager {
         } else {
           this.output.showError("[ERROR] The command " + sentence.getCommandName()
               + " is not recognized as valid command of the " + sentence.getModuleName() + " module");
-          return Pair.of(CommandResult.CommandNotRecognized,
+          return Pair.of(CommandResult.UNKOWN_COMMAND,
               sentence.getModuleName() + " " + sentence.getCommandName());
         }
       }
@@ -138,7 +138,7 @@ public class CommandManager {
 
       this.output
           .showError("[ERROR] The module " + sentence.getModuleName() + " is not recognized as available module.");
-      return Pair.of(CommandResult.ModuleNotRecognized, sentence.getModuleName());
+      return Pair.of(CommandResult.UNKNOWN_MODULE, sentence.getModuleName());
     }
 
   }
@@ -158,15 +158,24 @@ public class CommandManager {
 
     if (sentence.isHelpRequested()) {
       this.output.showCommandHelp(cmd);
-      return Pair.of(CommandResult.HelpShown, "command: " + cmd.getName());
+      return Pair.of(CommandResult.HELP_SHOWN, "command: " + cmd.getName());
     }
 
-    List<CommandParameter> givenParameters = cmd.getParametersWithInput(sentence.getParams());
-    Pair<Boolean, String> mandatoryMissing = mandatoryParamsMissing(givenParameters);
-    if (mandatoryMissing.getLeft()) {
-      this.output.showError("Missing mandatory parameter(s): " + mandatoryMissing.getRight());
-      return Pair.of(CommandResult.MandatoryParameterMissing, mandatoryMissing.getRight());
+    Triple<CommandResult, String, List<CommandParameter>> completedResult =
+        cmd.getParametersWithInput(sentence.getParams());
+
+    // in case of missing mandatory or not existing parameters
+    CommandResult cmdRes = completedResult.getLeft();
+    String msg = completedResult.getMiddle();
+    if (cmdRes == CommandResult.MANDATORY_PARAMS_MISSING) {
+      this.output.showError("Mandatory parameter missing: " + msg);
+      return Pair.of(cmdRes, msg);
+    } else if (cmdRes == CommandResult.UNKOWN_PARAMS) {
+      this.output.showError("Invalid parameter(s): " + msg);
+      return Pair.of(cmdRes, msg);
     }
+
+    List<CommandParameter> givenParameters = completedResult.getRight();
 
     // if context needs to be given; add projectinfo from last parameter --path (optional)
     // then remove it from the parameters to be passed to the command
@@ -314,26 +323,6 @@ public class CommandManager {
       }
     }
     return options;
-  }
-
-  /**
-   * @param missingParameters
-   * @return
-   */
-  private Pair<Boolean, String> mandatoryParamsMissing(Collection<CommandParameter> missingParameters) {
-
-    boolean mandatoryMissing = false;
-    StringBuilder sb = new StringBuilder();
-    for (CommandParameter param : missingParameters) {
-
-      // If no value while parameter is mandatory
-      if (!param.isOptional() && !param.getValue().isPresent()) {
-        sb.append((mandatoryMissing) ? ", " : "" + param.getName());
-        mandatoryMissing = true;
-      }
-    }
-
-    return Pair.of(mandatoryMissing, sb.toString());
   }
 
   /**

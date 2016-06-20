@@ -250,6 +250,7 @@ public class FooTest {
   @Test
   public void testExecParameterOrderChanged() throws Exception {
 
+    // given
     Sentence sentence = new Sentence();
     sentence.setModuleName("foo");
     sentence.setCommandName("multipleWordsNoContext");
@@ -257,9 +258,65 @@ public class FooTest {
     sentence.addParam("fourth", "Fox");
     sentence.addParam("SECOND", "Brown");
 
+    // when
     Pair<CommandResult, String> result = this.commandManager.execCmdLine(sentence);
 
+    // then
     assertEquals("BrownFox", result.getRight());
+  }
+
+  @Test
+  public void testExecReturns() throws Exception {
+
+    // given
+    Sentence sentence = new Sentence();
+
+    // when
+    sentence.setModuleName("fooP");
+    sentence.setCommandName("multipleWordsNoContext");
+    Pair<CommandResult, String> result = this.commandManager.execCmdLine(sentence);
+
+    // then
+    assertEquals(CommandResult.UNKNOWN_MODULE, result.getLeft());
+
+    // when
+    sentence = new Sentence();
+    sentence.setModuleName("foo");
+    sentence.setCommandName("multipleWordsNoContext_NOTEXIST");
+    result = this.commandManager.execCmdLine(sentence);
+
+    // then
+    assertEquals(CommandResult.UNKOWN_COMMAND, result.getLeft());
+
+    // when
+    sentence = new Sentence();
+    sentence.setModuleName("foo");
+    sentence.setCommandName("multipleWordsNoContext");
+    sentence.setHelpRequested(true);
+    result = this.commandManager.execCmdLine(sentence);
+
+    // then
+    assertEquals(CommandResult.HELP_SHOWN, result.getLeft());
+
+    // when
+    sentence = new Sentence();
+    sentence.setModuleName("foo");
+    sentence.setCommandName("multipleWordsNoContext");
+    sentence.addParam("MEH", "NOH");
+    result = this.commandManager.execCmdLine(sentence);
+
+    // then NOT CORRECT
+    assertEquals(CommandResult.UNKOWN_PARAMS, result.getLeft());
+
+    // when
+    sentence = new Sentence();
+    sentence.setModuleName("foo");
+    sentence.setCommandName("customFarewell");
+    result = this.commandManager.execCmdLine(sentence);
+
+    // then NOT CORRECT
+    assertEquals(CommandResult.MANDATORY_PARAMS_MISSING, result.getLeft());
+
   }
 
 }
