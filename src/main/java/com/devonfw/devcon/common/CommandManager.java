@@ -78,7 +78,7 @@ public class CommandManager {
 
         Command cmd = command.get();
         Optional<ProjectInfo> projectInfo = Optional.absent();
-        cmd.injectEnvironment(this.registry, this.input, this.output, projectInfo);
+        cmd.injectEnvironment(this.registry, this.input, this.output, this.contextPathInfo, projectInfo);
 
         Object result = cmd.exec();
         if (result == null) {
@@ -130,8 +130,7 @@ public class CommandManager {
         } else {
           this.output.showError("[ERROR] The command " + sentence.getCommandName()
               + " is not recognized as valid command of the " + sentence.getModuleName() + " module");
-          return Pair.of(CommandResult.UNKOWN_COMMAND,
-              sentence.getModuleName() + " " + sentence.getCommandName());
+          return Pair.of(CommandResult.UNKOWN_COMMAND, sentence.getModuleName() + " " + sentence.getCommandName());
         }
       }
     } else {
@@ -200,7 +199,7 @@ public class CommandManager {
     List<String> completedparameters = completeParameters(projectInfo, givenParameters);
 
     // load environment api for command
-    cmd.injectEnvironment(this.registry, this.input, this.output, projectInfo);
+    cmd.injectEnvironment(this.registry, this.input, this.output, new ContextPathInfo(), projectInfo);
     Object result = cmd.exec(completedparameters);
     if (result == null) {
       return Pair.of(CommandResult.OK, CommandResult.OK_MSG);

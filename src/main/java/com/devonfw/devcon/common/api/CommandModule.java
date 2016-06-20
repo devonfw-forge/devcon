@@ -1,6 +1,7 @@
 package com.devonfw.devcon.common.api;
 
 import com.devonfw.devcon.common.api.data.ProjectInfo;
+import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.input.Input;
 import com.devonfw.devcon.output.Output;
 import com.google.common.base.Optional;
@@ -53,5 +54,17 @@ public interface CommandModule {
    * @param projectInfo
    */
   void setProjectInfo(Optional<ProjectInfo> projectInfo);
+
+  /**
+   *
+   * @return ContextPathInfo
+   */
+  ContextPathInfo getContextPathInfo();
+
+  /**
+   *
+   * @param contextPathInfo
+   */
+  void setContextPathInfo(ContextPathInfo contextPathInfo);
 
 }

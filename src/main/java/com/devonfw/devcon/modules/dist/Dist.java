@@ -11,7 +11,6 @@ import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.DistributionType;
 import com.devonfw.devcon.common.exception.InvalidConfigurationStateException;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
-import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.google.common.base.Optional;
 
 /**
@@ -88,7 +87,7 @@ public class Dist extends AbstractCommandModule {
   @Parameter(name = "svnpass", description = "the password of the user with permissions in the svn repository") })
   public void s2(String projectname, String artuser, String artencpass, String svnurl, String svnuser, String svnpass) {
 
-    Optional<DistributionInfo> distInfo = new ContextPathInfo().getDistributionRoot();
+    Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot();
     SharedServices s2 = new SharedServices(this.output);
 
     try {

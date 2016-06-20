@@ -21,6 +21,7 @@ import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.CommandParameter;
 import com.devonfw.devcon.common.api.data.ContextType;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
+import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.input.Input;
 import com.devonfw.devcon.output.Output;
 import com.google.common.base.Optional;
@@ -53,6 +54,8 @@ public class CommandImpl implements Command {
 
   private ContextType context;
 
+  private ContextPathInfo contextPathInfo;
+
   public CommandImpl() {
     this.definedParameters = new ArrayList<>();
   }
@@ -68,13 +71,14 @@ public class CommandImpl implements Command {
   }
 
   @Override
-  public void injectEnvironment(CommandRegistry registry, Input input, Output output,
+  public void injectEnvironment(CommandRegistry registry, Input input, Output output, ContextPathInfo contextPathInfo,
       Optional<ProjectInfo> projectInfo) {
 
     this.registry = registry;
     this.projectInfo = projectInfo;
     this.input = input;
     this.output = output;
+    this.contextPathInfo = contextPathInfo;
 
   }
 
@@ -90,6 +94,7 @@ public class CommandImpl implements Command {
       module_.setProjectInfo(this.projectInfo);
       module_.setInput(this.input);
       module_.setOutput(this.output);
+      module_.setContextPathInfo(this.contextPathInfo);
     }
   }
 
@@ -240,5 +245,13 @@ public class CommandImpl implements Command {
   public ContextType getContext() {
 
     return this.context;
+  }
+
+  /**
+   * @return contextPathInfo
+   */
+  public ContextPathInfo getContextPathInfo() {
+
+    return this.contextPathInfo;
   }
 }

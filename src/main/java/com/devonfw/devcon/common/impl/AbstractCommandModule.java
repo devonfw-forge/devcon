@@ -31,6 +31,8 @@ public class AbstractCommandModule implements CommandModule {
    */
   protected Optional<ProjectInfo> projectInfo;
 
+  protected ContextPathInfo contextPathInfo;
+
   /**
    * {@link CommandRegistry} instance
    */
@@ -108,6 +110,24 @@ public class AbstractCommandModule implements CommandModule {
 
     this.registry = registry;
 
+  }
+
+  /**
+   * @return contextPathInfo
+   */
+  @Override
+  public ContextPathInfo getContextPathInfo() {
+
+    return this.contextPathInfo;
+  }
+
+  /**
+   * @param contextPathInfo new value of {@link #getcontextPathInfo}.
+   */
+  @Override
+  public void setContextPathInfo(ContextPathInfo contextPathInfo) {
+
+    this.contextPathInfo = contextPathInfo;
   }
 
 }
