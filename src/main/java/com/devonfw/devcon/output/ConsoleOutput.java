@@ -47,8 +47,8 @@ public class ConsoleOutput implements Output {
 
     HelpFormatter formatter = new HelpFormatter();
 
-    formatter.printHelp(new PrintWriter(this.out_), 80, command.getName(), command.getDescription(), options, 0, 0,
-        null, true);
+    formatter.printHelp(new PrintWriter(this.out_, true), 120, command.getName(), command.getDescription(), options, 0,
+        0, null, true);
   }
 
   @Override
@@ -61,9 +61,11 @@ public class ConsoleOutput implements Output {
     }
 
     Options options = new Options();
-    String header = module.getName() + " <<command>> [parameters...]";
+    String usage = module.getName() + " <<command>> [parameters...]";
     HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp(new PrintWriter(this.out_), 80, header, footer.toString(), options, 0, 0, null, true);
+
+    formatter.printHelp(new PrintWriter(this.out_, true), 120, usage, module.getDescription(), options, 0, 0,
+        footer.toString(), true);
   }
 
   @Override
@@ -84,7 +86,7 @@ public class ConsoleOutput implements Output {
     }
 
     HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp(new PrintWriter(this.out_), 80, usage, header, options_, 0, 0, null, true);
+    formatter.printHelp(new PrintWriter(this.out_, true), 120, usage, header, options_, 0, 0, footer.toString(), true);
   }
 
   @Override

@@ -21,11 +21,11 @@ public class Help extends AbstractCommandModule {
   @Command(name = "guide", help = "This command is used to show a general vision about the basic usage of devcon.")
   public void guide() {
 
-    StringBuilder body = new StringBuilder();
+    // StringBuilder body = new StringBuilder();
 
-    this.output.showGeneralHelp("devon <<module>> <<command>> [parameters...]",
+    this.output.showGeneralHelp(
         "Devcon is a command line tool that provides many automated tasks around the full life-cycle of Devon applications.",
-        Utils.getGlobalOptions(), this.registry.getCommandModules());
+        "devon <<module>> <<command>> [parameters...]", Utils.getGlobalOptions(), this.registry.getCommandModules());
 
   }
 

@@ -144,7 +144,7 @@ public class Utils {
 
       } else {
         // TODO implement logs
-        System.out.println("Getting the default global options...");
+        // System.out.println("Getting the default global options...");
         globalOptions = getDefaultGlobalOptions();
       }
 

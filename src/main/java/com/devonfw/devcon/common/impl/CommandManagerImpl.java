@@ -89,12 +89,12 @@ public class CommandManagerImpl implements CommandManager {
 
       } else
 
-        this.output.showError("[ERROR] The command " + commandName + " is not recognized as valid command of the "
-            + moduleName + " module");
+        this.output.showError(
+            "The command " + commandName + " is not recognized as valid command of the " + moduleName + " module");
       return Pair.of(CommandResult.UNKNOWN_COMMAND, (Object) (moduleName + " " + commandName));
 
     } else {
-      this.output.showError("[ERROR] The module " + moduleName + " is not recognized as available module.");
+      this.output.showError("The module " + moduleName + " is not recognized as available module.");
       return Pair.of(CommandResult.UNKNOWN_MODULE, (Object) moduleName);
     }
   }
@@ -114,8 +114,8 @@ public class CommandManagerImpl implements CommandManager {
     if (module.isPresent()) {
 
       CommandModuleInfo mod = module.get();
-      // If no command given and helpRequested flag is 'true' the app shows the help info and ends
-      if (sentence.getCommandName() == null && sentence.isHelpRequested()) {
+      // If no command given or helpRequested flag is 'true' the app shows the help info and ends
+      if (sentence.getCommandName() == null || sentence.isHelpRequested()) {
 
         this.output.showModuleHelp(mod);
         return Pair.of(CommandResult.HELP_SHOWN, (Object) ("module: " + mod));
@@ -129,7 +129,7 @@ public class CommandManagerImpl implements CommandManager {
           return execCommand(cmd, sentence);
 
         } else {
-          this.output.showError("[ERROR] The command " + sentence.getCommandName()
+          this.output.showError("The command " + sentence.getCommandName()
               + " is not recognized as valid command of the " + sentence.getModuleName() + " module");
           return Pair.of(CommandResult.UNKNOWN_COMMAND,
               (Object) (sentence.getModuleName() + " " + sentence.getCommandName()));
@@ -137,8 +137,7 @@ public class CommandManagerImpl implements CommandManager {
       }
     } else {
 
-      this.output
-          .showError("[ERROR] The module " + sentence.getModuleName() + " is not recognized as available module.");
+      this.output.showError("The module " + sentence.getModuleName() + " is not recognized as available module.");
       return Pair.of(CommandResult.UNKNOWN_MODULE, (Object) sentence.getModuleName());
     }
 
