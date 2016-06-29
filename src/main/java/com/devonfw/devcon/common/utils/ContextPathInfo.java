@@ -272,4 +272,12 @@ public class ContextPathInfo {
 
     return this.getSenchaWorkspaceRoot(getCurrentWorkingDirectory());
   }
+
+  /**
+   * @return CurrentWorkingDirectory
+   */
+  public Path getPresentWorkingDirectory() {
+
+    return getCurrentWorkingDirectory();
+  }
 }

@@ -1,9 +1,13 @@
 package com.devonfw.devcon.common.utils;
 
 import java.awt.Desktop;
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -221,6 +225,92 @@ public class Utils {
       }
     } else {
       return false;
+    }
+  }
+
+  /**
+   * @return GIT Bin Path
+   */
+  public static String getGITBinPath() {
+
+    String gitBinPath = null;
+    try {
+      String path = System.getenv("PATH");
+      String tokens[] = path.split(";");
+      for (String token : tokens) {
+        if (token.endsWith("Git\\cmd") || token.endsWith("Git\\bin")) {
+          gitBinPath = token;
+          break;
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return gitBinPath;
+  }
+
+  /**
+   * @param repoUrl
+   * @param cloneDir
+   * @param gitDir
+   * @throws Exception
+   */
+  public static void cloneRepository(String repoUrl, String cloneDir, String gitDir) throws Exception {
+
+    try {
+
+      if (gitDir == null || gitDir.isEmpty()) {
+        gitDir = Utils.getGITBinPath();
+      }
+      ProcessBuilder processBuilder =
+          new ProcessBuilder(gitDir + Constants.GIT_EXE, Constants.CLONE_OPTION, repoUrl, cloneDir);
+      processBuilder.directory(new File(gitDir));
+
+      Process process = processBuilder.start();
+
+      final InputStream isError = process.getErrorStream();
+      final InputStreamReader isErrReader = new InputStreamReader(isError);
+      final InputStream isOutput = process.getInputStream();
+      final InputStreamReader isOutReader = new InputStreamReader(isOutput);
+
+      // Thread to process error
+      new Thread(new Runnable() {
+        public void run() {
+
+          BufferedReader bre = new BufferedReader(isErrReader);
+          String line;
+          try {
+            while ((line = bre.readLine()) != null) {
+              System.out.println(line);
+            }
+          } catch (Exception e) {
+          }
+        }
+      }).start();
+
+      // Thread to process output
+      new Thread(new Runnable() {
+        public void run() {
+
+          BufferedReader bre = new BufferedReader(isOutReader);
+          String line;
+          try {
+            while ((line = bre.readLine()) != null) {
+              System.out.println("OUTPUT:" + line);
+            }
+          } catch (Exception e) {
+          }
+        }
+      }).start();
+
+      // Wait to get exit value
+      try {
+        process.waitFor();
+      } catch (InterruptedException e) {
+        throw e;
+      }
+    } catch (Exception e) {
+      throw e;
     }
   }
 }
