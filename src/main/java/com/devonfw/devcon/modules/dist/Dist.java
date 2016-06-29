@@ -10,7 +10,7 @@ import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.DistributionType;
 import com.devonfw.devcon.common.exception.InvalidConfigurationStateException;
-import com.devonfw.devcon.common.impl.AbstractCommandHolder;
+import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.google.common.base.Optional;
 
 /**
@@ -18,8 +18,8 @@ import com.google.common.base.Optional;
  *
  * @author pparrado
  */
-@CmdModuleRegistry(name = "dist", description = "Module with general tasks related to the distribution itself", context = "global", deprecated = false)
-public class Dist extends AbstractCommandHolder {
+@CmdModuleRegistry(name = "dist", description = "Module with general tasks related to the distribution itself", deprecated = false)
+public class Dist extends AbstractCommandModule {
 
   /**
    * This command downloads and unzips the Devon distribution
@@ -31,8 +31,7 @@ public class Dist extends AbstractCommandHolder {
    * @throws Exception
    */
   @Command(name = "install", help = "This command downloads the distribution")
-  @Parameters(values = {
-  @Parameter(name = "path", description = "a location for the Devon distribution download"),
+  @Parameters(values = { @Parameter(name = "path", description = "a location for the Devon distribution download"),
   @Parameter(name = "type", description = "the type of the distribution, the options are: \n 'oaspide' to download OASP IDE\n 'devondist' to download Devon IP IDE"),
   @Parameter(name = "user", description = "a user with permissions to download the Devon distribution"),
   @Parameter(name = "password", description = "the password related to the user with permissions to download the Devon distribution") })
@@ -80,8 +79,7 @@ public class Dist extends AbstractCommandHolder {
    * @param svnpass the password of the user with permissions in the svn repository
    */
   @Command(name = "s2", help = "Initializes a Devon distribution for use with Shared Services.")
-  @Parameters(values = {
-  @Parameter(name = "projectname", description = "the name for the new project"),
+  @Parameters(values = { @Parameter(name = "projectname", description = "the name for the new project"),
   @Parameter(name = "artuser", description = "the user with permissions in the artifactory repository"),
   @Parameter(name = "artencpass", description = "the encrypted password of the user with permissions in the artifactory repository"),
   @Parameter(name = "svnurl", description = "the URL of the svn repository to do the checkout"),
@@ -89,19 +87,21 @@ public class Dist extends AbstractCommandHolder {
   @Parameter(name = "svnpass", description = "the password of the user with permissions in the svn repository") })
   public void s2(String projectname, String artuser, String artencpass, String svnurl, String svnuser, String svnpass) {
 
-    Optional<DistributionInfo> distInfo = this.contextPathInfo.getDistributionRoot();
+    Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot();
+    SharedServices s2 = new SharedServices(this.output);
+
     try {
       if (distInfo.isPresent()) {
         Path distPath = distInfo.get().getPath();
 
         if (distInfo.get().getDistributionType().equals(DistributionType.DevonDist)) {
 
-          int initResult = SharedServices.init(distPath, artuser, artencpass);
+          int initResult = s2.init(distPath, artuser, artencpass);
           if (initResult > 0)
-            this.output
-                .showMessage("The configuration of the conf/settings.xml file could not be completed successfully. Please verify it");
+            this.output.showMessage(
+                "The configuration of the conf/settings.xml file could not be completed successfully. Please verify it");
 
-          int createResult = SharedServices.create(distPath, projectname, svnurl, svnuser, svnpass);
+          int createResult = s2.create(distPath, projectname, svnurl, svnuser, svnpass);
           if (createResult > 0)
             throw new Exception("An error occurred while project creation.");
 

@@ -23,8 +23,9 @@ import com.collabnet.ce.soap60.webservices.cemain.ICollabNetSoap;
 import com.collabnet.ce.soap60.webservices.filestorage.IFileStorageAppSoap;
 import com.collabnet.ce.soap60.webservices.frs.FrsFileSoapDO;
 import com.collabnet.ce.soap60.webservices.frs.IFrsAppSoap;
+import com.devonfw.devcon.output.ConsoleOutput;
 import com.devonfw.devcon.output.DownloadingProgress;
-import com.devonfw.devcon.output.OutputConsole;
+import com.devonfw.devcon.output.Output;
 import com.google.common.base.Optional;
 
 /**
@@ -48,7 +49,7 @@ public class Downloader {
 
     Thread thread = null;
     DownloadingProgress progressBar = null;
-    OutputConsole out = new OutputConsole();
+    Output out = new ConsoleOutput();
     String fileName = "";
     String tempFilePath = "";
     String userTempDir = System.getProperty("java.io.tmpdir");
@@ -61,9 +62,8 @@ public class Downloader {
 
         String sessionId = _sfSoap.login(user, password);
         if (sessionId != null) {
-          IFileStorageAppSoap _fileStorageAppSoap =
-              (IFileStorageAppSoap) ClientSoapStubFactory.getSoapStub(IFileStorageAppSoap.class,
-                  DistConstants.REPOSITORY_URL);
+          IFileStorageAppSoap _fileStorageAppSoap = (IFileStorageAppSoap) ClientSoapStubFactory
+              .getSoapStub(IFileStorageAppSoap.class, DistConstants.REPOSITORY_URL);
 
           IFrsAppSoap frsAppSoap =
               (IFrsAppSoap) ClientSoapStubFactory.getSoapStub(IFrsAppSoap.class, DistConstants.REPOSITORY_URL);
@@ -85,7 +85,8 @@ public class Downloader {
             DecimalFormat df = new DecimalFormat("#.##");
             df.setRoundingMode(RoundingMode.CEILING);
 
-            out.status("Downloading " + file.getFilename() + " (" + df.format(size) + "MB). It may take a few minutes.");
+            out.status(
+                "Downloading " + file.getFilename() + " (" + df.format(size) + "MB). It may take a few minutes.");
 
             // start showing progressBar
             progressBar = new DownloadingProgress(file.getSize(), userTempDir);
@@ -126,8 +127,8 @@ public class Downloader {
       out.showError("Download failed. " + e.getMessage());
       return null;
     } catch (FileNotFoundException e) {
-      out.showError("Download failed. File " + fileName + " not found in the repository "
-          + DistConstants.REPOSITORY_URL + ". " + e.getMessage());
+      out.showError("Download failed. File " + fileName + " not found in the repository " + DistConstants.REPOSITORY_URL
+          + ". " + e.getMessage());
       return null;
     } catch (FileAlreadyExistsException e) {
       out.showError("Download failed. File " + e.getFile() + " already exists.");
@@ -174,10 +175,10 @@ public class Downloader {
         folder.mkdirs();
       }
 
-      outputStream = new BufferedOutputStream(new FileOutputStream(new File(path + File.separator + tempFileName /*
-                                                                                                                  * +
-                                                                                                                  * ".zip"
-                                                                                                                  */)));
+      outputStream =
+          new BufferedOutputStream(new FileOutputStream(new File(path + File.separator + tempFileName /*
+                                                                                                       * + ".zip"
+                                                                                                       */)));
       inputStream = url.openConnection(proxy).getInputStream();
       final byte[] buffer = new byte[65536];
       while (true) {

@@ -4,6 +4,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.simple.JSONObject;
+
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.api.utils.FolderProcessor;
@@ -25,15 +27,19 @@ public class ProjectInfoImpl implements ProjectInfo {
 
   private List<ProjectInfo> subProjects;
 
-  public ProjectInfoImpl(Path path, ProjectType projectType, Version version) {
+  private JSONObject config;
+
+  public ProjectInfoImpl(Path path, ProjectType projectType, Version version, JSONObject config) {
     this.path = path;
     this.projectType = projectType;
     this.version = version;
+    this.config = config;
     this.subProjects = new ArrayList<>();
   }
 
-  public ProjectInfoImpl(Path path, ProjectType projectType, Version version, List<ProjectInfo> subProjects) {
-    this(path, projectType, version);
+  public ProjectInfoImpl(Path path, ProjectType projectType, Version version, JSONObject config,
+      List<ProjectInfo> subProjects) {
+    this(path, projectType, version, config);
     this.subProjects = subProjects;
   }
 
@@ -59,6 +65,13 @@ public class ProjectInfoImpl implements ProjectInfo {
   public List<ProjectInfo> getSubProjects() {
 
     return this.subProjects;
+  }
+
+  @Override
+  public JSONObject getConfig() {
+
+    // TODO Auto-generated method stub
+    return this.config;
   }
 
 }

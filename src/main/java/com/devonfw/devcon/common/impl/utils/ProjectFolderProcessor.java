@@ -10,43 +10,7 @@ import com.devonfw.devcon.common.api.utils.FolderProcessor;
  *
  * @author ivanderk
  */
-public class ProjectFolderProcessor implements FolderProcessor {
-
-  /**
-   * @return found devon.json file
-   */
-  public boolean isFound() {
-
-    return this.found;
-  }
-
-  /**
-   * @param found new value of {@link #getfound}.
-   */
-  public void setFound(boolean found) {
-
-    this.found = found;
-  }
-
-  /**
-   * @return foundPath path to devon.json settings file
-   */
-  public Path getFoundPath() {
-
-    return this.foundPath;
-  }
-
-  /**
-   * @param foundPath new value of {@link #getfoundPath}.
-   */
-  public void setFoundPath(Path foundPath) {
-
-    this.foundPath = foundPath;
-  }
-
-  private boolean found = false;
-
-  private Path foundPath = null;
+public class ProjectFolderProcessor extends AbstractBaseFolderProcessor {
 
   @Override
   public boolean onFolder(Path path) {

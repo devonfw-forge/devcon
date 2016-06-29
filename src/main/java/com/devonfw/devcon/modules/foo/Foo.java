@@ -1,10 +1,14 @@
 package com.devonfw.devcon.modules.foo;
 
+import java.lang.reflect.InvocationTargetException;
+
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
-import com.devonfw.devcon.common.impl.AbstractCommandHolder;
+import com.devonfw.devcon.common.api.data.ContextType;
+import com.devonfw.devcon.common.impl.AbstractCommandModule;
+import com.google.common.base.Optional;
 
 /**
  * Implementation of test class Foo Hidden from console with Annotation parameter hidden=true
@@ -12,8 +16,8 @@ import com.devonfw.devcon.common.impl.AbstractCommandHolder;
  * @author pparrado
  */
 
-@CmdModuleRegistry(name = "foo", description = "This is only a test module.", context = "fooContext", visible = false)
-public class Foo extends AbstractCommandHolder {
+@CmdModuleRegistry(name = "foo", description = "This is only a test module.", visible = false)
+public class Foo extends AbstractCommandModule {
 
   /**
    * The constructor.
@@ -25,7 +29,7 @@ public class Foo extends AbstractCommandHolder {
 
   @Command(name = "greeting", help = "This command is used to say hello.")
   @SuppressWarnings("javadoc")
-  public void greeting() {
+  public void greetingMethod() {
 
     this.output.showMessage("Hello");
   }
@@ -54,13 +58,55 @@ public class Foo extends AbstractCommandHolder {
     this.output.showMessage("Bye " + name + " " + surname);
   }
 
-  @Command(name = "saySomething", help = "This command is for say something")
+  @Command(name = "saySomething", help = "This command is for say something", context = ContextType.PROJECT)
   @Parameters(values = { @Parameter(name = "message", description = "the message to be written"),
   @Parameter(name = "signature", description = "the signature", optional = true) })
   @SuppressWarnings("javadoc")
   public void saySomething(String message, String signature) {
 
-    this.output.showMessage(message + "\n" + signature);
+    this.output.showMessage(message + "\n" + signature + "\n" + this.projectInfo.get().getPath().toString());
+  }
+
+  @Command(name = "multipleWords", help = "This command is to say multiple words", context = ContextType.PROJECT)
+  @Parameters(values = { @Parameter(name = "first", description = "the first word", optional = true),
+  @Parameter(name = "second", description = "the second word", optional = true),
+  @Parameter(name = "third", description = "the third word", optional = true),
+  @Parameter(name = "fourth", description = "the fourth word", optional = true) })
+  @SuppressWarnings("javadoc")
+  public String multipleWords(String first, String second, String third, String fourth) {
+
+    if (this.projectInfo.isPresent()) {
+      return first + second + third + fourth;
+    } else {
+      return "Project Info not Preset";
+    }
+
+  }
+
+  @Command(name = "multipleWordsNoContext", help = "This command is to say multiple words (without context)")
+  @Parameters(values = { @Parameter(name = "first", description = "the first word", optional = true),
+  @Parameter(name = "second", description = "the second word", optional = true),
+  @Parameter(name = "third", description = "the third word", optional = true),
+  @Parameter(name = "FOURTH", description = "the fourth word", optional = true) })
+  @SuppressWarnings("javadoc")
+  public String multipleWordsNoCtx(String first, String second, String third, String fourth) {
+
+    return first + second + third + fourth;
+
+  }
+
+  @Command(name = "delegateCommand", help = "This command is to delegate to another")
+  @Parameters(values = { @Parameter(name = "first", description = "the first word", optional = true),
+  @Parameter(name = "second", description = "the second word", optional = true),
+  @Parameter(name = "third", description = "the third word", optional = true),
+  @Parameter(name = "FOURTH", description = "the fourth word", optional = true) })
+  @SuppressWarnings("javadoc")
+  public String delegateCommand(String first, String second, String third, String fourth)
+      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+
+    Optional<com.devonfw.devcon.common.api.Command> cmd = getCommand("foo", "multipleWordsNoContext");
+    return (String) cmd.get().exec(first, "Big", third, fourth);
+
   }
 
 }

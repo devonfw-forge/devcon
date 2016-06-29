@@ -23,7 +23,7 @@ public @interface Parameter {
   /**
    * Is Optional
    *
-   * @return if the parameter is optional
+   * @return whether is optional
    */
   boolean optional() default false;
 }

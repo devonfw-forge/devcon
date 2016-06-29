@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Path;
 
-import com.devonfw.devcon.output.OutputConsole;
+import com.devonfw.devcon.output.Output;
 
 /**
  * Encapsulates functionality for s2 command of module Dist
@@ -15,9 +15,14 @@ import com.devonfw.devcon.output.OutputConsole;
  */
 public class SharedServices {
 
-  public static int init(Path distPath, String artUser, String artEncPass) throws Exception {
+  private Output out;
 
-    OutputConsole out = new OutputConsole();
+  public SharedServices(Output out) {
+    this.out = out;
+  }
+
+  public int init(Path distPath, String artUser, String artEncPass) throws Exception {
+
     try {
 
       File batchFile = new File(distPath.toString() + File.separator + DistConstants.INIT_SCRIPT);
@@ -31,7 +36,7 @@ public class SharedServices {
       BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
       String line = null;
       while ((line = in.readLine()) != null) {
-        out.showMessage(line);
+        this.out.showMessage(line);
       }
 
       int exitStatus = process.waitFor();
@@ -41,10 +46,8 @@ public class SharedServices {
     }
   }
 
-  public static int create(Path distPath, String projectName, String svnUrl, String svnUser, String svnPass)
-      throws Exception {
+  public int create(Path distPath, String projectName, String svnUrl, String svnUser, String svnPass) throws Exception {
 
-    OutputConsole out = new OutputConsole();
     try {
 
       File batchFile = new File(distPath.toString() + File.separator + DistConstants.CREATE_SCRIPT);
@@ -59,7 +62,7 @@ public class SharedServices {
       BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
       String line = null;
       while ((line = in.readLine()) != null) {
-        out.showMessage(line);
+        this.out.showMessage(line);
       }
       int exitStatus = process.waitFor();
       return exitStatus;
