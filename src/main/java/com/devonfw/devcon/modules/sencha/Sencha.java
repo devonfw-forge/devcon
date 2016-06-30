@@ -1,6 +1,5 @@
 package com.devonfw.devcon.modules.sencha;
 
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 
 import org.apache.commons.lang3.SystemUtils;
@@ -13,6 +12,8 @@ import com.devonfw.devcon.common.api.data.ContextType;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
+import com.devonfw.devcon.common.utils.Constants;
+import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
 
 /**
@@ -62,32 +63,39 @@ public class Sencha extends AbstractCommandModule {
   @SuppressWarnings("javadoc")
   @Command(name = "create", help = "Creates a new Sencha Ext JS6 project in a workspace")
   @Parameters(values = { @Parameter(name = "projectname", description = "Name of project"),
-  @Parameter(name = "workspace", description = "Path to Sencha Workspace (currentDir if not given)", optional = true) })
-  public void create(String projectname, String workspace)
-      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+  @Parameter(name = "workspace", description = "Path to Sencha Workspace (currentDir if not given)", optional = true),
+  @Parameter(name = "username", description = "a user with permissions to download the Devon distribution"),
+  @Parameter(name = "password", description = "the password related to the user with permissions to download the Devon distribution"),
+  @Parameter(name = "gitDir", description = "GIT BIN/CMD directory where git executable is present", optional = true) })
+  public void create(String projectname, String workspace, String username, String password, String gitDir)
+      throws Exception {
 
-    Optional<Path> workspacePath = getContextPathInfo().getSenchaWorkspaceRoot(workspace);
+    try {
+      final String REMOTE_URL = new StringBuffer(Constants.HTTPS).append(username).append(Constants.COLON)
+          .append(password).append(Constants.AT_THE_RATE).append(Constants.SENCHA_REPO_URL).toString();
 
-    if (workspacePath.isPresent()) {
-      Path wsPath = workspacePath.get();
-
-      Path projectPath = wsPath.resolve(projectname);
+      Path wsPath = null;
+      Path projectPath = null;
+      final Path currentDir = getContextPathInfo().getPresentWorkingDirectory();
+      if (workspace == null || workspace.isEmpty()) {
+        projectPath = currentDir.resolve(projectname);
+      } else {
+        wsPath = currentDir.resolve(workspace);
+        projectPath = wsPath.resolve(projectname);
+      }
       if (!projectPath.toFile().exists()) {
 
         projectPath.toFile().mkdirs();
 
         // create workspace here
+        Utils.cloneRepository(REMOTE_URL, projectPath.toString(), gitDir);
+        getOutput().showMessage("Having repository: " + projectPath.toString() + Constants.DOT_GIT);
       } else {
         getOutput().showError("Project exists!");
       }
-    } else {
-      getOutput().showError("Not a Sencha Workspace");
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw e;
     }
   }
-
-  /**
-   * @param path
-   * @return
-   */
-
 }

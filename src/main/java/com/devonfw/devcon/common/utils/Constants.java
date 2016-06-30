@@ -20,4 +20,49 @@ public final class Constants {
    * The name of the global parameters file
    */
   public static final String GLOBAL_PARAMS_FILE = "globalParameters.json";
+
+  /**
+   * Constant defined for .git directory
+   */
+  public static final String DOT_GIT = "\\.git";
+
+  /**
+   * Constant defined for the clone option
+   */
+  public static final String CLONE_OPTION = "clone";
+
+  /**
+   * Constant defined for git.exe
+   */
+  public static final String GIT_EXE = "\\git.exe";
+
+  /**
+   * Constant defined for the word https
+   */
+  public static final String HTTPS = "https://";
+
+  /**
+   * Constant defined for Colon
+   */
+  public static final String COLON = ":";
+
+  /**
+   * @ Symbol defined as constant
+   */
+  public static final String AT_THE_RATE = "@";
+
+  /**
+   * Devon Repo Url
+   */
+  public static final String DEVON_REPO_URL = "github.com/devonfw/devon.git";
+
+  /**
+   * OASP4J Repo Url
+   */
+  public static final String OASP4J_REPO_URL = "https://github.com/oasp/oasp4j.git";
+
+  /**
+   * DEVON4SENCHA Repo Url
+   */
+  public static final String SENCHA_REPO_URL = "github.com/devonfw/devon4sencha";
 }
