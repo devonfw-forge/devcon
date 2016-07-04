@@ -21,7 +21,7 @@ public final class DistConstants {
   /**
    * devon distribution file id
    */
-  public static final String DEVON_FILE_ID = "frs49088";
+  public static final String DEVON_FILE_ID = "frs49948";
 
   /**
    * distribution type for oasp

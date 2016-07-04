@@ -67,7 +67,7 @@ public class Extractor {
         spin.terminate();
         thread.join();
       }
-      out.status("File successfuly extracted.");
+      out.status("File successfully extracted.");
     }
   }
 
@@ -87,10 +87,12 @@ public class Extractor {
     }
 
     // @Override
+    @Override
     public ISequentialOutStream getStream(final int index, ExtractAskMode extractAskMode) throws SevenZipException {
 
       return new ISequentialOutStream() {
         // @Override
+        @Override
         public int write(byte[] data) throws SevenZipException {
 
           String filePath = MyExtractCallback.this.inArchive.getStringProperty(index, PropID.PATH);
@@ -141,21 +143,25 @@ public class Extractor {
     }
 
     // @Override
+    @Override
     public void prepareOperation(ExtractAskMode extractAskMode) throws SevenZipException {
 
     }
 
     // @Override
+    @Override
     public void setOperationResult(ExtractOperationResult extractOperationResult) throws SevenZipException {
 
     }
 
     // @Override
+    @Override
     public void setCompleted(long completeValue) throws SevenZipException {
 
     }
 
     // @Override
+    @Override
     public void setTotal(long total) throws SevenZipException {
 
     }
