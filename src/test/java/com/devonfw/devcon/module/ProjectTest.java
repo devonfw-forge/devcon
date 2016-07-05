@@ -2,11 +2,6 @@ package com.devonfw.devcon.module;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,11 +16,11 @@ import com.devonfw.devcon.output.ConsoleOutput;
 import com.devonfw.devcon.output.Output;
 
 /**
- * Tests the Oasp4js module
+ * Tests the Project module
  *
  * @author pparrado
  */
-public class Oasp4jsTest {
+public class ProjectTest {
   ConsoleInputManager inputMgr;
 
   private CommandManager commandManager;
@@ -35,6 +30,18 @@ public class Oasp4jsTest {
   private Output output;
 
   private Input input;
+
+  private String serverName;
+
+  private String serverPath;
+
+  private String packageName;
+
+  private String groupId;
+
+  private String version;
+
+  private String clientType;
 
   private String clientName;
 
@@ -49,36 +56,26 @@ public class Oasp4jsTest {
     this.input = new ConsoleInput();
     this.commandManager = new CommandManagerImpl(this.registry, this.input, this.output);
     this.inputMgr = new ConsoleInputManager(this.commandManager);
-    this.clientName = "angularProjectTest";
-    this.clientPath = "D:\\devconOasp4jsTestTemp";
+    this.serverName = "serverProjectTest";
+    this.serverPath = /* "D:\\devconProjectTestTemp" */"D:\\devon2\\workspaces";
+    this.groupId = "io.devon.application";
+    this.packageName = this.groupId + "." + this.serverName;
+    this.version = "0.1-SNAPSHOT";
   }
 
   @Test
-  public void create() {
+  public void createServerWithAngular() {
 
-    String[] args = { "oasp4js", "create", "-clientname", this.clientName, "-clientpath", this.clientPath };
+    this.clientName = "oasp4jsTest";
+    this.clientPath = this.serverPath;
+    this.clientType = "oasp4js";
+
+    String[] args =
+        { "project", "create", "-servername", this.serverName, "-serverpath", this.serverPath, "-packagename",
+        this.packageName, "-groupid", this.groupId, "-version", this.version, "-clientname", this.clientName,
+        "-clientpath", this.clientPath, "-clienttype", this.clientType };
 
     assertTrue(this.inputMgr.parse(args));
-  }
-
-  // THIS TEST NEEDS AN 'npm install' COMMAND PREVIOUS TO THE EXECUTION IN ORDER TO RESOLVE THE JUST CREATED PROJECT
-  // DEPENDENCIES.
-  // @Test
-  // public void run() throws IOException, InterruptedException {
-  //
-  // String[] args = { "oasp4js", "run", "-clientpath", this.clientPath + File.separator + this.clientName };
-  // assertTrue(this.inputMgr.parse(args));
-  // }
-
-  @After
-  public void end() {
-
-    try {
-      FileUtils.forceDeleteOnExit(new File(this.clientPath));
-      System.out.println("Deleted " + this.clientPath + " test file.");
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
   }
 
 }
