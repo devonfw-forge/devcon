@@ -2,6 +2,13 @@ package com.devonfw.devcon.module;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,6 +38,10 @@ public class ProjectTest {
 
   private Input input;
 
+  private Path testRoot;
+
+  private Path testDist;
+
   private String serverName;
 
   private String serverPath;
@@ -49,7 +60,25 @@ public class ProjectTest {
 
   @SuppressWarnings("javadoc")
   @Before
-  public void setup() {
+  public void setup() throws IOException {
+
+    // Creating a "mock" distribution to test the module
+    this.testRoot = Files.createTempDirectory("devconProjectTestTemp");
+    this.testDist = this.testRoot.resolve("test-devon-dist");
+    Files.createDirectories(this.testDist);
+
+    // Directory conf
+    Path conf = this.testDist.resolve("conf");
+    Files.createDirectories(conf);
+
+    // settings.json
+    String content = "{\n\"version\": \"2.0.0\",\n\"type\": \"devon-dist\"\n}";
+    File settingsfile = conf.resolve("settings.json").toFile();
+    FileUtils.writeStringToFile(settingsfile, content, "UTF-8");
+
+    // Directory to be in working test
+    Path workspacemain = this.testDist.resolve("workspaces/main");
+    Files.createDirectories(workspacemain);
 
     this.registry = new CommandRegistryImpl("com.devonfw.devcon.modules.*");
     this.output = new ConsoleOutput();
@@ -57,10 +86,16 @@ public class ProjectTest {
     this.commandManager = new CommandManagerImpl(this.registry, this.input, this.output);
     this.inputMgr = new ConsoleInputManager(this.commandManager);
     this.serverName = "serverProjectTest";
-    this.serverPath = /* "D:\\devconProjectTestTemp" */"D:\\devon2\\workspaces";
+    this.serverPath = workspacemain.toString();
     this.groupId = "io.devon.application";
     this.packageName = this.groupId + "." + this.serverName;
     this.version = "0.1-SNAPSHOT";
+  }
+
+  @After
+  public void end() throws IOException {
+
+    FileUtils.forceDeleteOnExit(this.testRoot.toFile());
   }
 
   @Test
