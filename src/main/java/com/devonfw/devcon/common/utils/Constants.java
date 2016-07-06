@@ -65,4 +65,19 @@ public final class Constants {
    * DEVON4SENCHA Repo Url
    */
   public static final String SENCHA_REPO_URL = "github.com/devonfw/devon4sencha";
+
+  /**
+   * DEVON4SENCHA Repo Url
+   */
+  public static final String SENCHA_APP_BUILD = "cmd /c start sencha app build";
+
+  /**
+   * DEVON4SENCHA Repo Url
+   */
+  public static final String SENCHA_CMD_WS_PORT = "1841";
+
+  /**
+   * SENCHA STARTER TEMPLATE TO CREATE A SENCHA APPLICAITON
+   */
+  public static final String SENCHA_APP_STARTER_TEMPLATE = "StarterTemplate";
 }
