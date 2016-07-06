@@ -269,39 +269,9 @@ public class Utils {
       Process process = processBuilder.start();
 
       final InputStream isError = process.getErrorStream();
-      final InputStreamReader isErrReader = new InputStreamReader(isError);
       final InputStream isOutput = process.getInputStream();
-      final InputStreamReader isOutReader = new InputStreamReader(isOutput);
 
-      // Thread to process error
-      new Thread(new Runnable() {
-        public void run() {
-
-          BufferedReader bre = new BufferedReader(isErrReader);
-          String line;
-          try {
-            while ((line = bre.readLine()) != null) {
-              System.out.println(line);
-            }
-          } catch (Exception e) {
-          }
-        }
-      }).start();
-
-      // Thread to process output
-      new Thread(new Runnable() {
-        public void run() {
-
-          BufferedReader bre = new BufferedReader(isOutReader);
-          String line;
-          try {
-            while ((line = bre.readLine()) != null) {
-              System.out.println("OUTPUT:" + line);
-            }
-          } catch (Exception e) {
-          }
-        }
-      }).start();
+      processErrorAndOutPut(isError, isOutput);
 
       // Wait to get exit value
       try {
@@ -312,5 +282,46 @@ public class Utils {
     } catch (Exception e) {
       throw e;
     }
+  }
+
+  /**
+   * @param isError
+   * @param isOutput
+   */
+  @SuppressWarnings("javadoc")
+  public static void processErrorAndOutPut(final InputStream isError, final InputStream isOutput) {
+
+    final InputStreamReader isErrReader = new InputStreamReader(isError);
+    final InputStreamReader isOutReader = new InputStreamReader(isOutput);
+
+    // Thread to process error
+    new Thread(new Runnable() {
+      public void run() {
+
+        BufferedReader bre = new BufferedReader(isErrReader);
+        String line;
+        try {
+          while ((line = bre.readLine()) != null) {
+            System.out.println(line);
+          }
+        } catch (Exception e) {
+        }
+      }
+    }).start();
+
+    // Thread to process output
+    new Thread(new Runnable() {
+      public void run() {
+
+        BufferedReader bre = new BufferedReader(isOutReader);
+        String line;
+        try {
+          while ((line = bre.readLine()) != null) {
+            System.out.println("OUTPUT:" + line);
+          }
+        } catch (Exception e) {
+        }
+      }
+    }).start();
   }
 }
