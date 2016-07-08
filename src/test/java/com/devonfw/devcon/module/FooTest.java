@@ -220,17 +220,6 @@ public class FooTest {
     assertTrue(this.inputMgr.parse(args));
   }
 
-  /**
-   * Checks if the help info of a wrong command fails
-   */
-  @Test
-  public void commandHelpFail() {
-
-    String[] args = { "foo", "fakeCommand", "-help" };
-
-    assertFalse(this.inputMgr.parse(args));
-  }
-
   @Test
   public void testInputManager() {
 
