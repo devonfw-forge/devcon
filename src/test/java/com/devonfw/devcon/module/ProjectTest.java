@@ -106,7 +106,7 @@ public class ProjectTest {
     this.clientType = "oasp4js";
 
     String[] args =
-        { "project", "create", "-servername", this.serverName, "-serverpath", this.serverPath, "-packagename",
+        { "project", "create", "-servername", this.serverName, "-distributionpath", this.serverPath, "-packagename",
         this.packageName, "-groupid", this.groupId, "-version", this.version, "-clientname", this.clientName,
         "-clientpath", this.clientPath, "-clienttype", this.clientType };
 

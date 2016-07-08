@@ -7,9 +7,7 @@ import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
-import com.devonfw.devcon.modules.oasp4j.Oasp4j;
-import com.devonfw.devcon.modules.oasp4js.Oasp4js;
-import com.devonfw.devcon.modules.sencha.Sencha;
+import com.google.common.base.Optional;
 
 /**
  * Module to automate tasks related to the devon projects (server + client)
@@ -21,7 +19,17 @@ public class Project extends AbstractCommandModule {
 
   private final String DEVON4SENCHA = "devon4sencha";
 
+  private final String OASP4J = "oasp4j";
+
   private final String OASP4JS = "oasp4js";
+
+  private final String SENCHA = "sencha";
+
+  private final String CREATE = "create";
+
+  private final String DEPLOY = "deploy";
+
+  private final String WORKSPACE = "workspace";
 
   @Command(name = "create", help = "This command is used to create new combined server & client project")
   @Parameters(values = {
@@ -41,24 +49,40 @@ public class Project extends AbstractCommandModule {
 
     try {
 
-      getOutput().showMessage("Creating server project...");
-      Oasp4j serverManager = new Oasp4j();
-      serverManager.setContextPathInfo(getContextPathInfo());
-      serverManager.setOutput(getOutput());
-      serverManager.create(distributionpath, servername, packagename, groupid, version);
+      Optional<com.devonfw.devcon.common.api.Command> createServer = getCommand(this.OASP4J, this.CREATE);
+
+      if (createServer.isPresent()) {
+        createServer.get().exec(distributionpath, servername, packagename, groupid, version);
+      } else {
+        getOutput().showError("No command create found for oasp4j module.");
+      }
 
       getOutput().showMessage("Creating client project...");
       if (clienttype.equals(this.DEVON4SENCHA)) {
-        Sencha senchaManager = new Sencha();
-        senchaManager.setContextPathInfo(getContextPathInfo());
-        senchaManager.setOutput(getOutput());
-        senchaManager.workspace(this.DEVON4SENCHA, clientpath, gituser, gitpassword, gitdir);
-        senchaManager.create(clientname, clientpath + File.separator + this.DEVON4SENCHA);
+
+        Optional<com.devonfw.devcon.common.api.Command> createSenchaWorkspace = getCommand(this.SENCHA, this.WORKSPACE);
+        if (createSenchaWorkspace.isPresent()) {
+          createSenchaWorkspace.get().exec(this.DEVON4SENCHA, clientpath, gituser, gitpassword, gitdir);
+        } else {
+          getOutput().showError("No command workspace found for sencha module.");
+        }
+
+        Optional<com.devonfw.devcon.common.api.Command> createSenchaApp = getCommand(this.SENCHA, this.CREATE);
+        if (createSenchaApp.isPresent()) {
+          createSenchaApp.get().exec(clientname, clientpath + File.separator + this.DEVON4SENCHA);
+        } else {
+          getOutput().showError("No command create found for sencha module.");
+        }
+
       } else if (clienttype.equals(this.OASP4JS)) {
-        Oasp4js clientManager = new Oasp4js();
-        clientManager.setContextPathInfo(getContextPathInfo());
-        clientManager.setOutput(getOutput());
-        clientManager.create(clientname, clientpath);
+
+        Optional<com.devonfw.devcon.common.api.Command> createOasp4js = getCommand(this.OASP4JS, this.CREATE);
+
+        if (createOasp4js.isPresent()) {
+          createOasp4js.get().exec(clientname, clientpath);
+        } else {
+          getOutput().showError("No command create found for oasp4js module.");
+        }
 
       } else {
         getOutput()
@@ -79,10 +103,12 @@ public class Project extends AbstractCommandModule {
 
     try {
 
-      Oasp4j serverManager = new Oasp4j();
-      serverManager.setContextPathInfo(getContextPathInfo());
-      serverManager.setOutput(getOutput());
-      serverManager.deploy(tomcatpath, distributionpath);
+      Optional<com.devonfw.devcon.common.api.Command> deploy = getCommand(this.OASP4J, this.DEPLOY);
+      if (deploy.isPresent()) {
+        deploy.get().exec(tomcatpath, distributionpath);
+      } else {
+        getOutput().showError("No command deploy found for oasp4j module.");
+      }
 
     } catch (Exception e) {
       getOutput().showError("An error occurred during the execution of project deploy command. " + e.getMessage());
