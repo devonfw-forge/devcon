@@ -71,4 +71,22 @@ public class Project extends AbstractCommandModule {
     }
 
   }
+
+  @Command(name = "deploy", help = "This command is to automate the deploy process of a combined server & client project")
+  @Parameters(values = { @Parameter(name = "tomcatpath", description = "Path to tomcat directory"),
+  @Parameter(name = "distributionpath", description = "path to the Devonfw distribution (currentDir if not given)") })
+  public void deploy(String tomcatpath, String distributionpath) {
+
+    try {
+
+      Oasp4j serverManager = new Oasp4j();
+      serverManager.setContextPathInfo(getContextPathInfo());
+      serverManager.setOutput(getOutput());
+      serverManager.deploy(tomcatpath, distributionpath);
+
+    } catch (Exception e) {
+      getOutput().showError("An error occurred during the execution of project deploy command. " + e.getMessage());
+    }
+
+  }
 }
