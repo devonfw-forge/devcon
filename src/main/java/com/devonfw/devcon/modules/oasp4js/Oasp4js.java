@@ -37,7 +37,7 @@ public class Oasp4js extends AbstractCommandModule {
     try {
 
       Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot();
-      clientpath = clientpath.isEmpty() ? this.contextPathInfo.getPresentWorkingDirectory().toString() : clientpath;
+      clientpath = clientpath.isEmpty() ? this.contextPathInfo.getCurrentWorkingDirectory().toString() : clientpath;
 
       if (distInfo.isPresent()) {
 

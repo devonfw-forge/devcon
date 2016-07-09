@@ -44,7 +44,7 @@ public class Sencha extends AbstractCommandModule {
       try {
 
         if (appDir == null || appDir.isEmpty()) {
-          appDir = getContextPathInfo().getPresentWorkingDirectory().toString();
+          appDir = getContextPathInfo().getCurrentWorkingDirectory().toString();
         }
         ProcessBuilder processBuilder = new ProcessBuilder("sencha", "app", "watch");
         processBuilder.directory(new File(appDir));
@@ -78,7 +78,7 @@ public class Sencha extends AbstractCommandModule {
 
       Path wsPath = null;
       Path projectPath = null;
-      final Path currentDir = getContextPathInfo().getPresentWorkingDirectory();
+      final Path currentDir = getContextPathInfo().getCurrentWorkingDirectory();
       if (workspace == null || workspace.isEmpty()) {
         projectPath = currentDir.resolve(projectname);
       } else {
@@ -156,7 +156,7 @@ public class Sencha extends AbstractCommandModule {
 
     try {
 
-      Path currentDir = getContextPathInfo().getPresentWorkingDirectory();
+      Path currentDir = getContextPathInfo().getCurrentWorkingDirectory();
 
       if (workspacepath == null || workspacepath.isEmpty()) {
         workspacepath = currentDir.toString();

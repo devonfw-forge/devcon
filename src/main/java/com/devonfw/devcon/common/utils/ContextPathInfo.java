@@ -19,6 +19,7 @@ import com.devonfw.devcon.common.api.data.DistributionType;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.exception.InvalidConfigurationStateException;
+import com.devonfw.devcon.common.exception.InvalidEnvironentException;
 import com.devonfw.devcon.common.impl.DistributionInfoImpl;
 import com.devonfw.devcon.common.impl.ProjectInfoImpl;
 import com.devonfw.devcon.common.impl.utils.DistributionFolderProcessor;
@@ -69,10 +70,25 @@ public class ContextPathInfo {
    * @TODO to see whether Commons has a better implementation?
    * @return CWD - Current working directory as a Path instance
    */
-  private Path getCurrentWorkingDirectory() {
+  public Path getCurrentWorkingDirectory() {
 
     File file = new File(".");
     return getPath(file.getAbsolutePath());
+  }
+
+  /**
+   *
+   * @return User´s HOME directory (%USERPROFILE% on Windows)
+   */
+  public Path getHomeDirectory() {
+
+    // ONLY WINDOWS
+    // @TODO port to Linux
+    String userprofile = System.getenv().get("USERPROFILE");
+    if ((userprofile == null) || (userprofile.isEmpty())) {
+      throw new InvalidEnvironentException("%USERPROFILE% environment variable not set");
+    }
+    return getPath(userprofile);
   }
 
   /**
@@ -273,11 +289,4 @@ public class ContextPathInfo {
     return this.getSenchaWorkspaceRoot(getCurrentWorkingDirectory());
   }
 
-  /**
-   * @return CurrentWorkingDirectory
-   */
-  public Path getPresentWorkingDirectory() {
-
-    return getCurrentWorkingDirectory();
-  }
 }
