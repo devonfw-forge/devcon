@@ -1,7 +1,7 @@
 package com.devonfw.devcon.common.api.data;
 
 /**
- * TODO pparrado This type ...
+ * Encapsulated Devcon global command line options (-h, -v)
  *
  * @author pparrado
  */

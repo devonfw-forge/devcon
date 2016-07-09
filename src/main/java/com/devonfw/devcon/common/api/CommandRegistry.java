@@ -5,10 +5,9 @@ import java.util.List;
 import com.google.common.base.Optional;
 
 /**
- * TODO ivanderk This type ...
+ * The central repository where all {@link CommandModule}s with their respective {@link Command}s are loaded and stored
  *
  * @author ivanderk
- * @since 0.0.1
  */
 public interface CommandRegistry {
 

@@ -14,7 +14,7 @@ import com.devonfw.devcon.output.Output;
 import com.google.common.base.Optional;
 
 /**
- * TODO pparrado This type ...
+ * Abstract base class for user defined Commands, facilitating the creation of commands
  *
  * @author pparrado
  */

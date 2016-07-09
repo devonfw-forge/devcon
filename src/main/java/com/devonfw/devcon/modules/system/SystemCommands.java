@@ -26,22 +26,22 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 /**
- * TODO ivanderk This type ...
+ * System-wide commands and those related with Devcon itself
  *
  * @author ivanderk
- * @since 0.0.1
+ *
  */
 
 @CmdModuleRegistry(name = "system", description = "Devcon and system-wide commands") // TODO update for sub-systems?
 public class SystemCommands extends AbstractCommandModule {
 
   /**
-   *
+   * File name of devcon app
    */
   private static final String DEVCON_JAR_FILE = "devcon.jar";
 
   /**
-   *
+   * Directory name for devcon files and settings in users HOME dir
    */
   private static final String DOT_DEVCON_DIR = ".devcon";
 
@@ -50,7 +50,7 @@ public class SystemCommands extends AbstractCommandModule {
    */
 
   @SuppressWarnings("javadoc")
-  @Command(name = "install", help = "Install Devcon on user´s HOME folder or alternative path")
+  @Command(name = "install", description = "Install Devcon on user´s HOME folder or alternative path")
   @Parameters(values = {
   @Parameter(name = "addToPath", description = "Add to %PATH% (by default \"true\")", optional = true) })
   public void install(String addToPath) {
@@ -108,7 +108,7 @@ public class SystemCommands extends AbstractCommandModule {
   }
 
   @SuppressWarnings("javadoc")
-  @Command(name = "update", help = "Update Devcon as installed on user´s system")
+  @Command(name = "update", description = "Update Devcon as installed on user´s system")
   @Parameters(values = {})
   public void update() {
 

@@ -7,6 +7,8 @@ import java.io.StringWriter;
 /**
  * @author Oleg Ryaboy, based on work by Miguel Enriquez Released to the Public Domain patched by ivanderk - surely not
  *         stable nor reliable
+ *
+ *         Simple interface to the REG utility which allows reading/writing of Windows registry keys & values
  */
 public class WindowsReqistry {
   /**

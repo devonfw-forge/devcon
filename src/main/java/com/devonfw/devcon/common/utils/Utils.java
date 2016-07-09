@@ -30,7 +30,7 @@ import org.reflections.util.ClasspathHelper;
 import com.devonfw.devcon.common.api.data.DevconOption;
 
 /**
- * TODO pparrado This type ...
+ * General utilities
  *
  * @author pparrado
  */
@@ -91,49 +91,6 @@ public class Utils {
     return list;
   }
 
-  /*
-   * public String promptForMissingParameter(String missingParameter, Output output) {
-   *
-   * String result = ""; String value = output.promptForArgument(missingParameter); if (!value.isEmpty()) { result =
-   * value; } return result; }
-   */
-
-  /*
-   * public Sentence obtainValueForMissingParameters(Collection<CommandParameter> missingParameters, Sentence sentence,
-   * Output output) throws FileNotFoundException, IOException, ParseException {
-   *
-   * for (CommandParameter parameter : missingParameters) { String value = ""; if (parameter.getParameterType() ==
-   * ParameterType.OptionalFromConfig) { value = getOptionalValueFromFile(parameter.getName()); if (value == "" &&
-   * !sentence.isNoPrompt()) { value = promptForMissingParameter(parameter.getName(), output); } if (value != "")
-   * sentence.addParam(parameter.getName(), value); } else { if (!sentence.isNoPrompt()) { value =
-   * promptForMissingParameter(parameter.getName(), output); sentence.addParam(parameter.getName(), value); } } }
-   *
-   * return sentence; }
-   */
-  /*
-   * public static String getOptionalValueFromFile(String parameterName) throws FileNotFoundException, IOException,
-   * ParseException {
-   *
-   * String paramValue = ""; try { ContextPathInfo contextPathInfo = new ContextPathInfo(); Optional<ProjectInfo> info =
-   * contextPathInfo.getCombinedProjectRoot();
-   *
-   * if (info.isPresent()) { Path jsonPath = info.get().getPath().resolve(DEVON_JSON); JSONParser parser = new
-   * JSONParser(); Object obj = parser.parse(new FileReader(jsonPath.toFile()));
-   *
-   * JSONObject json = (JSONObject) obj; JSONObject optParams = (JSONObject) json.get(OPTIONAL);
-   *
-   * if (optParams != null) { try { paramValue = optParams.get(parameterName).toString(); } catch (Exception e) {
-   *
-   * } }
-   *
-   * } return paramValue;
-   *
-   * } catch (FileNotFoundException e) { // TODO implement logs // System.out.println(
-   * "[LOG] The config file for optional parameters could not be found."); return ""; } catch (Exception e) { // TODO
-   * implement logs System.out.println("[LOG] " + e.getMessage()); return ""; }
-   *
-   * }
-   */
   public static List<DevconOption> getGlobalOptions() {
 
     List<DevconOption> globalOptions = new ArrayList<DevconOption>();
@@ -165,11 +122,9 @@ public class Utils {
     List<DevconOption> defaultGlobalOptions = new ArrayList<DevconOption>();
 
     DevconOption h = new DevconOption("h", "help", "show help info for each module/command");
-    DevconOption np = new DevconOption("np", "noprompt", "the process will not ask for user input");
     DevconOption v = new DevconOption("v", "version", "show devcon version");
 
     defaultGlobalOptions.add(h);
-    defaultGlobalOptions.add(np);
     defaultGlobalOptions.add(v);
 
     return defaultGlobalOptions;
@@ -296,6 +251,7 @@ public class Utils {
 
     // Thread to process error
     new Thread(new Runnable() {
+      @Override
       public void run() {
 
         BufferedReader bre = new BufferedReader(isErrReader);
@@ -311,6 +267,7 @@ public class Utils {
 
     // Thread to process output
     new Thread(new Runnable() {
+      @Override
       public void run() {
 
         BufferedReader bre = new BufferedReader(isOutReader);

@@ -9,10 +9,9 @@ import com.devonfw.devcon.output.Output;
 import com.google.common.base.Optional;
 
 /**
- * TODO ivanderk This type ...
+ * The container of a series of related {@link Command}s
  *
  * @author ivanderk
- * @since 0.0.1
  */
 public interface CommandModule {
 

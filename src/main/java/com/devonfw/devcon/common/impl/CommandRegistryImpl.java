@@ -19,10 +19,9 @@ import com.devonfw.devcon.common.utils.Constants;
 import com.google.common.base.Optional;
 
 /**
- * TODO ivanderk This type ...
+ * Implementation of {@linkplain CommandRegistry}
  *
  * @author ivanderk
- * @since 0.0.1
  */
 public class CommandRegistryImpl implements CommandRegistry {
 

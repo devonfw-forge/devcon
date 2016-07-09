@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * TODO pparrado This type ...
+ * Contains a series of {@link Parameter}s
  *
  * @author pparrado
  */

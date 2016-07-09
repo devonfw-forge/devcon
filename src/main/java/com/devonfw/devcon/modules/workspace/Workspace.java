@@ -12,7 +12,7 @@ import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.google.common.base.Optional;
 
 /**
- * TODO ssarmoka This class contains command to generate a new workspace with default configuration.
+ * This class contains command to generate a new workspace with default configuration.
  *
  * @author ssarmoka
  */
@@ -30,7 +30,7 @@ public class Workspace extends AbstractCommandModule {
    * @param foldername
    * @throws Exception
    */
-  @Command(name = "create", help = "This command is used to create new workspace with all default configuration")
+  @Command(name = "create", description = "This command is used to create new workspace with all default configuration")
   @Parameters(values = { @Parameter(name = "workspace", description = "This is the name of workspace to create"),
   @Parameter(name = "distribution", description = "This is the location of the devon distribution (default: from current dir)", optional = true) })
   public void create(String workspace, String distribution) throws Exception {

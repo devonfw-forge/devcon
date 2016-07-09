@@ -10,7 +10,7 @@ import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.google.common.base.Optional;
 
 /**
- * Module to automate tasks related to the devon projects (server + client)
+ * Module to automate tasks related to devonfw projects (server + client)
  *
  * @author pparrado
  */
@@ -31,7 +31,7 @@ public class Project extends AbstractCommandModule {
 
   private final String WORKSPACE = "workspace";
 
-  @Command(name = "create", help = "This command is used to create new combined server & client project")
+  @Command(name = "create", description = "This command is used to create new combined server & client project")
   @Parameters(values = {
   @Parameter(name = "distributionpath", description = "path to the Devonfw distribution (currentDir if not given)", optional = true),
   @Parameter(name = "servername", description = "name for the server project"),
@@ -95,7 +95,7 @@ public class Project extends AbstractCommandModule {
 
   }
 
-  @Command(name = "deploy", help = "This command is to automate the deploy process of a combined server & client project")
+  @Command(name = "deploy", description = "This command is to automate the deploy process of a combined server & client project")
   @Parameters(values = { @Parameter(name = "tomcatpath", description = "Path to tomcat folder"),
   @Parameter(name = "distributionpath", description = "path to the Devonfw distribution (currentDir if not given)") })
   public void deploy(String tomcatpath, String distributionpath) {

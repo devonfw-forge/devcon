@@ -27,10 +27,9 @@ import com.devonfw.devcon.output.Output;
 import com.google.common.base.Optional;
 
 /**
- * TODO ivanderk This type ...
+ * Implementation of {@link Command}
  *
  * @author ivanderk
- * @since 0.0.1
  */
 public class CommandImpl implements Command {
 

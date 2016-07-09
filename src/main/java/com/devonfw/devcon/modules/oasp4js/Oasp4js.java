@@ -15,7 +15,7 @@ import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.google.common.base.Optional;
 
 /**
- * Module with tasks related to the oasp4js (Angular client)
+ * Module with tasks related to oasp4js (Angular client)
  *
  * @author pparrado
  */
@@ -27,7 +27,7 @@ public class Oasp4js extends AbstractCommandModule {
 
   private static String OASP4JS_BASE = "software\\nodejs\\oasp4js_base";
 
-  @Command(name = "create", help = "This command creates a basic Oasp4js app")
+  @Command(name = "create", description = "This command creates a basic Oasp4js app")
   @Parameters(values = { @Parameter(name = "clientname", description = "The name for the project"),
   @Parameter(name = "clientpath", description = "The location for the new project", optional = true) })
   public void create(String clientname, String clientpath) {
@@ -67,7 +67,7 @@ public class Oasp4js extends AbstractCommandModule {
     }
   }
 
-  @Command(name = "build", help = "This command will build the server project", context = ContextType.PROJECT)
+  @Command(name = "build", description = "This command will build the server project", context = ContextType.PROJECT)
   @Parameters(values = {
   @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
   public void build(String path) {
@@ -100,7 +100,7 @@ public class Oasp4js extends AbstractCommandModule {
     }
   }
 
-  @Command(name = "run", help = "This command runs a debug build of oasp4js")
+  @Command(name = "run", description = "This command runs a debug build of oasp4js")
   @Parameters(values = {
   @Parameter(name = "clientpath", description = "the location of the oasp4js app", optional = true) })
   public void run(String clientpath) {

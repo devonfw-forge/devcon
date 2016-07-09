@@ -29,7 +29,7 @@ public class Github extends AbstractCommandModule {
    * @param gitFolder GIT BIN/CMD folder where git executable is present
    * @throws Exception
    */
-  @Command(name = "oasp4j", help = "This command clones oasp4j repository at given path.")
+  @Command(name = "oasp4j", description = "This command clones oasp4j repository at given path.")
   @Parameters(values = { @Parameter(name = "path", description = "a location for the oasp4j download"),
   @Parameter(name = "gitFolder", description = "GIT BIN/CMD folder where git executable is present", optional = true) })
   public void oasp4j(String path, String gitFolder) throws Exception {
@@ -62,7 +62,7 @@ public class Github extends AbstractCommandModule {
    * @param gitDir
    * @throws Exception
    */
-  @Command(name = "devoncode", help = "This command clones devon repository at given path.", context = ContextType.NONE)
+  @Command(name = "devoncode", description = "This command clones devon repository at given path.", context = ContextType.NONE)
   @Parameters(values = { @Parameter(name = "path", description = "a location for the devon download"),
   @Parameter(name = "username", description = "a user with permissions to download the Devon distribution"),
   @Parameter(name = "password", description = "the password related to the user with permissions to download the Devon distribution"),
