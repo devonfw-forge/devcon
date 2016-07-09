@@ -32,9 +32,9 @@ public class ConsoleOutput implements Output {
   }
 
   @Override
-  public void showMessage(String message) {
+  public void showMessage(String message, String... args) {
 
-    this.out_.println(message);
+    this.out_.println(String.format(message, args));
   }
 
   @Override
@@ -90,21 +90,21 @@ public class ConsoleOutput implements Output {
   }
 
   @Override
-  public void showError(String message) {
+  public void showError(String message, String... args) {
 
-    this.out_.println("[ERROR] " + message);
+    this.out_.println("[ERROR] " + String.format(message, args));
   }
 
   @Override
-  public void status(String message) {
+  public void status(String message, String... args) {
 
-    this.out_.println("\r[INFO] " + message);
+    this.out_.println("\r[INFO] " + String.format(message, args));
   }
 
   @Override
-  public void statusInNewLine(String message) {
+  public void statusInNewLine(String message, String... args) {
 
-    this.out_.println("\n[INFO] " + message);
+    this.out_.println("\n[INFO] " + String.format(message, args));
   }
 
   @Override

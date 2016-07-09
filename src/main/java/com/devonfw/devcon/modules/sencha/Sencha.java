@@ -30,8 +30,8 @@ public class Sencha extends AbstractCommandModule {
   @SuppressWarnings("javadoc")
   @Command(name = "run", help = "compiles in DEBUG mode and then runs the internal Sencha web server (\"app watch\")", context = ContextType.PROJECT)
   @Parameters(values = { @Parameter(name = "port", description = "", optional = true),
-  @Parameter(name = "appDir", description = "app Directory required to run Sencha Commands", optional = false) })
-  public void run(String port, String appDir) throws Exception {
+  @Parameter(name = "appFolder", description = "app folder required to run Sencha Commands", optional = false) })
+  public void run(String port, String appFolder) throws Exception {
 
     // TODO ivanderk Implementatin for MacOSX & Unix
     if (!SystemUtils.IS_OS_WINDOWS) {
@@ -43,11 +43,11 @@ public class Sencha extends AbstractCommandModule {
     if (project.isPresent() && project.get().getProjecType().equals(ProjectType.DEVON4SENCHA)) {
       try {
 
-        if (appDir == null || appDir.isEmpty()) {
-          appDir = getContextPathInfo().getCurrentWorkingDirectory().toString();
+        if (appFolder == null || appFolder.isEmpty()) {
+          appFolder = getContextPathInfo().getCurrentWorkingDirectory().toString();
         }
         ProcessBuilder processBuilder = new ProcessBuilder("sencha", "app", "watch");
-        processBuilder.directory(new File(appDir));
+        processBuilder.directory(new File(appFolder));
 
         processBuilder.start();
         this.output.status("[LOG]" + " Sencha App Watch Started");
@@ -68,8 +68,8 @@ public class Sencha extends AbstractCommandModule {
   @Parameter(name = "workspacepath", description = "Path to Sencha Workspace (currentDir if not given)", optional = true),
   @Parameter(name = "username", description = "a user with permissions to download the Devon distribution"),
   @Parameter(name = "password", description = "the password related to the user with permissions to download the Devon distribution"),
-  @Parameter(name = "gitDir", description = "GIT BIN/CMD directory where git executable is present", optional = true) })
-  public void workspace(String projectname, String workspace, String username, String password, String gitDir)
+  @Parameter(name = "gitFolder", description = "GIT BIN/CMD folder where git executable is present", optional = true) })
+  public void workspace(String projectname, String workspace, String username, String password, String gitFolder)
       throws Exception {
 
     try {
@@ -90,7 +90,7 @@ public class Sencha extends AbstractCommandModule {
         projectPath.toFile().mkdirs();
 
         // create workspace here
-        Utils.cloneRepository(REMOTE_URL, projectPath.toString(), gitDir);
+        Utils.cloneRepository(REMOTE_URL, projectPath.toString(), gitFolder);
         getOutput().showMessage("Having repository: " + projectPath.toString() + Constants.DOT_GIT);
       } else {
         getOutput().showError("Project exists!");

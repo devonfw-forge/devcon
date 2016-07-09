@@ -14,7 +14,9 @@ import com.devonfw.devcon.common.api.data.DevconOption;
  */
 public interface Output {
 
-  void showMessage(String message);
+  void showMessage(String message, String... args);
+
+  void showError(String message, String... args);
 
   void showGeneralHelp(String header, String usage, List<DevconOption> options, List<CommandModuleInfo> modules);
 
@@ -22,11 +24,9 @@ public interface Output {
 
   void showModuleHelp(CommandModuleInfo module);
 
-  void showError(String message);
+  void status(String message, String... args);
 
-  void status(String message);
-
-  void statusInNewLine(String message);
+  void statusInNewLine(String message, String... args);
 
   void success(String command);
 
