@@ -134,7 +134,7 @@ public class SystemCommands extends AbstractCommandModule {
           System.exit(0);
 
         } else {
-          out.showMessage("Version up to date");
+          out.showMessage("Version up to date. No change is needed.");
         }
 
       } catch (UnirestException | JSONException | IOException e) {

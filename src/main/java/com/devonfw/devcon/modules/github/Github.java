@@ -26,13 +26,13 @@ public class Github extends AbstractCommandModule {
    * This command is to clone oasp4j repository.
    *
    * @param path location to download the oasp4j repository.
-   * @param gitDir GIT BIN/CMD directory where git executable is present
+   * @param gitFolder GIT BIN/CMD folder where git executable is present
    * @throws Exception
    */
   @Command(name = "oasp4j", help = "This command clones oasp4j repository at given path.")
   @Parameters(values = { @Parameter(name = "path", description = "a location for the oasp4j download"),
-  @Parameter(name = "gitDir", description = "GIT BIN/CMD directory where git executable is present", optional = true) })
-  public void oasp4j(String path, String gitDir) throws Exception {
+  @Parameter(name = "gitFolder", description = "GIT BIN/CMD folder where git executable is present", optional = true) })
+  public void oasp4j(String path, String gitFolder) throws Exception {
 
     final String REMOTE_URL = Constants.OASP4J_REPO_URL;
     final String CLONED_DIRECTORY = new StringBuffer(path).append(Constants.DOT_GIT).toString();
@@ -44,7 +44,7 @@ public class Github extends AbstractCommandModule {
 
     this.output.status("Cloning from " + REMOTE_URL + " to " + path);
     try {
-      Utils.cloneRepository(REMOTE_URL, path, gitDir);
+      Utils.cloneRepository(REMOTE_URL, path, gitFolder);
       this.output.status("Having repository: " + CLONED_DIRECTORY);
     } catch (Exception e) {
       this.output.status("[LOG]" + e.getMessage());
@@ -66,8 +66,8 @@ public class Github extends AbstractCommandModule {
   @Parameters(values = { @Parameter(name = "path", description = "a location for the devon download"),
   @Parameter(name = "username", description = "a user with permissions to download the Devon distribution"),
   @Parameter(name = "password", description = "the password related to the user with permissions to download the Devon distribution"),
-  @Parameter(name = "gitDir", description = "GIT BIN/CMD directory where git executable is present", optional = true) })
-  public void devoncode(String path, String username, String password, String gitDir) throws Exception {
+  @Parameter(name = "gitFolder", description = "GIT BIN/CMD folder where git executable is present", optional = true) })
+  public void devoncode(String path, String username, String password, String gitFolder) throws Exception {
 
     final String CLONED_DIRECTORY = new StringBuffer(path).append(Constants.DOT_GIT).toString();
     final String REMOTE_URL = new StringBuffer(Constants.HTTPS).append(username).append(Constants.COLON)
@@ -81,7 +81,7 @@ public class Github extends AbstractCommandModule {
     this.output.status("Cloning from " + REMOTE_URL + " to " + path);
 
     try {
-      Utils.cloneRepository(REMOTE_URL, path, gitDir);
+      Utils.cloneRepository(REMOTE_URL, path, gitFolder);
       this.output.status("Having repository: " + CLONED_DIRECTORY);
     } catch (Exception e) {
       this.output.status("[LOG]" + e.getMessage());

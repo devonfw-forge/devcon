@@ -139,7 +139,7 @@ public class Oasp4j extends AbstractCommandModule {
   }
 
   @Command(name = "deploy", help = "This command will deploy the server project on tomcat", context = ContextType.PROJECT)
-  @Parameters(values = { @Parameter(name = "deploypath", description = "Path to tomcat directory"),
+  @Parameters(values = { @Parameter(name = "deploypath", description = "Path to tomcat folder"),
   @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
   public void deploy(String deploypath, String path) {
 

@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -19,7 +20,6 @@ import com.devonfw.devcon.common.api.data.DistributionType;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.exception.InvalidConfigurationStateException;
-import com.devonfw.devcon.common.exception.InvalidEnvironentException;
 import com.devonfw.devcon.common.impl.DistributionInfoImpl;
 import com.devonfw.devcon.common.impl.ProjectInfoImpl;
 import com.devonfw.devcon.common.impl.utils.DistributionFolderProcessor;
@@ -78,17 +78,12 @@ public class ContextPathInfo {
 
   /**
    *
-   * @return User´s HOME directory (%USERPROFILE% on Windows)
+   * @return User´s HOME directory
    */
   public Path getHomeDirectory() {
 
-    // ONLY WINDOWS
-    // @TODO port to Linux
-    String userprofile = System.getenv().get("USERPROFILE");
-    if ((userprofile == null) || (userprofile.isEmpty())) {
-      throw new InvalidEnvironentException("%USERPROFILE% environment variable not set");
-    }
-    return getPath(userprofile);
+    return getPath(FileUtils.getUserDirectoryPath());
+
   }
 
   /**

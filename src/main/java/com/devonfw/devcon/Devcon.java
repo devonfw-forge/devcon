@@ -17,7 +17,7 @@ import com.github.zafarkhaja.semver.Version;
  */
 public class Devcon {
 
-  public static final String VERSION = "0.9.0";
+  public static final String VERSION = "0.9.9";
 
   public static final String VERSION_URL = "http://localhost:3000/version";
 

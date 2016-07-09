@@ -111,15 +111,4 @@ public class WindowsReqistry {
       return this.sw.toString();
     }
   }
-
-  public static void main(String[] args) {
-
-    // Sample usage
-    // String value = WindowsReqistry
-    // .readRegistry("HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\" + "Explorer\\Shell Folders", "Personal");
-
-    String value = WindowsReqistry.readRegistry("HKCU\\Environment", "Path");
-
-    System.out.println(value);
-  }
 }
