@@ -8,6 +8,7 @@ import com.devonfw.devcon.input.ConsoleInputManager;
 import com.devonfw.devcon.input.Input;
 import com.devonfw.devcon.output.ConsoleOutput;
 import com.devonfw.devcon.output.Output;
+import com.github.zafarkhaja.semver.Version;
 
 /**
  * Main class of DevCon
@@ -16,9 +17,13 @@ import com.devonfw.devcon.output.Output;
  */
 public class Devcon {
 
-  public static String VERSION = "0.1.0";
+  public static final String VERSION = "0.9.9";
 
-  public static String DEVCON_VERSION = "devcon v." + VERSION;
+  public static final String VERSION_URL = "http://localhost:3000/version";
+
+  public static final Version VERSION_ = Version.valueOf(VERSION);
+
+  public static final String DEVCON_VERSION = "devcon v." + VERSION;
 
   public static final String DEVCON_BANNER = "Hello, this is Devcon!\n" + "Copyright (c) 2016 Capgemini";
 

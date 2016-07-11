@@ -9,6 +9,7 @@ import com.devonfw.devcon.common.api.utils.FolderProcessor;
  * Root node. Instead of a recursive downward "walker", this implementation climbed vertically without traversing
  * siblings.
  *
+ * @author ivanderk
  */
 public class TreeClimber {
 

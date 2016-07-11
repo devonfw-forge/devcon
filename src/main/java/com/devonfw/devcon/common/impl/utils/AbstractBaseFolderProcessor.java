@@ -5,10 +5,9 @@ import java.nio.file.Path;
 import com.devonfw.devcon.common.api.utils.FolderProcessor;
 
 /**
- * TODO ivanderk This type ...
+ * Abstract base class for differnt FolderProcessors
  *
  * @author ivanderk
- * @since 0.0.1
  */
 public abstract class AbstractBaseFolderProcessor implements FolderProcessor {
 

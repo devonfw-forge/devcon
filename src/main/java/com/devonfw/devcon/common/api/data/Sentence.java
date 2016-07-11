@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
- * TODO pparrado This type ...
+ * Represents the command line parameters as provided by the user when executing a command
  *
  * @author pparrado
  */

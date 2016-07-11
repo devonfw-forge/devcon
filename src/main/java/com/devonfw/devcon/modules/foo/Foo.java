@@ -11,7 +11,7 @@ import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.google.common.base.Optional;
 
 /**
- * Implementation of test class Foo Hidden from console with Annotation parameter hidden=true
+ * Implementation of test class Foo, Hidden from console with Annotation parameter hidden=true
  *
  * @author pparrado
  */
@@ -27,21 +27,21 @@ public class Foo extends AbstractCommandModule {
     super();
   }
 
-  @Command(name = "greeting", help = "This command is used to say hello.")
+  @Command(name = "greeting", description = "This command is used to say hello.")
   @SuppressWarnings("javadoc")
   public void greetingMethod() {
 
     this.output.showMessage("Hello");
   }
 
-  @Command(name = "farewell", help = "This command is used to say bye.")
+  @Command(name = "farewell", description = "This command is used to say bye.")
   @SuppressWarnings("javadoc")
   public void farewell() {
 
     this.output.showMessage("Bye");
   }
 
-  @Command(name = "customFarewell", help = "This command is used to say a custom farewell")
+  @Command(name = "customFarewell", description = "This command is used to say a custom farewell")
   @Parameters(values = { @Parameter(name = "name", description = "this is the description for name parameter") })
   @SuppressWarnings("javadoc")
   public void customFarewell(String name) {
@@ -49,7 +49,7 @@ public class Foo extends AbstractCommandModule {
     this.output.showMessage("Bye " + name);
   }
 
-  @Command(name = "largeCustomFarewell", help = "This command is used to say a large custom bye")
+  @Command(name = "largeCustomFarewell", description = "This command is used to say a large custom bye")
   @Parameters(values = { @Parameter(name = "name", description = "this is the name parameter"),
   @Parameter(name = "surname", description = "this is the description for the surname parameter") })
   @SuppressWarnings("javadoc")
@@ -58,7 +58,7 @@ public class Foo extends AbstractCommandModule {
     this.output.showMessage("Bye " + name + " " + surname);
   }
 
-  @Command(name = "saySomething", help = "This command is for say something", context = ContextType.PROJECT)
+  @Command(name = "saySomething", description = "This command is for say something", context = ContextType.PROJECT)
   @Parameters(values = { @Parameter(name = "message", description = "the message to be written"),
   @Parameter(name = "signature", description = "the signature", optional = true) })
   @SuppressWarnings("javadoc")
@@ -67,7 +67,7 @@ public class Foo extends AbstractCommandModule {
     this.output.showMessage(message + "\n" + signature + "\n" + this.projectInfo.get().getPath().toString());
   }
 
-  @Command(name = "multipleWords", help = "This command is to say multiple words", context = ContextType.PROJECT)
+  @Command(name = "multipleWords", description = "This command is to say multiple words", context = ContextType.PROJECT)
   @Parameters(values = { @Parameter(name = "first", description = "the first word", optional = true),
   @Parameter(name = "second", description = "the second word", optional = true),
   @Parameter(name = "third", description = "the third word", optional = true),
@@ -83,7 +83,7 @@ public class Foo extends AbstractCommandModule {
 
   }
 
-  @Command(name = "multipleWordsNoContext", help = "This command is to say multiple words (without context)")
+  @Command(name = "multipleWordsNoContext", description = "This command is to say multiple words (without context)")
   @Parameters(values = { @Parameter(name = "first", description = "the first word", optional = true),
   @Parameter(name = "second", description = "the second word", optional = true),
   @Parameter(name = "third", description = "the third word", optional = true),
@@ -95,7 +95,7 @@ public class Foo extends AbstractCommandModule {
 
   }
 
-  @Command(name = "delegateCommand", help = "This command is to delegate to another")
+  @Command(name = "delegateCommand", description = "This command is to delegate to another")
   @Parameters(values = { @Parameter(name = "first", description = "the first word", optional = true),
   @Parameter(name = "second", description = "the second word", optional = true),
   @Parameter(name = "third", description = "the third word", optional = true),

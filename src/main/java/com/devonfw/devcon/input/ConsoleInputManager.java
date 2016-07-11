@@ -17,7 +17,7 @@ import com.devonfw.devcon.common.api.data.Sentence;
 import com.devonfw.devcon.common.utils.Utils;
 
 /**
- * TODO pparrado This type ...
+ * Component responsible for parsing and processing console input
  *
  * @author pparrado
  */

@@ -27,7 +27,7 @@ public @interface Command {
    *
    * @return help info
    */
-  String help() default "";
+  String description() default "";
 
   /**
    * Help info associated to the command

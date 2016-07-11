@@ -14,7 +14,7 @@ import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Info;
 
 /**
- * TODO pparrado This type ...
+ * Implementation of {@link Output} based on the Console
  *
  * @author pparrado
  */
@@ -32,9 +32,9 @@ public class ConsoleOutput implements Output {
   }
 
   @Override
-  public void showMessage(String message) {
+  public void showMessage(String message, String... args) {
 
-    this.out_.println(message);
+    this.out_.println(String.format(message, args));
   }
 
   @Override
@@ -47,8 +47,8 @@ public class ConsoleOutput implements Output {
 
     HelpFormatter formatter = new HelpFormatter();
 
-    formatter.printHelp(new PrintWriter(this.out_, true), 120, command.getName(), command.getDescription(), options, 0,
-        0, null, true);
+    formatter.printHelp(new PrintWriter(this.out_, true), 120, command.getName(), command.getDescription(), options, 1,
+        2, null, true);
   }
 
   @Override
@@ -64,7 +64,7 @@ public class ConsoleOutput implements Output {
     String usage = module.getName() + " <<command>> [parameters...]";
     HelpFormatter formatter = new HelpFormatter();
 
-    formatter.printHelp(new PrintWriter(this.out_, true), 120, usage, module.getDescription(), options, 0, 0,
+    formatter.printHelp(new PrintWriter(this.out_, true), 120, usage, module.getDescription(), options, 1, 2,
         footer.toString(), true);
   }
 
@@ -86,25 +86,25 @@ public class ConsoleOutput implements Output {
     }
 
     HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp(new PrintWriter(this.out_, true), 120, usage, header, options_, 0, 0, footer.toString(), true);
+    formatter.printHelp(new PrintWriter(this.out_, true), 120, usage, header, options_, 1, 2, footer.toString(), true);
   }
 
   @Override
-  public void showError(String message) {
+  public void showError(String message, String... args) {
 
-    this.out_.println("[ERROR] " + message);
+    this.out_.println("[ERROR] " + String.format(message, args));
   }
 
   @Override
-  public void status(String message) {
+  public void status(String message, String... args) {
 
-    this.out_.println("\r[INFO] " + message);
+    this.out_.println("\r[INFO] " + String.format(message, args));
   }
 
   @Override
-  public void statusInNewLine(String message) {
+  public void statusInNewLine(String message, String... args) {
 
-    this.out_.println("\n[INFO] " + message);
+    this.out_.println("\n[INFO] " + String.format(message, args));
   }
 
   @Override

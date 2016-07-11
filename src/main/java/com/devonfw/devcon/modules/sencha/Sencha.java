@@ -21,17 +21,18 @@ import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
 
 /**
+ * Module to automate tasks related to devon4sencha projects (Ext JS)
  *
  * @author ivanderk
  */
-@CmdModuleRegistry(name = "sencha", description = "Sencha related commands")
+@CmdModuleRegistry(name = "sencha", description = "Commands related with Ext JS6/Devon4Sencha projects")
 public class Sencha extends AbstractCommandModule {
 
   @SuppressWarnings("javadoc")
-  @Command(name = "run", help = "compiles in DEBUG mode and then runs the internal Sencha web server (\"app watch\")", context = ContextType.PROJECT)
+  @Command(name = "run", description = "compiles in DEBUG mode and then runs the internal Sencha web server (\"app watch\")", context = ContextType.PROJECT)
   @Parameters(values = { @Parameter(name = "port", description = "", optional = true),
-  @Parameter(name = "appDir", description = "app Directory required to run Sencha Commands", optional = false) })
-  public void run(String port, String appDir) throws Exception {
+  @Parameter(name = "appFolder", description = "app folder required to run Sencha Commands", optional = false) })
+  public void run(String port, String appFolder) throws Exception {
 
     // TODO ivanderk Implementatin for MacOSX & Unix
     if (!SystemUtils.IS_OS_WINDOWS) {
@@ -39,15 +40,15 @@ public class Sencha extends AbstractCommandModule {
       return;
     }
 
-    Optional<ProjectInfo> project = getContextPathInfo().getProjectRoot(appDir);
+    Optional<ProjectInfo> project = getContextPathInfo().getProjectRoot(appFolder);
     if (project.isPresent() && project.get().getProjecType().equals(ProjectType.DEVON4SENCHA)) {
       try {
 
-        if (appDir == null || appDir.isEmpty()) {
-          appDir = getContextPathInfo().getPresentWorkingDirectory().toString();
+        if (appFolder == null || appFolder.isEmpty()) {
+          appFolder = getContextPathInfo().getCurrentWorkingDirectory().toString();
         }
         ProcessBuilder processBuilder = new ProcessBuilder("sencha", "app", "watch");
-        processBuilder.directory(new File(appDir));
+        processBuilder.directory(new File(appFolder));
 
         processBuilder.start();
         this.output.status("[LOG]" + " Sencha App Watch Started");
@@ -63,13 +64,13 @@ public class Sencha extends AbstractCommandModule {
   }
 
   @SuppressWarnings("javadoc")
-  @Command(name = "workspace", help = "Creates a new Sencha Ext JS6 project in a workspace")
+  @Command(name = "workspace", description = "Creates a new Sencha Ext JS6 project in a workspace")
   @Parameters(values = { @Parameter(name = "projectname", description = "Name of project"),
   @Parameter(name = "workspacepath", description = "Path to Sencha Workspace (currentDir if not given)", optional = true),
   @Parameter(name = "username", description = "a user with permissions to download the Devon distribution"),
   @Parameter(name = "password", description = "the password related to the user with permissions to download the Devon distribution"),
-  @Parameter(name = "gitDir", description = "GIT BIN/CMD directory where git executable is present", optional = true) })
-  public void workspace(String projectname, String workspace, String username, String password, String gitDir)
+  @Parameter(name = "gitFolder", description = "GIT BIN/CMD folder where git executable is present", optional = true) })
+  public void workspace(String projectname, String workspace, String username, String password, String gitFolder)
       throws Exception {
 
     try {
@@ -78,7 +79,7 @@ public class Sencha extends AbstractCommandModule {
 
       Path wsPath = null;
       Path projectPath = null;
-      final Path currentDir = getContextPathInfo().getPresentWorkingDirectory();
+      final Path currentDir = getContextPathInfo().getCurrentWorkingDirectory();
       if (workspace == null || workspace.isEmpty()) {
         projectPath = currentDir.resolve(projectname);
       } else {
@@ -90,7 +91,7 @@ public class Sencha extends AbstractCommandModule {
         projectPath.toFile().mkdirs();
 
         // create workspace here
-        Utils.cloneRepository(REMOTE_URL, projectPath.toString(), gitDir);
+        Utils.cloneRepository(REMOTE_URL, projectPath.toString(), gitFolder);
         getOutput().showMessage("Having repository: " + projectPath.toString() + Constants.DOT_GIT);
       } else {
         getOutput().showError("Project exists!");
@@ -105,7 +106,7 @@ public class Sencha extends AbstractCommandModule {
    * @param appDir Location of Sencha Ext JS6 Application
    * @throws Exception Exception thrown by the Sencha build command
    */
-  @Command(name = "build", help = "Builds a Sencha Ext JS6 project in a workspace", context = ContextType.PROJECT)
+  @Command(name = "build", description = "Builds a Sencha Ext JS6 project in a workspace", context = ContextType.PROJECT)
   @Parameters(values = {
   @Parameter(name = "appDir", description = "Path to Sencha Ext JS6 Application (currentDir if not given)", optional = true), })
   public void build(String appDir) throws Exception {
@@ -149,14 +150,14 @@ public class Sencha extends AbstractCommandModule {
    * @param workspacepath Path to Sencha Workspace (currentDir if not given)
    * @throws Exception Exception thrown by Sencha generate app Command
    */
-  @Command(name = "create", help = "Creates a new Sencha Ext JS6 app", context = ContextType.PROJECT)
+  @Command(name = "create", description = "Creates a new Sencha Ext JS6 app", context = ContextType.PROJECT)
   @Parameters(values = { @Parameter(name = "appname", description = "Name of Sencha Ext JS6 app"),
   @Parameter(name = "workspacepath", description = "Path to Sencha Workspace (currentDir if not given)", optional = true), })
   public void create(String appname, String workspacepath) throws Exception {
 
     try {
 
-      Path currentDir = getContextPathInfo().getPresentWorkingDirectory();
+      Path currentDir = getContextPathInfo().getCurrentWorkingDirectory();
 
       if (workspacepath == null || workspacepath.isEmpty()) {
         workspacepath = currentDir.toString();

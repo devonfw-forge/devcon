@@ -6,10 +6,10 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 /**
- * TODO ivanderk This type ...
+ * Implementqtion of {@link Input} based on the Command line/Console
  *
  * @author ivanderk
- * @since 0.0.1
+ *
  */
 public class ConsoleInput implements Input {
 

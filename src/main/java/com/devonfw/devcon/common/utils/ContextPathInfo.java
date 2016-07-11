@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -69,10 +70,20 @@ public class ContextPathInfo {
    * @TODO to see whether Commons has a better implementation?
    * @return CWD - Current working directory as a Path instance
    */
-  private Path getCurrentWorkingDirectory() {
+  public Path getCurrentWorkingDirectory() {
 
     File file = new File(".");
     return getPath(file.getAbsolutePath());
+  }
+
+  /**
+   *
+   * @return User´s HOME directory
+   */
+  public Path getHomeDirectory() {
+
+    return getPath(FileUtils.getUserDirectoryPath());
+
   }
 
   /**
@@ -273,11 +284,4 @@ public class ContextPathInfo {
     return this.getSenchaWorkspaceRoot(getCurrentWorkingDirectory());
   }
 
-  /**
-   * @return CurrentWorkingDirectory
-   */
-  public Path getPresentWorkingDirectory() {
-
-    return getCurrentWorkingDirectory();
-  }
 }

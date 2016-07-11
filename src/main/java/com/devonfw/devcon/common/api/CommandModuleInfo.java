@@ -6,7 +6,7 @@ import com.devonfw.devcon.common.api.data.Info;
 import com.google.common.base.Optional;
 
 /**
- * TODO pparrado This type ...
+ * Contains information about a {@link CommandModule}
  *
  * @author pparrado
  */

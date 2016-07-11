@@ -2,6 +2,10 @@ package com.devonfw.devcon.module;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,12 +73,12 @@ public class Oasp4jsTest {
   @After
   public void end() {
 
-    // try {
-    // FileUtils.forceDeleteOnExit(new File(this.clientPath));
-    // System.out.println("Deleted " + this.clientPath + " test file.");
-    // } catch (IOException e) {
-    // e.printStackTrace();
-    // }
+    try {
+      FileUtils.forceDeleteOnExit(new File(this.clientPath));
+      System.out.println("Deleted " + this.clientPath + " test file.");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
 }

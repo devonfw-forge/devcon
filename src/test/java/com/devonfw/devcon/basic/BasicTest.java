@@ -130,7 +130,7 @@ public class BasicTest {
         Annotation methodAnnotation = method.getAnnotation(com.devonfw.devcon.common.api.annotations.Command.class);
         com.devonfw.devcon.common.api.annotations.Command com =
             (com.devonfw.devcon.common.api.annotations.Command) methodAnnotation;
-        if (!com.help().isEmpty())
+        if (!com.description().isEmpty())
           result = true;
       }
     }
