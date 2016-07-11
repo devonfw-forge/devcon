@@ -36,16 +36,16 @@ public class Project extends AbstractCommandModule {
 
   @Command(name = "build", description = "This command will build the server & client project(unified server and client build)", context = ContextType.COMBINEDPROJECT)
   @Parameters(values = {
-  @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true),
+  @Parameter(name = "serverpath", description = "Path to Server project Workspace (currentDir if not given)", optional = true),
   @Parameter(name = "clienttype", description = "This parameter shows which type of client is integrated with server i.e oasp4js or sencha", optional = false),
   @Parameter(name = "clientpath", description = "path to client directory", optional = false) })
-  public void build(String path, String clienttype, String clientpath) {
+  public void build(String serverpath, String clienttype, String clientpath) {
 
-    Optional<ProjectInfo> projectInfo = getContextPathInfo().getProjectRoot(path);
-    System.out.println("projectInfo read...");
-    System.out.println("path " + projectInfo.get().getPath() + "project type " + projectInfo.get().getProjecType());
+    Optional<ProjectInfo> projectInfo = getContextPathInfo().getProjectRoot(serverpath);
 
     try {
+      Optional<com.devonfw.devcon.common.api.Command> oasp4j = getCommand("oasp4j", "build");
+      oasp4j.get().exec(serverpath);
       switch (clienttype == null ? "" : clienttype) {
       case "oasp4js":
         Optional<com.devonfw.devcon.common.api.Command> oasp4js_cmd = getCommand("oasp4js", "build");
