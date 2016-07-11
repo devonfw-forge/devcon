@@ -11,10 +11,10 @@ import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.output.Output;
 
 /**
- * TODO ivanderk This type ...
+ * The Command Manager is the central orchestrating unit within Devcon. It is responsible for loading and executing
+ * {@link CommandModule}s and {@link Command}s
  *
  * @author ivanderk
- * @since 0.0.1
  */
 public interface CommandManager {
 

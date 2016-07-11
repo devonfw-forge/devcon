@@ -1,7 +1,7 @@
 package com.devonfw.devcon.common.api.annotations;
 
 /**
- * TODO pparrado This type ...
+ * This annotation declares a parameter of a {@link Command}
  *
  * @author pparrado
  */

@@ -17,10 +17,9 @@ import com.devonfw.devcon.output.Output;
 import com.google.common.base.Optional;
 
 /**
- * TODO ivanderk This type ...
+ * Represents a Devcon Command as contained and defined in a {@link CommandModule}. A Command is the actual work unit
  *
  * @author ivanderk
- * @since 0.0.1
  */
 public interface Command extends Info {
 

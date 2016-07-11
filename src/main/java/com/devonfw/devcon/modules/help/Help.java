@@ -18,7 +18,7 @@ import com.google.common.base.Optional;
 public class Help extends AbstractCommandModule {
 
   @SuppressWarnings("javadoc")
-  @Command(name = "guide", help = "This command is used to show a general vision about the basic usage of devcon.")
+  @Command(name = "guide", description = "This command is used to show a general vision about the basic usage of devcon.")
   public void guide() {
 
     // StringBuilder body = new StringBuilder();
@@ -30,7 +30,7 @@ public class Help extends AbstractCommandModule {
   }
 
   @SuppressWarnings("javadoc")
-  @Command(name = "module", help = "Shows commands available in a module")
+  @Command(name = "module", description = "Shows commands available in a module")
   @Parameters(values = { @Parameter(name = "name", description = "the module name to get help for") })
   public void module(String name) {
 
@@ -45,7 +45,7 @@ public class Help extends AbstractCommandModule {
   }
 
   @SuppressWarnings("javadoc")
-  @Command(name = "command", help = "Shows commands available in a module")
+  @Command(name = "command", description = "Shows commands available in a module")
   @Parameters(values = { @Parameter(name = "module", description = "the module to look up the coomand"),
   @Parameter(name = "command", description = "the comand name to get help for") })
   public void module(String moduleName, String commandName) {

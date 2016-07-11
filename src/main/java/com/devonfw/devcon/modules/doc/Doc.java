@@ -6,7 +6,7 @@ import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Utils;
 
 /**
- * TODO ivanderk This type ...
+ * Documentation related commands
  *
  * @author ivanderk
  */
@@ -39,39 +39,39 @@ public class Doc extends AbstractCommandModule {
    * This command shows the main devon web site
    *
    */
-  @Command(name = "devon", help = "Opens the Devon site in the default web browser")
+  @Command(name = "devon", description = "Opens the Devon site in the default web browser")
   public void devon() {
 
     openUrl(DEVON_TROOM_SITE);
   }
 
   @SuppressWarnings("javadoc")
-  @Command(name = "devonguide", help = "Opens the Devon Guide")
+  @Command(name = "devonguide", description = "Opens the Devon Guide")
   public void devonguide() {
 
     openUrl(DEVON_GUIDE);
   }
 
   @SuppressWarnings("javadoc")
-  @Command(name = "oasp4jguide", help = "Opens the OASP4J Guide")
+  @Command(name = "oasp4jguide", description = "Opens the OASP4J Guide")
   public void oasp4jguide() {
 
     openUrl(OASP4J_GUIDE);
   }
 
-  @Command(name = "getstarted", help = "Opens the \"Getting Started\" web site")
+  @Command(name = "getstarted", description = "Opens the \"Getting Started\" web site")
   public void getstarted() {
 
     openUrl(DEVON_GET_STARTED);
   }
 
-  @Command(name = "sencha", help = "Show Sencha Ext JS 6 documentation site")
+  @Command(name = "sencha", description = "Show Sencha Ext JS 6 documentation site")
   public void sencha() {
 
     openUrl(SENCHA_EXTJS_DOCS);
   }
 
-  @Command(name = "links", help = "Print Devonfw \"business card\" with info & links to the console")
+  @Command(name = "links", description = "Print Devonfw \"business card\" with info & links to the console")
   public void links() {
 
     String blurb = "devonfw is the CSD standard platform for Capgemini APPS2. It provides a\n"

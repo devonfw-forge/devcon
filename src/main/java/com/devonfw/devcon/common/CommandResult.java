@@ -1,10 +1,10 @@
 package com.devonfw.devcon.common;
 
 /**
- * TODO ivanderk This type ...
+ * Possible restult states of executed Commands
  *
  * @author ivanderk
- * @since 0.0.1
+ *
  */
 public enum CommandResult {
 

@@ -16,7 +16,7 @@ import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.google.common.base.Optional;
 
 /**
- * TODO ssarmoka This type ...
+ * This class implements a Command Module with Oasp4j(server project) related commands
  *
  * @author ssarmoka
  */
@@ -36,7 +36,7 @@ public class Oasp4j extends AbstractCommandModule {
     super();
   }
 
-  @Command(name = "create", help = "This command is used to create new server project")
+  @Command(name = "create", description = "This command is used to create new server project")
   @Parameters(values = {
   @Parameter(name = "serverpath", description = "Path to Server project Workspace (currentDir if not given)", optional = true),
   @Parameter(name = "servername", description = "Name of project"),
@@ -95,7 +95,7 @@ public class Oasp4j extends AbstractCommandModule {
 
   }
 
-  @Command(name = "run", help = "runs application from embedded tomcat", context = ContextType.PROJECT)
+  @Command(name = "run", description = "runs application from embedded tomcat", context = ContextType.PROJECT)
   @Parameters(values = { @Parameter(name = "port", description = "Port to start Spring boot app", optional = false),
   @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
   public void run(String port, String path) {
@@ -116,7 +116,7 @@ public class Oasp4j extends AbstractCommandModule {
     }
   }
 
-  @Command(name = "build", help = "This command will build the server project", context = ContextType.PROJECT)
+  @Command(name = "build", description = "This command will build the server project", context = ContextType.PROJECT)
   @Parameters(values = {
   @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
   public void build(String path) {
@@ -138,8 +138,8 @@ public class Oasp4j extends AbstractCommandModule {
     }
   }
 
-  @Command(name = "deploy", help = "This command will deploy the server project on tomcat", context = ContextType.PROJECT)
-  @Parameters(values = { @Parameter(name = "deploypath", description = "Path to tomcat directory"),
+  @Command(name = "deploy", description = "This command will deploy the server project on tomcat", context = ContextType.PROJECT)
+  @Parameters(values = { @Parameter(name = "deploypath", description = "Path to tomcat folder"),
   @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
   public void deploy(String deploypath, String path) {
 

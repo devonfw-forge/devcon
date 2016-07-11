@@ -1,10 +1,9 @@
 package com.devonfw.devcon.input;
 
 /**
- * TODO ivanderk This type ...
+ * This defines the component which is responsible for all user input to the application
  *
  * @author ivanderk
- * @since 0.0.1
  */
 public interface Input {
 

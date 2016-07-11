@@ -25,7 +25,7 @@ import com.devonfw.devcon.output.Output;
 import com.google.common.base.Optional;
 
 /**
- * Implementation of the Command Manager
+ * Implementation of {@link CommandManager}
  *
  * @author pparrado
  */
@@ -115,8 +115,11 @@ public class CommandManagerImpl implements CommandManager {
 
       CommandModuleInfo mod = module.get();
       // If no command given or helpRequested flag is 'true' the app shows the help info and ends
-      if (sentence.getCommandName() == null || sentence.isHelpRequested()) {
+      if (sentence.getCommandName() == null) {
 
+        if (!sentence.isHelpRequested()) {
+          this.output.showError("No command given");
+        }
         this.output.showModuleHelp(mod);
         return Pair.of(CommandResult.HELP_SHOWN, (Object) ("module: " + mod));
 

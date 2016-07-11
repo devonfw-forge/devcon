@@ -10,7 +10,7 @@ import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.google.common.base.Optional;
 
 /**
- * Module to automate tasks related to the devon projects (server + client)
+ * Module to automate tasks related to devonfw projects (server + client)
  *
  * @author pparrado
  */
@@ -31,7 +31,7 @@ public class Project extends AbstractCommandModule {
 
   private final String WORKSPACE = "workspace";
 
-  @Command(name = "create", help = "This command is used to create new combined server & client project")
+  @Command(name = "create", description = "This command is used to create new combined server & client project")
   @Parameters(values = {
   @Parameter(name = "distributionpath", description = "path to the Devonfw distribution (currentDir if not given)", optional = true),
   @Parameter(name = "servername", description = "name for the server project"),
@@ -43,9 +43,9 @@ public class Project extends AbstractCommandModule {
   @Parameter(name = "clientpath", description = "path where the client project will be created. In case of sencha project this must point to a Sencha workspace.", optional = true),
   @Parameter(name = "gituser", description = "Only for client type 'devon4sencha': a user with permissions to download the Devon distribution.", optional = true),
   @Parameter(name = "gitpassword", description = "Only for client type 'devon4sencha': the password related to the user with permissions to download the Devon distribution", optional = true),
-  @Parameter(name = "gitdir", description = "Only for client type 'devon4sencha': GIT BIN/CMD directory where git executable is present", optional = true) })
+  @Parameter(name = "gitfolder", description = "Only for client type 'devon4sencha': GIT BIN/CMD folder where git executable is present", optional = true) })
   public void create(String distributionpath, String servername, String packagename, String groupid, String version,
-      String clienttype, String clientname, String clientpath, String gituser, String gitpassword, String gitdir) {
+      String clienttype, String clientname, String clientpath, String gituser, String gitpassword, String gitfolder) {
 
     try {
 
@@ -62,7 +62,7 @@ public class Project extends AbstractCommandModule {
 
         Optional<com.devonfw.devcon.common.api.Command> createSenchaWorkspace = getCommand(this.SENCHA, this.WORKSPACE);
         if (createSenchaWorkspace.isPresent()) {
-          createSenchaWorkspace.get().exec(this.DEVON4SENCHA, clientpath, gituser, gitpassword, gitdir);
+          createSenchaWorkspace.get().exec(this.DEVON4SENCHA, clientpath, gituser, gitpassword, gitfolder);
         } else {
           getOutput().showError("No command workspace found for sencha module.");
         }
@@ -85,9 +85,8 @@ public class Project extends AbstractCommandModule {
         }
 
       } else {
-        getOutput()
-            .showError(
-                "The parameter value for 'clienttype' is not valid. The options for this parameter are: 'devon4sencha' and 'oasp4js'.");
+        getOutput().showError(
+            "The parameter value for 'clienttype' is not valid. The options for this parameter are: 'devon4sencha' and 'oasp4js'.");
       }
 
     } catch (Exception e) {
@@ -96,8 +95,8 @@ public class Project extends AbstractCommandModule {
 
   }
 
-  @Command(name = "deploy", help = "This command is to automate the deploy process of a combined server & client project")
-  @Parameters(values = { @Parameter(name = "tomcatpath", description = "Path to tomcat directory"),
+  @Command(name = "deploy", description = "This command is to automate the deploy process of a combined server & client project")
+  @Parameters(values = { @Parameter(name = "tomcatpath", description = "Path to tomcat folder"),
   @Parameter(name = "distributionpath", description = "path to the Devonfw distribution (currentDir if not given)") })
   public void deploy(String tomcatpath, String distributionpath) {
 

@@ -30,7 +30,7 @@ public class Dist extends AbstractCommandModule {
    * @param password the password related to the user with permissions to download the Devon distribution
    * @throws Exception
    */
-  @Command(name = "install", help = "This command downloads the distribution")
+  @Command(name = "install", description = "This command downloads the distribution")
   @Parameters(values = { @Parameter(name = "path", description = "a location for the Devon distribution download"),
   @Parameter(name = "type", description = "the type of the distribution, the options are: \n 'oaspide' to download OASP IDE\n 'devondist' to download Devon IP IDE"),
   @Parameter(name = "user", description = "a user with permissions to download the Devon distribution"),
@@ -78,7 +78,7 @@ public class Dist extends AbstractCommandModule {
    * @param svnuser the user with permissions in the svn repository
    * @param svnpass the password of the user with permissions in the svn repository
    */
-  @Command(name = "s2", help = "Initializes a Devon distribution for use with Shared Services.")
+  @Command(name = "s2", description = "Initializes a Devon distribution for use with Shared Services.")
   @Parameters(values = { @Parameter(name = "projectname", description = "the name for the new project"),
   @Parameter(name = "artuser", description = "the user with permissions in the artifactory repository"),
   @Parameter(name = "artencpass", description = "the encrypted password of the user with permissions in the artifactory repository"),

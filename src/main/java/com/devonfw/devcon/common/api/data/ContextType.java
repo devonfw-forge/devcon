@@ -1,10 +1,9 @@
 package com.devonfw.devcon.common.api.data;
 
 /**
- * TODO ivanderk This type ...
+ * Declares if and if so, what type, of project file must be consides to be the "context" of a command
  *
  * @author ivanderk
- * @since 0.0.1
  */
 public enum ContextType {
   NONE, COMBINEDPROJECT, PROJECT

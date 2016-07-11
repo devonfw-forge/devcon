@@ -8,7 +8,6 @@ import com.github.zafarkhaja.semver.Version;
  * Contains information about OASP-IDE or Devon Distribution
  *
  * @author ivanderk
- * @since 0.0.1
  */
 public interface DistributionInfo {
 
