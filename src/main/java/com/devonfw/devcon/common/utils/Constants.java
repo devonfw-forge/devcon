@@ -80,4 +80,54 @@ public final class Constants {
    * SENCHA STARTER TEMPLATE TO CREATE A SENCHA APPLICAITON
    */
   public static final String SENCHA_APP_STARTER_TEMPLATE = "StarterTemplate";
+
+  /**
+   * BAT FILE TO UPDATE ALL WORKSPACES
+   */
+  public static final String UPDATE_ALL_WORKSPACES_BAT = "update-all-workspaces.bat";
+
+  /**
+   * Workspaces Folder
+   */
+  public static final String WORKSPACES = "workspaces";
+
+  /**
+   * OASP TEMPLATE VERSION
+   */
+  public final static String OASP_TEMPLATE_VERSION = "2.1.0";
+
+  /**
+   * OASP TEMPLATE GROUP ID
+   */
+  public final static String OASP_TEMPLATE_GROUP_ID = "io.oasp.java.templates";
+
+  /**
+   * OASP ARTIFACT ID
+   */
+  public final static String OASP_ARTIFACT_ID = "oasp4j-template-server";
+
+  /**
+   *
+   */
+  public final static String OASP4JS = "oasp4js";
+
+  /**
+   *
+   */
+  public final static String SENCHA = "sencha";
+
+  /**
+   *
+   */
+  public final static String OASP4J = "oasp4j";
+
+  /**
+   *
+   */
+  public final static String BUILD = "build";
+
+  /**
+   *
+   */
+  public final static String RUN = "run";
 }

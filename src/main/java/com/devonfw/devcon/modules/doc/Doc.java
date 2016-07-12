@@ -17,7 +17,7 @@ public class Doc extends AbstractCommandModule {
   /**
    *
    */
-  private static final String SENCHA_EXTJS_DOCS = "https://docs.sencha.com/extjs/6.0/index.html";
+  private static final String SENCHA_EXTJS_DOCS = "http://docs.sencha.com/extjs/6.2.0-classic/";
 
   private static final String DEVON_GET_STARTED = "https://troom.capgemini.com/sites/vcc/devon/getstarted.aspx";
 
@@ -78,8 +78,7 @@ public class Doc extends AbstractCommandModule {
         + "standardized architecture blueprint for web and Java-applications, an open\n"
         + "best-of-breed technology stack  as well as industry proven best practices and code\n"
         + "conventions. It is a industrialization initiative that is aligned across Capgemini APPS2.\n" + "\n"
-        + "You can find a brief introduction and flyer about devonfw at:\n"
-        + "https://www.de.capgemini.com/devonfw (public site)\n" + "\n"
+        + "You can find more information at:\n" + "http://devonfw.com\n\n"
         + "You can also find more information at our internal site:\n"
         + "https://troom.capgemini.com/sites/vcc/devon/index.aspx\n" + "\n"
         + "View the video “iCSD devonfw overview” here:\n"
