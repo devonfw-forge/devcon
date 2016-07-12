@@ -261,4 +261,13 @@ public class CommandImpl implements Command {
     return this.contextPathInfo;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int compareTo(Command o) {
+
+    return this.name.compareTo(o.getName());
+  }
+
 }

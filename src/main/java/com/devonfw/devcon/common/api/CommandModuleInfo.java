@@ -10,7 +10,7 @@ import com.google.common.base.Optional;
  *
  * @author pparrado
  */
-public interface CommandModuleInfo extends Info {
+public interface CommandModuleInfo extends Info, Comparable<CommandModuleInfo> {
 
   public boolean isVisible();
 

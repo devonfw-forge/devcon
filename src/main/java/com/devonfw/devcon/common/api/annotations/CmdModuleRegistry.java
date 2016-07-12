@@ -28,13 +28,6 @@ public @interface CmdModuleRegistry {
   String description() default "";
 
   /**
-   * State of the module
-   *
-   * @return state
-   */
-  boolean deprecated() default false;
-
-  /**
    * Show in console or not
    *
    * @return

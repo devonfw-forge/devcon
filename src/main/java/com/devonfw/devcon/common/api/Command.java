@@ -21,7 +21,7 @@ import com.google.common.base.Optional;
  *
  * @author ivanderk
  */
-public interface Command extends Info {
+public interface Command extends Info, Comparable<Command> {
 
   ContextType getContext();
 
