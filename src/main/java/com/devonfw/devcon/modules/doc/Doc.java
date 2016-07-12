@@ -17,7 +17,7 @@ public class Doc extends AbstractCommandModule {
   /**
    *
    */
-  private static final String SENCHA_EXTJS_DOCS = "https://docs.sencha.com/extjs/6.0/index.html";
+  private static final String SENCHA_EXTJS_DOCS = "http://docs.sencha.com/extjs/6.2.0-classic/";
 
   private static final String DEVON_GET_STARTED = "https://troom.capgemini.com/sites/vcc/devon/getstarted.aspx";
 
