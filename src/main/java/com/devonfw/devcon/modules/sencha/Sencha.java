@@ -40,7 +40,7 @@ public class Sencha extends AbstractCommandModule {
       return;
     }
 
-    Optional<ProjectInfo> project = getProjectInfo();
+    Optional<ProjectInfo> project = getContextPathInfo().getProjectRoot(appFolder);
     if (project.isPresent() && project.get().getProjecType().equals(ProjectType.DEVON4SENCHA)) {
       try {
 

@@ -9,6 +9,7 @@ import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
+import com.devonfw.devcon.common.utils.Constants;
 import com.google.common.base.Optional;
 
 /**
@@ -19,6 +20,9 @@ import com.google.common.base.Optional;
 @CmdModuleRegistry(name = "workspace", description = "Module to create a new workspace with all default configuration", deprecated = false)
 public class Workspace extends AbstractCommandModule {
 
+  /**
+   * The constructor.
+   */
   public Workspace() {
     super();
   }
@@ -26,9 +30,9 @@ public class Workspace extends AbstractCommandModule {
   /**
    * This command allow to create a new workspace with default configuration.
    *
-   * @param devonpath
-   * @param foldername
-   * @throws Exception
+   * @param distribution Path to Devon Distribution
+   * @param workspace Name of the workspace folder
+   * @throws Exception Exception thrown by workspace create command
    */
   @Command(name = "create", description = "This command is used to create new workspace with all default configuration")
   @Parameters(values = { @Parameter(name = "workspace", description = "This is the name of workspace to create"),
@@ -38,7 +42,7 @@ public class Workspace extends AbstractCommandModule {
     Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot(distribution);
     if (distInfo.isPresent()) {
       Path distPath = distInfo.get().getPath();
-      Path workspacePath = distPath.resolve("workspaces" + File.separator + workspace);
+      Path workspacePath = distPath.resolve(Constants.WORKSPACES + File.separator + workspace);
       if (!workspacePath.toFile().exists()) {
 
         workspacePath.toFile().mkdir();
@@ -46,7 +50,7 @@ public class Workspace extends AbstractCommandModule {
         Process process = null;
 
         try {
-          process = rt.exec(distPath.resolve("update-all-workspaces.bat").toString());
+          process = rt.exec(distPath.resolve(Constants.UPDATE_ALL_WORKSPACES_BAT).toString());
           process.waitFor();
         } catch (Exception e) {
           this.output.showError("Errr creating workspace: " + e.getMessage());

@@ -11,8 +11,8 @@ import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.ContextType;
 import com.devonfw.devcon.common.api.data.DistributionInfo;
-import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
+import com.devonfw.devcon.common.utils.Constants;
 import com.google.common.base.Optional;
 
 /**
@@ -23,12 +23,6 @@ import com.google.common.base.Optional;
 @CmdModuleRegistry(name = "oasp4j", description = "Oasp4j(server project) related commands")
 public class Oasp4j extends AbstractCommandModule {
 
-  private final String OASP_TEMPLATE_VERSION = "2.0.0";
-
-  private final String OASP_TEMPLATE_GROUP_ID = "io.oasp.java.templates";
-
-  private final String OASP_ARTIFACT_ID = "oasp4j-template-server";
-
   /**
    * The constructor.
    */
@@ -36,19 +30,28 @@ public class Oasp4j extends AbstractCommandModule {
     super();
   }
 
+  /**
+   * @param serverpath Path to Server Project
+   * @param servername Name of Server Project
+   * @param packagename Package Name of Server Project
+   * @param groupid Group Id of the Server Project
+   * @param version Version of the Server Project
+   */
   @Command(name = "create", description = "This command is used to create new server project")
   @Parameters(values = {
-  @Parameter(name = "serverpath", description = "Path to Server project Workspace (currentDir if not given)", optional = true),
+  @Parameter(name = "serverpath", description = "Path to create Server project (currentDir if not given)", optional = true),
   @Parameter(name = "servername", description = "Name of project"),
   @Parameter(name = "packagename", description = "package name in server project"),
   @Parameter(name = "groupid", description = "groupid for server project"),
   @Parameter(name = "version", description = "version of server project") })
   public void create(String serverpath, String servername, String packagename, String groupid, String version) {
 
-    String command = "cmd /c start mvn -DarchetypeVersion=" + this.OASP_TEMPLATE_VERSION + " -DarchetypeGroupId="
-        + this.OASP_TEMPLATE_GROUP_ID + " -DarchetypeArtifactId=" + this.OASP_ARTIFACT_ID
-        + " archetype:generate -DgroupId=" + groupid + " -DartifactId=" + servername + " -Dversion=" + version
-        + " -Dpackage=" + packagename + " -DinteractiveMode=false";
+    String command = new StringBuffer("cmd /c start mvn -DarchetypeVersion=").append(Constants.OASP_TEMPLATE_VERSION)
+        .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
+        .append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=").append(Constants.OASP_ARTIFACT_ID)
+        .append(" archetype:generate -DgroupId=").append(groupid).append(" -DartifactId=").append(servername)
+        .append(" -Dversion=").append(version).append(" -Dpackage=").append(packagename)
+        .append(" -DinteractiveMode=false").toString();
 
     Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot(serverpath);
 
@@ -58,34 +61,27 @@ public class Oasp4j extends AbstractCommandModule {
     }
 
     if (distInfo.isPresent()) {
-      Path distPath = distInfo.get().getPath();
 
-      if (!new File(distPath + "\\workspaces\\" + servername).exists()) {
+      if (new File(serverpath).exists()) {
 
         Runtime rt = Runtime.getRuntime();
         Process process = null;
-        String targetPath = distPath + "\\workspaces";
+
         try {
+          process = rt.exec(command, null, new File(serverpath));
 
-          System.out.println("command " + command);
-          process = rt.exec(command, null, new File(targetPath));
+          int result = process.waitFor();
+          if (result == 0) {
+            getOutput().showMessage("Project Creation complete");
+          } else {
+            throw new Exception("Project creation failed");
+          }
 
-          /*
-           * new File("D:\\temp29Jun").mkdir(); process = rt.exec(
-           * "cmd /c start mvn -DarchetypeVersion=2.0.0 -DarchetypeGroupId=io.oasp.java.templates " +
-           * "-DarchetypeArtifactId=oasp4j-template-server archetype:generate -DgroupId=io.oasp.application " +
-           * "-DartifactId=sampleapp -Dversion=0.1-SNAPSHOT -Dpackage=io.oasp.application.sampleapp -X", null, new
-           * File("D:\\temp29Jun"));
-           */
-          process.waitFor();
-          getOutput().showMessage("Project Creation complete");
-        } catch (
-
-        Exception e) {
+        } catch (Exception e) {
           e.printStackTrace();
           getOutput().showError("Errr creating workspace: " + e.getMessage());
         }
-        // create workspace here
+
       } else {
         getOutput().showError("Project exists!");
       }
@@ -95,12 +91,14 @@ public class Oasp4j extends AbstractCommandModule {
 
   }
 
+  /**
+   * @param port Server will be started at this port
+   * @param path Path to server project
+   */
   @Command(name = "run", description = "runs application from embedded tomcat", context = ContextType.PROJECT)
   @Parameters(values = { @Parameter(name = "port", description = "Port to start Spring boot app", optional = false),
   @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
   public void run(String port, String path) {
-
-    // Optional<ProjectInfo> projectInfo = getContextPathInfo().getProjectRoot(path);
 
     Process p;
     try {
@@ -108,28 +106,37 @@ public class Oasp4j extends AbstractCommandModule {
       String cmd = "cmd /c start " + commandStr;//
 
       p = Runtime.getRuntime().exec(cmd, null, new File(path));
-      p.waitFor();
-      getOutput().showMessage("Starting application");
+      int result = p.waitFor();
+      if (result == 0) {
+        getOutput().showMessage("Application started");
+      } else {
+        throw new Exception();
+      }
+
     } catch (Exception e) {
 
       getOutput().showError("An error occured during executing oasp4j Cmd");
     }
   }
 
+  /**
+   * @param path path to server project
+   */
   @Command(name = "build", description = "This command will build the server project", context = ContextType.PROJECT)
   @Parameters(values = {
   @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
   public void build(String path) {
 
-    Optional<ProjectInfo> projectInfo = getContextPathInfo().getProjectRoot(path);
+    this.projectInfo = getContextPathInfo().getProjectRoot(path);
     System.out.println("projectInfo read...");
-    System.out.println("path " + projectInfo.get().getPath() + "project type " + projectInfo.get().getProjecType());
+    System.out
+        .println("path " + this.projectInfo.get().getPath() + "project type " + this.projectInfo.get().getProjecType());
 
     Process p;
     try {
-      String cmd = "cmd /c start mvn clean install"; // Q: where to redirect output? --log-file D:\\log1.txt
+      String cmd = "cmd /c start mvn clean install";
 
-      p = Runtime.getRuntime().exec(cmd, null, projectInfo.get().getPath().toFile());
+      p = Runtime.getRuntime().exec(cmd, null, this.projectInfo.get().getPath().toFile());
       p.waitFor();
       getOutput().showMessage("Completed");
     } catch (Exception e) {
@@ -138,13 +145,17 @@ public class Oasp4j extends AbstractCommandModule {
     }
   }
 
+  /**
+   * @param deploypath Path to tomcat
+   * @param path server project path
+   */
   @Command(name = "deploy", description = "This command will deploy the server project on tomcat", context = ContextType.PROJECT)
   @Parameters(values = { @Parameter(name = "deploypath", description = "Path to tomcat folder"),
   @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
   public void deploy(String deploypath, String path) {
 
     Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot(path);
-    Path distRootPath = distInfo.get().getPath(); // Root path of distribution
+    Path distRootPath = distInfo.get().getPath();
     String distPath = distRootPath.toString();
 
     getOutput().showMessage("Distribution root path is " + distPath);
