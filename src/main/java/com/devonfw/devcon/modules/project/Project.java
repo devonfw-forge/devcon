@@ -1,6 +1,12 @@
 package com.devonfw.devcon.modules.project;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
+import java.util.Collection;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -10,6 +16,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.tuple.Triple;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -189,39 +198,33 @@ public class Project extends AbstractCommandModule {
   }
 
   @Command(name = "deploy", description = "This command is to automate the deploy process of a combined server & client project")
-  @Parameters(values = { @Parameter(name = "tomcatpath", description = "Path to tomcat folder"),
-  @Parameter(name = "distributionpath", description = "path to the Devonfw distribution (currentDir if not given)") })
-  public void deploy(String tomcatpath, String distributionpath) {
-
-    ProjectType clientType = ProjectType.OASP4JS;
+  @Parameters(values = {
+  @Parameter(name = "tomcatpath", description = "Path to tomcat folder"),
+  @Parameter(name = "serverpath", description = "path to the server module of the server project (currentDir if not given)"),
+  @Parameter(name = "clientpath", description = "path to the client project") })
+  public void deploy(String tomcatpath, String serverpath, String clientpath) {
 
     try {
 
-      String serverPath = "D:\\zTest\\devon-dist\\workspaces\\oasp4j\\samples\\server";
-      String clientPath = "D:\\zTest\\devon-dist\\workspaces\\devon4sencha\\ExtSample";
+      this.projectInfo = getContextPathInfo().getProjectRoot(clientpath);
 
-      this.projectInfo = getContextPathInfo().getProjectRoot(clientPath);
       if (this.projectInfo.isPresent()) {
-        if (this.projectInfo.get().getProjecType().equals(ProjectType.DEVON4SENCHA)) {
-          clientType = ProjectType.DEVON4SENCHA;
-        }
+        ProjectType clientType = this.projectInfo.get().getProjecType();
+
+        configureServerPOM(serverpath, clientpath, clientType);
+        configureWebSecurityClass(serverpath);
+
+        // Optional<com.devonfw.devcon.common.api.Command> deploy = getCommand(this.OASP4J, this.DEPLOY);
+        // if (deploy.isPresent()) {
+        // deploy.get().exec(tomcatpath, distributionpath);
+        // } else {
+        // getOutput().showError("No command deploy found for oasp4j module.");
+        // }
       } else {
         getOutput().showError("devon.json configuration file not found for client project.");
       }
-
-      configureServerPOM(serverPath, clientPath, clientType);
-      configureWebSecurityClass(serverPath);
-
-      // Optional<com.devonfw.devcon.common.api.Command> deploy = getCommand(this.OASP4J, this.DEPLOY);
-      // if (deploy.isPresent()) {
-      // deploy.get().exec(tomcatpath, distributionpath);
-      // } else {
-      // getOutput().showError("No command deploy found for oasp4j module.");
-      // }
-
     } catch (Exception e) {
       getOutput().showError("An error occurred during the execution of project deploy command. " + e.getMessage());
-
     }
 
   }
@@ -248,11 +251,80 @@ public class Project extends AbstractCommandModule {
     }
   }
 
-  private void configureWebSecurityClass(String serverPath) {
+  private void configureWebSecurityClass(String serverPath) throws Exception {
+
+    FileInputStream fs = null;
+    InputStreamReader in = null;
+    BufferedReader br = null;
+    boolean jsclientAdded = false;
+    boolean websocketAdded = false;
 
     try {
       this.projectInfo = getContextPathInfo().getProjectRoot(serverPath);
       if (this.projectInfo.isPresent()) {
+        File projectDirectory = new File(this.projectInfo.get().getPath().toString());
+
+        File webSecurityConfig = getWebSecurityConfigFile(projectDirectory);
+
+        if (webSecurityConfig != null) {
+          fs = new FileInputStream(webSecurityConfig);
+          in = new InputStreamReader(fs);
+          br = new BufferedReader(in);
+
+          StringBuffer sb = new StringBuffer();
+          String line;
+
+          while (true) {
+            line = br.readLine();
+            if (line == null) {
+              break;
+            }
+
+            sb.append(line);
+            sb.append(System.getProperty("line.separator"));
+          }
+          int unsecuredResourcesIndex = sb.toString().indexOf("unsecuredResources");
+          if (unsecuredResourcesIndex > 0) {
+            String[] securityConfig = sb.toString().split("unsecuredResources");
+            if (securityConfig.length > 1) {
+              String token = "new String[] {";
+              String unsecuredResources = securityConfig[1].replace(token, "").split("}")[0].trim();
+
+              int tokenIndex = sb.indexOf(token);
+              if (!unsecuredResources.contains("jsclient")) {
+
+                sb.insert(tokenIndex + token.length(), "\"/jsclient/**\", ");
+                jsclientAdded = true;
+              } else {
+                getOutput().showMessage("unsecuredResources in WebSecurityConfig already has a 'jsclient' term.");
+              }
+
+              if (!unsecuredResources.contains("websocket")) {
+                sb.insert(tokenIndex + token.length(), "\"/websocket/**\", ");
+                websocketAdded = true;
+              } else {
+                getOutput().showMessage("unsecuredResources in WebSecurityConfig already has a 'websocket' term.");
+              }
+
+              if (jsclientAdded || websocketAdded) {
+
+                BufferedWriter out = new BufferedWriter(new FileWriter(webSecurityConfig));
+
+                out.write(sb.toString());
+                out.flush();
+                out.close();
+
+              }
+
+              getOutput().showMessage("WebSecurityConfig class configured.");
+            }
+          } else {
+            getOutput().showError("No unsercuredResources found in WebSecurityConfig.java");
+          }
+
+        } else {
+          getOutput().showError("No WebConfigSecurity.java found in the project.");
+        }
 
       } else {
         getOutput().showError("Not recognized oasp4j project");
@@ -260,7 +332,46 @@ public class Project extends AbstractCommandModule {
 
     } catch (Exception e) {
       throw e;
+    } finally {
+      if (br != null) {
+        br.close();
+      }
+      if (in != null) {
+        in.close();
+      }
+      if (fs != null) {
+        fs.close();
+      }
     }
+  }
+
+  private File getWebSecurityConfigFile(File projectDirectory) {
+
+    try {
+      File webSecurityConfig = null;
+
+      Collection<File> files =
+          FileUtils.listFiles(projectDirectory, new WildcardFileFilter("*WebSecurityConfig*"), TrueFileFilter.TRUE);
+
+      if (files.size() == 0) {
+        getOutput().showError("No WebConfigSecurity.java found in the project.");
+      } else {
+
+        for (File f : files) {
+          if (!f.getPath().contains("eclipse-target") && !f.getPath().contains("classes")
+              && !f.getPath().contains("target") && !f.getPath().contains("templates")) {
+            webSecurityConfig = f;
+            break;
+          }
+        }
+      }
+
+      return webSecurityConfig;
+    } catch (Exception e) {
+      getOutput().showError("Getting WebSecurityConfig.java file. " + e.getMessage());
+      return null;
+    }
+
   }
 
   private Triple<String, String, String> getClientPomInfo(String clientPath, DocumentBuilder docBuilder) {
@@ -498,8 +609,8 @@ public class Project extends AbstractCommandModule {
       transformer.setOutputProperty(OutputKeys.INDENT, "yes");
       transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
       DOMSource source = new DOMSource(doc);
-      // StreamResult result = new StreamResult(new File(serverPom.getPath()));
-      StreamResult result = new StreamResult(new File("D:\\result.xml"));
+      StreamResult result = new StreamResult(new File(serverPom.getPath()));
+      // StreamResult result = new StreamResult(new File("D:\\result.xml"));
       transformer.transform(source, result);
 
     } catch (Exception e) {
