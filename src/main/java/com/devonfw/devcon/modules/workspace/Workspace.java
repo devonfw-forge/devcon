@@ -17,7 +17,7 @@ import com.google.common.base.Optional;
  *
  * @author ssarmoka
  */
-@CmdModuleRegistry(name = "workspace", description = "Module to create a new workspace with all default configuration", deprecated = false)
+@CmdModuleRegistry(name = "workspace", description = "Module to create a new workspace with all default configuration")
 public class Workspace extends AbstractCommandModule {
 
   /**

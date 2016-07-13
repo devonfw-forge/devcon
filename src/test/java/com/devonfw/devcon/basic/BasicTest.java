@@ -104,7 +104,7 @@ public class BasicTest {
     if (obj.isAnnotationPresent(CmdModuleRegistry.class)) {
       Annotation annotation = obj.getAnnotation(CmdModuleRegistry.class);
       CmdModuleRegistry module = (CmdModuleRegistry) annotation;
-      if (module.name().equals("foo") /* && module.context().equals("fooContext") */ && module.deprecated() == false) {
+      if (module.name().equals("foo") /* && module.context().equals("fooContext") */) {
         result = true;
       }
     }

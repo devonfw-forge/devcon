@@ -18,7 +18,7 @@ import com.google.common.base.Optional;
  *
  * @author pparrado
  */
-@CmdModuleRegistry(name = "dist", description = "Module with general tasks related to the distribution itself", deprecated = false)
+@CmdModuleRegistry(name = "dist", description = "Module with general tasks related to the distribution itself")
 public class Dist extends AbstractCommandModule {
 
   /**

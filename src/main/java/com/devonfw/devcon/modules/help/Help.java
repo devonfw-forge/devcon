@@ -1,12 +1,13 @@
 package com.devonfw.devcon.modules.help;
 
+import java.lang.reflect.InvocationTargetException;
+
 import com.devonfw.devcon.common.api.CommandModuleInfo;
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
-import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
 
 /**
@@ -14,19 +15,19 @@ import com.google.common.base.Optional;
  *
  * @author pparrado
  */
-@CmdModuleRegistry(name = "help", description = "This module shows help info about devcon", deprecated = false)
+@CmdModuleRegistry(name = "help", description = "This module shows help info about devcon")
 public class Help extends AbstractCommandModule {
 
   @SuppressWarnings("javadoc")
-  @Command(name = "guide", description = "This command is used to show a general vision about the basic usage of devcon.")
+  @Command(name = "userguide", description = "Show the Devcon user guide")
   public void guide() {
 
-    // StringBuilder body = new StringBuilder();
+    try {
+      getCommand("doc", "userguide").get().exec();
+    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 
-    this.output.showGeneralHelp(
-        "Devcon is a command line tool that provides many automated tasks around the full life-cycle of Devon applications.",
-        "devon <<module>> <<command>> [parameters...]", Utils.getGlobalOptions(), this.registry.getCommandModules());
-
+      this.output.showError("calling doc devcon: %s", e.getMessage());
+    }
   }
 
   @SuppressWarnings("javadoc")
