@@ -57,7 +57,6 @@ public class Project extends AbstractCommandModule {
   @Parameter(name = "clienttype", description = "This parameter shows which type of client is integrated with server i.e oasp4js or sencha", optional = false),
   @Parameter(name = "clientpath", description = "path to client directory", optional = false) })
   public void build(String serverpath, String clienttype, String clientpath) {
-  
 
     Optional<ProjectInfo> projectInfo = getContextPathInfo().getProjectRoot(serverpath);
 
@@ -75,8 +74,8 @@ public class Project extends AbstractCommandModule {
 
         break;
       case "":
-        getOutput()
-            .showError("Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
+        getOutput().showError(
+            "Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
       }
     } catch (Exception e) {
       getOutput().showError("An error occured during executing Project Cmd");
@@ -181,8 +180,8 @@ public class Project extends AbstractCommandModule {
         sencha_cmd.get().exec(clientport, clientpath);
         break;
       case "":
-        getOutput()
-            .showError("Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
+        getOutput().showError(
+            "Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
       }
     } catch (Exception e) {
       getOutput().showError("An error occured during executing Project Cmd");
@@ -211,6 +210,7 @@ public class Project extends AbstractCommandModule {
       }
 
       configureServerPOM(serverPath, clientPath, clientType);
+      configureWebSecurityClass(serverPath);
 
       // Optional<com.devonfw.devcon.common.api.Command> deploy = getCommand(this.OASP4J, this.DEPLOY);
       // if (deploy.isPresent()) {
@@ -241,6 +241,21 @@ public class Project extends AbstractCommandModule {
       } else {
         getOutput().showError(
             "The pom.xml in the java directory of the client project is not found or has some missing information.");
+      }
+
+    } catch (Exception e) {
+      throw e;
+    }
+  }
+
+  private void configureWebSecurityClass(String serverPath) {
+
+    try {
+      this.projectInfo = getContextPathInfo().getProjectRoot(serverPath);
+      if (this.projectInfo.isPresent()) {
+
+      } else {
+        getOutput().showError("Not recognized oasp4j project");
       }
 
     } catch (Exception e) {
@@ -302,20 +317,6 @@ public class Project extends AbstractCommandModule {
           Node execMavenPlugin = getExecMavenPluginNode(jsclientPlugins);
           if (execMavenPlugin != null) {
             jsclientPlugins.removeChild(execMavenPlugin);
-            // StringWriter sw = new StringWriter();
-            // TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            // Transformer transformer = transformerFactory.newTransformer();
-            // transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            // // transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-            // transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            // transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-            // DOMSource source = new DOMSource(execMavenPlugin);
-            // StreamResult result = new StreamResult(sw);
-            // transformer.transform(source, result);
-            // // sw.append(" -->");
-            // String comment = "<!-- " + sw.toString() + " -->";
-            // jsclientPlugins.appendChild(doc.createTextNode(comment).);
-
           }
         }
         addJsclientPlugin(doc, jsclientPlugins, clientPomInfo);
