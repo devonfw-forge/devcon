@@ -20,7 +20,7 @@ import com.google.common.base.Optional;
  * @author pparrado
  */
 
-@CmdModuleRegistry(name = "oasp4js", description = "Module to automate tasks related to oasp4js", deprecated = false)
+@CmdModuleRegistry(name = "oasp4js", description = "Module to automate tasks related to oasp4js")
 public class Oasp4js extends AbstractCommandModule {
 
   private static String GULP_SERV = "cmd /c start gulp serve";

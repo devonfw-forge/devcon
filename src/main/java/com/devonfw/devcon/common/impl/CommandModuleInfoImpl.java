@@ -90,4 +90,13 @@ public class CommandModuleInfoImpl implements CommandModuleInfo {
       System.out.println("[ERROR] at CommandModuleImpl#addCommands: " + e.getMessage());
     }
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int compareTo(CommandModuleInfo o) {
+
+    return getName().compareTo(o.getName());
+  }
 }

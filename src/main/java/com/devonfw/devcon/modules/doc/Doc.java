@@ -11,7 +11,7 @@ import com.devonfw.devcon.common.utils.Utils;
  * @author ivanderk
  */
 
-@CmdModuleRegistry(name = "doc", description = "Module with tasks related with obtaining specific documentation", deprecated = false)
+@CmdModuleRegistry(name = "doc", description = "Module with tasks related with obtaining specific documentation")
 public class Doc extends AbstractCommandModule {
 
   /**
@@ -21,11 +21,14 @@ public class Doc extends AbstractCommandModule {
 
   private static final String DEVON_GET_STARTED = "https://troom.capgemini.com/sites/vcc/devon/getstarted.aspx";
 
-  private static final String DEVON_TROOM_SITE = "https://troom.capgemini.com/sites/vcc/devon/index.aspx";
+  private static final String DEVON_SITE = "http://devonfw.com";
+  // private static final String DEVON_TROOM_SITE = "https://troom.capgemini.com/sites/vcc/devon/index.aspx";
 
   private static final String DEVON_GUIDE = "https://github.com/devonfw/devon/wiki";
 
   private static final String OASP4J_GUIDE = "https://github.com/oasp/oasp4j/wiki";
+
+  private static final String DEVCON_USER_GUIDE = "https://github.com/devonfw/devon/wiki/devcon-user-guide";
 
   /**
    * The constructor.
@@ -39,14 +42,24 @@ public class Doc extends AbstractCommandModule {
    * This command shows the main devon web site
    *
    */
-  @Command(name = "devon", description = "Opens the Devon site in the default web browser")
+  @Command(name = "devon", description = "Opens the Devonfw site in the default web browser")
   public void devon() {
 
-    openUrl(DEVON_TROOM_SITE);
+    openUrl(DEVON_SITE);
+  }
+
+  /**
+   * This command shows the main devon web site
+   *
+   */
+  @Command(name = "userguide", description = "Show the Devcon user guide")
+  public void devconman() {
+
+    openUrl(DEVCON_USER_GUIDE);
   }
 
   @SuppressWarnings("javadoc")
-  @Command(name = "devonguide", description = "Opens the Devon Guide")
+  @Command(name = "devonguide", description = "Opens the Devonfw Guide")
   public void devonguide() {
 
     openUrl(DEVON_GUIDE);
@@ -59,7 +72,7 @@ public class Doc extends AbstractCommandModule {
     openUrl(OASP4J_GUIDE);
   }
 
-  @Command(name = "getstarted", description = "Opens the \"Getting Started\" web site")
+  @Command(name = "getstarted", description = "Opens the Devonfw \"Getting Started\" page")
   public void getstarted() {
 
     openUrl(DEVON_GET_STARTED);

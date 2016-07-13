@@ -17,7 +17,7 @@ import com.devonfw.devcon.output.Output;
  *
  * @author ssarmoka
  */
-@CmdModuleRegistry(name = "github", description = "Module to create a new workspace with all default configuration", deprecated = false)
+@CmdModuleRegistry(name = "github", description = "Module to create a new workspace with all default configuration")
 public class Github extends AbstractCommandModule {
 
   Output out;
