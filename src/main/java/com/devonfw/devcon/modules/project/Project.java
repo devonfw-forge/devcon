@@ -1,6 +1,29 @@
 package com.devonfw.devcon.modules.project;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
+import java.util.Collection;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.lang3.tuple.Triple;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
@@ -8,6 +31,7 @@ import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.ContextType;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
+import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Constants;
 import com.google.common.base.Optional;
@@ -34,6 +58,8 @@ public class Project extends AbstractCommandModule {
 
   private final String WORKSPACE = "workspace";
 
+  private final String POM_XML = "pom.xml";
+
   @Command(name = "build", description = "This command will build the server & client project(unified server and client build)", context = ContextType.COMBINEDPROJECT)
   @Parameters(values = {
   @Parameter(name = "serverpath", description = "Path to Server project Workspace (currentDir if not given)", optional = true),
@@ -57,8 +83,8 @@ public class Project extends AbstractCommandModule {
 
         break;
       case "":
-        getOutput()
-            .showError("Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
+        getOutput().showError(
+            "Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
       }
     } catch (Exception e) {
       getOutput().showError("An error occured during executing Project Cmd");
@@ -120,8 +146,9 @@ public class Project extends AbstractCommandModule {
         }
 
       } else {
-        getOutput().showError(
-            "The parameter value for 'clienttype' is not valid. The options for this parameter are: 'devon4sencha' and 'oasp4js'.");
+        getOutput()
+            .showError(
+                "The parameter value for 'clienttype' is not valid. The options for this parameter are: 'devon4sencha' and 'oasp4js'.");
       }
 
     } catch (Exception e) {
@@ -162,8 +189,8 @@ public class Project extends AbstractCommandModule {
         sencha_cmd.get().exec(clientport, clientpath);
         break;
       case "":
-        getOutput()
-            .showError("Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
+        getOutput().showError(
+            "Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
       }
     } catch (Exception e) {
       getOutput().showError("An error occured during executing Project Cmd");
@@ -171,23 +198,438 @@ public class Project extends AbstractCommandModule {
   }
 
   @Command(name = "deploy", description = "This command is to automate the deploy process of a combined server & client project")
-  @Parameters(values = { @Parameter(name = "tomcatpath", description = "Path to tomcat folder"),
-  @Parameter(name = "distributionpath", description = "path to the Devonfw distribution (currentDir if not given)") })
-  public void deploy(String tomcatpath, String distributionpath) {
+  @Parameters(values = {
+  @Parameter(name = "tomcatpath", description = "Path to tomcat folder"),
+  @Parameter(name = "serverpath", description = "path to the server module of the server project (currentDir if not given)"),
+  @Parameter(name = "clientpath", description = "path to the client project") })
+  public void deploy(String tomcatpath, String serverpath, String clientpath) {
 
     try {
 
-      Optional<com.devonfw.devcon.common.api.Command> deploy = getCommand(this.OASP4J, this.DEPLOY);
-      if (deploy.isPresent()) {
-        deploy.get().exec(tomcatpath, distributionpath);
-      } else {
-        getOutput().showError("No command deploy found for oasp4j module.");
-      }
+      this.projectInfo = getContextPathInfo().getProjectRoot(clientpath);
 
+      if (this.projectInfo.isPresent()) {
+        ProjectType clientType = this.projectInfo.get().getProjecType();
+
+        configureServerPOM(serverpath, clientpath, clientType);
+        configureWebSecurityClass(serverpath);
+
+        // Optional<com.devonfw.devcon.common.api.Command> deploy = getCommand(this.OASP4J, this.DEPLOY);
+        // if (deploy.isPresent()) {
+        // deploy.get().exec(tomcatpath, distributionpath);
+        // } else {
+        // getOutput().showError("No command deploy found for oasp4j module.");
+        // }
+      } else {
+        getOutput().showError("devon.json configuration file not found for client project.");
+      }
     } catch (Exception e) {
       getOutput().showError("An error occurred during the execution of project deploy command. " + e.getMessage());
-
     }
 
   }
+
+  public void configureServerPOM(String serverPath, String clientPath, ProjectType clientType) throws Exception {
+
+    try {
+
+      DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+
+      Triple<String, String, String> clientPomInfo = getClientPomInfo(clientPath, docBuilder);
+
+      if (clientPomInfo != null) {
+        editServerPom(serverPath, docBuilder, clientPomInfo, clientType);
+
+      } else {
+        getOutput().showError(
+            "The pom.xml in the java directory of the client project is not found or has some missing information.");
+      }
+
+    } catch (Exception e) {
+      throw e;
+    }
+  }
+
+  private void configureWebSecurityClass(String serverPath) throws Exception {
+
+    FileInputStream fs = null;
+    InputStreamReader in = null;
+    BufferedReader br = null;
+    boolean jsclientAdded = false;
+    boolean websocketAdded = false;
+
+    try {
+      this.projectInfo = getContextPathInfo().getProjectRoot(serverPath);
+      if (this.projectInfo.isPresent()) {
+        File projectDirectory = new File(this.projectInfo.get().getPath().toString());
+
+        File webSecurityConfig = getWebSecurityConfigFile(projectDirectory);
+
+        if (webSecurityConfig != null) {
+          fs = new FileInputStream(webSecurityConfig);
+          in = new InputStreamReader(fs);
+          br = new BufferedReader(in);
+
+          StringBuffer sb = new StringBuffer();
+          String line;
+
+          while (true) {
+            line = br.readLine();
+            if (line == null) {
+              break;
+            }
+
+            sb.append(line);
+            sb.append(System.getProperty("line.separator"));
+          }
+          int unsecuredResourcesIndex = sb.toString().indexOf("unsecuredResources");
+          if (unsecuredResourcesIndex > 0) {
+            String[] securityConfig = sb.toString().split("unsecuredResources");
+            if (securityConfig.length > 1) {
+              String token = "new String[] {";
+              String unsecuredResources = securityConfig[1].replace(token, "").split("}")[0].trim();
+
+              int tokenIndex = sb.indexOf(token);
+              if (!unsecuredResources.contains("jsclient")) {
+
+                sb.insert(tokenIndex + token.length(), "\"/jsclient/**\", ");
+                jsclientAdded = true;
+              } else {
+                getOutput().showMessage("unsecuredResources in WebSecurityConfig already has a 'jsclient' term.");
+              }
+
+              if (!unsecuredResources.contains("websocket")) {
+                sb.insert(tokenIndex + token.length(), "\"/websocket/**\", ");
+                websocketAdded = true;
+              } else {
+                getOutput().showMessage("unsecuredResources in WebSecurityConfig already has a 'websocket' term.");
+              }
+
+              if (jsclientAdded || websocketAdded) {
+
+                BufferedWriter out = new BufferedWriter(new FileWriter(webSecurityConfig));
+
+                out.write(sb.toString());
+                out.flush();
+                out.close();
+
+              }
+
+              getOutput().showMessage("WebSecurityConfig class configured.");
+            }
+          } else {
+            getOutput().showError("No unsercuredResources found in WebSecurityConfig.java");
+          }
+
+        } else {
+          getOutput().showError("No WebConfigSecurity.java found in the project.");
+        }
+
+      } else {
+        getOutput().showError("Not recognized oasp4j project");
+      }
+
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      if (br != null) {
+        br.close();
+      }
+      if (in != null) {
+        in.close();
+      }
+      if (fs != null) {
+        fs.close();
+      }
+    }
+  }
+
+  private File getWebSecurityConfigFile(File projectDirectory) {
+
+    try {
+      File webSecurityConfig = null;
+
+      Collection<File> files =
+          FileUtils.listFiles(projectDirectory, new WildcardFileFilter("*WebSecurityConfig*"), TrueFileFilter.TRUE);
+
+      if (files.size() == 0) {
+        getOutput().showError("No WebConfigSecurity.java found in the project.");
+      } else {
+
+        for (File f : files) {
+          if (!f.getPath().contains("eclipse-target") && !f.getPath().contains("classes")
+              && !f.getPath().contains("target") && !f.getPath().contains("templates")) {
+            webSecurityConfig = f;
+            break;
+          }
+        }
+      }
+
+      return webSecurityConfig;
+    } catch (Exception e) {
+      getOutput().showError("Getting WebSecurityConfig.java file. " + e.getMessage());
+      return null;
+    }
+
+  }
+
+  private Triple<String, String, String> getClientPomInfo(String clientPath, DocumentBuilder docBuilder) {
+
+    String groupId = null, artifactId = null, version = null;
+
+    try {
+
+      File clientPom = new File(clientPath + File.separator + "java" + File.separator + this.POM_XML);
+
+      if (clientPom.exists()) {
+
+        Document doc = docBuilder.parse(clientPom);
+        doc.getDocumentElement().normalize();
+
+        Node groupIdNode = doc.getElementsByTagName("groupId").item(0);
+        Node artifactIdNode = doc.getElementsByTagName("artifactId").item(0);
+        Node versionNode = doc.getElementsByTagName("version").item(0);
+
+        groupId = groupIdNode != null ? groupIdNode.getTextContent() : "";
+        artifactId = artifactIdNode != null ? artifactIdNode.getTextContent() : "";
+        version = versionNode != null ? versionNode.getTextContent() : "";
+
+      }
+
+      return Triple.of(groupId, artifactId, version);
+    } catch (Exception e) {
+      getOutput().showError("Getting client pom.xml info. " + e.getMessage());
+      return null;
+    }
+  }
+
+  private void editServerPom(String serverPath, DocumentBuilder docBuilder,
+      Triple<String, String, String> clientPomInfo, ProjectType clientType) throws Exception {
+
+    try {
+
+      File serverPom = new File(serverPath + File.separator + this.POM_XML);
+
+      if (serverPom.exists()) {
+        Document doc = docBuilder.parse(serverPom);
+        doc.getDocumentElement().normalize();
+
+        addClientDependency(doc, clientPomInfo);
+
+        Node jsclientPlugins = getJsclientPluginsNode(doc);
+
+        if (jsclientPlugins == null) {
+          throw new Exception("No 'plugins' node found for jsclient profile in the server pom.xml");
+        }
+
+        // IF SENCHA PROJECT, DELETE EXECUTIONS IN jsclient PROFILE, IN exec-maven-plugin PLUGIN
+        if (clientType.equals(ProjectType.DEVON4SENCHA)) {
+          Node execMavenPlugin = getExecMavenPluginNode(jsclientPlugins);
+          if (execMavenPlugin != null) {
+            jsclientPlugins.removeChild(execMavenPlugin);
+          }
+        }
+        addJsclientPlugin(doc, jsclientPlugins, clientPomInfo);
+        applyChangesToPom(doc, serverPom);
+
+        getOutput().showMessage("Server pom.xml configured.");
+      }
+
+    } catch (Exception e) {
+      throw e;
+    }
+  }
+
+  private Node getJsclientPluginsNode(Document doc) {
+
+    try {
+
+      NodeList pluginsList = doc.getElementsByTagName("plugins");
+      Node pluginsNode = null;
+      for (int i = 0; i < pluginsList.getLength(); i++) {
+        Node n = pluginsList.item(i);
+        if (n.getParentNode().getNodeName().equals("build")
+            && n.getParentNode().getParentNode().getNodeName().equals("profile")
+            && n.getParentNode().getParentNode().getChildNodes().item(1).getTextContent().equals("jsclient")) {
+          pluginsNode = n;
+          break;
+        }
+      }
+      return pluginsNode;
+    } catch (Exception e) {
+      getOutput().showError("In getPlugins method for jsclient profile. " + e.getMessage());
+      return null;
+    }
+  }
+
+  private Node getExecMavenPluginNode(Node pluginsNode) {
+
+    try {
+
+      boolean isExecMavenPluginNode = false;
+      Node execMavenPlugin = null;
+
+      for (int i = 0; i < pluginsNode.getChildNodes().getLength(); i++) {
+        Node plugin = pluginsNode.getChildNodes().item(i);
+
+        for (int j = 0; j < plugin.getChildNodes().getLength(); j++) {
+          Node n = plugin.getChildNodes().item(j);
+          if (n.getNodeName().equals("artifactId")) {
+            if (n.getTextContent().equals("exec-maven-plugin")) {
+              isExecMavenPluginNode = true;
+              break;
+            }
+          }
+        }
+
+        if (isExecMavenPluginNode) {
+          execMavenPlugin = plugin;
+          break;
+        }
+
+      }
+
+      return execMavenPlugin;
+
+    } catch (Exception e) {
+      getOutput().showError("In getExecMavenPluginNode method. " + e.getMessage());
+      return null;
+    }
+  }
+
+  private void addClientDependency(Document doc, Triple<String, String, String> clientPomInfo) throws Exception {
+
+    try {
+      Node dependencies = doc.getElementsByTagName("dependencies").item(0);
+
+      if (dependencies == null)
+        throw new Exception("No 'dependencies' node found in the server pom.xml");
+
+      String[] terms = { clientPomInfo.getLeft(), clientPomInfo.getMiddle(), clientPomInfo.getRight() };
+
+      if (!xmlAlreadyConfigured(dependencies, terms)) {
+        Element dependency = doc.createElement("dependency");
+        Node groupId = doc.createElement("groupId");
+        groupId.appendChild(doc.createTextNode(clientPomInfo.getLeft()));
+
+        Node artifactId = doc.createElement("artifactId");
+        artifactId.appendChild(doc.createTextNode(clientPomInfo.getMiddle()));
+        Node version = doc.createElement("version");
+        version.appendChild(doc.createTextNode(clientPomInfo.getRight()));
+        Node type = doc.createElement("type");
+        type.appendChild(doc.createTextNode("zip"));
+        Node classifier = doc.createElement("classifier");
+        classifier.appendChild(doc.createTextNode("web"));
+        Node scope = doc.createElement("scope");
+        scope.appendChild(doc.createTextNode("runtime"));
+
+        dependency.appendChild(groupId);
+        dependency.appendChild(artifactId);
+        dependency.appendChild(version);
+        dependency.appendChild(type);
+        dependency.appendChild(classifier);
+        dependency.appendChild(scope);
+
+        dependencies.appendChild(dependency);
+      } else {
+        getOutput().showMessage("The dependency was already added to server pom.xml");
+      }
+
+    } catch (Exception e) {
+      getOutput().showError("Adding client dependency in server pom. " + e.getMessage());
+      throw e;
+    }
+
+  }
+
+  private void addJsclientPlugin(Document doc, Node jsclientPlugins, Triple<String, String, String> clientPomInfo) {
+
+    try {
+
+      String[] terms =
+          { "org.apache.maven.plugins", "maven-war-plugin", clientPomInfo.getLeft(), clientPomInfo.getMiddle() };
+      if (!xmlAlreadyConfigured(jsclientPlugins, terms)) {
+        Element plugin = doc.createElement("plugin");
+
+        Node pluginGroupId = doc.createElement("groupId");
+        pluginGroupId.appendChild(doc.createTextNode("org.apache.maven.plugins"));
+        plugin.appendChild(pluginGroupId);
+
+        Node pluginArtifactId = doc.createElement("artifactId");
+        pluginArtifactId.appendChild(doc.createTextNode("maven-war-plugin"));
+        plugin.appendChild(pluginArtifactId);
+
+        Node configuration = doc.createElement("configuration");
+
+        Node overlays = doc.createElement("overlays");
+        configuration.appendChild(overlays);
+
+        Node overlay = doc.createElement("overlay");
+        overlays.appendChild(overlay);
+
+        Node groupId = doc.createElement("groupId");
+        groupId.appendChild(doc.createTextNode(clientPomInfo.getLeft()));
+
+        Node artifactId = doc.createElement("artifactId");
+        artifactId.appendChild(doc.createTextNode(clientPomInfo.getMiddle()));
+
+        Node type = doc.createElement("type");
+        type.appendChild(doc.createTextNode("zip"));
+        Node classifier = doc.createElement("classifier");
+        classifier.appendChild(doc.createTextNode("web"));
+
+        Node targetPath = doc.createElement("targetPath");
+        targetPath.appendChild(doc.createTextNode("jsclient"));
+
+        overlay.appendChild(groupId);
+        overlay.appendChild(artifactId);
+        overlay.appendChild(type);
+        overlay.appendChild(classifier);
+        overlay.appendChild(targetPath);
+
+        plugin.appendChild(configuration);
+
+        jsclientPlugins.appendChild(plugin);
+      } else {
+        getOutput().showMessage("The jsclient plugin was already added to server pom.xml");
+      }
+    } catch (Exception e) {
+      getOutput().showError("Adding jsclient plugin in server pom. " + e.getMessage());
+      throw e;
+    }
+  }
+
+  private void applyChangesToPom(Document doc, File serverPom) throws Exception {
+
+    try {
+
+      TransformerFactory transformerFactory = TransformerFactory.newInstance();
+      Transformer transformer = transformerFactory.newTransformer();
+      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+      transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+      DOMSource source = new DOMSource(doc);
+      StreamResult result = new StreamResult(new File(serverPom.getPath()));
+      // StreamResult result = new StreamResult(new File("D:\\result.xml"));
+      transformer.transform(source, result);
+
+    } catch (Exception e) {
+      getOutput().showError("Applying changes to server pom. " + e.getMessage());
+      throw e;
+    }
+  }
+
+  private boolean xmlAlreadyConfigured(Node node, String[] terms) {
+
+    boolean result = true;
+    for (int i = 0; i < terms.length; i++) {
+      if (!node.getTextContent().contains(terms[i])) {
+        result = false;
+        break;
+      }
+    }
+
+    return result;
+  }
+
 }

@@ -49,7 +49,7 @@ public class HelpTest {
   @Test
   public void guide() {
 
-    String[] args = { "help", "guide" };
+    String[] args = { "help", "userguide" };
     assertTrue(this.inputMgr.parse(args));
   }
 }
