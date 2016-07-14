@@ -137,7 +137,14 @@ public class ContextPathInfo {
     Object obj = parser.parse(new FileReader(settingsPath.toFile()));
 
     JSONObject json = (JSONObject) obj;
-    Version version = Version.valueOf(json.get(VERSION).toString());
+
+    // PATCH to fix mistaken settings.json as distributed with Devonfw 2.0
+    String sversion = json.get(VERSION).toString();
+    if (sversion.equals("2.0")) {
+      sversion = "2.0.0";
+    }
+    Version version = Version.valueOf(sversion);
+
     DistributionType distType;
     String disttype = json.get(TYPE).toString();
     if (disttype.toLowerCase().equals(DEVON_DIST)) {
