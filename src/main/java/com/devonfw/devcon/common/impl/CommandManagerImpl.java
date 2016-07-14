@@ -60,7 +60,7 @@ public class CommandManagerImpl implements CommandManager {
   @Override
   public void showMainHelp() throws Exception {
 
-    execCommand("help", "guide");
+    execCommand("help", "overview");
   }
 
   /**

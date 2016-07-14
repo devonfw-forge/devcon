@@ -8,6 +8,7 @@ import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
+import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
 
 /**
@@ -17,6 +18,16 @@ import com.google.common.base.Optional;
  */
 @CmdModuleRegistry(name = "help", description = "This module shows help info about devcon")
 public class Help extends AbstractCommandModule {
+
+  @SuppressWarnings("javadoc")
+  @Command(name = "overview", description = "This command provides a quick overview the basic usage of devcon")
+  public void overview() {
+
+    this.output.showGeneralHelp(
+        "Devcon is a command line tool that provides many automated tasks around the full life-cycle of Devon applications.",
+        "devon <<module>> <<command>> [parameters...]", Utils.getGlobalOptions(), this.registry.getCommandModules());
+
+  }
 
   @SuppressWarnings("javadoc")
   @Command(name = "userguide", description = "Show the Devcon user guide")
