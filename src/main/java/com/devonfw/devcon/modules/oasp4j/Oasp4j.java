@@ -115,6 +115,8 @@ public class Oasp4j extends AbstractCommandModule {
   @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
   public void run(String port, String path) {
 
+    path = path.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : path;
+
     Process p;
     try {
       String commandStr = "mvn spring-boot:run -Drun.arguments=\"server.port=" + port.trim() + "\" ";
