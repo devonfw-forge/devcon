@@ -1,6 +1,7 @@
 package com.devonfw.devcon.modules.oasp4j;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 
 import org.apache.commons.lang3.SystemUtils;
@@ -27,6 +28,7 @@ public class Oasp4j extends AbstractCommandModule {
    * The constructor.
    */
   public Oasp4j() {
+
     super();
   }
 
@@ -36,6 +38,7 @@ public class Oasp4j extends AbstractCommandModule {
    * @param packagename Package Name of Server Project
    * @param groupid Group Id of the Server Project
    * @param version Version of the Server Project
+   * @throws IOException
    */
   @Command(name = "create", description = "This command is used to create new server project")
   @Parameters(values = {
@@ -44,14 +47,16 @@ public class Oasp4j extends AbstractCommandModule {
   @Parameter(name = "packagename", description = "package name in server project"),
   @Parameter(name = "groupid", description = "groupid for server project"),
   @Parameter(name = "version", description = "version of server project") })
-  public void create(String serverpath, String servername, String packagename, String groupid, String version) {
+  public void create(String serverpath, String servername, String packagename, String groupid, String version)
+      throws IOException {
 
-    String command = new StringBuffer("cmd /c start mvn -DarchetypeVersion=").append(Constants.OASP_TEMPLATE_VERSION)
-        .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
-        .append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=").append(Constants.OASP_ARTIFACT_ID)
-        .append(" archetype:generate -DgroupId=").append(groupid).append(" -DartifactId=").append(servername)
-        .append(" -Dversion=").append(version).append(" -Dpackage=").append(packagename)
-        .append(" -DinteractiveMode=false").toString();
+    String command =
+        new StringBuffer("cmd /c start mvn -DarchetypeVersion=").append(Constants.OASP_TEMPLATE_VERSION)
+            .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
+            .append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
+            .append(Constants.OASP_ARTIFACT_ID).append(" archetype:generate -DgroupId=").append(groupid)
+            .append(" -DartifactId=").append(servername).append(" -Dversion=").append(version).append(" -Dpackage=")
+            .append(packagename).append(" -DinteractiveMode=false").toString();
 
     Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot(serverpath);
 
@@ -62,7 +67,16 @@ public class Oasp4j extends AbstractCommandModule {
 
     if (distInfo.isPresent()) {
 
-      if (new File(serverpath).exists()) {
+      serverpath = serverpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : serverpath;
+
+      File projectDir = new File(serverpath);
+
+      if (!projectDir.exists()) {
+        projectDir.mkdirs();
+      }
+      File project = new File(serverpath + File.separator + servername);
+
+      if (!project.exists()) {
 
         Runtime rt = Runtime.getRuntime();
         Process process = null;
@@ -83,7 +97,7 @@ public class Oasp4j extends AbstractCommandModule {
         }
 
       } else {
-        getOutput().showError("Project exists!");
+        getOutput().showError("The project " + project.toString() + " already exists!");
       }
     } else {
       getOutput().showError("Not a Devon Distribution Workspace");
@@ -96,9 +110,12 @@ public class Oasp4j extends AbstractCommandModule {
    * @param path Path to server project
    */
   @Command(name = "run", description = "runs application from embedded tomcat", context = ContextType.PROJECT)
-  @Parameters(values = { @Parameter(name = "port", description = "Port to start Spring boot app", optional = false),
+  @Parameters(values = {
+  @Parameter(name = "port", description = "Port to start Spring boot app", optional = false),
   @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
   public void run(String port, String path) {
+
+    path = path.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : path;
 
     Process p;
     try {
@@ -123,14 +140,13 @@ public class Oasp4j extends AbstractCommandModule {
    * @param path path to server project
    */
   @Command(name = "build", description = "This command will build the server project", context = ContextType.PROJECT)
-  @Parameters(values = {
-  @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
+  @Parameters(values = { @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
   public void build(String path) {
 
     this.projectInfo = getContextPathInfo().getProjectRoot(path);
     System.out.println("projectInfo read...");
-    System.out
-        .println("path " + this.projectInfo.get().getPath() + "project type " + this.projectInfo.get().getProjecType());
+    System.out.println("path " + this.projectInfo.get().getPath() + "project type "
+        + this.projectInfo.get().getProjecType());
 
     Process p;
     try {
@@ -150,7 +166,8 @@ public class Oasp4j extends AbstractCommandModule {
    * @param path server project path
    */
   @Command(name = "deploy", description = "This command will deploy the server project on tomcat", context = ContextType.PROJECT)
-  @Parameters(values = { @Parameter(name = "deploypath", description = "Path to tomcat folder"),
+  @Parameters(values = {
+  @Parameter(name = "deploypath", description = "Path to tomcat folder"),
   @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
   public void deploy(String deploypath, String path) {
 
