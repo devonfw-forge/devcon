@@ -12,6 +12,7 @@ import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.ContextType;
 import com.devonfw.devcon.common.api.data.DistributionInfo;
+import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Constants;
 import com.google.common.base.Optional;
@@ -50,13 +51,12 @@ public class Oasp4j extends AbstractCommandModule {
   public void create(String serverpath, String servername, String packagename, String groupid, String version)
       throws IOException {
 
-    String command =
-        new StringBuffer("cmd /c start mvn -DarchetypeVersion=").append(Constants.OASP_TEMPLATE_VERSION)
-            .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
-            .append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
-            .append(Constants.OASP_ARTIFACT_ID).append(" archetype:generate -DgroupId=").append(groupid)
-            .append(" -DartifactId=").append(servername).append(" -Dversion=").append(version).append(" -Dpackage=")
-            .append(packagename).append(" -DinteractiveMode=false").toString();
+    String command = new StringBuffer("cmd /c start mvn -DarchetypeVersion=").append(Constants.OASP_TEMPLATE_VERSION)
+        .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
+        .append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=").append(Constants.OASP_ARTIFACT_ID)
+        .append(" archetype:generate -DgroupId=").append(groupid).append(" -DartifactId=").append(servername)
+        .append(" -Dversion=").append(version).append(" -Dpackage=").append(packagename)
+        .append(" -DinteractiveMode=false").toString();
 
     Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot(serverpath);
 
@@ -106,33 +106,44 @@ public class Oasp4j extends AbstractCommandModule {
   }
 
   /**
+   * Run OASP4j Project from the command line ContextType Project makes this into a "special" command which gets an
+   * extra parameter '-path' allowing to specify the project root (in reality, any directory below the root is valid as
+   * well) Alternatively, the current dir is used. When the file devon.json is found at the project root, it is
+   * available as type ProjectInfo in the field propertyInfo. Apart from "version" and "type" (default properties) *ANY*
+   * property can be specified
+   *
    * @param port Server will be started at this port
-   * @param path Path to server project
    */
   @Command(name = "run", description = "runs application from embedded tomcat", context = ContextType.PROJECT)
   @Parameters(values = {
-  @Parameter(name = "port", description = "Port to start Spring boot app", optional = false),
-  @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
-  public void run(String port, String path) {
+  @Parameter(name = "port", description = "Port to start Spring boot app (port 8081 by default)", optional = true) })
+  public void run(String port) {
 
-    path = path.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : path;
+    // Check projectInfo loaded. If not, abort
+    if (!this.projectInfo.isPresent()) {
+      getOutput().showError("Not in a project or -path param not pointing to a project");
+      return;
+    }
 
-    Process p;
+    ProjectInfo info = this.projectInfo.get();
+
+    // Get port from a) parameter or b) devon.json file or c) default value passed as 2nd paranter to info.getProperty
+    String port_ = (port.isEmpty()) ? info.getProperty("port", "8081").toString() : port.trim();
+
     try {
-      String commandStr = "mvn spring-boot:run -Drun.arguments=\"server.port=" + port.trim() + "\" ";
-      String cmd = "cmd /c start " + commandStr;//
+      String commandStr = "mvn spring-boot:run -Drun.arguments=\"server.port=" + port_ + "\" ";
+      String cmd = "cmd /c start " + commandStr;
 
-      p = Runtime.getRuntime().exec(cmd, null, new File(path));
+      Process p = Runtime.getRuntime().exec(cmd, null, info.getPath().toFile());
       int result = p.waitFor();
       if (result == 0) {
         getOutput().showMessage("Application started");
       } else {
-        throw new Exception();
+        getOutput().showError("Application failed to start");
       }
-
     } catch (Exception e) {
 
-      getOutput().showError("An error occured during executing oasp4j Cmd");
+      getOutput().showError("An error occured during executing oasp4j Cmd: %s", e.getMessage());
     }
   }
 
@@ -140,13 +151,14 @@ public class Oasp4j extends AbstractCommandModule {
    * @param path path to server project
    */
   @Command(name = "build", description = "This command will build the server project", context = ContextType.PROJECT)
-  @Parameters(values = { @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
+  @Parameters(values = {
+  @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
   public void build(String path) {
 
     this.projectInfo = getContextPathInfo().getProjectRoot(path);
     System.out.println("projectInfo read...");
-    System.out.println("path " + this.projectInfo.get().getPath() + "project type "
-        + this.projectInfo.get().getProjecType());
+    System.out
+        .println("path " + this.projectInfo.get().getPath() + "project type " + this.projectInfo.get().getProjecType());
 
     Process p;
     try {
@@ -166,8 +178,7 @@ public class Oasp4j extends AbstractCommandModule {
    * @param path server project path
    */
   @Command(name = "deploy", description = "This command will deploy the server project on tomcat", context = ContextType.PROJECT)
-  @Parameters(values = {
-  @Parameter(name = "deploypath", description = "Path to tomcat folder"),
+  @Parameters(values = { @Parameter(name = "deploypath", description = "Path to tomcat folder"),
   @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
   public void deploy(String deploypath, String path) {
 

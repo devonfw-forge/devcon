@@ -45,4 +45,11 @@ public interface ProjectInfo {
    * @return
    */
   List<ProjectInfo> getSubProjects();
+
+  /**
+   * @param name Config property name to search
+   * @param default Alternative value if property with name is present
+   * @return Property value; given or default
+   */
+  Object getProperty(String name, Object defaultValue);
 }

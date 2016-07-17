@@ -74,4 +74,17 @@ public class ProjectInfoImpl implements ProjectInfo {
     return this.config;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Object getProperty(String name, Object defaultValue) {
+
+    if (this.config.containsKey(name)) {
+      return this.config.get(name);
+    } else {
+      return defaultValue;
+    }
+  }
+
 }
