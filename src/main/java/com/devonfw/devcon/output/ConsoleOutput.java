@@ -50,8 +50,10 @@ public class ConsoleOutput implements Output {
 
     HelpFormatter formatter = new HelpFormatter();
 
+    String footer = command.getHelpText();
+
     formatter.printHelp(new PrintWriter(this.out_, true), 120, command.getName(), command.getDescription(), options, 1,
-        2, null, true);
+        2, footer, true);
   }
 
   @Override
