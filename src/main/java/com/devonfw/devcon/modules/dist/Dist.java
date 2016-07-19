@@ -60,7 +60,8 @@ public class Dist extends AbstractCommandModule {
       Optional<String> fileDownloaded = Downloader.downloadFromTeamForge(path, user, password, frsFileId);
 
       if (fileDownloaded.isPresent()) {
-        Extractor.extract(path + File.separator + fileDownloaded.get().toString(), path);
+        // Extractor.extract(path + File.separator + fileDownloaded.get().toString(), path);
+        Extractor.unZip(path + File.separator + fileDownloaded.get().toString(), path);
         this.output.success("install");
       } else {
         throw new Exception("An error occurred while downloading the file.");
