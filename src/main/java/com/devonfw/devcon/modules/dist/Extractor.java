@@ -15,8 +15,8 @@ import net.sf.sevenzipjbinding.SevenZip;
 import net.sf.sevenzipjbinding.SevenZipException;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 
-import com.devonfw.devcon.output.Output;
 import com.devonfw.devcon.output.ConsoleOutput;
+import com.devonfw.devcon.output.Output;
 import com.devonfw.devcon.output.SpinningCursor;
 
 /**
@@ -101,14 +101,6 @@ public class Extractor {
           try {
             File path = new File(MyExtractCallback.this.extractPath + filePath);
 
-            // // ---------------
-            // if (MyExtractCallback.this.firstNode && path.getParentFile().exists()) {
-            // MyExtractCallback.this.firstNode = false;
-            // throw new Exception("Directory " + path.getParentFile() + " already exists.");
-            // }
-            // MyExtractCallback.this.firstNode = false;
-            // // ---------------
-
             if (!path.getParentFile().exists()) {
               path.getParentFile().mkdirs();
             }
@@ -120,7 +112,6 @@ public class Extractor {
             fos.write(data);
 
           } catch (IOException e) {
-            // logger.error("IOException while extracting "+filePath, e);
             MyExtractCallback.this.out.showError("IOException while extracting " + filePath);
           } catch (Exception e) {
             MyExtractCallback.this.out.showError(e.getMessage());
@@ -133,7 +124,6 @@ public class Extractor {
                 fos.close();
               }
             } catch (IOException e) {
-              // logger.error("Could not close FileOutputStream", e);
               MyExtractCallback.this.out.showError("Could not close FileOutputStream");
             }
           }
