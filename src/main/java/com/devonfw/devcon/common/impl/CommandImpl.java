@@ -15,6 +15,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
+import com.devonfw.devcon.Devcon;
 import com.devonfw.devcon.common.CommandResult;
 import com.devonfw.devcon.common.api.Command;
 import com.devonfw.devcon.common.api.CommandModule;
@@ -283,7 +284,8 @@ public class CommandImpl implements Command {
   @Override
   public String getHelpText() {
 
-    String resource = "help/" + this.moduleName + "/" + this.name + ".txt";
+    String root = (Devcon.IN_EXEC_JAR) ? "resources/" : "";
+    String resource = root + "help/" + this.moduleName + "/" + this.name + ".txt";
     URL txt = ClassLoader.getSystemClassLoader().getResource(resource);
 
     if (txt == null) {

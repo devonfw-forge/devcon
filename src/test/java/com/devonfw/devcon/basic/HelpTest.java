@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.devonfw.devcon.Devcon;
 import com.devonfw.devcon.common.api.Command;
 import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.impl.CommandRegistryImpl;
@@ -23,6 +24,13 @@ public class HelpTest {
   public void setup() {
 
     this.registry = new CommandRegistryImpl("com.devonfw.devcon.modules.*");
+  }
+
+  @Test
+  public void testNotInExecJar() {
+
+    // When executing tests NOT in Executable Jar
+    assertTrue(!Devcon.IN_EXEC_JAR);
   }
 
   @Test
