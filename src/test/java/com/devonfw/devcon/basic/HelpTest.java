@@ -38,7 +38,7 @@ public class HelpTest {
 
     // then
     assertTrue(devonCmdHelp.isEmpty());
-    assertTrue(installCmdHelp.contains("MEEP MEEP"));
+    assertTrue(installCmdHelp.contains("[INFO] installing distribution..."));
 
   }
 
