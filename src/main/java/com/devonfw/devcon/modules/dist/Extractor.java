@@ -1,169 +1,73 @@
 package com.devonfw.devcon.modules.dist;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-
-import net.sf.sevenzipjbinding.ExtractAskMode;
-import net.sf.sevenzipjbinding.ExtractOperationResult;
-import net.sf.sevenzipjbinding.IArchiveExtractCallback;
-import net.sf.sevenzipjbinding.IInArchive;
-import net.sf.sevenzipjbinding.ISequentialOutStream;
-import net.sf.sevenzipjbinding.PropID;
-import net.sf.sevenzipjbinding.SevenZip;
-import net.sf.sevenzipjbinding.SevenZipException;
-import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
-
-import com.devonfw.devcon.output.Output;
-import com.devonfw.devcon.output.ConsoleOutput;
-import com.devonfw.devcon.output.SpinningCursor;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
- * This class includes the extracting functionality for uncompress .7z and .zip files
+ * This class includes the extracting functionality for extracting compressed files
  *
  * @author pparrado
  */
 public class Extractor {
 
   /**
-   * Method that extracts a compressed file and stores the uncompressed files in a given path
+   * Method that extracts a compressed ZIP file and stores the uncompressed files in a given path
    *
-   * @param file the file to extract
-   * @param extractPath the path to extract the files
-   * @throws SevenZipException
-   * @throws IOException
-   * @throws InterruptedException
+   * @param zipFile the compressed file
+   * @param outputFolder the uncompressed file
    */
-  public static void extract(String file, String extractPath) throws SevenZipException, IOException,
-      InterruptedException {
+  public static void unZip(String zipFile, String outputFolder) {
 
-    Output out = new ConsoleOutput();
-    Thread thread;
-    SpinningCursor spin;
+    byte[] buffer = new byte[1024];
 
-    out.status("extracting file...");
-    // start showing spinningCursor
-    spin = new SpinningCursor();
-    thread = new Thread(spin);
-    thread.start();
-
-    IInArchive inArchive = null;
-    RandomAccessFile randomAccessFile = null;
     try {
-      randomAccessFile = new RandomAccessFile(new File(file), "r");
-      inArchive = SevenZip.openInArchive(null, new RandomAccessFileInStream(randomAccessFile));
-      inArchive.extract(null, false, new MyExtractCallback(inArchive, extractPath));
-    } finally {
-      if (inArchive != null) {
-        inArchive.close();
-      }
-      if (randomAccessFile != null) {
-        randomAccessFile.close();
+
+      File folder = new File(outputFolder);
+      if (!folder.exists()) {
+        folder.mkdir();
       }
 
-      // end spinningCursor
-      if (thread != null) {
-        spin.terminate();
-        thread.join();
-      }
-      out.status("File successfully extracted.");
-    }
-  }
+      ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
+      ZipEntry ze = zis.getNextEntry();
 
-  private static class MyExtractCallback implements IArchiveExtractCallback {
-    private final IInArchive inArchive;
-
-    private final String extractPath;
-
-    Output out = new ConsoleOutput();
-
-    // boolean firstNode = true;
-
-    public MyExtractCallback(IInArchive inArchive, String extractPath) {
-
-      this.inArchive = inArchive;
-      this.extractPath = extractPath.endsWith(File.separator) ? extractPath : extractPath + File.separator;
-    }
-
-    // @Override
-    @Override
-    public ISequentialOutStream getStream(final int index, ExtractAskMode extractAskMode) throws SevenZipException {
-
-      return new ISequentialOutStream() {
-        // @Override
-        @Override
-        public int write(byte[] data) throws SevenZipException {
-
-          String filePath = MyExtractCallback.this.inArchive.getStringProperty(index, PropID.PATH);
-          FileOutputStream fos = null;
-
-          try {
-            File path = new File(MyExtractCallback.this.extractPath + filePath);
-
-            // // ---------------
-            // if (MyExtractCallback.this.firstNode && path.getParentFile().exists()) {
-            // MyExtractCallback.this.firstNode = false;
-            // throw new Exception("Directory " + path.getParentFile() + " already exists.");
-            // }
-            // MyExtractCallback.this.firstNode = false;
-            // // ---------------
-
-            if (!path.getParentFile().exists()) {
-              path.getParentFile().mkdirs();
-            }
-
-            if (!path.exists()) {
-              path.createNewFile();
-            }
-            fos = new FileOutputStream(path, true);
-            fos.write(data);
-
-          } catch (IOException e) {
-            // logger.error("IOException while extracting "+filePath, e);
-            MyExtractCallback.this.out.showError("IOException while extracting " + filePath);
-          } catch (Exception e) {
-            MyExtractCallback.this.out.showError(e.getMessage());
-            System.exit(0);
-          } finally {
-
-            try {
-              if (fos != null) {
-                fos.flush();
-                fos.close();
-              }
-            } catch (IOException e) {
-              // logger.error("Could not close FileOutputStream", e);
-              MyExtractCallback.this.out.showError("Could not close FileOutputStream");
-            }
-          }
-          return data.length;
+      while (ze != null) {
+        if (ze.isDirectory()) {
+          ze = zis.getNextEntry();
+          continue;
         }
-      };
-    }
 
-    // @Override
-    @Override
-    public void prepareOperation(ExtractAskMode extractAskMode) throws SevenZipException {
+        String fileName = ze.getName();
+        File newFile = new File(outputFolder + File.separator + fileName);
 
-    }
+        System.out.println("file unzip : " + newFile.getAbsoluteFile());
 
-    // @Override
-    @Override
-    public void setOperationResult(ExtractOperationResult extractOperationResult) throws SevenZipException {
+        File parent = new File(newFile.getParent());
+        if (!parent.exists()) {
+          parent.mkdirs();
+        }
 
-    }
+        FileOutputStream fos = new FileOutputStream(newFile);
 
-    // @Override
-    @Override
-    public void setCompleted(long completeValue) throws SevenZipException {
+        int len;
+        while ((len = zis.read(buffer)) > 0) {
+          fos.write(buffer, 0, len);
+        }
 
-    }
+        fos.close();
+        ze = zis.getNextEntry();
+      }
 
-    // @Override
-    @Override
-    public void setTotal(long total) throws SevenZipException {
+      zis.closeEntry();
+      zis.close();
 
+      System.out.println("Done");
+
+    } catch (IOException ex) {
+      ex.printStackTrace();
     }
   }
 }

@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
@@ -31,7 +32,7 @@ public class Sencha extends AbstractCommandModule {
   @SuppressWarnings("javadoc")
   @Command(name = "run", description = "compiles in DEBUG mode and then runs the internal Sencha web server (\"app watch\")", context = ContextType.PROJECT)
   @Parameters(values = { @Parameter(name = "port", description = "", optional = true),
-  @Parameter(name = "appFolder", description = "app folder required to run Sencha Commands", optional = false) })
+  @Parameter(name = "appfolder", description = "app folder required to run Sencha Commands", optional = true) })
   public void run(String port, String appFolder) throws Exception {
 
     // TODO ivanderk Implementatin for MacOSX & Unix
@@ -47,10 +48,17 @@ public class Sencha extends AbstractCommandModule {
         if (appFolder == null || appFolder.isEmpty()) {
           appFolder = getContextPathInfo().getCurrentWorkingDirectory().toString();
         }
+
         ProcessBuilder processBuilder = new ProcessBuilder("sencha", "app", "watch");
         processBuilder.directory(new File(appFolder));
 
-        processBuilder.start();
+        Process process = processBuilder.start();
+
+        final InputStream isError = process.getErrorStream();
+        final InputStream isOutput = process.getInputStream();
+
+        Utils.processErrorAndOutPut(isError, isOutput);
+
         this.output.status("[LOG]" + " Sencha App Watch Started");
 
       } catch (Exception e) {
@@ -196,6 +204,8 @@ public class Sencha extends AbstractCommandModule {
       }
 
       if (pStatus == 0) {
+
+        addDevonJsonFile(senchaAppPath);
         this.output.status("[LOG]" + "Sencha Ext JS6 app Created");
       } else {
         this.output
@@ -207,5 +217,24 @@ public class Sencha extends AbstractCommandModule {
       this.output.status("[LOG]" + e.getMessage());
       throw e;
     }
+  }
+
+  private void addDevonJsonFile(Path senchaAppPath) throws Exception {
+
+    getOutput().showMessage("Adding devon.json file...");
+    try {
+      File appFolder = senchaAppPath.toFile();
+      if (appFolder.exists()) {
+        String content = "{\"version\": \"2.0.0\",\n\"type\":\"devon4sencha\"}";
+        File settingsfile = senchaAppPath.resolve("devon.json").toFile();
+        FileUtils.writeStringToFile(settingsfile, content, "UTF-8");
+      }
+    } catch (Exception e) {
+      getOutput().showError(
+          "An error occurred while adding the devon.json file to the new Sencha app. You may need to add it manually."
+              + e.getMessage());
+      throw e;
+    }
+
   }
 }

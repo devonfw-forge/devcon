@@ -23,20 +23,6 @@ import com.devonfw.devcon.output.Output;
 public class DistTest {
   ConsoleInputManager inputMgr;
 
-  // /**
-  // * THIS TEST NEEDS A VALID TEAM FORGE USER AND PASSWORD TO WORK PROPERLY
-  // * Checks if the install command works successfully
-  // */
-  // @Test
-  // public void install() {
-  //
-  // String[] args =
-  // { "-np", "dist", "install", "-path", "C:\\Temp\\myTemp", "-user", "yourUser", "-password", "yourPassword",
-  // "-type", "oaspide" };
-  // this.input = new InputConsole(args);
-  // assertTrue(this.input.parse());
-  // }
-
   private CommandManager commandManager;
 
   private CommandRegistry registry;
@@ -62,8 +48,9 @@ public class DistTest {
   @Test
   public void installFail_WrongUser() {
 
-    String[] args = { "-np", "dist", "install", "-path", "C:\\Temp\\myTemp", "-user", "asdf", "-password", "12345",
-    "-type", "oaspide" };
+    String[] args =
+        { "-np", "dist", "install", "-path", "C:\\Temp\\myTemp", "-user", "asdf", "-password", "12345", "-type",
+        "oaspide" };
 
     assertFalse(this.inputMgr.parse(args));
   }
@@ -74,8 +61,9 @@ public class DistTest {
   @Test
   public void installFail_WrongType() {
 
-    String[] args = { "-np", "dist", "install", "-path", "C:\\Temp\\myTemp", "-user", "asdf", "-password", "12345",
-    "-type", "wrongType" };
+    String[] args =
+        { "-np", "dist", "install", "-path", "C:\\Temp\\myTemp", "-user", "asdf", "-password", "12345", "-type",
+        "wrongType" };
 
     assertFalse(this.inputMgr.parse(args));
   }
