@@ -1,0 +1,25 @@
+
+The install command downloads a distribution from a Team Forge repository and after that extracts
+the file in a location defined by the user.
+
+dist install requirements: a user with permissions to download files from Team Forge repository.
+
+A simple example of usage for this command would be the following
+
+---
+    D:\>devon dist install -user john -password 1234 -path D:\Temp\MyDistribution -type devondist
+    Hello, this is Devcon!
+    Copyright (c) 2016 Capgemini
+    [INFO] installing distribution...
+    [INFO] Downloading Devon-dist_2.0.0.7z (876,16MB). It may take a few minutes.
+    [==========] 100% downloaded
+    [INFO] File downloaded successfully.
+    [...]
+    [INFO] extracting file...
+    [INFO] File successfully extracted.
+    [INFO] The command INSTALL has finished successfully
+----
+
+You must have in mind that this process can take a while, specially depending on your connection to
+the internet.
+

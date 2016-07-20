@@ -27,6 +27,10 @@ public class Devcon {
 
   public static final String DEVCON_BANNER = "Hello, this is Devcon!\n" + "Copyright (c) 2016 Capgemini";
 
+  // Determine whether app is inside an "executable jar" or not (made with Eclipse: has an "resource" folder"
+  public static final boolean IN_EXEC_JAR =
+      ClassLoader.getSystemClassLoader().getResource("resources/execjar.txt") != null;
+
   /**
    * @param args command line arguments
    */

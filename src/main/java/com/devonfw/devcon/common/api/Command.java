@@ -25,6 +25,8 @@ public interface Command extends Info, Comparable<Command> {
 
   ContextType getContext();
 
+  String getHelpText();
+
   List<CommandParameter> getDefinedParameters();
 
   Triple<CommandResult, String, List<CommandParameter>> getParametersWithInput(List<Pair<String, String>> list);
