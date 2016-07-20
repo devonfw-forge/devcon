@@ -33,7 +33,7 @@ public class CommandModuleInfoImpl implements CommandModuleInfo {
     this.name = name;
     this.description = description;
     this.isVisible = isVisible;
-    addCommands(moduleClass);
+    addCommands(name, moduleClass);
   }
 
   @Override
@@ -70,7 +70,7 @@ public class CommandModuleInfoImpl implements CommandModuleInfo {
     }
   }
 
-  void addCommands(Class<?> moduleClass) {
+  void addCommands(String moduleName, Class<?> moduleClass) {
 
     try {
       for (Method method : moduleClass.getMethods()) {
@@ -81,7 +81,8 @@ public class CommandModuleInfoImpl implements CommandModuleInfo {
           Annotation annotation = method.getAnnotation(klass);
           com.devonfw.devcon.common.api.annotations.Command cmd =
               (com.devonfw.devcon.common.api.annotations.Command) annotation;
-          Command cmdImpl = new CommandImpl(cmd.name(), cmd.description(), cmd.context(), method, moduleClass);
+          Command cmdImpl =
+              new CommandImpl(cmd.name(), cmd.description(), cmd.context(), method, moduleName, moduleClass);
           this.commands.put(cmd.name(), cmdImpl);
         }
       }

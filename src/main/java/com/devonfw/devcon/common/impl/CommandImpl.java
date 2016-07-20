@@ -1,17 +1,21 @@
 package com.devonfw.devcon.common.impl;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
+import com.devonfw.devcon.Devcon;
 import com.devonfw.devcon.common.CommandResult;
 import com.devonfw.devcon.common.api.Command;
 import com.devonfw.devcon.common.api.CommandModule;
@@ -37,6 +41,8 @@ public class CommandImpl implements Command {
 
   private String description;
 
+  private String moduleName;
+
   private Class<?> module;
 
   private Method method;
@@ -59,12 +65,14 @@ public class CommandImpl implements Command {
     this.definedParameters = new ArrayList<>();
   }
 
-  public CommandImpl(String name, String description, ContextType context, Method method, Class<?> module) {
+  public CommandImpl(String name, String description, ContextType context, Method method, String moduleName,
+      Class<?> module) {
     this();
     this.name = name;
     this.description = description;
     this.context = context;
     this.method = method;
+    this.moduleName = moduleName;
     this.module = module;
     addParameters(method);
   }
@@ -270,4 +278,25 @@ public class CommandImpl implements Command {
     return this.name.compareTo(o.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getHelpText() {
+
+    String root = (Devcon.IN_EXEC_JAR) ? "resources/" : "";
+    String resource = root + "help/" + this.moduleName + "/" + this.name + ".txt";
+    URL txt = ClassLoader.getSystemClassLoader().getResource(resource);
+
+    if (txt == null) {
+      return "";
+    } else {
+      try {
+        return IOUtils.toString(txt, "utf-8");
+      } catch (IOException e) {
+        e.printStackTrace();
+        return "";
+      }
+    }
+  }
 }
