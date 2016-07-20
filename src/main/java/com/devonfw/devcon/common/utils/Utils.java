@@ -8,8 +8,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -52,6 +55,36 @@ public class Utils {
       right.add(pair.getRight());
     }
     return Pair.of(left, right);
+  }
+
+  /**
+   * This method is used to encode special characters in a given string.
+   *
+   * @param str String to be encoded
+   * @return pass encoded String.
+   * @throws UnsupportedEncodingException
+   */
+  public static String encode(String str) throws UnsupportedEncodingException {
+
+    String pass;
+
+    pass = URLEncoder.encode(str, "UTF-8");
+    return pass;
+  }
+
+  /**
+   * This method is used to decode encoded string.
+   *
+   * @param str String to be decoded
+   * @return pass decoded String.
+   * @throws UnsupportedEncodingException
+   */
+  public static String decode(String str) throws UnsupportedEncodingException {
+
+    String url;
+
+    url = URLDecoder.decode(str, "UTF-8");
+    return url;
   }
 
   public static <T, U> List<Pair<T, U>> zipLists(List<T> left, List<U> right) {

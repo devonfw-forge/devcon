@@ -69,16 +69,18 @@ public class Github extends AbstractCommandModule {
   @Parameter(name = "gitFolder", description = "GIT BIN/CMD folder where git executable is present", optional = true) })
   public void devoncode(String path, String username, String password, String gitFolder) throws Exception {
 
+    String pass = Utils.encode(password);
+    String user = Utils.encode(username);
     final String CLONED_DIRECTORY = new StringBuffer(path).append(Constants.DOT_GIT).toString();
-    final String REMOTE_URL = new StringBuffer(Constants.HTTPS).append(username).append(Constants.COLON)
-        .append(password).append(Constants.AT_THE_RATE).append(Constants.DEVON_REPO_URL).toString();
+    final String REMOTE_URL = new StringBuffer(Constants.HTTPS).append(user).append(Constants.COLON).append(pass)
+        .append(Constants.AT_THE_RATE).append(Constants.DEVON_REPO_URL).toString();
 
     File folder = new File(path);
     if (!folder.exists()) {
       folder.mkdirs();
     }
-
-    this.output.status("Cloning from " + REMOTE_URL + " to " + path);
+    String remoteUrl = Utils.decode(REMOTE_URL);
+    this.output.status("Cloning from " + remoteUrl + " to " + path);
 
     try {
       Utils.cloneRepository(REMOTE_URL, path, gitFolder);
