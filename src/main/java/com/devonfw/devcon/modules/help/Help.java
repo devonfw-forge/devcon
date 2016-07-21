@@ -8,7 +8,6 @@ import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
-import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
 
 /**
@@ -25,7 +24,8 @@ public class Help extends AbstractCommandModule {
 
     this.output.showGeneralHelp(
         "Devcon is a command line tool that provides many automated tasks around the full life-cycle of Devon applications.",
-        "devon <<module>> <<command>> [parameters...]", Utils.getGlobalOptions(), this.registry.getCommandModules());
+        "devon <<module>> <<command>> [parameters...]", this.contextPathInfo.getGlobalOptions(),
+        this.registry.getCommandModules());
 
   }
 

@@ -42,7 +42,8 @@ public class Devcon {
     Output output = new ConsoleOutput(System.out);
     CommandRegistry registry = new CommandRegistryImpl("com.devonfw.devcon.modules.*");
 
-    ConsoleInputManager inputmanager = new ConsoleInputManager(new CommandManagerImpl(registry, input, output));
+    ConsoleInputManager inputmanager =
+        new ConsoleInputManager(registry, input, output, new CommandManagerImpl(registry, input, output));
     inputmanager.parse(args);
   }
 

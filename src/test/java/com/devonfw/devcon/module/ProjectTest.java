@@ -84,7 +84,7 @@ public class ProjectTest {
     this.output = new ConsoleOutput();
     this.input = new ConsoleInput();
     this.commandManager = new CommandManagerImpl(this.registry, this.input, this.output);
-    this.inputMgr = new ConsoleInputManager(this.commandManager);
+    this.inputMgr = new ConsoleInputManager(this.registry, this.input, this.output, this.commandManager);
     this.serverName = "serverProjectTest";
     this.serverPath = workspacemain.toString();
     this.groupId = "io.devon.application";
@@ -105,10 +105,9 @@ public class ProjectTest {
     this.clientPath = this.serverPath;
     this.clientType = "oasp4js";
 
-    String[] args =
-        { "project", "create", "-servername", this.serverName, "-distributionpath", this.serverPath, "-packagename",
-        this.packageName, "-groupid", this.groupId, "-version", this.version, "-clientname", this.clientName,
-        "-clientpath", this.clientPath, "-clienttype", this.clientType };
+    String[] args = { "project", "create", "-servername", this.serverName, "-distributionpath", this.serverPath,
+    "-packagename", this.packageName, "-groupid", this.groupId, "-version", this.version, "-clientname",
+    this.clientName, "-clientpath", this.clientPath, "-clienttype", this.clientType };
 
     assertTrue(this.inputMgr.parse(args));
   }

@@ -48,7 +48,7 @@ public class Oasp4jsTest {
     this.output = new ConsoleOutput();
     this.input = new ConsoleInput();
     this.commandManager = new CommandManagerImpl(this.registry, this.input, this.output);
-    this.inputMgr = new ConsoleInputManager(this.commandManager);
+    this.inputMgr = new ConsoleInputManager(this.registry, this.input, this.output, this.commandManager);
     this.clientName = "angularProjectTest";
     this.clientPath = "D:\\devconOasp4jsTestTemp";
   }

@@ -7,8 +7,8 @@ package com.devonfw.devcon.input;
  */
 public interface Input {
 
-  String promptForArgument(String argName);
+  String promptUser(String msg, String... args);
 
-  boolean askForUserConfirmation(String message);
+  boolean askForUserConfirmation(String message, String... args);
 
 }

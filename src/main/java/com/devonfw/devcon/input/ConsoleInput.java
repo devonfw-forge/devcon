@@ -29,19 +29,20 @@ public class ConsoleInput implements Input {
   }
 
   @Override
-  public String promptForArgument(String argName) {
+  public String promptUser(String msg, String... args) {
 
-    Scanner reader = new Scanner(this.in_); // new Scanner(System.in);
-    this.out_.printf("Please introduce value for missing param %s: ", argName);
-    return reader.next();
+    Scanner reader = new Scanner(this.in_);
+    this.out_.printf(msg, args);
+    return reader.nextLine().trim();
   }
 
   @Override
-  public boolean askForUserConfirmation(String message) {
+  public boolean askForUserConfirmation(String message, String... args) {
 
     String[] validResponses = { "yes", "y", "no", "n" };
     Scanner reader = new Scanner(this.in_); // new Scanner(System.in);
-    this.out_.println(message);
+    this.out_.printf(message, args);
+    this.out_.println();
     this.out_.println("Y/N");
     String response = reader.next();
     while (!Arrays.asList(validResponses).contains(response.toLowerCase())) {

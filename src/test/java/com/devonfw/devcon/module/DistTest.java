@@ -39,7 +39,7 @@ public class DistTest {
     this.output = new ConsoleOutput();
     this.input = new ConsoleInput();
     this.commandManager = new CommandManagerImpl(this.registry, this.input, this.output);
-    this.inputMgr = new ConsoleInputManager(this.commandManager);
+    this.inputMgr = new ConsoleInputManager(this.registry, this.input, this.output, this.commandManager);
   }
 
   /**
@@ -48,9 +48,8 @@ public class DistTest {
   @Test
   public void installFail_WrongUser() {
 
-    String[] args =
-        { "-np", "dist", "install", "-path", "C:\\Temp\\myTemp", "-user", "asdf", "-password", "12345", "-type",
-        "oaspide" };
+    String[] args = { "-np", "dist", "install", "-path", "C:\\Temp\\myTemp", "-user", "asdf", "-password", "12345",
+    "-type", "oaspide" };
 
     assertFalse(this.inputMgr.parse(args));
   }
@@ -61,9 +60,8 @@ public class DistTest {
   @Test
   public void installFail_WrongType() {
 
-    String[] args =
-        { "-np", "dist", "install", "-path", "C:\\Temp\\myTemp", "-user", "asdf", "-password", "12345", "-type",
-        "wrongType" };
+    String[] args = { "-np", "dist", "install", "-path", "C:\\Temp\\myTemp", "-user", "asdf", "-password", "12345",
+    "-type", "wrongType" };
 
     assertFalse(this.inputMgr.parse(args));
   }

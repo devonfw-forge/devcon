@@ -40,7 +40,7 @@ public class HelpTest {
     this.output = new ConsoleOutput();
     this.input = new ConsoleInput();
     this.commandManager = new CommandManagerImpl(this.registry, this.input, this.output);
-    this.inputMgr = new ConsoleInputManager(this.commandManager);
+    this.inputMgr = new ConsoleInputManager(this.registry, this.input, this.output, this.commandManager);
   }
 
   /**

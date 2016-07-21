@@ -3,34 +3,18 @@ package com.devonfw.devcon.common.utils;
 import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.reflections.Reflections;
-import org.reflections.scanners.MethodAnnotationsScanner;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.scanners.TypeAnnotationsScanner;
-import org.reflections.util.ClasspathHelper;
-
-import com.devonfw.devcon.common.api.data.DevconOption;
 
 /**
  * General utilities
@@ -38,9 +22,6 @@ import com.devonfw.devcon.common.api.data.DevconOption;
  * @author pparrado
  */
 public class Utils {
-
-  Reflections reflections = new Reflections(ClasspathHelper.forPackage(Constants.MODULES_PACKAGE),
-      new SubTypesScanner(), new TypeAnnotationsScanner(), new MethodAnnotationsScanner());
 
   private static final String DEVON_JSON = "devon.json";
 
@@ -122,77 +103,6 @@ public class Utils {
       list.add(Pair.of(key, map.get(key)));
     }
     return list;
-  }
-
-  public static List<DevconOption> getGlobalOptions() {
-
-    List<DevconOption> globalOptions = new ArrayList<DevconOption>();
-
-    try {
-
-      URL globalParamsFileURL = Utils.class.getClassLoader().getResource(Constants.GLOBAL_PARAMS_FILE);
-
-      if (globalParamsFileURL != null) {
-
-        globalOptions = getGlobalOptionsFromFile(globalParamsFileURL);
-
-      } else {
-        // TODO implement logs
-        // System.out.println("Getting the default global options...");
-        globalOptions = getDefaultGlobalOptions();
-      }
-
-      return globalOptions;
-    } catch (Exception e) {
-      System.out.println("ERROR: " + e.getMessage());
-      return globalOptions;
-    }
-
-  }
-
-  private static List<DevconOption> getDefaultGlobalOptions() {
-
-    List<DevconOption> defaultGlobalOptions = new ArrayList<DevconOption>();
-
-    DevconOption h = new DevconOption("h", "help", "show help info for each module/command");
-    DevconOption v = new DevconOption("v", "version", "show devcon version");
-
-    defaultGlobalOptions.add(h);
-    defaultGlobalOptions.add(v);
-
-    return defaultGlobalOptions;
-  }
-
-  private static List<DevconOption> getGlobalOptionsFromFile(URL fileURL)
-      throws FileNotFoundException, IOException, ParseException {
-
-    JSONParser parser = new JSONParser();
-    List<DevconOption> globalOptions = new ArrayList<>();
-
-    String jsonPath = fileURL.getPath();
-    Object obj = parser.parse(new FileReader(jsonPath));
-    JSONArray json = (JSONArray) obj;
-
-    Iterator<Object> it = json.iterator();
-
-    while (it.hasNext()) {
-      try {
-        JSONObject j = (JSONObject) it.next();
-
-        String opt = j.get("opt") != null ? j.get("opt").toString() : " ";
-        String longOpt = j.get("longOpt") != null ? j.get("longOpt").toString() : " ";
-        String description = j.get("description") != null ? j.get("description").toString() : " ";
-
-        globalOptions.add(new DevconOption(opt, longOpt, description));
-
-      } catch (Exception e) {
-        // TODO implement logs
-        System.out.println("Error reading a global option. Please check the global options file.");
-      }
-
-    }
-
-    return globalOptions;
   }
 
   /**
