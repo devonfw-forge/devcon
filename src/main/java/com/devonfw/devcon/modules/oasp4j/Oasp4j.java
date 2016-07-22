@@ -1,10 +1,24 @@
 package com.devonfw.devcon.modules.oasp4j;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.apache.commons.lang3.SystemUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
@@ -15,6 +29,7 @@ import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Constants;
+import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
 
 /**
@@ -42,8 +57,7 @@ public class Oasp4j extends AbstractCommandModule {
    * @throws IOException
    */
   @Command(name = "create", description = "This command is used to create new server project")
-  @Parameters(values = {
-  @Parameter(name = "serverpath", description = "Path to create Server project (currentDir if not given)", optional = true),
+  @Parameters(values = { @Parameter(name = "serverpath", description = "where to create"),
   @Parameter(name = "servername", description = "Name of project"),
   @Parameter(name = "packagename", description = "package name in server project"),
   @Parameter(name = "groupid", description = "groupid for server project"),
@@ -58,50 +72,52 @@ public class Oasp4j extends AbstractCommandModule {
         .append(" -Dversion=").append(version).append(" -Dpackage=").append(packagename)
         .append(" -DinteractiveMode=false").toString();
 
-    Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot(serverpath);
+    // Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot(serverpath);
 
     if (!SystemUtils.IS_OS_WINDOWS) {
       getOutput().showMessage("This task is currently only supported on Windows");
       return;
     }
 
-    if (distInfo.isPresent()) {
+    // if (distInfo.isPresent()) {
 
-      serverpath = serverpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : serverpath;
+    serverpath = serverpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : serverpath;
 
-      File projectDir = new File(serverpath);
+    System.out.println("serverpath is " + serverpath);
 
-      if (!projectDir.exists()) {
-        projectDir.mkdirs();
-      }
-      File project = new File(serverpath + File.separator + servername);
+    File projectDir = new File(serverpath);
 
-      if (!project.exists()) {
+    if (!projectDir.exists()) {
+      projectDir.mkdirs();
+    }
+    File project = new File(serverpath + File.separator + servername);
 
-        Runtime rt = Runtime.getRuntime();
-        Process process = null;
+    if (!project.exists()) {
 
-        try {
-          process = rt.exec(command, null, new File(serverpath));
+      Runtime rt = Runtime.getRuntime();
+      Process process = null;
 
-          int result = process.waitFor();
-          if (result == 0) {
-            getOutput().showMessage("Project Creation complete");
-          } else {
-            throw new Exception("Project creation failed");
-          }
+      try {
+        process = rt.exec(command, null, new File(serverpath));
 
-        } catch (Exception e) {
-          e.printStackTrace();
-          getOutput().showError("Errr creating workspace: " + e.getMessage());
+        int result = process.waitFor();
+        if (result == 0) {
+          getOutput().showMessage("Project Creation complete");
+        } else {
+          throw new Exception("Project creation failed");
         }
 
-      } else {
-        getOutput().showError("The project " + project.toString() + " already exists!");
+      } catch (Exception e) {
+        e.printStackTrace();
+        getOutput().showError("Errr creating workspace: " + e.getMessage());
       }
+
     } else {
-      getOutput().showError("Not a Devon Distribution Workspace");
+      getOutput().showError("The project " + project.toString() + " already exists!");
     }
+    // } else {
+    // getOutput().showError("Not a Devon Distribution Workspace");
+    // }
 
   }
 
@@ -116,9 +132,11 @@ public class Oasp4j extends AbstractCommandModule {
    */
   @Command(name = "run", description = "runs application from embedded tomcat", context = ContextType.PROJECT)
   @Parameters(values = {
-  @Parameter(name = "port", description = "Port to start Spring boot app (port 8081 by default)", optional = true) })
-  public void run(String port) {
+  @Parameter(name = "port", description = "Port to start Spring boot app (port 8081 by default)", optional = true),
+  @Parameter(name = "path", description = "Path to server project (default is current working directory + \\server)", optional = true) })
+  public void run(String port, String path) {
 
+    this.projectInfo = getContextPathInfo().getProjectRoot(path);
     // Check projectInfo loaded. If not, abort
     if (!this.projectInfo.isPresent()) {
       getOutput().showError("Not in a project or -path param not pointing to a project");
@@ -126,15 +144,19 @@ public class Oasp4j extends AbstractCommandModule {
     }
 
     ProjectInfo info = this.projectInfo.get();
+    System.out.println("path before modification " + info.getPath().toString());
 
     // Get port from a) parameter or b) devon.json file or c) default value passed as 2nd paranter to info.getProperty
     String port_ = (port.isEmpty()) ? info.getProperty("port", "8081").toString() : port.trim();
+    String path_ = (path.isEmpty()) ? (info.getPath().toString() + "\\server") : path;
+
+    System.out.println("Server project path " + path_);
 
     try {
       String commandStr = "mvn spring-boot:run -Drun.arguments=\"server.port=" + port_ + "\" ";
       String cmd = "cmd /c start " + commandStr;
 
-      Process p = Runtime.getRuntime().exec(cmd, null, info.getPath().toFile());
+      Process p = Runtime.getRuntime().exec(cmd, null, new File(path_));
       int result = p.waitFor();
       if (result == 0) {
         getOutput().showMessage("Application started");
@@ -155,7 +177,13 @@ public class Oasp4j extends AbstractCommandModule {
   @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
   public void build(String path) {
 
+    // Check projectInfo loaded. If not, abort
+    // if (!this.projectInfo.isPresent()) {
+    // getOutput().showError("Not in a project or -path param not pointing to a project");
+    // return;
+    // }
     this.projectInfo = getContextPathInfo().getProjectRoot(path);
+    ProjectInfo info = this.projectInfo.get();
     System.out.println("projectInfo read...");
     System.out
         .println("path " + this.projectInfo.get().getPath() + "project type " + this.projectInfo.get().getProjecType());
@@ -169,7 +197,7 @@ public class Oasp4j extends AbstractCommandModule {
       getOutput().showMessage("Completed");
     } catch (Exception e) {
 
-      getOutput().showError("An error occured during executing oasp4j Cmd");
+      getOutput().showError("An error occured during executing oasp4j Cmd" + e.getMessage());
     }
   }
 
@@ -179,28 +207,329 @@ public class Oasp4j extends AbstractCommandModule {
    */
   @Command(name = "deploy", description = "This command will deploy the server project on tomcat", context = ContextType.PROJECT)
   @Parameters(values = { @Parameter(name = "deploypath", description = "Path to tomcat folder"),
-  @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
-  public void deploy(String deploypath, String path) {
+  @Parameter(name = "port", description = "Port on which server will be started (default value is 8080)", optional = true),
+  @Parameter(name = "path", description = "Path to server project (default is current working directory + \\server)", optional = true) })
+  public void deploy(String deploypath, String port, String path) {
 
-    Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot(path);
-    Path distRootPath = distInfo.get().getPath();
-    String distPath = distRootPath.toString();
-
-    getOutput().showMessage("Distribution root path is " + distPath);
-
-    getOutput().showMessage("Targetpath is " + path);
-
-    Process p;
+    ProcessBuilder pb;
+    Process process;
     try {
-      String cmd = "cmd /c start src\\main\\resources\\deploy.bat " + distPath + " " + path;
 
-      p = Runtime.getRuntime().exec(cmd, null, null);
-      p.waitFor();
-      System.out.println("Deploying and starting file...");
+      // Check projectInfo loaded. If not, abort
+      if (!this.projectInfo.isPresent()) {
+        getOutput().showError("Not in a project or -path param not pointing to a project");
+        return;
+      }
+      ProjectInfo info = this.projectInfo.get();
+
+      // Get port from a) parameter or b) devon.json file or c) default value passed as 2nd paranter to info.getProperty
+      port = (port.isEmpty()) ? info.getProperty("serverport", "8080").toString() : port.trim();
+
+      System.out.println("server starting at port " + port);
+      String path_ = (path.isEmpty()) ? (info.getPath().toString() + "\\server") : path;
+
+      Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot(path_);
+      Path distRootPath = distInfo.get().getPath();
+      String distPath = distRootPath.toString();
+
+      final String setting_file_path = distPath + Constants.SETTING_FILE_PATH;
+      final String tomcat_user_file_path = distPath + Constants.TOMCAT_USER_FILE_PATH;
+      final String tomcat_bat_file_path = distPath + Constants.TOMCAT_START_UP_BAT_FILES;
+
+      update_tomcat_user_file(new File(tomcat_user_file_path));
+      update_setting_file(new File(setting_file_path));
+      modifyPom(new File(path_ + "\\pom.xml"), findWarName(path_), port);
+
+      pb = new ProcessBuilder(distPath + "\\software\\tomcat\\bin\\startup.bat");
+      pb.directory(new File(distPath + "\\software\\tomcat\\bin"));
+      // pb.directory(new File("D:\\Devon28Jun\\dev\\software\\tomcat\\bin"));
+
+      process = pb.start();
+      final InputStream isError = process.getErrorStream();
+      final InputStream isOutput = process.getInputStream();
+
+      Utils.processErrorAndOutPut(isError, isOutput);
+
+      int errCode = process.waitFor();
+
+      if (process.exitValue() == 0) {
+        System.out.println("Execution successful ");
+        getOutput().showMessage("Tomcat started");
+      } else {
+        System.out.println("Execution failed");
+        getOutput().showError("Problem starting tomcat");
+        return;
+      }
+      Thread.sleep(40000);
+
+      ProcessBuilder pb1 = new ProcessBuilder(distPath + "\\software\\maven\\bin\\mvn.bat", "tomcat7:deploy", "-e");
+      pb1.directory(new File(path_));
+
+      Process process1 = pb1.start();
+      final InputStream isError1 = process1.getErrorStream();
+      final InputStream isOutput1 = process1.getInputStream();
+
+      Utils.processErrorAndOutPut(isError1, isOutput1);
+
+      int errCode1 = process1.waitFor();
+      if (process1.exitValue() == 0) {
+        System.out.println("Execution successful ");
+        getOutput().showMessage("Tomcat started");
+      } else {
+        System.out.println("Execution failed");
+        getOutput().showError("Problem starting tomcat");
+        return;
+      }
+
+      // Process p;
+      // final String cmd = "cmd /c start mvn tomcat7:deploy";
+      // final String cmd1 = "cmd /c start call startup.bat";
+      // Runtime.getRuntime().exec(cmd1, null, new File(tomcat_bat_file_path));
+      // Thread.sleep(20000);
+      // p = Runtime.getRuntime().exec(cmd, null, new File(path));
+      // p.waitFor();
+      getOutput().showMessage("Deploying and starting file...");
     } catch (Exception e) {
 
-      getOutput().showError("An error occured during executing oasp4j Cmd");
+      getOutput().showError("An error occured during executing oasp4j Cmd" + e.getMessage());
     }
+  }
+
+  private void update_setting_file(File inputFile) {
+
+    String[] terms = { "TomcatServer", "tomcat" };
+    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder dBuilder;
+    try {
+      dBuilder = dbFactory.newDocumentBuilder();
+      Document doc = dBuilder.parse(inputFile);
+
+      doc.getDocumentElement().normalize();
+      Node servers = doc.getDocumentElement().getElementsByTagName(Constants.SERVERS).item(0);
+
+      if (!xmlAlreadyConfigured(servers, terms)) {
+        Element server = doc.createElement(Constants.SERVER);
+        Node id = doc.createElement("id");
+        id.appendChild(doc.createTextNode(Constants.TOMCAT_SERVER));
+        server.appendChild(id);
+
+        Node username = doc.createElement(Constants.USERNAME);
+        username.appendChild(doc.createTextNode(Constants.TOMCAT));
+        server.appendChild(username);
+
+        Node password = doc.createElement(Constants.PASSWORD);
+        password.appendChild(doc.createTextNode(Constants.TOMCAT));
+        server.appendChild(password);
+        servers.appendChild(server);
+
+        writeToXml(doc, inputFile);
+      }
+    } catch (Exception e) {
+      getOutput().showError("An error occured while updating setting.xml file from .m2 folder");
+    }
+  }
+
+  public String readFile(File path) throws IOException {
+
+    StringBuilder sb = new StringBuilder();
+    try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+
+      String sCurrentLine;
+      while ((sCurrentLine = br.readLine()) != null) {
+        sb.append(sCurrentLine);
+      }
+      // System.out.println("sCurrentLine " + sb);
+    }
+
+    return sb.toString();
+  }
+
+  private void update_tomcat_user_file(File tomcat_user_file) {
+
+    String[] rolenameList = { "admin-gui", "manager-gui", "manager-script" };
+    String[] contents =
+        { "<Role rolename=\"admin-gui\"/>", "<Role rolename=\"manager-gui\"/>", "<Role rolename=\"manager-script\"/>",
+        "<user password=\"tomcat\" roles=\"manager-script,admin-gui,manager-gui\" username=\"tomcat\"/>" };
+    boolean result = false;
+
+    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder dBuilder;
+    try {
+
+      String temp = new StringBuffer(readFile(tomcat_user_file)).toString();
+      for (String roleName : contents) {
+        if (temp.contains(roleName)) {
+          result = true;
+        } else {
+          result = false;
+          break;
+        }
+      }
+      dBuilder = dbFactory.newDocumentBuilder();
+      Document doc = dBuilder.parse(tomcat_user_file);
+
+      doc.getDocumentElement().normalize();
+
+      Node tomcat = doc.getDocumentElement();
+
+      if (!result) {
+
+        for (int i = 0; i < rolenameList.length; i++) {
+          Element role = doc.createElement(Constants.ROLE);
+          role.setAttribute(Constants.ROLE_NAME, rolenameList[i]);
+          tomcat.appendChild(role);
+          // DOMSource source = new DOMSource(doc);
+          // TransformerFactory transformerFactory = TransformerFactory.newInstance();
+          // Transformer transformer = transformerFactory.newTransformer();
+          // StreamResult result = new StreamResult(tomcat_user_file);
+          // transformer.transform(source, result);
+        }
+
+        Element user = doc.createElement(Constants.USER);
+        user.setAttribute(Constants.USERNAME, Constants.TOMCAT);
+        user.setAttribute(Constants.PASSWORD, Constants.TOMCAT);
+        user.setAttribute(Constants.ROLES, Constants.ALL_ROLES);
+
+        tomcat.appendChild(user);
+
+        writeToXml(doc, tomcat_user_file);
+      }
+    } catch (Exception e) {
+      getOutput().showError("An error occured while updating tomcat-user.xml file");
+    }
+  }
+
+  private void modifyPom(File inputFile, String warFileName, String serverport) {
+
+    String[] terms = { "org.apache.tomcat.maven", "tomcat7-maven-plugin" };
+    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder dBuilder;
+    try {
+      dBuilder = dbFactory.newDocumentBuilder();
+      Document doc = dBuilder.parse(inputFile);
+      doc.getDocumentElement().normalize();
+
+      NodeList buildNodes = doc.getDocumentElement().getElementsByTagName(Constants.BUILD);
+
+      for (int k = 0; k < buildNodes.getLength(); k++) {
+        if (!(buildNodes.item(k).getParentNode().getNodeName().equalsIgnoreCase(Constants.PROFILE))) {
+
+          Node build = buildNodes.item(k);
+          if (!xmlAlreadyConfigured(build, terms)) {
+            NodeList childNode = build.getChildNodes();
+            for (int j = 0; j < childNode.getLength(); j++) {
+
+              if (childNode.item(j).getNodeName().equalsIgnoreCase(Constants.PLUGINS)) {
+                Node plugins = childNode.item(j);
+                Element plugin = doc.createElement(Constants.PLUGIN);
+
+                Node groupId = doc.createElement(Constants.GROUP_ID);
+                groupId.appendChild(doc.createTextNode("org.apache.tomcat.maven"));
+                plugin.appendChild(groupId);
+
+                Node artifactId = doc.createElement(Constants.ARTIFACT_ID);
+                artifactId.appendChild(doc.createTextNode("tomcat7-maven-plugin"));
+                plugin.appendChild(artifactId);
+
+                Node version = doc.createElement("version");
+                version.appendChild(doc.createTextNode("2.2"));
+                plugin.appendChild(version);
+
+                Node configuration = doc.createElement("configuration");
+
+                Node url = doc.createElement("url");
+                url.appendChild(doc.createTextNode("http://localhost:" + serverport + "/manager/text"));
+                configuration.appendChild(url);
+
+                Node server = doc.createElement(Constants.SERVER);
+                server.appendChild(doc.createTextNode(Constants.TOMCAT_SERVER));
+                configuration.appendChild(server);
+
+                Node path = doc.createElement("path");
+                path.appendChild(doc.createTextNode("/" + warFileName));
+                configuration.appendChild(path);
+
+                Node user = doc.createElement(Constants.USER);
+                user.appendChild(doc.createTextNode(Constants.TOMCAT));
+                configuration.appendChild(user);
+
+                Node password = doc.createElement(Constants.PASSWORD);
+                password.appendChild(doc.createTextNode(Constants.TOMCAT));
+                configuration.appendChild(password);
+
+                Node update = doc.createElement("update");
+                update.appendChild(doc.createTextNode("true"));
+                configuration.appendChild(update);
+
+                plugin.appendChild(configuration);
+
+                plugins.appendChild(plugin);
+
+                writeToXml(doc, inputFile);
+              }
+            } // end of internal for
+          } else {
+            // NOt required as we do not need to modify pom file as plugin already exists
+          }
+        }
+      }
+
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      getOutput().showError("An error occured " + e.getMessage());
+
+    }
+  }
+
+  private String findWarName(String path) {
+
+    String name = null;
+    File target = new File(path + "\\target");
+    if (target.exists()) {
+      String[] fileList = target.list();
+
+      for (int i = 0; i < fileList.length; i++) {
+        if (fileList[i].endsWith(".war")) {
+
+          name = fileList[i].substring(0, fileList[i].indexOf("."));
+
+        } else {
+          getOutput().showError("No war file present in path");
+        }
+      }
+
+    }
+
+    return name;
+  }
+
+  private void writeToXml(Node doc, File inputFile) {
+
+    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    Transformer transformer;
+    try {
+      transformer = transformerFactory.newTransformer();
+      DOMSource source = new DOMSource(doc);
+      StreamResult result = new StreamResult(inputFile);
+      transformer.transform(source, result);
+    } catch (Exception e) {
+
+      getOutput().showError("An error occured " + e.getMessage());
+
+    }
+
+  }
+
+  private boolean xmlAlreadyConfigured(Node node, String[] terms) {
+
+    boolean result = true;
+    for (String term : terms) {
+      if (!node.getTextContent().contains(term)) {
+        result = false;
+        break;
+      }
+    }
+    return result;
   }
 
 }

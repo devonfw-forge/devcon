@@ -4,8 +4,11 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
 import java.util.Collection;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -20,6 +23,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.tuple.Triple;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -30,10 +35,11 @@ import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.ContextType;
-import com.devonfw.devcon.common.api.data.ProjectInfo;
+import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Constants;
+import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
 
 /**
@@ -62,16 +68,20 @@ public class Project extends AbstractCommandModule {
 
   @Command(name = "build", description = "This command will build the server & client project(unified server and client build)", context = ContextType.COMBINEDPROJECT)
   @Parameters(values = {
-  @Parameter(name = "serverpath", description = "Path to Server project Workspace (currentDir if not given)", optional = true),
+  @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true),
   @Parameter(name = "clienttype", description = "This parameter shows which type of client is integrated with server i.e oasp4js or sencha", optional = false),
   @Parameter(name = "clientpath", description = "path to client directory", optional = false) })
-  public void build(String serverpath, String clienttype, String clientpath) {
+  public void build(String path, String clienttype, String clientpath) {
 
-    Optional<ProjectInfo> projectInfo = getContextPathInfo().getProjectRoot(serverpath);
-
+    // this.projectInfo = getContextPathInfo().getProjectRoot(serverpath);
+    // Optional<ProjectInfo> projectInfo = this.contextPathInfo.getProjectRoot(path);
+    // if (!projectInfo.isPresent()) {
+    // getOutput().showError("Not in a project or -path param not pointing to a project");
+    // return;
+    // }
     try {
       Optional<com.devonfw.devcon.common.api.Command> oasp4j = getCommand("oasp4j", "build");
-      oasp4j.get().exec(serverpath);
+      oasp4j.get().exec(path);
       switch (clienttype == null ? "" : clienttype) {
       case "oasp4js":
         Optional<com.devonfw.devcon.common.api.Command> oasp4js_cmd = getCommand("oasp4js", "build");
@@ -83,8 +93,8 @@ public class Project extends AbstractCommandModule {
 
         break;
       case "":
-        getOutput().showError(
-            "Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
+        getOutput()
+            .showError("Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
       }
     } catch (Exception e) {
       getOutput().showError("An error occured during executing Project Cmd");
@@ -146,9 +156,8 @@ public class Project extends AbstractCommandModule {
         }
 
       } else {
-        getOutput()
-            .showError(
-                "The parameter value for 'clienttype' is not valid. The options for this parameter are: 'devon4sencha' and 'oasp4js'.");
+        getOutput().showError(
+            "The parameter value for 'clienttype' is not valid. The options for this parameter are: 'devon4sencha' and 'oasp4js'.");
       }
 
     } catch (Exception e) {
@@ -169,8 +178,8 @@ public class Project extends AbstractCommandModule {
 
   @Parameter(name = "clienttype", description = "This parameter shows which type of client is integrated with server i.e oasp4js or sencha", optional = false),
   @Parameter(name = "clientport", description = "User can configured port if client type is Sencha", optional = true),
-  @Parameter(name = "clientpath", description = "Port to start spring boot server", optional = true),
-  @Parameter(name = "serverport", description = "Port to start client", optional = true),
+  @Parameter(name = "clientpath", description = "Location of the oasp4js app", optional = true),
+  @Parameter(name = "serverport", description = "Port to start server", optional = true),
   @Parameter(name = "serverpath", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
   public void run(String clienttype, String clientport, String clientpath, String serverport, String serverpath) {
 
@@ -189,8 +198,8 @@ public class Project extends AbstractCommandModule {
         sencha_cmd.get().exec(clientport, clientpath);
         break;
       case "":
-        getOutput().showError(
-            "Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
+        getOutput()
+            .showError("Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
       }
     } catch (Exception e) {
       getOutput().showError("An error occured during executing Project Cmd");
@@ -198,28 +207,95 @@ public class Project extends AbstractCommandModule {
   }
 
   @Command(name = "deploy", description = "This command is to automate the deploy process of a combined server & client project")
-  @Parameters(values = {
-  @Parameter(name = "tomcatpath", description = "Path to tomcat folder"),
-  @Parameter(name = "serverpath", description = "path to the server module of the server project (currentDir if not given)"),
-  @Parameter(name = "clientpath", description = "path to the client project") })
-  public void deploy(String tomcatpath, String serverpath, String clientpath) {
+  @Parameters(values = { @Parameter(name = "tomcatpath", description = "Path to tomcat folder", optional = true),
+  @Parameter(name = "clienttype", description = "Type of client either angular or Sencha", optional = true),
+  @Parameter(name = "clientpath", description = "path to client project", optional = true),
+  @Parameter(name = "serverpath", description = "path to server project", optional = true),
+  @Parameter(name = "serverport", description = "path to server project", optional = true),
+  @Parameter(name = "servercontext", description = "path to server project after deplo eg. /oasp4j-sample-server", optional = true) })
+  public void deploy(String tomcatpath, String clienttype, String clientpath, String serverpath, String serverport,
+      String servercontext) {
+
+    ProcessBuilder pb, pb1;
+    Process process, process1;
+    int errCode, errCode1;
 
     try {
+      if (serverport == null || serverport == "") {
+        serverport = Constants.DEFAULT_PORT;
+      }
 
       this.projectInfo = getContextPathInfo().getProjectRoot(clientpath);
+      Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot(clientpath);
+      Path distRootPath = distInfo.get().getPath();
+      String distributionpath = distRootPath.toString();
+      System.out.println("distpath " + distributionpath);
 
       if (this.projectInfo.isPresent()) {
         ProjectType clientType = this.projectInfo.get().getProjecType();
+        String clientpath_install = clientpath + "\\java";
+        pb = new ProcessBuilder(distributionpath + "\\software\\maven\\bin\\mvn.bat", "install");
+        pb.directory(new File(clientpath_install));
+        process = pb.start();
+        final InputStream isError = process.getErrorStream();
+        final InputStream isOutput = process.getInputStream();
+
+        Utils.processErrorAndOutPut(isError, isOutput);
+        errCode = process.waitFor();
+        if (errCode == 0) {
+          System.out.println("Execution successful ");
+          getOutput().showMessage("Creating client zip file in repository");
+        } else {
+          System.out.println("Execution failed");
+          getOutput().showError("Creating client zip file in repository failed");
+          return;
+        }
 
         configureServerPOM(serverpath, clientpath, clientType);
         configureWebSecurityClass(serverpath);
 
-        // Optional<com.devonfw.devcon.common.api.Command> deploy = getCommand(this.OASP4J, this.DEPLOY);
-        // if (deploy.isPresent()) {
-        // deploy.get().exec(tomcatpath, distributionpath);
-        // } else {
-        // getOutput().showError("No command deploy found for oasp4j module.");
-        // }
+        switch (clienttype == null ? "" : clienttype) {
+        case "oasp4js":
+          final String json_file_path = clientpath + "\\config.json";
+          final String baseUrl = "http://localhost:" + serverport;
+          modifyJsonFile(json_file_path, baseUrl, servercontext);
+          break;
+        case "sencha":
+          final String js_file_path = clientpath + "\\app";
+          final String serverUrl = "\'/" + servercontext + "/services/rest/" + "\'";
+          modifyJsFiles(serverUrl, js_file_path);
+          break;
+        case "":
+          getOutput().showError(
+              "Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
+        }
+
+        // String cmd_package = "cmd /c start mvn package -P jsclient";
+
+        pb1 = new ProcessBuilder(distributionpath + "\\software\\maven\\bin\\mvn.bat", "package", "-P", "jsClient");
+        pb1.directory(new File(serverpath));
+        process1 = pb1.start();
+        final InputStream isError1 = process1.getErrorStream();
+        final InputStream isOutput1 = process1.getInputStream();
+
+        Utils.processErrorAndOutPut(isError1, isOutput1);
+
+        errCode1 = process1.waitFor();
+        if (errCode1 == 0) {
+          System.out.println("Execution successful ");
+          getOutput().showMessage("Server war file created successfully");
+        } else {
+          System.out.println("Execution failed");
+          getOutput().showError("Error in creating server war file");
+          return;
+        }
+
+        Optional<com.devonfw.devcon.common.api.Command> deploy = getCommand(this.OASP4J, this.DEPLOY);
+        if (deploy.isPresent()) {
+          deploy.get().exec(tomcatpath, Constants.DEFAULT_PORT, distributionpath);
+        } else {
+          getOutput().showError("No command deploy found for oasp4j module.");
+        }
       } else {
         getOutput().showError("devon.json configuration file not found for client project.");
       }
@@ -630,6 +706,56 @@ public class Project extends AbstractCommandModule {
     }
 
     return result;
+  }
+
+  /**
+   * @param filepath
+   * @param baseUrl
+   * @param context
+   */
+  @SuppressWarnings("unchecked")
+  public void modifyJsonFile(String filepath, String baseUrl, String context) {
+
+    JSONParser parser = new JSONParser();
+    try {
+      Object obj = parser.parse(new FileReader(filepath));
+      JSONObject jsonObject = (JSONObject) obj;
+
+      JSONObject proxy = (JSONObject) jsonObject.get("proxy");
+
+      proxy.put("baseUrl", baseUrl);
+      proxy.put("context", context);
+
+      jsonObject.put("proxy", proxy);
+      FileWriter file = new FileWriter(filepath);
+      file.write(jsonObject.toJSONString().replace("\\/", "/"));
+      file.flush();
+      file.close();
+      getOutput().showMessage("Modified baseUrl and context property from config.json file");
+    } catch (Exception e) {
+
+      getOutput().showError("An error occurred during the execution of project deploy command. " + e.getMessage());
+    }
+  }
+
+  private void modifyJsFiles(String serverUrl, String js_file_path) {
+
+    final String content = "window.Config.server =" + serverUrl + ";" + "\n" + "window.Config.CORSEnabled = true;";
+    final String content1 =
+        "window.Config = {" + "\n" + " defaultLocale: 'en_EN'," + "\n" + "supportedLocales: ['en_EN', 'es_ES']," + "\n"
+            + "server: 'http://devon-ci.cloudapp.net" + serverUrl + "," + "\n CORSEnabled: true\n };";
+
+    try {
+      FileUtils.writeStringToFile(new File(js_file_path + "\\ConfigDevelopment.js"), content);
+
+      FileUtils.writeStringToFile(new File(js_file_path + "\\Config.js"), content1);
+
+      getOutput().showMessage("Modified server URL from config.js and configdevelopment.js file");
+
+    } catch (Exception e) {
+      getOutput().showError("An error occurred during the execution of project deploy command. " + e.getMessage());
+    }
+
   }
 
 }
