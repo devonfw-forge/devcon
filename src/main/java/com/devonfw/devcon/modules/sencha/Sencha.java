@@ -73,8 +73,7 @@ public class Sencha extends AbstractCommandModule {
 
   @SuppressWarnings("javadoc")
   @Command(name = "workspace", description = "Creates a new Sencha Ext JS6 project in a workspace")
-  @Parameters(values = {
-  @Parameter(name = "workspacename", description = "Name for the workspace"),
+  @Parameters(values = { @Parameter(name = "workspacename", description = "Name for the workspace"),
   @Parameter(name = "workspacepath", description = "Path to Sencha Workspace (currentDir if not given)", optional = true),
   @Parameter(name = "username", description = "a user with permissions to download the Devon distribution"),
   @Parameter(name = "password", description = "the password related to the user with permissions to download the Devon distribution"),
@@ -83,9 +82,10 @@ public class Sencha extends AbstractCommandModule {
       throws Exception {
 
     try {
-      final String REMOTE_URL =
-          new StringBuffer(Constants.HTTPS).append(username).append(Constants.COLON).append(password)
-              .append(Constants.AT_THE_RATE).append(Constants.SENCHA_REPO_URL).toString();
+      String pass = Utils.encode(password);
+      String user = Utils.encode(username);
+      final String REMOTE_URL = new StringBuffer(Constants.HTTPS).append(user).append(Constants.COLON).append(pass)
+          .append(Constants.AT_THE_RATE).append(Constants.SENCHA_REPO_URL).toString();
 
       Path wsPath = null;
       Path projectPath = null;
@@ -99,6 +99,9 @@ public class Sencha extends AbstractCommandModule {
       if (!projectPath.toFile().exists()) {
 
         projectPath.toFile().mkdirs();
+
+        String remoteUrl = Utils.decode(REMOTE_URL);
+        this.output.status("Cloning from " + remoteUrl);
 
         // create workspace here
         Utils.cloneRepository(REMOTE_URL, projectPath.toString(), gitFolder);
@@ -117,7 +120,8 @@ public class Sencha extends AbstractCommandModule {
    * @throws Exception Exception thrown by the Sencha build command
    */
   @Command(name = "build", description = "Builds a Sencha Ext JS6 project in a workspace", context = ContextType.PROJECT)
-  @Parameters(values = { @Parameter(name = "appDir", description = "Path to Sencha Ext JS6 Application (currentDir if not given)", optional = true), })
+  @Parameters(values = {
+  @Parameter(name = "appDir", description = "Path to Sencha Ext JS6 Application (currentDir if not given)", optional = true), })
   public void build(String appDir) throws Exception {
 
     try {
@@ -160,8 +164,7 @@ public class Sencha extends AbstractCommandModule {
    * @throws Exception Exception thrown by Sencha generate app Command
    */
   @Command(name = "create", description = "Creates a new Sencha Ext JS6 app", context = ContextType.PROJECT)
-  @Parameters(values = {
-  @Parameter(name = "appname", description = "Name of Sencha Ext JS6 app"),
+  @Parameters(values = { @Parameter(name = "appname", description = "Name of Sencha Ext JS6 app"),
   @Parameter(name = "workspacepath", description = "Path to Sencha Workspace (currentDir if not given)", optional = true), })
   public void create(String appname, String workspacepath) throws Exception {
 
@@ -181,9 +184,8 @@ public class Sencha extends AbstractCommandModule {
         Files.createDirectories(senchaAppPath);
       }
 
-      ProcessBuilder processBuilder =
-          new ProcessBuilder("sencha", "generate", "app", "-ext", "--starter", starterTemplatePath, appname,
-              senchaAppPath.toString());
+      ProcessBuilder processBuilder = new ProcessBuilder("sencha", "generate", "app", "-ext", "--starter",
+          starterTemplatePath, appname, senchaAppPath.toString());
 
       processBuilder.directory(senchaWSPath.toFile());
 
@@ -208,9 +210,8 @@ public class Sencha extends AbstractCommandModule {
         addDevonJsonFile(senchaAppPath);
         this.output.status("[LOG]" + "Sencha Ext JS6 app Created");
       } else {
-        this.output
-            .status("[LOG]"
-                + "Sencha Ext JS6 app Creation Failed . Please make sure the workspace where app is created is a valid Sencha Workspace");
+        this.output.status("[LOG]"
+            + "Sencha Ext JS6 app Creation Failed . Please make sure the workspace where app is created is a valid Sencha Workspace");
       }
     } catch (Exception e) {
       e.printStackTrace();

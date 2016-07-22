@@ -130,4 +130,50 @@ public final class Constants {
    *
    */
   public final static String RUN = "run";
+
+  public final static String USER = "user";
+
+  public final static String PASSWORD = "password";
+
+  public final static String USERNAME = "username";
+
+  public final static String TOMCAT = "tomcat";
+
+  public final static String ROLES = "roles";
+
+  public final static String ROLE = "Role";
+
+  public final static String ROLE_NAME = "rolename";
+
+  public final static String ALL_ROLES = "manager-script,admin-gui,manager-gui";
+
+  public final static String MANAGER_SCRIPT = "manager-script";
+
+  public final static String ADMIN_GUI = "admin-gui";
+
+  public final static String MANAGER_GUI = "manager-gui";
+
+  public final static String PROFILE = "profile";
+
+  public final static String PLUGINS = "plugins";
+
+  public final static String PLUGIN = "plugin";
+
+  public final static String GROUP_ID = "groupId";
+
+  public final static String ARTIFACT_ID = "artifactId";
+
+  public final static String TOMCAT_SERVER = "TomcatServer";
+
+  public final static String SERVERS = "servers";
+
+  public final static String SERVER = "server";
+
+  public final static String SETTING_FILE_PATH = "\\conf\\.m2\\settings.xml";
+
+  public final static String TOMCAT_USER_FILE_PATH = "\\software\\tomcat\\conf\\tomcat-users.xml";
+
+  public final static String TOMCAT_START_UP_BAT_FILES = "\\software\\tomcat\\bin";
+
+  public final static String DEFAULT_PORT = "8080";
 }

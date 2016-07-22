@@ -69,7 +69,7 @@ public class Oasp4js extends AbstractCommandModule {
 
   @Command(name = "build", description = "This command will build the server project", context = ContextType.PROJECT)
   @Parameters(values = {
-  @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
+  @Parameter(name = "path", description = "Path to Client project Workspace (currentDir if not given)", optional = true) })
   public void build(String path) {
 
     try {
