@@ -5,6 +5,11 @@
     "description":"show help info for each module/command"
    },
    {
+    "opt":"p",
+    "longOpt":"prompt",
+    "description":"prompt user for parameters"
+   },
+   {
     "opt":"v",
     "longOpt":"version",
     "description":"show devcon version"

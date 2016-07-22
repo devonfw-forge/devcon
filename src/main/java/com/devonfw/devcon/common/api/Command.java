@@ -23,6 +23,8 @@ import com.google.common.base.Optional;
  */
 public interface Command extends Info, Comparable<Command> {
 
+  String getModuleName();
+
   ContextType getContext();
 
   String getHelpText();

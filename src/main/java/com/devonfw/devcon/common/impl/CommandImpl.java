@@ -299,4 +299,13 @@ public class CommandImpl implements Command {
       }
     }
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getModuleName() {
+
+    return this.moduleName;
+  }
 }

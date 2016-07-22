@@ -4,17 +4,22 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.devonfw.devcon.Devcon;
+import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.DistributionType;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
@@ -155,10 +160,6 @@ public class ContextPathInfo {
       throw new InvalidConfigurationStateException("type property does not contain either 'devon-dist' nor 'oasp-ide'");
     }
 
-    /**
-     * HERE WE COULD ADD DYNAMIC PROPS
-     */
-
     return new DistributionInfoImpl(distPath, distType, version);
   }
 
@@ -289,6 +290,52 @@ public class ContextPathInfo {
   public Optional<Path> getSenchaWorkspaceRoot() {
 
     return this.getSenchaWorkspaceRoot(getCurrentWorkingDirectory());
+  }
+
+  public List<DevconOption> getGlobalOptions() {
+
+    List<DevconOption> globalOptions = new ArrayList<DevconOption>();
+
+    String root = (Devcon.IN_EXEC_JAR) ? "resources/" : "";
+    URL globalParamsFileURL = ClassLoader.getSystemClassLoader().getResource(root + Constants.GLOBAL_PARAMS_FILE);
+
+    try {
+      return getGlobalOptionsFromResource(globalParamsFileURL);
+    } catch (IOException | ParseException e) {
+      // TODO Auto-generated catch block
+      throw new InvalidConfigurationStateException(e);
+    }
+  }
+
+  private List<DevconOption> getGlobalOptionsFromResource(URL resourceURL)
+      throws FileNotFoundException, IOException, ParseException {
+
+    JSONParser parser = new JSONParser();
+    List<DevconOption> globalOptions = new ArrayList<>();
+
+    Object obj = parser.parse(IOUtils.toString(resourceURL, "utf-8"));
+    JSONArray json = (JSONArray) obj;
+
+    Iterator<Object> it = json.iterator();
+
+    while (it.hasNext()) {
+      try {
+        JSONObject j = (JSONObject) it.next();
+
+        String opt = j.get("opt") != null ? j.get("opt").toString() : " ";
+        String longOpt = j.get("longOpt") != null ? j.get("longOpt").toString() : " ";
+        String description = j.get("description") != null ? j.get("description").toString() : " ";
+
+        globalOptions.add(new DevconOption(opt, longOpt, description));
+
+      } catch (Exception e) {
+        // TODO implement logs
+        System.out.println("Error reading a global option. Please check the global options file.");
+      }
+
+    }
+
+    return globalOptions;
   }
 
 }

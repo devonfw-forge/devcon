@@ -52,8 +52,8 @@ public class ConsoleOutput implements Output {
 
     String helpText = command.getHelpText();
 
-    formatter.printHelp(new PrintWriter(this.out_, true), 120, command.getName(), command.getDescription(), options, 1,
-        2, null, true);
+    formatter.printHelp(new PrintWriter(this.out_, true), 120, command.getModuleName() + " " + command.getName(),
+        command.getDescription(), options, 1, 2, null, true);
 
     // Only print out help text when actually present
     if (!helpText.isEmpty()) {

@@ -61,7 +61,7 @@ public class FooTest {
     this.output = new ConsoleOutput();
     this.input = new ConsoleInput();
     this.commandManager = new CommandManagerImpl(this.registry, this.input, this.output);
-    this.inputMgr = new ConsoleInputManager(this.commandManager);
+    this.inputMgr = new ConsoleInputManager(this.registry, this.input, this.output, this.commandManager);
 
     // For testing purposes,
     // create tempFiles in System Temp File
@@ -225,7 +225,7 @@ public class FooTest {
 
     // given
     MockCommandManager cm = new MockCommandManager(this.registry, this.output);
-    ConsoleInputManager inputMgr_ = new ConsoleInputManager(cm);
+    ConsoleInputManager inputMgr_ = new ConsoleInputManager(this.registry, this.input, this.output, cm);
 
     // when
     String[] args = { "foo", "multipleWordsNoContext", "-first", "The", "-third", "Brown", "-fourth", "Fox" };
