@@ -42,12 +42,12 @@ public class Github extends AbstractCommandModule {
       folder.mkdirs();
     }
 
-    this.output.status("Cloning from " + REMOTE_URL + " to " + path);
+    getOutput().showMessage("Cloning from " + REMOTE_URL + " to " + path);
     try {
       Utils.cloneRepository(REMOTE_URL, path, gitFolder);
-      this.output.status("Having repository: " + CLONED_DIRECTORY);
+      getOutput().showMessage(" Having repository: " + CLONED_DIRECTORY);
     } catch (Exception e) {
-      this.output.status("[LOG]" + e.getMessage());
+      getOutput().showError("An error occured while executing oasp4j command");
       throw e;
     }
 
@@ -80,13 +80,13 @@ public class Github extends AbstractCommandModule {
       folder.mkdirs();
     }
     String remoteUrl = Utils.decode(REMOTE_URL);
-    this.output.status("Cloning from " + remoteUrl + " to " + path);
+    getOutput().showMessage("Cloning from " + remoteUrl + " to " + path);
 
     try {
       Utils.cloneRepository(REMOTE_URL, path, gitFolder);
-      this.output.status("Having repository: " + CLONED_DIRECTORY);
+      getOutput().showMessage(" Having repository: " + CLONED_DIRECTORY);
     } catch (Exception e) {
-      this.output.status("[LOG]" + e.getMessage());
+      getOutput().showError("An error occured while executing devoncode command", e.getMessage());
       throw e;
     }
 

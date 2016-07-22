@@ -59,7 +59,7 @@ public class Sencha extends AbstractCommandModule {
 
         Utils.processErrorAndOutPut(isError, isOutput);
 
-        this.output.status("[LOG]" + " Sencha App Watch Started");
+        getOutput().showMessage(" Sencha App Watch Started");
 
       } catch (Exception e) {
         getOutput().showError("An error occured during executing Sencha Cmd");
@@ -101,7 +101,7 @@ public class Sencha extends AbstractCommandModule {
         projectPath.toFile().mkdirs();
 
         String remoteUrl = Utils.decode(REMOTE_URL);
-        this.output.status("Cloning from " + remoteUrl);
+        getOutput().showMessage("Cloning from " + remoteUrl);
 
         // create workspace here
         Utils.cloneRepository(REMOTE_URL, projectPath.toString(), gitFolder);
@@ -110,7 +110,7 @@ public class Sencha extends AbstractCommandModule {
         getOutput().showError("Project exists!");
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      getOutput().showError("An error occured while executing workspace command", e.getMessage());
       throw e;
     }
   }
@@ -141,19 +141,18 @@ public class Sencha extends AbstractCommandModule {
       try {
         pStatus = process.waitFor();
       } catch (InterruptedException e) {
-        e.printStackTrace();
+		getOutput().showError("An error occured while executing build command", e.getMessage());
         throw e;
       }
 
       if (pStatus == 0) {
         run(Constants.SENCHA_CMD_WS_PORT, appDir);
-        this.output.status("[LOG]" + "Sencha Build Successful");
+        getOutput().showMessage(" Sencha Build Successful");
       } else {
-        this.output.status("[LOG]" + "Sencha Build Failed");
+       getOutput().showError(" Sencha Build Failed");
       }
     } catch (Exception e) {
-      e.printStackTrace();
-      this.output.status("[LOG]" + e.getMessage());
+       getOutput().showError("An error occured while executing build command", e.getMessage());
       throw e;
     }
   }
@@ -201,21 +200,20 @@ public class Sencha extends AbstractCommandModule {
       try {
         pStatus = process.waitFor();
       } catch (InterruptedException e) {
-        e.printStackTrace();
+  		getOutput().showError("An error occured while executing create command", e.getMessage());
         throw e;
       }
 
       if (pStatus == 0) {
 
         addDevonJsonFile(senchaAppPath);
-        this.output.status("[LOG]" + "Sencha Ext JS6 app Created");
+        getOutput().showMessage("Sencha Ext JS6 app Created");
       } else {
-        this.output.status("[LOG]"
-            + "Sencha Ext JS6 app Creation Failed . Please make sure the workspace where app is created is a valid Sencha Workspace");
+        getOutput().showError(
+            "Sencha Ext JS6 app Creation Failed . Please make sure the workspace where app is created is a valid Sencha Workspace");
       }
     } catch (Exception e) {
-      e.printStackTrace();
-      this.output.status("[LOG]" + e.getMessage());
+      getOutput().showError("An error occured while executing create command", e.getMessage());
       throw e;
     }
   }
