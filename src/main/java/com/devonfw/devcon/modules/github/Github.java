@@ -80,7 +80,7 @@ public class Github extends AbstractCommandModule {
       folder.mkdirs();
     }
     String remoteUrl = Utils.decode(REMOTE_URL);
-    getOutput().showMessage("Cloning from " + REMOTE_URL + " to " + path);
+    getOutput().showMessage("Cloning from " + remoteUrl + " to " + path);
 
     try {
       Utils.cloneRepository(REMOTE_URL, path, gitFolder);
