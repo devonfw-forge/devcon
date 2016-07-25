@@ -5,8 +5,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONException;
@@ -161,11 +165,14 @@ public class SystemCommands extends AbstractCommandModule {
     }
   }
 
-  private Pair<Version, String> getDownloadData(String url) throws UnirestException {
+  private Pair<Version, String> getDownloadData(String url) throws JSONException, MalformedURLException, IOException {
 
-    JSONObject json = Unirest.get(Devcon.VERSION_URL).asJson().getBody().getObject();
-    Version version = Version.valueOf((String) json.get("version"));
-    String url_ = (String) json.get("url");
+    Version version = null;
+    String url_ = null;
+
+    JSONObject json = new JSONObject(IOUtils.toString(new URL(Devcon.VERSION_URL), Charset.forName("UTF-8")));
+    version = Version.valueOf((String) json.get("version"));
+    url_ = (String) json.get("url");
 
     return Pair.of(version, url_);
   }
