@@ -11,7 +11,9 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
@@ -32,6 +34,8 @@ public class Github extends AbstractCommandModule {
   final String OASP4J_URL = "https://github.com/oasp/oasp4j.git";
 
   final String DEVON_URL = "https://github.com/devonfw/devon.git";
+
+  final String DOT_GIT = ".git";
 
   final String PROXY_HOST = "1.0.5.10";
 
@@ -57,10 +61,20 @@ public class Github extends AbstractCommandModule {
     getOutput().showMessage("Cloning from " + this.OASP4J_URL + " to " + path);
 
     try {
-      setProxyForGithub();
+      // setProxyForGithub();
       Git result = Git.cloneRepository().setURI(this.OASP4J_URL).setDirectory(folder).call();
       getOutput().showMessage("Having repository: " + result.getRepository().getDirectory());
 
+    } catch (TransportException te) {
+
+      File dotGit = new File(path + File.separator + this.DOT_GIT);
+      if (dotGit.exists()) {
+        FileUtils.deleteDirectory(dotGit);
+      }
+
+      setProxyForGithub();
+      Git result = Git.cloneRepository().setURI(this.OASP4J_URL).setDirectory(folder).call();
+      getOutput().showMessage("Having repository: " + result.getRepository().getDirectory());
     } catch (Exception e) {
       getOutput().showError("Getting the OASP4J code from Github.");
       throw e;
@@ -93,6 +107,19 @@ public class Github extends AbstractCommandModule {
     getOutput().showMessage("Cloning from " + this.DEVON_URL + " to " + path);
 
     try {
+
+      Git result =
+          Git.cloneRepository().setURI(this.DEVON_URL).setDirectory(folder)
+              .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password)).call();
+
+      getOutput().showMessage("Having repository: " + result.getRepository().getDirectory());
+    } catch (TransportException te) {
+
+      File dotGit = new File(path + File.separator + this.DOT_GIT);
+      if (dotGit.exists()) {
+        FileUtils.deleteDirectory(dotGit);
+      }
+
       setProxyForGithub();
       Git result =
           Git.cloneRepository().setURI(this.DEVON_URL).setDirectory(folder)
@@ -135,4 +162,5 @@ public class Github extends AbstractCommandModule {
       }
     });
   }
+
 }
