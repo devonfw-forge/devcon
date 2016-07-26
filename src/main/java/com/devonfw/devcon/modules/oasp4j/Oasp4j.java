@@ -207,21 +207,25 @@ public class Oasp4j extends AbstractCommandModule {
   }
 
   /**
-   * @param deploypath Path to tomcat
+   * @param tomcatpath Path to tomcat
    * @param path server project path
    */
   @Command(name = "deploy", description = "This command will deploy the server project on tomcat", context = ContextType.PROJECT)
   @Parameters(values = {
   @Parameter(name = "tomcatpath", description = "Path to tomcat folder (if not provided and the project is in a Devonfw distribution the default software/tomcat folder will be used)", optional = true),
-  @Parameter(name = "port", description = "Port on which server will be started (default value is 8080)", optional = true),
   @Parameter(name = "path", description = "Path to project (current directory if not provided).", optional = true) })
-  public void deploy(String tomcatpath, String port, String path) {
+  public void deploy(String tomcatpath, String path) {
 
     try {
 
       this.projectInfo = getContextPathInfo().getProjectRoot(path);
 
       Optional<DistributionInfo> distInfo = this.contextPathInfo.getDistributionRoot();
+
+      if (!distInfo.isPresent()) {
+        getOutput().showError("Not in a Devon distribution");
+        return;
+      }
 
       if (!this.projectInfo.isPresent()) {
         getOutput().showError("Not in a project or -path param not pointing to a project");
@@ -244,8 +248,10 @@ public class Oasp4j extends AbstractCommandModule {
 
       if (project.exists()) {
 
+        // PACKAGING THE APP (creating the .war file)
         File mvnBat = new File(distInfo.get().getPath().toString() + File.separator + "software\\maven\\bin\\mvn.bat");
         if (mvnBat.exists()) {
+
           ProcessBuilder processBuilder = new ProcessBuilder(mvnBat.getAbsolutePath(), "package");
           processBuilder.directory(project);
 
@@ -258,10 +264,7 @@ public class Oasp4j extends AbstractCommandModule {
 
           process.waitFor();
 
-          while (process.exitValue() != 0) {
-            System.out.println(process.exitValue() + " WAITING");
-          }
-
+          // ADDING THE .WAR TO THE tomcat/webapps DIRECTORY
           File server = new File(path + File.separator + "server");
 
           if (server.exists()) {
@@ -272,6 +275,7 @@ public class Oasp4j extends AbstractCommandModule {
               if (tomcatWebApps.exists()) {
                 FileUtils.copyFileToDirectory(warFile, tomcatWebApps, true);
 
+                // LAUNCHING TOMCAT
                 File startTomcatBat = new File(tomcatDir + File.separator + "bin" + File.separator + "startup.bat");
 
                 if (startTomcatBat.exists()) {
@@ -297,18 +301,6 @@ public class Oasp4j extends AbstractCommandModule {
             getOutput().showError("No server project found.");
           }
 
-          // Runtime rt = Runtime.getRuntime();
-          // Process process = null;
-          //
-          // process = rt.exec("cmd /c start mvn package", null, project);
-          //
-          // int result = process.waitFor();
-          // if (result == 0) {
-          // getOutput().showMessage("WAR file created");
-          //
-          // } else {
-          // getOutput().showError("Creating the .war file for the project.");
-          // }
         } else {
           getOutput().showError("No mvn.bat found.");
         }
@@ -320,90 +312,6 @@ public class Oasp4j extends AbstractCommandModule {
     } catch (Exception e) {
       getOutput().showError("In oasp4j deploy command. " + e.getMessage());
     }
-
-    // ProcessBuilder pb;
-    // Process process;
-    // try {
-    //
-    // // Check projectInfo loaded. If not, abort
-    // if (!this.projectInfo.isPresent()) {
-    // getOutput().showError("Not in a project or -path param not pointing to a project");
-    // return;
-    // }
-    // ProjectInfo info = this.projectInfo.get();
-    //
-    // // Get port from a) parameter or b) devon.json file or c) default value passed as 2nd paranter to
-    // info.getProperty
-    // port = (port.isEmpty()) ? info.getProperty("serverport", "8080").toString() : port.trim();
-    //
-    // System.out.println("server starting at port " + port);
-    // String path_ = (path.isEmpty()) ? (info.getPath().toString() + "\\server") : path;
-    //
-    // Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot(path_);
-    // Path distRootPath = distInfo.get().getPath();
-    // String distPath = distRootPath.toString();
-    //
-    // final String setting_file_path = distPath + Constants.SETTING_FILE_PATH;
-    // final String tomcat_user_file_path = distPath + Constants.TOMCAT_USER_FILE_PATH;
-    // final String tomcat_bat_file_path = distPath + Constants.TOMCAT_START_UP_BAT_FILES;
-    //
-    // update_tomcat_user_file(new File(tomcat_user_file_path));
-    // update_setting_file(new File(setting_file_path));
-    // modifyPom(new File(path_ + "\\pom.xml"), findWarName(path_), port);
-    //
-    // pb = new ProcessBuilder(distPath + "\\software\\tomcat\\bin\\startup.bat");
-    // pb.directory(new File(distPath + "\\software\\tomcat\\bin"));
-    // // pb.directory(new File("D:\\Devon28Jun\\dev\\software\\tomcat\\bin"));
-    //
-    // process = pb.start();
-    // final InputStream isError = process.getErrorStream();
-    // final InputStream isOutput = process.getInputStream();
-    //
-    // Utils.processErrorAndOutPut(isError, isOutput);
-    //
-    // int errCode = process.waitFor();
-    //
-    // if (process.exitValue() == 0) {
-    // System.out.println("Execution successful ");
-    // getOutput().showMessage("Tomcat started");
-    // } else {
-    // System.out.println("Execution failed");
-    // getOutput().showError("Problem starting tomcat");
-    // return;
-    // }
-    // Thread.sleep(40000);
-    //
-    // ProcessBuilder pb1 = new ProcessBuilder(distPath + "\\software\\maven\\bin\\mvn.bat", "tomcat7:deploy", "-e");
-    // pb1.directory(new File(path_));
-    //
-    // Process process1 = pb1.start();
-    // final InputStream isError1 = process1.getErrorStream();
-    // final InputStream isOutput1 = process1.getInputStream();
-    //
-    // Utils.processErrorAndOutPut(isError1, isOutput1);
-    //
-    // int errCode1 = process1.waitFor();
-    // if (process1.exitValue() == 0) {
-    // System.out.println("Execution successful ");
-    // getOutput().showMessage("Tomcat started");
-    // } else {
-    // System.out.println("Execution failed");
-    // getOutput().showError("Problem starting tomcat");
-    // return;
-    // }
-    //
-    // // Process p;
-    // // final String cmd = "cmd /c start mvn tomcat7:deploy";
-    // // final String cmd1 = "cmd /c start call startup.bat";
-    // // Runtime.getRuntime().exec(cmd1, null, new File(tomcat_bat_file_path));
-    // // Thread.sleep(20000);
-    // // p = Runtime.getRuntime().exec(cmd, null, new File(path));
-    // // p.waitFor();
-    // getOutput().showMessage("Deploying and starting file...");
-    // } catch (Exception e) {
-    //
-    // getOutput().showError("An error occured during executing oasp4j Cmd" + e.getMessage());
-    // }
   }
 
   private void update_setting_file(File inputFile) {
