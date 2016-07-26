@@ -5,10 +5,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.net.ConnectException;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.Proxy;
+import java.net.Proxy.Type;
+import java.net.ProxySelector;
+import java.net.SocketAddress;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -25,9 +34,6 @@ import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.impl.utils.WindowsReqistry;
 import com.devonfw.devcon.output.Output;
 import com.github.zafarkhaja.semver.Version;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
 
 /**
  * System-wide commands and those related with Devcon itself
@@ -36,7 +42,8 @@ import com.mashape.unirest.http.exceptions.UnirestException;
  *
  */
 
-@CmdModuleRegistry(name = "system", description = "Devcon and system-wide commands") // TODO update for sub-systems?
+@CmdModuleRegistry(name = "system", description = "Devcon and system-wide commands")
+// TODO update for sub-systems?
 public class SystemCommands extends AbstractCommandModule {
 
   /**
@@ -49,14 +56,17 @@ public class SystemCommands extends AbstractCommandModule {
    */
   private static final String DOT_DEVCON_DIR = ".devcon";
 
+  private final String PROXY_HOST = "1.0.5.10";
+
+  private final int PROXY_PORT = 8080;
+
   /**
    *
    */
 
   @SuppressWarnings("javadoc")
   @Command(name = "install", description = "Install Devcon on user´s HOME folder or alternative path")
-  @Parameters(values = {
-  @Parameter(name = "addToPath", description = "Add to %PATH% (by default \"true\")", optional = true) })
+  @Parameters(values = { @Parameter(name = "addToPath", description = "Add to %PATH% (by default \"true\")", optional = true) })
   public void install(String addToPath) {
 
     Output out = getOutput();
@@ -68,6 +78,7 @@ public class SystemCommands extends AbstractCommandModule {
 
     if (!devconFile.exists()) {
 
+      getOutput().showMessage("Installing...");
       try {
 
         // Create .decvon dir in User $HOME directory
@@ -100,7 +111,7 @@ public class SystemCommands extends AbstractCommandModule {
         out.showMessage("The application has been installed. You need to close this console and open another one.");
         out.showMessage("Devcon is available as the command 'devcon' and its alias 'devon'.");
 
-      } catch (UnirestException | JSONException | IOException e) {
+      } catch (JSONException | IOException e) {
 
         out.showError("while installing Devcon: %s", e.getMessage());
       }
@@ -141,7 +152,7 @@ public class SystemCommands extends AbstractCommandModule {
           out.showMessage("Version up to date. No change is needed.");
         }
 
-      } catch (UnirestException | JSONException | IOException e) {
+      } catch (JSONException | IOException e) {
 
         out.showError("while updating Devcon: " + e.getMessage());
       }
@@ -169,18 +180,23 @@ public class SystemCommands extends AbstractCommandModule {
 
     Version version = null;
     String url_ = null;
+    JSONObject json = null;
+    try {
+      json = new JSONObject(IOUtils.toString(new URL(Devcon.VERSION_URL), Charset.forName("UTF-8")));
+    } catch (ConnectException e) {
+      setProxy();
+      json = new JSONObject(IOUtils.toString(new URL(Devcon.VERSION_URL), Charset.forName("UTF-8")));
+    }
 
-    JSONObject json = new JSONObject(IOUtils.toString(new URL(Devcon.VERSION_URL), Charset.forName("UTF-8")));
     version = Version.valueOf((String) json.get("version"));
     url_ = (String) json.get("url");
 
     return Pair.of(version, url_);
   }
 
-  private void updating(String url, File devconFile) throws UnirestException, IOException {
+  private void updating(String url, File devconFile) throws IOException {
 
-    HttpResponse<InputStream> binary = Unirest.get(url).asBinary();
-    InputStream in_ = binary.getRawBody();
+    InputStream in_ = new URL(url).openStream();
     FileOutputStream outFile = new FileOutputStream(devconFile);
 
     byte[] buffer = new byte[4069];
@@ -196,5 +212,35 @@ public class SystemCommands extends AbstractCommandModule {
     }
 
     outFile.close();
+  }
+
+  private void setProxy() {
+
+    ProxySelector.setDefault(new ProxySelector() {
+      final ProxySelector delegate = ProxySelector.getDefault();
+
+      @Override
+      public List<Proxy> select(URI uri) {
+
+        if (uri.toString().contains("devcon") && uri.toString().contains("https")) {
+          return Arrays.asList(new Proxy(Type.HTTP, InetSocketAddress.createUnresolved(SystemCommands.this.PROXY_HOST,
+              SystemCommands.this.PROXY_PORT)));
+        }
+        if (uri.toString().contains("devcon") && uri.toString().contains("http")) {
+          return Arrays.asList(new Proxy(Type.HTTP, InetSocketAddress.createUnresolved(SystemCommands.this.PROXY_HOST,
+              SystemCommands.this.PROXY_PORT)));
+        }
+
+        return this.delegate == null ? Arrays.asList(Proxy.NO_PROXY) : this.delegate.select(uri);
+      }
+
+      @Override
+      public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+
+        if (uri == null || sa == null || ioe == null) {
+          throw new IllegalArgumentException("Arguments can't be null.");
+        }
+      }
+    });
   }
 }
