@@ -11,19 +11,13 @@ import java.util.Iterator;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.SystemUtils;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
@@ -233,118 +227,104 @@ public class Oasp4j extends AbstractCommandModule {
       }
 
       path = path.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : path;
-      tomcatpath =
-          tomcatpath.isEmpty() ? distInfo.get().getPath().toFile().toString() + File.separator + "software"
-              + File.separator + "tomcat" : tomcatpath;
 
-      File tomcatDir = new File(tomcatpath);
+      Optional<String> appName = getAppName(path);
 
-      if (!tomcatDir.exists()) {
-        getOutput().showError("Tomcat directory " + tomcatDir.toString() + " not found.");
-        return;
-      }
+      if (appName.isPresent()) {
 
-      File project = new File(path);
+        tomcatpath =
+            tomcatpath.isEmpty() ? distInfo.get().getPath().toFile().toString() + File.separator + "software"
+                + File.separator + "tomcat" : tomcatpath;
 
-      if (project.exists()) {
+        File tomcatDir = new File(tomcatpath);
 
-        // PACKAGING THE APP (creating the .war file)
-        File mvnBat = new File(distInfo.get().getPath().toString() + File.separator + "software\\maven\\bin\\mvn.bat");
-        if (mvnBat.exists()) {
+        if (!tomcatDir.exists()) {
+          getOutput().showError("Tomcat directory " + tomcatDir.toString() + " not found.");
+          return;
 
-          ProcessBuilder processBuilder = new ProcessBuilder(mvnBat.getAbsolutePath(), "package");
-          processBuilder.directory(project);
+        }
 
-          Process process = processBuilder.start();
+        File newTomcat4app = new File(tomcatpath + "_" + appName.get().toString());
 
-          final InputStream isError = process.getErrorStream();
-          final InputStream isOutput = process.getInputStream();
+        if (!newTomcat4app.exists()) {
+          newTomcat4app.mkdirs();
+          FileUtils.copyDirectory(tomcatDir, newTomcat4app);
+        } else {
+          getOutput().showMessage("Tomcat " + newTomcat4app.getAbsolutePath().toString() + " already exists.");
+        }
 
-          Utils.processErrorAndOutPut(isError, isOutput);
+        File project = new File(path);
 
-          process.waitFor();
+        if (project.exists()) {
 
-          // ADDING THE .WAR TO THE tomcat/webapps DIRECTORY
-          File server = new File(path + File.separator + "server");
+          // PACKAGING THE APP (creating the .war file)
+          File mvnBat =
+              new File(distInfo.get().getPath().toString() + File.separator + "software\\maven\\bin\\mvn.bat");
+          if (mvnBat.exists()) {
 
-          if (server.exists()) {
-            File warFile = getWarFile(server.toPath());
-            if (warFile.exists()) {
-              File tomcatWebApps = new File(tomcatDir + File.separator + "webapps");
+            ProcessBuilder processBuilder = new ProcessBuilder(mvnBat.getAbsolutePath(), "package");
+            processBuilder.directory(project);
 
-              if (tomcatWebApps.exists()) {
-                FileUtils.copyFileToDirectory(warFile, tomcatWebApps, true);
+            Process process = processBuilder.start();
 
-                // LAUNCHING TOMCAT
-                File startTomcatBat = new File(tomcatDir + File.separator + "bin" + File.separator + "startup.bat");
+            final InputStream isError = process.getErrorStream();
+            final InputStream isOutput = process.getInputStream();
 
-                if (startTomcatBat.exists()) {
-                  ProcessBuilder tomcatProcessBuilder = new ProcessBuilder(startTomcatBat.getAbsolutePath());
-                  tomcatProcessBuilder.directory(new File(tomcatDir + File.separator + "bin"));
+            Utils.processErrorAndOutPut(isError, isOutput);
 
-                  Process tomcaProcess = tomcatProcessBuilder.start();
+            process.waitFor();
 
-                  final InputStream isTomcatError = tomcaProcess.getErrorStream();
-                  final InputStream isTomcatOutput = tomcaProcess.getInputStream();
+            // ADDING THE .WAR TO THE tomcat/webapps DIRECTORY
+            File server = new File(path + File.separator + "server");
 
-                  Utils.processErrorAndOutPut(isTomcatError, isTomcatOutput);
+            if (server.exists()) {
+              File warFile = getWarFile(server.toPath());
+              if (warFile.exists()) {
+                File tomcatWebApps = new File(newTomcat4app + File.separator + "webapps");
+
+                if (tomcatWebApps.exists()) {
+                  FileUtils.copyFileToDirectory(warFile, tomcatWebApps, true);
+
+                  // LAUNCHING TOMCAT
+                  File startTomcatBat =
+                      new File(newTomcat4app + File.separator + "bin" + File.separator + "startup.bat");
+
+                  if (startTomcatBat.exists()) {
+                    ProcessBuilder tomcatProcessBuilder = new ProcessBuilder(startTomcatBat.getAbsolutePath());
+                    tomcatProcessBuilder.directory(new File(newTomcat4app + File.separator + "bin"));
+
+                    Process tomcaProcess = tomcatProcessBuilder.start();
+
+                    final InputStream isTomcatError = tomcaProcess.getErrorStream();
+                    final InputStream isTomcatOutput = tomcaProcess.getInputStream();
+
+                    Utils.processErrorAndOutPut(isTomcatError, isTomcatOutput);
+                  } else {
+                    getOutput().showError("No tomcat/bin/startup.bat file found.");
+                  }
+
                 } else {
-                  getOutput().showError("No tomcat/bin/startup.bat file found.");
+                  getOutput().showError("No tomcat/webapps directory found.");
                 }
-
-              } else {
-                getOutput().showError("No tomcat/webapps directory found.");
               }
+
+            } else {
+              getOutput().showError("No server project found.");
             }
 
           } else {
-            getOutput().showError("No server project found.");
+            getOutput().showError("No mvn.bat found.");
           }
 
         } else {
-          getOutput().showError("No mvn.bat found.");
+          getOutput().showError("The project does not exist.");
         }
-
       } else {
-        getOutput().showError("The project does not exist.");
+        getOutput().showError("'artifactId' element not found in the pom.xml");
       }
 
     } catch (Exception e) {
       getOutput().showError("In oasp4j deploy command. " + e.getMessage());
-    }
-  }
-
-  private void update_setting_file(File inputFile) {
-
-    String[] terms = { "TomcatServer", "tomcat" };
-    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-    DocumentBuilder dBuilder;
-    try {
-      dBuilder = dbFactory.newDocumentBuilder();
-      Document doc = dBuilder.parse(inputFile);
-
-      doc.getDocumentElement().normalize();
-      Node servers = doc.getDocumentElement().getElementsByTagName(Constants.SERVERS).item(0);
-
-      if (!xmlAlreadyConfigured(servers, terms)) {
-        Element server = doc.createElement(Constants.SERVER);
-        Node id = doc.createElement("id");
-        id.appendChild(doc.createTextNode(Constants.TOMCAT_SERVER));
-        server.appendChild(id);
-
-        Node username = doc.createElement(Constants.USERNAME);
-        username.appendChild(doc.createTextNode(Constants.TOMCAT));
-        server.appendChild(username);
-
-        Node password = doc.createElement(Constants.PASSWORD);
-        password.appendChild(doc.createTextNode(Constants.TOMCAT));
-        server.appendChild(password);
-        servers.appendChild(server);
-
-        writeToXml(doc, inputFile);
-      }
-    } catch (Exception e) {
-      getOutput().showError("An error occured while updating setting.xml file from .m2 folder");
     }
   }
 
@@ -361,165 +341,6 @@ public class Oasp4j extends AbstractCommandModule {
     }
 
     return sb.toString();
-  }
-
-  private void update_tomcat_user_file(File tomcat_user_file) {
-
-    String[] rolenameList = { "admin-gui", "manager-gui", "manager-script" };
-    String[] contents =
-        { "<Role rolename=\"admin-gui\"/>", "<Role rolename=\"manager-gui\"/>", "<Role rolename=\"manager-script\"/>",
-        "<user password=\"tomcat\" roles=\"manager-script,admin-gui,manager-gui\" username=\"tomcat\"/>" };
-    boolean result = false;
-
-    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-    DocumentBuilder dBuilder;
-    try {
-
-      String temp = new StringBuffer(readFile(tomcat_user_file)).toString();
-      for (String roleName : contents) {
-        if (temp.contains(roleName)) {
-          result = true;
-        } else {
-          result = false;
-          break;
-        }
-      }
-      dBuilder = dbFactory.newDocumentBuilder();
-      Document doc = dBuilder.parse(tomcat_user_file);
-
-      doc.getDocumentElement().normalize();
-
-      Node tomcat = doc.getDocumentElement();
-
-      if (!result) {
-
-        for (int i = 0; i < rolenameList.length; i++) {
-          Element role = doc.createElement(Constants.ROLE);
-          role.setAttribute(Constants.ROLE_NAME, rolenameList[i]);
-          tomcat.appendChild(role);
-          // DOMSource source = new DOMSource(doc);
-          // TransformerFactory transformerFactory = TransformerFactory.newInstance();
-          // Transformer transformer = transformerFactory.newTransformer();
-          // StreamResult result = new StreamResult(tomcat_user_file);
-          // transformer.transform(source, result);
-        }
-
-        Element user = doc.createElement(Constants.USER);
-        user.setAttribute(Constants.USERNAME, Constants.TOMCAT);
-        user.setAttribute(Constants.PASSWORD, Constants.TOMCAT);
-        user.setAttribute(Constants.ROLES, Constants.ALL_ROLES);
-
-        tomcat.appendChild(user);
-
-        writeToXml(doc, tomcat_user_file);
-      }
-    } catch (Exception e) {
-      getOutput().showError("An error occured while updating tomcat-user.xml file");
-    }
-  }
-
-  private void modifyPom(File inputFile, String warFileName, String serverport) {
-
-    String[] terms = { "org.apache.tomcat.maven", "tomcat7-maven-plugin" };
-    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-    DocumentBuilder dBuilder;
-    try {
-      dBuilder = dbFactory.newDocumentBuilder();
-      Document doc = dBuilder.parse(inputFile);
-      doc.getDocumentElement().normalize();
-
-      NodeList buildNodes = doc.getDocumentElement().getElementsByTagName(Constants.BUILD);
-
-      for (int k = 0; k < buildNodes.getLength(); k++) {
-        if (!(buildNodes.item(k).getParentNode().getNodeName().equalsIgnoreCase(Constants.PROFILE))) {
-
-          Node build = buildNodes.item(k);
-          if (!xmlAlreadyConfigured(build, terms)) {
-            NodeList childNode = build.getChildNodes();
-            for (int j = 0; j < childNode.getLength(); j++) {
-
-              if (childNode.item(j).getNodeName().equalsIgnoreCase(Constants.PLUGINS)) {
-                Node plugins = childNode.item(j);
-                Element plugin = doc.createElement(Constants.PLUGIN);
-
-                Node groupId = doc.createElement(Constants.GROUP_ID);
-                groupId.appendChild(doc.createTextNode("org.apache.tomcat.maven"));
-                plugin.appendChild(groupId);
-
-                Node artifactId = doc.createElement(Constants.ARTIFACT_ID);
-                artifactId.appendChild(doc.createTextNode("tomcat7-maven-plugin"));
-                plugin.appendChild(artifactId);
-
-                Node version = doc.createElement("version");
-                version.appendChild(doc.createTextNode("2.2"));
-                plugin.appendChild(version);
-
-                Node configuration = doc.createElement("configuration");
-
-                Node url = doc.createElement("url");
-                url.appendChild(doc.createTextNode("http://localhost:" + serverport + "/manager/text"));
-                configuration.appendChild(url);
-
-                Node server = doc.createElement(Constants.SERVER);
-                server.appendChild(doc.createTextNode(Constants.TOMCAT_SERVER));
-                configuration.appendChild(server);
-
-                Node path = doc.createElement("path");
-                path.appendChild(doc.createTextNode("/" + warFileName));
-                configuration.appendChild(path);
-
-                Node user = doc.createElement(Constants.USER);
-                user.appendChild(doc.createTextNode(Constants.TOMCAT));
-                configuration.appendChild(user);
-
-                Node password = doc.createElement(Constants.PASSWORD);
-                password.appendChild(doc.createTextNode(Constants.TOMCAT));
-                configuration.appendChild(password);
-
-                Node update = doc.createElement("update");
-                update.appendChild(doc.createTextNode("true"));
-                configuration.appendChild(update);
-
-                plugin.appendChild(configuration);
-
-                plugins.appendChild(plugin);
-
-                writeToXml(doc, inputFile);
-              }
-            } // end of internal for
-          } else {
-            // NOt required as we do not need to modify pom file as plugin already exists
-          }
-        }
-      }
-
-    } catch (Exception e) {
-      // TODO Auto-generated catch block
-      getOutput().showError("An error occured " + e.getMessage());
-
-    }
-  }
-
-  private String findWarName(String path) {
-
-    String name = null;
-    File target = new File(path + "\\target");
-    if (target.exists()) {
-      String[] fileList = target.list();
-
-      for (int i = 0; i < fileList.length; i++) {
-        if (fileList[i].endsWith(".war")) {
-
-          name = fileList[i].substring(0, fileList[i].indexOf("."));
-
-        } else {
-          getOutput().showError("No war file present in path");
-        }
-      }
-
-    }
-
-    return name;
   }
 
   private File getWarFile(Path server) {
@@ -552,33 +373,33 @@ public class Oasp4j extends AbstractCommandModule {
     return warFile;
   }
 
-  private void writeToXml(Node doc, File inputFile) {
+  private Optional<String> getAppName(String path) {
 
-    TransformerFactory transformerFactory = TransformerFactory.newInstance();
-    Transformer transformer;
+    String appName = null;
+
     try {
-      transformer = transformerFactory.newTransformer();
-      DOMSource source = new DOMSource(doc);
-      StreamResult result = new StreamResult(inputFile);
-      transformer.transform(source, result);
-    } catch (Exception e) {
 
-      getOutput().showError("An error occured " + e.getMessage());
+      DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
-    }
+      File pomFile = new File(path + File.separator + "pom.xml");
 
-  }
+      if (pomFile.exists()) {
 
-  private boolean xmlAlreadyConfigured(Node node, String[] terms) {
+        Document doc = docBuilder.parse(pomFile);
+        doc.getDocumentElement().normalize();
 
-    boolean result = true;
-    for (String term : terms) {
-      if (!node.getTextContent().contains(term)) {
-        result = false;
-        break;
+        Node artifactIdNode = doc.getElementsByTagName("artifactId").item(0);
+
+        appName = artifactIdNode != null ? artifactIdNode.getTextContent() : "";
+
       }
+
+      return Optional.of(appName);
+
+    } catch (Exception e) {
+      return Optional.of(appName);
     }
-    return result;
   }
 
 }
