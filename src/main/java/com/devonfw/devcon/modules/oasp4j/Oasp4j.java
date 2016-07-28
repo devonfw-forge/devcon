@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -27,6 +28,7 @@ import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.ContextType;
 import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
+import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Constants;
 import com.devonfw.devcon.common.utils.Utils;
@@ -65,12 +67,13 @@ public class Oasp4j extends AbstractCommandModule {
   public void create(String serverpath, String servername, String packagename, String groupid, String version)
       throws IOException {
 
-    String command = new StringBuffer("cmd /c start mvn -DarchetypeVersion=").append(Constants.OASP_TEMPLATE_VERSION)
-        .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
-        .append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=").append(Constants.OASP_ARTIFACT_ID)
-        .append(" archetype:generate -DgroupId=").append(groupid).append(" -DartifactId=").append(servername)
-        .append(" -Dversion=").append(version).append(" -Dpackage=").append(packagename)
-        .append(" -DinteractiveMode=false").toString();
+    String command =
+        new StringBuffer("cmd /c mvn -DarchetypeVersion=").append(Constants.OASP_TEMPLATE_VERSION)
+            .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
+            .append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
+            .append(Constants.OASP_ARTIFACT_ID).append(" archetype:generate -DgroupId=").append(groupid)
+            .append(" -DartifactId=").append(servername).append(" -Dversion=").append(version).append(" -Dpackage=")
+            .append(packagename).append(" -DinteractiveMode=false").toString();
 
     // Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot(serverpath);
 
@@ -100,9 +103,19 @@ public class Oasp4j extends AbstractCommandModule {
       try {
         process = rt.exec(command, null, new File(serverpath));
 
+        String line;
+        BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        while ((line = in.readLine()) != null) {
+          System.out.println(line);
+        }
+        in.close();
+
         int result = process.waitFor();
         if (result == 0) {
-          getOutput().showMessage("Project Creation complete");
+          getOutput().showMessage("Adding devon.json file...");
+          Utils.addDevonJsonFile(project.toPath(), ProjectType.OASP4J);
+          getOutput().showMessage("Project Creation completed successfully");
+
         } else {
           throw new Exception("Project creation failed");
         }
@@ -173,8 +186,7 @@ public class Oasp4j extends AbstractCommandModule {
    * @param path path to server project
    */
   @Command(name = "build", description = "This command will build the server project", context = ContextType.PROJECT)
-  @Parameters(values = {
-  @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
+  @Parameters(values = { @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
   public void build(String path) {
 
     // Check projectInfo loaded. If not, abort
@@ -185,8 +197,8 @@ public class Oasp4j extends AbstractCommandModule {
     this.projectInfo = getContextPathInfo().getProjectRoot(path);
     ProjectInfo info = this.projectInfo.get();
     System.out.println("projectInfo read...");
-    System.out
-        .println("path " + this.projectInfo.get().getPath() + "project type " + this.projectInfo.get().getProjecType());
+    System.out.println("path " + this.projectInfo.get().getPath() + "project type "
+        + this.projectInfo.get().getProjecType());
 
     Process p;
     try {
@@ -206,7 +218,8 @@ public class Oasp4j extends AbstractCommandModule {
    * @param path server project path
    */
   @Command(name = "deploy", description = "This command will deploy the server project on tomcat", context = ContextType.PROJECT)
-  @Parameters(values = { @Parameter(name = "deploypath", description = "Path to tomcat folder"),
+  @Parameters(values = {
+  @Parameter(name = "deploypath", description = "Path to tomcat folder"),
   @Parameter(name = "port", description = "Port on which server will be started (default value is 8080)", optional = true),
   @Parameter(name = "path", description = "Path to server project (default is current working directory + \\server)", optional = true) })
   public void deploy(String deploypath, String port, String path) {

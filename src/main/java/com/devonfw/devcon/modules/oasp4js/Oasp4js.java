@@ -12,6 +12,7 @@ import com.devonfw.devcon.common.api.data.ContextType;
 import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
+import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
 
 /**
@@ -44,14 +45,18 @@ public class Oasp4js extends AbstractCommandModule {
         String projectPath = clientpath + File.separator + clientname;
         File projectFile = new File(projectPath);
         if (projectFile.exists()) {
-          getOutput()
-              .showError("The project " + projectPath + " already exists. Please delete it or choose other location.");
+          getOutput().showError(
+              "The project " + projectPath + " already exists. Please delete it or choose other location.");
         } else {
 
           File templateFile = new File(distInfo.get().getPath().toString() + File.separator + OASP4JS_BASE);
           if (templateFile.exists()) {
 
             FileUtils.copyDirectory(templateFile, projectFile, false);
+
+            getOutput().showMessage("Adding devon.json file...");
+            Utils.addDevonJsonFile(projectFile.toPath(), ProjectType.OASP4JS);
+
             getOutput().showMessage(
                 "Project created successfully. Please launch 'npm install' to resolve the project dependencies.");
           } else {
@@ -68,8 +73,7 @@ public class Oasp4js extends AbstractCommandModule {
   }
 
   @Command(name = "build", description = "This command will build the server project", context = ContextType.PROJECT)
-  @Parameters(values = {
-  @Parameter(name = "path", description = "Path to Client project Workspace (currentDir if not given)", optional = true) })
+  @Parameters(values = { @Parameter(name = "path", description = "Path to Client project Workspace (currentDir if not given)", optional = true) })
   public void build(String path) {
 
     try {
@@ -101,8 +105,7 @@ public class Oasp4js extends AbstractCommandModule {
   }
 
   @Command(name = "run", description = "This command runs a debug build of oasp4js")
-  @Parameters(values = {
-  @Parameter(name = "clientpath", description = "the location of the oasp4js app", optional = true) })
+  @Parameters(values = { @Parameter(name = "clientpath", description = "the location of the oasp4js app", optional = true) })
   public void run(String clientpath) {
 
     try {
