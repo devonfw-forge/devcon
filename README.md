@@ -1,6 +1,6 @@
 # Devcon, a command line tool for Devonfw
 
-[Devcon](https://raw.githubusercontent.com/wiki/devonfw/devon-guide/images/devconlogo_full.png "Devcon logo")
+![Devcon](https://raw.githubusercontent.com/wiki/devonfw/devon-guide/images/devconlogo_full.png "Devcon logo")
 
 Devcon is a cross-platform command line tool running on the JVM that provides many automated tasks around the full life-cycle of Devon applications, from installing the basic working environment and generating a new project, to running a test server and deploying an application to production.
 
