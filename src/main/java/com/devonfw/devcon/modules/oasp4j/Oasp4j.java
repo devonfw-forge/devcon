@@ -59,7 +59,7 @@ public class Oasp4j extends AbstractCommandModule {
    */
   @Command(name = "create", description = "This command is used to create new server project")
   @Parameters(values = { @Parameter(name = "serverpath", description = "where to create", optional = true),
-  @Parameter(name = "servername", description = "Name of project"),
+  @Parameter(name = "servername", description = "Name of project", optional = true),
   @Parameter(name = "packagename", description = "package name in server project"),
   @Parameter(name = "groupid", description = "groupid for server project"),
   @Parameter(name = "version", description = "version of server project") })

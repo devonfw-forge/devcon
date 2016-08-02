@@ -207,13 +207,13 @@ public class Sencha extends AbstractCommandModule {
         }
 
         if (pStatus == 0) {
-        getOutput().showMessage("Adding devon.json file...");
-        Utils.addDevonJsonFile(senchaAppPath, ProjectType.DEVON4SENCHA);
-        getOutput().showMessage("Sencha Ext JS6 app Created");
-      } else {
-        getOutput().showError("The app " + senchaApp.toString() + " already exists.");
+          getOutput().showMessage("Adding devon.json file...");
+          Utils.addDevonJsonFile(senchaApp.toPath(), ProjectType.DEVON4SENCHA);
+          getOutput().showMessage("Sencha Ext JS6 app Created");
+        } else {
+          getOutput().showError("The app " + senchaApp.toString() + " already exists.");
+        }
       }
-
     } catch (Exception e) {
       getOutput().showError("An error occured while executing create command", e.getMessage());
       throw e;
