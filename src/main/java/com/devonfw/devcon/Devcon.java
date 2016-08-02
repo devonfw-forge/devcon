@@ -27,6 +27,11 @@ public class Devcon {
 
   public static final String DEVCON_VERSION = "devcon v." + VERSION;
 
+  /**
+   * to be used as version of devon.json files
+   */
+  public static final String DEVON_DEFAULT_VERSION = "2.0.1";
+
   public static final String DEVCON_BANNER = "Hello, this is Devcon!\n" + "Copyright (c) 2016 Capgemini";
 
   // Determine whether app is inside an "executable jar" or not (made with Eclipse: has an "resource" folder"
