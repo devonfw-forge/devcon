@@ -9,12 +9,16 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
+
+import com.devonfw.devcon.common.api.data.ProjectType;
 
 /**
  * General utilities
@@ -224,4 +228,26 @@ public class Utils {
       }
     }).start();
   }
+
+  /**
+   * @param pathToApp
+   * @param type
+   * @throws Exception
+   */
+  public static void addDevonJsonFile(Path pathToApp, ProjectType type) throws Exception {
+
+    try {
+      File appFolder = pathToApp.toFile();
+      if (appFolder.exists()) {
+        String content = "{\"version\": \"2.0.0\",\n\"type\":\"" + type.toString() + "\"}";
+        File settingsfile = pathToApp.resolve("devon.json").toFile();
+        FileUtils.writeStringToFile(settingsfile, content, "UTF-8");
+      }
+    } catch (Exception e) {
+      throw new Exception("An error occurred while adding the devon.json file. You may need to add it manually. "
+          + e.getMessage());
+    }
+
+  }
+
 }

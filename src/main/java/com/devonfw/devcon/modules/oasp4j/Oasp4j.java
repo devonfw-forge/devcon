@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Iterator;
@@ -26,6 +27,7 @@ import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.ContextType;
 import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
+import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Constants;
 import com.devonfw.devcon.common.utils.Utils;
@@ -65,7 +67,7 @@ public class Oasp4j extends AbstractCommandModule {
       throws IOException {
 
     String command =
-        new StringBuffer("cmd /c start mvn -DarchetypeVersion=").append(Constants.OASP_TEMPLATE_VERSION)
+        new StringBuffer("cmd /c mvn -DarchetypeVersion=").append(Constants.OASP_TEMPLATE_VERSION)
             .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
             .append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
             .append(Constants.OASP_ARTIFACT_ID).append(" archetype:generate -DgroupId=").append(groupid)
@@ -100,9 +102,19 @@ public class Oasp4j extends AbstractCommandModule {
       try {
         process = rt.exec(command, null, new File(serverpath));
 
+        String line;
+        BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        while ((line = in.readLine()) != null) {
+          System.out.println(line);
+        }
+        in.close();
+
         int result = process.waitFor();
         if (result == 0) {
-          getOutput().showMessage("Project Creation complete");
+          getOutput().showMessage("Adding devon.json file...");
+          Utils.addDevonJsonFile(project.toPath(), ProjectType.OASP4J);
+          getOutput().showMessage("Project Creation completed successfully");
+
         } else {
           throw new Exception("Project creation failed");
         }

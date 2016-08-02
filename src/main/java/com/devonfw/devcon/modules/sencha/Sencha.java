@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Path;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
@@ -208,14 +207,9 @@ public class Sencha extends AbstractCommandModule {
         }
 
         if (pStatus == 0) {
-
-          addDevonJsonFile(senchaApp.toPath());
-          getOutput().showMessage("Sencha Ext JS6 app Created");
-        } else {
-          getOutput()
-              .showError(
-                  "Sencha Ext JS6 app Creation Failed . Please make sure the workspace where app is created is a valid Sencha Workspace");
-        }
+        getOutput().showMessage("Adding devon.json file...");
+        Utils.addDevonJsonFile(senchaAppPath, ProjectType.DEVON4SENCHA);
+        getOutput().showMessage("Sencha Ext JS6 app Created");
       } else {
         getOutput().showError("The app " + senchaApp.toString() + " already exists.");
       }
@@ -226,22 +220,4 @@ public class Sencha extends AbstractCommandModule {
     }
   }
 
-  private void addDevonJsonFile(Path senchaAppPath) throws Exception {
-
-    getOutput().showMessage("Adding devon.json file...");
-    try {
-      File appFolder = senchaAppPath.toFile();
-      if (appFolder.exists()) {
-        String content = "{\"version\": \"2.0.0\",\n\"type\":\"devon4sencha\"}";
-        File settingsfile = senchaAppPath.resolve("devon.json").toFile();
-        FileUtils.writeStringToFile(settingsfile, content, "UTF-8");
-      }
-    } catch (Exception e) {
-      getOutput().showError(
-          "An error occurred while adding the devon.json file to the new Sencha app. You may need to add it manually."
-              + e.getMessage());
-      throw e;
-    }
-
-  }
 }
