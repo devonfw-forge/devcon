@@ -18,6 +18,7 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.devonfw.devcon.Devcon;
 import com.devonfw.devcon.common.api.data.ProjectType;
 
 /**
@@ -239,7 +240,8 @@ public class Utils {
     try {
       File appFolder = pathToApp.toFile();
       if (appFolder.exists()) {
-        String content = "{\"version\": \"2.0.0\",\n\"type\":\"" + type.toString() + "\"}";
+        String content =
+            "{\"version\": \"" + Devcon.DEVON_DEFAULT_VERSION + "\",\n\"type\":\"" + type.toString() + "\"}";
         File settingsfile = pathToApp.resolve("devon.json").toFile();
         FileUtils.writeStringToFile(settingsfile, content, "UTF-8");
       }
