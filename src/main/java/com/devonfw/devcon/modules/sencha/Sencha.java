@@ -2,9 +2,12 @@ package com.devonfw.devcon.modules.sencha;
 
 import java.io.File;
 import java.io.InputStream;
-import java.nio.file.Path;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
@@ -16,6 +19,7 @@ import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Constants;
 import com.devonfw.devcon.common.utils.Utils;
+import com.devonfw.devcon.modules.github.Github;
 import com.google.common.base.Optional;
 
 /**
@@ -69,49 +73,46 @@ public class Sencha extends AbstractCommandModule {
   }
 
   @SuppressWarnings("javadoc")
-  @Command(name = "workspace", description = "Creates a new Sencha Ext JS6 project in a workspace")
+  @Command(name = "workspace", description = "Creates a new Sencha workspace (cloned from the Devon4Sencha repo on Github)")
   @Parameters(values = {
-  @Parameter(name = "workspacename", description = "Name for the workspace"),
-  @Parameter(name = "workspacepath", description = "Path to Sencha Workspace (currentDir if not given)", optional = true),
-  @Parameter(name = "username", description = "a user with permissions to download the Devon distribution"),
-  @Parameter(name = "password", description = "the password related to the user with permissions to download the Devon distribution"),
-  @Parameter(name = "gitFolder", description = "GIT BIN/CMD folder where git executable is present", optional = true) })
-  public void workspace(String projectname, String workspace, String username, String password, String gitFolder)
-      throws Exception {
+  @Parameter(name = "path", description = "a location for the workspace (Current directory if not provided)", optional = true),
+  @Parameter(name = "username", description = "a Github user with permissions to access the Devon4Sencha repo"),
+  @Parameter(name = "password", description = "the password of the user") })
+  public void workspace(String path, String username, String password) throws Exception {
+
+    path = path.isEmpty()
+        ? this.contextPathInfo.getCurrentWorkingDirectory().toString() + File.separatorChar + "devon4sencha" : path;
+
+    File folder = new File(path);
+    if (!folder.exists()) {
+      folder.mkdirs();
+    }
+
+    getOutput().showMessage("Cloning from " + Constants.SENCHA_REPO_URL + " to " + path);
 
     try {
-      String pass = Utils.encode(password);
-      String user = Utils.encode(username);
-      final String REMOTE_URL =
-          new StringBuffer(Constants.HTTPS).append(user).append(Constants.COLON).append(pass)
-              .append(Constants.AT_THE_RATE).append(Constants.SENCHA_REPO_URL).toString();
 
-      Path wsPath = null;
-      Path projectPath = null;
-      final Path currentDir = getContextPathInfo().getCurrentWorkingDirectory();
-      if (workspace == null || workspace.isEmpty()) {
-        projectPath = currentDir.resolve(projectname);
-      } else {
-        wsPath = currentDir.resolve(workspace);
-        projectPath = wsPath.resolve(projectname);
+      Git result = Git.cloneRepository().setURI(Constants.SENCHA_REPO_URL).setDirectory(folder)
+          .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password)).call();
+
+      getOutput().showMessage("Having repository: " + result.getRepository().getDirectory());
+    } catch (TransportException te) {
+
+      File dotGit = new File(path + File.separator + Github.DOT_GIT);
+      if (dotGit.exists()) {
+        FileUtils.deleteDirectory(dotGit);
       }
-      if (!projectPath.toFile().exists()) {
 
-        projectPath.toFile().mkdirs();
+      Github.setProxyForGithub();
+      Git result = Git.cloneRepository().setURI(Constants.SENCHA_REPO_URL).setDirectory(folder)
+          .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password)).call();
 
-        String remoteUrl = Utils.decode(REMOTE_URL);
-        getOutput().showMessage("Cloning from " + remoteUrl);
-
-        // create workspace here
-        Utils.cloneRepository(REMOTE_URL, projectPath.toString(), gitFolder);
-        getOutput().showMessage("Having repository: " + projectPath.toString() + Constants.DOT_GIT);
-      } else {
-        getOutput().showError("Project exists!");
-      }
+      getOutput().showMessage("Cloned Devon4Sencha workspace: %s", result.getRepository().getDirectory().toString());
     } catch (Exception e) {
-      getOutput().showError("An error occured while executing workspace command", e.getMessage());
+      getOutput().showError("Getting the Devon4Sencha code from Github: %s", e.getMessage());
       throw e;
     }
+
   }
 
   /**
@@ -119,7 +120,8 @@ public class Sencha extends AbstractCommandModule {
    * @throws Exception Exception thrown by the Sencha build command
    */
   @Command(name = "build", description = "Builds a Sencha Ext JS6 project in a workspace", context = ContextType.PROJECT)
-  @Parameters(values = { @Parameter(name = "appDir", description = "Path to Sencha Ext JS6 Application (currentDir if not given)", optional = true), })
+  @Parameters(values = {
+  @Parameter(name = "appDir", description = "Path to Sencha Ext JS6 Application (currentDir if not given)", optional = true), })
   public void build(String appDir) throws Exception {
 
     try {
@@ -161,8 +163,7 @@ public class Sencha extends AbstractCommandModule {
    * @throws Exception Exception thrown by Sencha generate app Command
    */
   @Command(name = "create", description = "Creates a new Sencha Ext JS6 app", context = ContextType.NONE)
-  @Parameters(values = {
-  @Parameter(name = "appname", description = "Name of Sencha Ext JS6 app"),
+  @Parameters(values = { @Parameter(name = "appname", description = "Name of Sencha Ext JS6 app"),
   @Parameter(name = "workspacepath", description = "Path to Sencha Workspace (currentDir if not given)", optional = true), })
   public void create(String appname, String workspacepath) throws Exception {
 
@@ -174,9 +175,8 @@ public class Sencha extends AbstractCommandModule {
       File starterTemplate = new File(workspacepath + File.separator + Constants.SENCHA_APP_STARTER_TEMPLATE);
 
       if (!starterTemplate.exists()) {
-        getOutput().showError(
-            starterTemplate.toString()
-                + " not found. Please verify that you are creating the app in a Sencha workspace.");
+        getOutput().showError(starterTemplate.toString()
+            + " not found. Please verify that you are creating the app in a Sencha workspace.");
         return;
       }
 
@@ -184,9 +184,8 @@ public class Sencha extends AbstractCommandModule {
 
       if (!senchaApp.exists()) {
 
-        ProcessBuilder processBuilder =
-            new ProcessBuilder("sencha", "generate", "app", "-ext", "--starter", Constants.SENCHA_APP_STARTER_TEMPLATE,
-                appname, senchaApp.toString());
+        ProcessBuilder processBuilder = new ProcessBuilder("sencha", "generate", "app", "-ext", "--starter",
+            Constants.SENCHA_APP_STARTER_TEMPLATE, appname, senchaApp.toString());
 
         processBuilder.directory(new File(workspacepath));
 

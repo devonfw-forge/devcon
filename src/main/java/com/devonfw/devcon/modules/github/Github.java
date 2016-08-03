@@ -31,15 +31,15 @@ import com.devonfw.devcon.common.impl.AbstractCommandModule;
 @CmdModuleRegistry(name = "github", description = "Module to get Github repositories related to Devonfw.")
 public class Github extends AbstractCommandModule {
 
-  final String OASP4J_URL = "https://github.com/oasp/oasp4j.git";
+  public static final String OASP4J_URL = "https://github.com/oasp/oasp4j.git";
 
-  final String DEVON_URL = "https://github.com/devonfw/devon.git";
+  public static final String DEVON_URL = "https://github.com/devonfw/devon.git";
 
-  final String DOT_GIT = ".git";
+  public static final String DOT_GIT = ".git";
 
-  final String PROXY_HOST = "1.0.5.10";
+  public static final String PROXY_HOST = "1.0.5.10";
 
-  final int PROXY_PORT = 8080;
+  public static final int PROXY_PORT = 8080;
 
   /**
    * This command is to clone oasp4j repository.
@@ -48,7 +48,8 @@ public class Github extends AbstractCommandModule {
    * @throws Exception
    */
   @Command(name = "oasp4j", description = "This command clones oasp4j repository.", context = ContextType.NONE)
-  @Parameters(values = { @Parameter(name = "path", description = "a location for the oasp4j download (Current directory if not provided)", optional = true) })
+  @Parameters(values = {
+  @Parameter(name = "path", description = "a location for the oasp4j download (Current directory if not provided)", optional = true) })
   public void oasp4j(String path) throws Exception {
 
     path = path.isEmpty() ? this.contextPathInfo.getCurrentWorkingDirectory().toString() : path;
@@ -58,25 +59,25 @@ public class Github extends AbstractCommandModule {
       folder.mkdirs();
     }
 
-    getOutput().showMessage("Cloning from " + this.OASP4J_URL + " to " + path);
+    getOutput().showMessage("Cloning from " + OASP4J_URL + " to " + path);
 
     try {
       // setProxyForGithub();
-      Git result = Git.cloneRepository().setURI(this.OASP4J_URL).setDirectory(folder).call();
+      Git result = Git.cloneRepository().setURI(OASP4J_URL).setDirectory(folder).call();
       getOutput().showMessage("Having repository: " + result.getRepository().getDirectory());
 
     } catch (TransportException te) {
 
-      File dotGit = new File(path + File.separator + this.DOT_GIT);
+      File dotGit = new File(path + File.separator + DOT_GIT);
       if (dotGit.exists()) {
         FileUtils.deleteDirectory(dotGit);
       }
 
       setProxyForGithub();
-      Git result = Git.cloneRepository().setURI(this.OASP4J_URL).setDirectory(folder).call();
+      Git result = Git.cloneRepository().setURI(OASP4J_URL).setDirectory(folder).call();
       getOutput().showMessage("Having repository: " + result.getRepository().getDirectory());
     } catch (Exception e) {
-      getOutput().showError("Getting the OASP4J code from Github.");
+      getOutput().showError("Getting the OASP4J code from Githu: %s", e.getMessage());
       throw e;
     }
 
@@ -94,7 +95,7 @@ public class Github extends AbstractCommandModule {
   @Parameters(values = {
   @Parameter(name = "path", description = "a location for the devon download (Current directory if not provided)", optional = true),
   @Parameter(name = "username", description = "a user with permissions to download the Devon repository from Github."),
-  @Parameter(name = "password", description = "the password related to the user with permissions to download the Devon repository."), })
+  @Parameter(name = "password", description = "the password for the user"), })
   public void devoncode(String path, String username, String password) throws Exception {
 
     path = path.isEmpty() ? this.contextPathInfo.getCurrentWorkingDirectory().toString() : path;
@@ -104,36 +105,34 @@ public class Github extends AbstractCommandModule {
       folder.mkdirs();
     }
 
-    getOutput().showMessage("Cloning from " + this.DEVON_URL + " to " + path);
+    getOutput().showMessage("Cloning from " + DEVON_URL + " to " + path);
 
     try {
 
-      Git result =
-          Git.cloneRepository().setURI(this.DEVON_URL).setDirectory(folder)
-              .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password)).call();
+      Git result = Git.cloneRepository().setURI(DEVON_URL).setDirectory(folder)
+          .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password)).call();
 
       getOutput().showMessage("Having repository: " + result.getRepository().getDirectory());
     } catch (TransportException te) {
 
-      File dotGit = new File(path + File.separator + this.DOT_GIT);
+      File dotGit = new File(path + File.separator + DOT_GIT);
       if (dotGit.exists()) {
         FileUtils.deleteDirectory(dotGit);
       }
 
       setProxyForGithub();
-      Git result =
-          Git.cloneRepository().setURI(this.DEVON_URL).setDirectory(folder)
-              .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password)).call();
+      Git result = Git.cloneRepository().setURI(DEVON_URL).setDirectory(folder)
+          .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password)).call();
 
       getOutput().showMessage("Having repository: " + result.getRepository().getDirectory());
     } catch (Exception e) {
-      getOutput().showError("Getting the Devonfw code from Github.");
+      getOutput().showError("Getting the Devonfw code from Github: %s", e.getMessage());
       throw e;
     }
 
   }
 
-  private void setProxyForGithub() {
+  public static void setProxyForGithub() {
 
     ProxySelector.setDefault(new ProxySelector() {
       final ProxySelector delegate = ProxySelector.getDefault();
@@ -142,12 +141,10 @@ public class Github extends AbstractCommandModule {
       public List<Proxy> select(URI uri) {
 
         if (uri.toString().contains("github") && uri.toString().contains("https")) {
-          return Arrays.asList(new Proxy(Type.HTTP, InetSocketAddress.createUnresolved(Github.this.PROXY_HOST,
-              Github.this.PROXY_PORT)));
+          return Arrays.asList(new Proxy(Type.HTTP, InetSocketAddress.createUnresolved(PROXY_HOST, PROXY_PORT)));
         }
         if (uri.toString().contains("github") && uri.toString().contains("http")) {
-          return Arrays.asList(new Proxy(Type.HTTP, InetSocketAddress.createUnresolved(Github.this.PROXY_HOST,
-              Github.this.PROXY_PORT)));
+          return Arrays.asList(new Proxy(Type.HTTP, InetSocketAddress.createUnresolved(PROXY_HOST, PROXY_PORT)));
         }
 
         return this.delegate == null ? Arrays.asList(Proxy.NO_PROXY) : this.delegate.select(uri);

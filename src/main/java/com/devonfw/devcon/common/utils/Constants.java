@@ -64,7 +64,7 @@ public final class Constants {
   /**
    * DEVON4SENCHA Repo Url
    */
-  public static final String SENCHA_REPO_URL = "github.com/devonfw/devon4sencha";
+  public static final String SENCHA_REPO_URL = "https://github.com/devonfw/devon4sencha.git";
 
   /**
    * DEVON4SENCHA Repo Url
