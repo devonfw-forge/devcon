@@ -105,9 +105,9 @@ public class ContextPathInfo {
    * @param currentDir pass directory as String
    * @return Distribution Info if currentDir within a Devon Distrubution or OASP IDE
    */
-  public Optional<DistributionInfo> getDistributionRoot(String currentDir) {
+  public Optional<DistributionInfo> getDistributionRoot(String path) {
 
-    return getDistributionRoot(getPath(currentDir));
+    return getDistributionRoot(getPath(path));
   }
 
   /**

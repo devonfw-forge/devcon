@@ -2,6 +2,7 @@ package com.devonfw.devcon.modules.sencha;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.file.Path;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -14,6 +15,7 @@ import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.ContextType;
+import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
@@ -69,6 +71,37 @@ public class Sencha extends AbstractCommandModule {
 
     } else {
       getOutput().showMessage("Not a Sencha project (or does not have a corresponding devon.json file)");
+    }
+  }
+
+  @SuppressWarnings("javadoc")
+  @Command(name = "copyworkspace", description = "Copies a new Sencha workspace from a Devon dist to a particular path")
+  @Parameters(values = {
+  @Parameter(name = "workspace", description = "a location for the workspace (Current directory if not provided)", optional = true),
+  @Parameter(name = "distpath", description = "location of the Devonfw Dist (Current directory if not provided)", optional = true) })
+  public void copyworkspace(String workspace, String distpath) throws Exception {
+
+    workspace = workspace.isEmpty()
+        ? this.contextPathInfo.getCurrentWorkingDirectory().toString() + File.separatorChar + "devon4sencha"
+        : workspace;
+
+    Optional<DistributionInfo> distInfo = distpath.isEmpty() ? this.contextPathInfo.getDistributionRoot()
+        : this.contextPathInfo.getDistributionRoot(distpath);
+
+    if (!distInfo.isPresent()) {
+      getOutput().showError("Not in a valid Devonfw Distribution...");
+      return;
+    }
+
+    Path devon4sencha = distInfo.get().getPath().resolve("workspaces/examples/devon4sencha");
+    if (devon4sencha.toFile().exists()) {
+
+      getOutput().showMessage("Copying Devon4sencha workspace...");
+      FileUtils.copyDirectory(devon4sencha.toFile(), getPath(workspace).toFile());
+      getOutput().showMessage("Devon4sencha workspace created in %s: ", workspace);
+    } else {
+      getOutput().showError("Devonfw Distribution does not contain the Devon4sencha workspace");
+      return;
     }
   }
 
