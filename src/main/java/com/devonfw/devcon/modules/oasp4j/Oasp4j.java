@@ -12,13 +12,20 @@ import java.util.Iterator;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.SystemUtils;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
@@ -66,13 +73,12 @@ public class Oasp4j extends AbstractCommandModule {
   public void create(String serverpath, String servername, String packagename, String groupid, String version)
       throws IOException {
 
-    String command =
-        new StringBuffer("cmd /c mvn -DarchetypeVersion=").append(Constants.OASP_TEMPLATE_VERSION)
-            .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
-            .append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
-            .append(Constants.OASP_ARTIFACT_ID).append(" archetype:generate -DgroupId=").append(groupid)
-            .append(" -DartifactId=").append(servername).append(" -Dversion=").append(version).append(" -Dpackage=")
-            .append(packagename).append(" -DinteractiveMode=false").toString();
+    String command = new StringBuffer("cmd /c mvn -DarchetypeVersion=").append(Constants.OASP_TEMPLATE_VERSION)
+        .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
+        .append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=").append(Constants.OASP_ARTIFACT_ID)
+        .append(" archetype:generate -DgroupId=").append(groupid).append(" -DartifactId=").append(servername)
+        .append(" -Dversion=").append(version).append(" -Dpackage=").append(packagename)
+        .append(" -DinteractiveMode=false").toString();
 
     // Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot(serverpath);
 
@@ -113,6 +119,11 @@ public class Oasp4j extends AbstractCommandModule {
         if (result == 0) {
           getOutput().showMessage("Adding devon.json file...");
           Utils.addDevonJsonFile(project.toPath(), ProjectType.OASP4J);
+
+          if (Integer.parseInt(Constants.OASP_TEMPLATE_VERSION.replaceAll("\\.", "")) <= new Integer("211")) {
+            modifyPom(serverpath + "\\" + servername + "\\server\\pom.xml", packagename);
+          }
+
           getOutput().showMessage("Project Creation completed successfully");
 
         } else {
@@ -185,7 +196,8 @@ public class Oasp4j extends AbstractCommandModule {
    * @param path path to server project
    */
   @Command(name = "build", description = "This command will build the server project", context = ContextType.PROJECT)
-  @Parameters(values = { @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
+  @Parameters(values = {
+  @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
   public void build(String path) {
 
     // Check projectInfo loaded. If not, abort
@@ -196,8 +208,8 @@ public class Oasp4j extends AbstractCommandModule {
     this.projectInfo = getContextPathInfo().getProjectRoot(path);
     ProjectInfo info = this.projectInfo.get();
     System.out.println("projectInfo read...");
-    System.out.println("path " + this.projectInfo.get().getPath() + "project type "
-        + this.projectInfo.get().getProjecType());
+    System.out
+        .println("path " + this.projectInfo.get().getPath() + "project type " + this.projectInfo.get().getProjecType());
 
     Process p;
     try {
@@ -244,9 +256,9 @@ public class Oasp4j extends AbstractCommandModule {
 
       if (appName.isPresent()) {
 
-        tomcatpath =
-            tomcatpath.isEmpty() ? distInfo.get().getPath().toFile().toString() + File.separator + "software"
-                + File.separator + "tomcat" : tomcatpath;
+        tomcatpath = tomcatpath.isEmpty()
+            ? distInfo.get().getPath().toFile().toString() + File.separator + "software" + File.separator + "tomcat"
+            : tomcatpath;
 
         File tomcatDir = new File(tomcatpath);
 
@@ -412,6 +424,89 @@ public class Oasp4j extends AbstractCommandModule {
     } catch (Exception e) {
       return Optional.of(appName);
     }
+  }
+
+  private void modifyPom(String filename, String packagname) {
+
+    File fXmlFile = new File(filename);
+    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder dBuilder;
+    Document doc = null;
+    try {
+      dBuilder = dbFactory.newDocumentBuilder();
+      doc = dBuilder.parse(fXmlFile);
+      doc.getDocumentElement().normalize();
+
+      NodeList nList = doc.getElementsByTagName("plugin");
+      Node parent = null;
+      for (int i = 0; i < nList.getLength(); i++) {
+        Node n = nList.item(i);
+        if (n.getTextContent().contains("org.springframework.boot")
+            && n.getTextContent().contains("spring-boot-maven-plugin")) {
+
+          parent = n.getParentNode();
+          n.getParentNode().removeChild(n);
+
+          parent.appendChild(addNode(doc, packagname));
+          break;
+        }
+      }
+
+    } catch (Exception e) {
+      getOutput().showError("Error executing oasp4j command " + e.getMessage());
+
+    }
+
+    try {
+
+      TransformerFactory transformerFactory = TransformerFactory.newInstance();
+      Transformer transformer = transformerFactory.newTransformer();
+      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+      transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+      DOMSource source = new DOMSource(doc);
+      StreamResult result = new StreamResult(fXmlFile);
+      // StreamResult result = new StreamResult(new File("D:\\result.xml"));
+      transformer.transform(source, result);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  private Node addNode(Document doc, String packagname) {
+
+    Element dependency = doc.createElement("plugin");
+
+    Node groupId = doc.createElement("groupId");
+    groupId.appendChild(doc.createTextNode("org.springframework.boot"));
+
+    Node artifactId = doc.createElement("artifactId");
+    artifactId.appendChild(doc.createTextNode("spring-boot-maven-plugin"));
+
+    Node configuration = doc.createElement("configuration");
+
+    Node mainClass = doc.createElement("mainClass");
+    mainClass.appendChild(doc.createTextNode(packagname + ".SpringBootApp"));
+
+    Node classifier = doc.createElement("classifier");
+    classifier.appendChild(doc.createTextNode("bootified"));
+
+    Node finalName = doc.createElement("finalName");
+    finalName.appendChild(doc.createTextNode("${project.artifactId}"));
+
+    Node layout = doc.createElement("layout");
+    layout.appendChild(doc.createTextNode("WAR"));
+
+    configuration.appendChild(mainClass);
+    configuration.appendChild(classifier);
+    configuration.appendChild(finalName);
+    configuration.appendChild(layout);
+
+    dependency.appendChild(groupId);
+    dependency.appendChild(artifactId);
+    dependency.appendChild(configuration);
+
+    return dependency;
   }
 
 }
