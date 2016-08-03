@@ -47,11 +47,13 @@ public class Github extends AbstractCommandModule {
    * @param path location to download the oasp4j repository.
    * @throws Exception
    */
-  @Command(name = "oasp4j", description = "This command clones oasp4j repository.", context = ContextType.NONE)
-  @Parameters(values = { @Parameter(name = "path", description = "a location for the oasp4j download (Current directory if not provided)", optional = true) })
+  @Command(name = "oasp4j", description = "This command clones the OASP4j repository.", context = ContextType.NONE)
+  @Parameters(values = {
+  @Parameter(name = "path", description = "path to where the clone of the OASP4j source code needs to be stored (in current directory if not provided)", optional = true) })
   public void oasp4j(String path) throws Exception {
 
-    path = path.isEmpty() ? this.contextPathInfo.getCurrentWorkingDirectory().toString() : path;
+    path = path.isEmpty() ? this.contextPathInfo.getCurrentWorkingDirectory().toString() + File.separatorChar + "oasp4j"
+        : path;
 
     File folder = new File(path);
     if (!folder.exists()) {
@@ -74,9 +76,9 @@ public class Github extends AbstractCommandModule {
 
       setProxyForGithub();
       Git result = Git.cloneRepository().setURI(this.OASP4J_URL).setDirectory(folder).call();
-      getOutput().showMessage("Having repository: " + result.getRepository().getDirectory());
+      getOutput().showMessage("Stored repository in: " + result.getRepository().getDirectory());
     } catch (Exception e) {
-      getOutput().showError("Getting the OASP4J code from Github.");
+      getOutput().showError("Getting the OASP4J code from Github: %s", e.getMessage());
       throw e;
     }
 
@@ -90,14 +92,15 @@ public class Github extends AbstractCommandModule {
    * @param password
    * @throws Exception
    */
-  @Command(name = "devoncode", description = "This command clones devon repository.", context = ContextType.NONE)
+  @Command(name = "devoncode", description = "This command clones the Devonfw repository.", context = ContextType.NONE)
   @Parameters(values = {
-  @Parameter(name = "path", description = "a location for the devon download (Current directory if not provided)", optional = true),
-  @Parameter(name = "username", description = "a user with permissions to download the Devon repository from Github."),
-  @Parameter(name = "password", description = "the password related to the user with permissions to download the Devon repository."), })
+  @Parameter(name = "path", description = "path to where the clone of the Devonfw source code needs to be stored (in current directory if not provided)", optional = true),
+  @Parameter(name = "username", description = "a Github user account with permissions to download the Devon repository from Github."),
+  @Parameter(name = "password", description = "the password of the Github user"), })
   public void devoncode(String path, String username, String password) throws Exception {
 
-    path = path.isEmpty() ? this.contextPathInfo.getCurrentWorkingDirectory().toString() : path;
+    path = path.isEmpty() ? this.contextPathInfo.getCurrentWorkingDirectory().toString() + File.separatorChar + "devon"
+        : path;
 
     File folder = new File(path);
     if (!folder.exists()) {
@@ -108,9 +111,8 @@ public class Github extends AbstractCommandModule {
 
     try {
 
-      Git result =
-          Git.cloneRepository().setURI(this.DEVON_URL).setDirectory(folder)
-              .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password)).call();
+      Git result = Git.cloneRepository().setURI(this.DEVON_URL).setDirectory(folder)
+          .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password)).call();
 
       getOutput().showMessage("Having repository: " + result.getRepository().getDirectory());
     } catch (TransportException te) {
@@ -121,13 +123,12 @@ public class Github extends AbstractCommandModule {
       }
 
       setProxyForGithub();
-      Git result =
-          Git.cloneRepository().setURI(this.DEVON_URL).setDirectory(folder)
-              .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password)).call();
+      Git result = Git.cloneRepository().setURI(this.DEVON_URL).setDirectory(folder)
+          .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password)).call();
 
-      getOutput().showMessage("Having repository: " + result.getRepository().getDirectory());
+      getOutput().showMessage("Stored repository in: " + result.getRepository().getDirectory());
     } catch (Exception e) {
-      getOutput().showError("Getting the Devonfw code from Github.");
+      getOutput().showError("Getting the Devonfw code from Github: %s", e.getMessage());
       throw e;
     }
 
@@ -142,12 +143,12 @@ public class Github extends AbstractCommandModule {
       public List<Proxy> select(URI uri) {
 
         if (uri.toString().contains("github") && uri.toString().contains("https")) {
-          return Arrays.asList(new Proxy(Type.HTTP, InetSocketAddress.createUnresolved(Github.this.PROXY_HOST,
-              Github.this.PROXY_PORT)));
+          return Arrays.asList(
+              new Proxy(Type.HTTP, InetSocketAddress.createUnresolved(Github.this.PROXY_HOST, Github.this.PROXY_PORT)));
         }
         if (uri.toString().contains("github") && uri.toString().contains("http")) {
-          return Arrays.asList(new Proxy(Type.HTTP, InetSocketAddress.createUnresolved(Github.this.PROXY_HOST,
-              Github.this.PROXY_PORT)));
+          return Arrays.asList(
+              new Proxy(Type.HTTP, InetSocketAddress.createUnresolved(Github.this.PROXY_HOST, Github.this.PROXY_PORT)));
         }
 
         return this.delegate == null ? Arrays.asList(Proxy.NO_PROXY) : this.delegate.select(uri);
