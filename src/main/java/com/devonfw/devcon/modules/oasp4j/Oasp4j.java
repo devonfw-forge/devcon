@@ -138,9 +138,6 @@ public class Oasp4j extends AbstractCommandModule {
     } else {
       getOutput().showError("The project " + project.toString() + " already exists!");
     }
-    // } else {
-    // getOutput().showError("Not a Devon Distribution Workspace");
-    // }
 
   }
 
@@ -155,11 +152,9 @@ public class Oasp4j extends AbstractCommandModule {
    */
   @Command(name = "run", description = "runs application from embedded tomcat", context = ContextType.PROJECT)
   @Parameters(values = {
-  @Parameter(name = "port", description = "Port to start Spring boot app (port 8081 by default)", optional = true),
-  @Parameter(name = "path", description = "Path to server project (default is current working directory + \\server)", optional = true) })
-  public void run(String port, String path) {
+  @Parameter(name = "port", description = "Port to start Spring boot app (port 8081 by default)", optional = true) })
+  public void run(String port) {
 
-    this.projectInfo = getContextPathInfo().getProjectRoot(path);
     // Check projectInfo loaded. If not, abort
     if (!this.projectInfo.isPresent()) {
       getOutput().showError("Not in a project or -path param not pointing to a project");
@@ -171,7 +166,7 @@ public class Oasp4j extends AbstractCommandModule {
 
     // Get port from a) parameter or b) devon.json file or c) default value passed as 2nd paranter to info.getProperty
     String port_ = (port.isEmpty()) ? info.getProperty("port", "8081").toString() : port.trim();
-    String path_ = (path.isEmpty()) ? (info.getPath().toString() + "\\server") : path;
+    String path_ = info.getPath().toString() + "\\server";
 
     System.out.println("Server project path " + path_);
 
@@ -196,20 +191,19 @@ public class Oasp4j extends AbstractCommandModule {
    * @param path path to server project
    */
   @Command(name = "build", description = "This command will build the server project", context = ContextType.PROJECT)
-  @Parameters(values = {
-  @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
-  public void build(String path) {
+  public void build() {
 
     // Check projectInfo loaded. If not, abort
-    // if (!this.projectInfo.isPresent()) {
-    // getOutput().showError("Not in a project or -path param not pointing to a project");
-    // return;
-    // }
-    this.projectInfo = getContextPathInfo().getProjectRoot(path);
-    ProjectInfo info = this.projectInfo.get();
-    System.out.println("projectInfo read...");
-    System.out
-        .println("path " + this.projectInfo.get().getPath() + "project type " + this.projectInfo.get().getProjecType());
+    if (!this.projectInfo.isPresent()) {
+      getOutput().showError("Not in a project or -path param not pointing to a project");
+      return;
+    }
+
+    // this.projectInfo = getContextPathInfo().getProjectRoot(path);
+    // ProjectInfo info = this.projectInfo.get();
+    // System.out.println("projectInfo read...");
+    // System.out
+    // .println("path " + this.projectInfo.get().getPath() + "project type " + this.projectInfo.get().getProjecType());
 
     Process p;
     try {
@@ -230,13 +224,12 @@ public class Oasp4j extends AbstractCommandModule {
    */
   @Command(name = "deploy", description = "This command will deploy the server project on tomcat", context = ContextType.PROJECT)
   @Parameters(values = {
-  @Parameter(name = "tomcatpath", description = "Path to tomcat folder (if not provided and the project is in a Devonfw distribution the default software/tomcat folder will be used)", optional = true),
-  @Parameter(name = "path", description = "Path to project (current directory if not provided).", optional = true) })
-  public void deploy(String tomcatpath, String path) {
+  @Parameter(name = "tomcatpath", description = "Path to tomcat folder (if not provided and the project is in a Devonfw distribution the default software/tomcat folder will be used)", optional = true) })
+  public void deploy(String tomcatpath) {
 
     try {
 
-      this.projectInfo = getContextPathInfo().getProjectRoot(path);
+      // this.projectInfo = getContextPathInfo().getProjectRoot(path);
 
       Optional<DistributionInfo> distInfo = this.contextPathInfo.getDistributionRoot();
 
@@ -250,7 +243,7 @@ public class Oasp4j extends AbstractCommandModule {
         return;
       }
 
-      path = path.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : path;
+      String path = this.projectInfo.get().getPath().toString();
 
       Optional<String> appName = getAppName(path);
 
