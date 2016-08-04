@@ -1,6 +1,7 @@
 package com.devonfw.devcon.modules.dist;
 
 import java.io.File;
+import java.io.InputStream;
 import java.nio.file.Path;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
@@ -12,6 +13,8 @@ import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.DistributionType;
 import com.devonfw.devcon.common.exception.InvalidConfigurationStateException;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
+import com.devonfw.devcon.common.utils.Constants;
+import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
 
 /**
@@ -62,7 +65,12 @@ public class Dist extends AbstractCommandModule {
       if (fileDownloaded.isPresent()) {
         // Extractor.extract(path + File.separator + fileDownloaded.get().toString(), path);
         Extractor.unZip(path + File.separator + fileDownloaded.get().toString(), path);
-        this.output.success("install");
+        // this.output.success("install");
+
+        this.output
+            .showMessage("Distribution successfully installed. You can now follow the manual steps as described\n"
+                + "in the Devonfw Guide or, alternatively, run 'devon dist init' to initialize the distribution.");
+
       } else {
         throw new Exception("An error occurred while downloading the file.");
       }
@@ -72,6 +80,53 @@ public class Dist extends AbstractCommandModule {
       throw e;
     }
 
+  }
+
+  /**
+   * This command initializes the Devon distribution (principally the workspaces and conf directory, so its ready for
+   * use
+   *
+   * @param path location of the Devon distribution
+   * @throws Exception
+   */
+  @Command(name = "init", description = "This command initialized a newly downloaded distribution", context = ContextType.NONE)
+  @Parameters(values = {
+  @Parameter(name = "path", description = "location of the Devon distribution (current dir if not given)", optional = true) })
+  public void init(String path) throws Exception {
+
+    String frsFileId = "";
+
+    // Default parameters
+    path = path.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : path.trim();
+    Path path_ = getPath(path);
+    File updatebat = path_.resolve(Constants.UPDATE_ALL_WORKSPACES_BAT).toFile();
+
+    // Exit if file update-all-workspaces.bat does not exist
+    if (!updatebat.exists()) {
+      this.output.showError("Not a Devon distribution");
+      return;
+    }
+
+    this.output.showMessage("Initializing distribution...");
+
+    try {
+
+      // Run file update-all-workspaces.bat which initializes the distro on first run
+      ProcessBuilder processBuilder = new ProcessBuilder(updatebat.getAbsolutePath());
+      processBuilder.directory(path_.toFile());
+      Process process = processBuilder.start();
+
+      final InputStream isError = process.getErrorStream();
+      final InputStream isOutput = process.getInputStream();
+
+      Utils.processErrorAndOutPut(isError, isOutput);
+
+      this.output.showMessage("Distribution initialized.");
+
+    } catch (Exception e) {
+      getOutput().showError(e.getMessage());
+      throw e;
+    }
   }
 
   /**
@@ -85,8 +140,7 @@ public class Dist extends AbstractCommandModule {
    * @param svnpass the password of the user with permissions in the svn repository
    */
   @Command(name = "s2", description = "Initializes a Devon distribution for use with Shared Services.")
-  @Parameters(values = {
-  @Parameter(name = "projectname", description = "the name for the new project"),
+  @Parameters(values = { @Parameter(name = "projectname", description = "the name for the new project"),
   @Parameter(name = "artuser", description = "the user with permissions in the artifactory repository"),
   @Parameter(name = "artencpass", description = "the encrypted password of the user with permissions in the artifactory repository"),
   @Parameter(name = "svnurl", description = "the URL of the svn repository to do the checkout"),
@@ -105,8 +159,8 @@ public class Dist extends AbstractCommandModule {
 
           int initResult = s2.init(distPath, artuser, artencpass);
           if (initResult > 0)
-            this.output
-                .showMessage("The configuration of the conf/settings.xml file could not be completed successfully. Please verify it");
+            this.output.showMessage(
+                "The configuration of the conf/settings.xml file could not be completed successfully. Please verify it");
 
           int createResult = s2.create(distPath, projectname, svnurl, svnuser, svnpass);
           if (createResult > 0)
