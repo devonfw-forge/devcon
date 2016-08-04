@@ -160,19 +160,19 @@ public class Utils {
    */
   /*
    * public static void cloneRepository(String repoUrl, String cloneDir, String gitDir) throws Exception {
-   *
+   * 
    * try {
-   *
+   * 
    * if (gitDir == null || gitDir.isEmpty()) { gitDir = Utils.getGITBinPath(); } ProcessBuilder processBuilder = new
    * ProcessBuilder(gitDir + Constants.GIT_EXE, Constants.CLONE_OPTION, repoUrl, cloneDir); processBuilder.directory(new
    * File(gitDir));
-   *
+   * 
    * Process process = processBuilder.start();
-   *
+   * 
    * final InputStream isError = process.getErrorStream(); final InputStream isOutput = process.getInputStream();
-   *
+   * 
    * processErrorAndOutPut(isError, isOutput);
-   *
+   * 
    * // Wait to get exit value try { process.waitFor(); } catch (InterruptedException e) { throw e; } } catch (Exception
    * e) { throw e; } }
    */
@@ -236,8 +236,26 @@ public class Utils {
         FileUtils.writeStringToFile(settingsfile, content, "UTF-8");
       }
     } catch (Exception e) {
-      throw new Exception(
-          "An error occurred while adding the devon.json file. You may need to add it manually. " + e.getMessage());
+      throw new Exception("An error occurred while adding the devon.json file. You may need to add it manually. "
+          + e.getMessage());
+    }
+
+  }
+
+  public static void addDevonJsonFile(Path pathToApp, String serverPath, String clientPath) throws Exception {
+
+    try {
+      File appFolder = pathToApp.toFile();
+      if (appFolder.exists()) {
+        String content =
+            "{\"version\": \"" + Devcon.DEVON_DEFAULT_VERSION + "\",\n\"type\":\"COMBINED\",\n\"projects\":[\""
+                + serverPath + "\", \"" + clientPath + "\"]\n}";
+        File settingsfile = pathToApp.resolve("devon.json").toFile();
+        FileUtils.writeStringToFile(settingsfile, content, "UTF-8");
+      }
+    } catch (Exception e) {
+      throw new Exception("An error occurred while adding the devon.json file. You may need to add it manually. "
+          + e.getMessage());
     }
 
   }

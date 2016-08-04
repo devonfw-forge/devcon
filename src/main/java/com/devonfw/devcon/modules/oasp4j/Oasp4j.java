@@ -73,12 +73,13 @@ public class Oasp4j extends AbstractCommandModule {
   public void create(String serverpath, String servername, String packagename, String groupid, String version)
       throws IOException {
 
-    String command = new StringBuffer("cmd /c mvn -DarchetypeVersion=").append(Constants.OASP_TEMPLATE_VERSION)
-        .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
-        .append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=").append(Constants.OASP_ARTIFACT_ID)
-        .append(" archetype:generate -DgroupId=").append(groupid).append(" -DartifactId=").append(servername)
-        .append(" -Dversion=").append(version).append(" -Dpackage=").append(packagename)
-        .append(" -DinteractiveMode=false").toString();
+    String command =
+        new StringBuffer("cmd /c mvn -DarchetypeVersion=").append(Constants.OASP_TEMPLATE_VERSION)
+            .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
+            .append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
+            .append(Constants.OASP_ARTIFACT_ID).append(" archetype:generate -DgroupId=").append(groupid)
+            .append(" -DartifactId=").append(servername).append(" -Dversion=").append(version).append(" -Dpackage=")
+            .append(packagename).append(" -DinteractiveMode=false").toString();
 
     // Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot(serverpath);
 
@@ -196,8 +197,7 @@ public class Oasp4j extends AbstractCommandModule {
    * @param path path to server project
    */
   @Command(name = "build", description = "This command will build the server project", context = ContextType.PROJECT)
-  @Parameters(values = {
-  @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
+  @Parameters(values = { @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
   public void build(String path) {
 
     // Check projectInfo loaded. If not, abort
@@ -208,8 +208,8 @@ public class Oasp4j extends AbstractCommandModule {
     this.projectInfo = getContextPathInfo().getProjectRoot(path);
     ProjectInfo info = this.projectInfo.get();
     System.out.println("projectInfo read...");
-    System.out
-        .println("path " + this.projectInfo.get().getPath() + "project type " + this.projectInfo.get().getProjecType());
+    System.out.println("path " + this.projectInfo.get().getPath() + "project type "
+        + this.projectInfo.get().getProjecType());
 
     Process p;
     try {
@@ -256,9 +256,9 @@ public class Oasp4j extends AbstractCommandModule {
 
       if (appName.isPresent()) {
 
-        tomcatpath = tomcatpath.isEmpty()
-            ? distInfo.get().getPath().toFile().toString() + File.separator + "software" + File.separator + "tomcat"
-            : tomcatpath;
+        tomcatpath =
+            tomcatpath.isEmpty() ? distInfo.get().getPath().toFile().toString() + File.separator + "software"
+                + File.separator + "tomcat" : tomcatpath;
 
         File tomcatDir = new File(tomcatpath);
 
@@ -317,12 +317,25 @@ public class Oasp4j extends AbstractCommandModule {
                     ProcessBuilder tomcatProcessBuilder = new ProcessBuilder(startTomcatBat.getAbsolutePath());
                     tomcatProcessBuilder.directory(new File(newTomcat4app + File.separator + "bin"));
 
-                    Process tomcaProcess = tomcatProcessBuilder.start();
+                    Process tomcatProcess = tomcatProcessBuilder.start();
 
-                    final InputStream isTomcatError = tomcaProcess.getErrorStream();
-                    final InputStream isTomcatOutput = tomcaProcess.getInputStream();
+                    final InputStream isTomcatError = tomcatProcess.getErrorStream();
+                    final InputStream isTomcatOutput = tomcatProcess.getInputStream();
 
                     Utils.processErrorAndOutPut(isTomcatError, isTomcatOutput);
+
+                    int tomcatResult = tomcatProcess.waitFor();
+
+                    if (tomcatResult == 0) {
+                      getOutput().showMessage(
+                          "##########################################################################");
+                      getOutput().showMessage(
+                          "After Tomcat finishes the loading process the app should be available in: ");
+                      getOutput().showMessage("localhost:8080/" + warFile.getName().replace(".war", ""));
+                      getOutput().showMessage(
+                          "##########################################################################");
+                    }
+
                   } else {
                     getOutput().showError("No tomcat/bin/startup.bat file found.");
                   }
