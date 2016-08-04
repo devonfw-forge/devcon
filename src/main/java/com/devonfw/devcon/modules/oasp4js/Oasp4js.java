@@ -39,7 +39,7 @@ public class Oasp4js extends AbstractCommandModule {
 
   private static String OASP4JS_BASE = "software\\nodejs\\oasp4js_base";
 
-  @Command(name = "create", description = "This command creates a basic Oasp4js app")
+  @Command(name = "create", description = "This command creates a basic Oasp4js app", context = ContextType.PROJECT)
   @Parameters(values = { @Parameter(name = "clientname", description = "The name for the project"),
   @Parameter(name = "clientpath", description = "The location for the new project", optional = true) })
   public void create(String clientname, String clientpath) {
@@ -56,8 +56,8 @@ public class Oasp4js extends AbstractCommandModule {
         String projectPath = clientpath + File.separator + clientname;
         File projectFile = new File(projectPath);
         if (projectFile.exists()) {
-          getOutput().showError(
-              "The project " + projectPath + " already exists. Please delete it or choose other location.");
+          getOutput()
+              .showError("The project " + projectPath + " already exists. Please delete it or choose other location.");
         } else {
 
           File templateFile = new File(distInfo.get().getPath().toString() + File.separator + OASP4JS_BASE);
@@ -86,14 +86,9 @@ public class Oasp4js extends AbstractCommandModule {
   }
 
   @Command(name = "build", description = "This command will build the server project", context = ContextType.PROJECT)
-  @Parameters(values = { @Parameter(name = "path", description = "Path to Client project Workspace (currentDir if not given)", optional = true) })
-  public void build(String path) {
+  public void build() {
 
     try {
-
-      this.projectInfo = getContextPathInfo().getProjectRoot(path);
-      getOutput().showMessage(
-          "path " + this.projectInfo.get().getPath() + "project type " + this.projectInfo.get().getProjecType());
       Process p;
       if (this.projectInfo.isPresent()) {
         if (this.projectInfo.get().getProjecType().equals(ProjectType.OASP4JS)) {
@@ -117,12 +112,10 @@ public class Oasp4js extends AbstractCommandModule {
     }
   }
 
-  @Command(name = "run", description = "This command runs a debug build of oasp4js")
-  @Parameters(values = { @Parameter(name = "clientpath", description = "the location of the oasp4js app", optional = true) })
-  public void run(String clientpath) {
+  @Command(name = "run", description = "This command runs a debug build of oasp4js", context = ContextType.PROJECT)
+  public void run() {
 
     try {
-      this.projectInfo = getContextPathInfo().getProjectRoot(clientpath);
 
       if (this.projectInfo.isPresent()) {
         if (this.projectInfo.get().getProjecType().equals(ProjectType.OASP4JS)) {
