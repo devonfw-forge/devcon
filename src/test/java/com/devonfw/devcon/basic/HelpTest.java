@@ -1,12 +1,16 @@
 package com.devonfw.devcon.basic;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import com.devonfw.devcon.Devcon;
 import com.devonfw.devcon.common.api.Command;
+import com.devonfw.devcon.common.api.CommandModuleInfo;
 import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.impl.CommandRegistryImpl;
 
@@ -47,6 +51,33 @@ public class HelpTest {
     // then
     assertTrue(devonCmdHelp.isEmpty());
     assertTrue(installCmdHelp.contains("[INFO] installing distribution..."));
+
+  }
+
+  @Test
+  public void testAllActiveCommandsNumber() {
+
+    int total = 0;
+
+    // given
+    List<CommandModuleInfo> modules = this.registry.getCommandModules();
+
+    // when
+    System.out.println("Commands present:");
+
+    for (CommandModuleInfo module : modules) {
+      // Don´t include Foo etc
+      if (!module.isVisible())
+        continue;
+
+      for (Command cmd : module.getCommands()) {
+        System.out.println(module.getName() + " " + cmd.getName());
+        total++;
+      }
+    }
+
+    // then
+    assertEquals(34, total);
 
   }
 

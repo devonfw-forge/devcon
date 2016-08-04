@@ -1,8 +1,19 @@
 package com.devonfw.devcon.modules.oasp4js;
 
 import java.io.File;
+import java.nio.file.Path;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.FileUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
@@ -56,6 +67,8 @@ public class Oasp4js extends AbstractCommandModule {
 
             getOutput().showMessage("Adding devon.json file...");
             Utils.addDevonJsonFile(projectFile.toPath(), ProjectType.OASP4JS);
+            getOutput().showMessage("Editing java/pom.xml...");
+            editPom(projectFile.toPath(), clientname);
 
             getOutput().showMessage(
                 "Project created successfully. Please launch 'npm install' to resolve the project dependencies.");
@@ -124,6 +137,39 @@ public class Oasp4js extends AbstractCommandModule {
     } catch (Exception e) {
       getOutput().showError("An error occured during execution of run command. " + e.getMessage());
     }
+  }
+
+  private void editPom(Path project, String clientname) throws Exception {
+
+    try {
+      File pom = new File(project.toString() + File.separator + "java" + File.separator + "pom.xml");
+      if (pom.exists()) {
+        // getting the pom content
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+        Document doc = docBuilder.parse(pom);
+        doc.getDocumentElement().normalize();
+
+        // setting the artifactId
+        Node artifactId = doc.getElementsByTagName("artifactId").item(0);
+        artifactId.setTextContent(clientname);
+
+        // writing changes
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+        DOMSource source = new DOMSource(doc);
+        StreamResult result = new StreamResult(new File(pom.getPath()));
+        transformer.transform(source, result);
+
+      } else {
+        getOutput().showError(pom.toString() + " not found. You may need to configure it manually.");
+      }
+    } catch (Exception e) {
+      throw e;
+    }
+
   }
 
 }
