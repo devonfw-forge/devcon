@@ -93,8 +93,8 @@ public class Project extends AbstractCommandModule {
 
         break;
       case "":
-        getOutput()
-            .showError("Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
+        getOutput().showError(
+            "Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
       }
     } catch (Exception e) {
       getOutput().showError("An error occured during executing Project Cmd");
@@ -156,8 +156,9 @@ public class Project extends AbstractCommandModule {
         }
 
       } else {
-        getOutput().showError(
-            "The parameter value for 'clienttype' is not valid. The options for this parameter are: 'devon4sencha' and 'oasp4js'.");
+        getOutput()
+            .showError(
+                "The parameter value for 'clienttype' is not valid. The options for this parameter are: 'devon4sencha' and 'oasp4js'.");
       }
 
     } catch (Exception e) {
@@ -175,7 +176,6 @@ public class Project extends AbstractCommandModule {
    */
   @Command(name = "run", description = "This command will run the server & client project(unified server and client build) in debug mode (seperate cliet and spring boot server(not on tomcat))", context = ContextType.COMBINEDPROJECT)
   @Parameters(values = {
-
   @Parameter(name = "clienttype", description = "This parameter shows which type of client is integrated with server i.e oasp4js or sencha", optional = false),
   @Parameter(name = "clientport", description = "User can configured port if client type is Sencha", optional = true),
   @Parameter(name = "clientpath", description = "Location of the oasp4js app", optional = true),
@@ -198,8 +198,8 @@ public class Project extends AbstractCommandModule {
         sencha_cmd.get().exec(clientport, clientpath);
         break;
       case "":
-        getOutput()
-            .showError("Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
+        getOutput().showError(
+            "Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
       }
     } catch (Exception e) {
       getOutput().showError("An error occured during executing Project Cmd");
@@ -207,7 +207,8 @@ public class Project extends AbstractCommandModule {
   }
 
   @Command(name = "deploy", description = "This command is to automate the deploy process of a combined server & client project")
-  @Parameters(values = { @Parameter(name = "tomcatpath", description = "Path to tomcat folder", optional = true),
+  @Parameters(values = {
+  @Parameter(name = "tomcatpath", description = "Path to tomcat folder", optional = true),
   @Parameter(name = "clienttype", description = "Type of client either angular or Sencha", optional = true),
   @Parameter(name = "clientpath", description = "path to client project", optional = true),
   @Parameter(name = "serverpath", description = "path to server project", optional = true),
@@ -229,13 +230,19 @@ public class Project extends AbstractCommandModule {
       Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot(clientpath);
       Path distRootPath = distInfo.get().getPath();
       String distributionpath = distRootPath.toString();
-      System.out.println("distpath " + distributionpath);
+      getOutput().showMessage("distpath " + distributionpath);
 
       if (this.projectInfo.isPresent()) {
         ProjectType clientType = this.projectInfo.get().getProjecType();
-        String clientpath_install = clientpath + "\\java";
+        File clientpath_install = new File(clientpath + File.separator + "java");
+
+        if (!clientpath_install.exists()) {
+          getOutput().showError(clientpath_install.toString() + " folder not found in client app.");
+          return;
+        }
+
         pb = new ProcessBuilder(distributionpath + "\\software\\maven\\bin\\mvn.bat", "install");
-        pb.directory(new File(clientpath_install));
+        pb.directory(clientpath_install);
         process = pb.start();
         final InputStream isError = process.getErrorStream();
         final InputStream isOutput = process.getInputStream();
@@ -243,36 +250,37 @@ public class Project extends AbstractCommandModule {
         Utils.processErrorAndOutPut(isError, isOutput);
         errCode = process.waitFor();
         if (errCode == 0) {
-          System.out.println("Execution successful ");
-          getOutput().showMessage("Creating client zip file in repository");
+          getOutput().showMessage("Execution successful. ");
+          getOutput().showMessage("Added client app to local repository.");
         } else {
-          System.out.println("Execution failed");
-          getOutput().showError("Creating client zip file in repository failed");
+          getOutput().showError("Execution failed while installing the client app in the local repository.");
+          getOutput().showError("Adding client app to local repository failed.");
           return;
         }
 
         configureServerPOM(serverpath, clientpath, clientType);
         configureWebSecurityClass(serverpath);
 
-        switch (clienttype == null ? "" : clienttype) {
-        case "oasp4js":
-          final String json_file_path = clientpath + "\\config.json";
-          final String baseUrl = "http://localhost:" + serverport;
-          modifyJsonFile(json_file_path, baseUrl, servercontext);
-          break;
-        case "sencha":
-          final String js_file_path = clientpath + "\\app";
-          final String serverUrl = "\'/" + servercontext + "/services/rest/" + "\'";
-          modifyJsFiles(serverUrl, js_file_path);
-          break;
-        case "":
-          getOutput().showError(
-              "Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
-        }
+        // This part must be configured by user
+        // switch (clienttype == null ? "" : clienttype) {
+        // case "oasp4js":
+        // final String json_file_path = clientpath + "\\config.json";
+        // final String baseUrl = "http://localhost:" + serverport;
+        // modifyJsonFile(json_file_path, baseUrl, servercontext);
+        // break;
+        // case "sencha":
+        // final String js_file_path = clientpath + "\\app";
+        // final String serverUrl = "\'/" + servercontext + "/services/rest/" + "\'";
+        // modifyJsFiles(serverUrl, js_file_path);
+        // break;
+        // case "":
+        // getOutput().showError(
+        // "Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
+        // }
 
         // String cmd_package = "cmd /c start mvn package -P jsclient";
 
-        pb1 = new ProcessBuilder(distributionpath + "\\software\\maven\\bin\\mvn.bat", "package", "-P", "jsClient");
+        pb1 = new ProcessBuilder(distributionpath + "\\software\\maven\\bin\\mvn.bat", "package", "-P", "jsclient");
         pb1.directory(new File(serverpath));
         process1 = pb1.start();
         final InputStream isError1 = process1.getErrorStream();
@@ -282,17 +290,17 @@ public class Project extends AbstractCommandModule {
 
         errCode1 = process1.waitFor();
         if (errCode1 == 0) {
-          System.out.println("Execution successful ");
-          getOutput().showMessage("Server war file created successfully");
+          getOutput().showMessage("Execution successful ");
+          getOutput().showMessage("Server war file created successfully.");
         } else {
-          System.out.println("Execution failed");
-          getOutput().showError("Error in creating server war file");
+          getOutput().showError("Execution failed while creating the package of the client and server apps.");
+          getOutput().showError("Error creating server .war file.");
           return;
         }
 
         Optional<com.devonfw.devcon.common.api.Command> deploy = getCommand(this.OASP4J, this.DEPLOY);
         if (deploy.isPresent()) {
-          deploy.get().exec(tomcatpath, Constants.DEFAULT_PORT, distributionpath);
+          deploy.get().exec(tomcatpath, serverpath);
         } else {
           getOutput().showError("No command deploy found for oasp4j module.");
         }
@@ -309,13 +317,19 @@ public class Project extends AbstractCommandModule {
 
     try {
 
+      File serverInServer = new File(serverPath + File.separator + "server");
+
+      if (!serverInServer.exists()) {
+        throw new Exception(serverInServer.toString() + " not found.");
+      }
+
       DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
       DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
       Triple<String, String, String> clientPomInfo = getClientPomInfo(clientPath, docBuilder);
 
       if (clientPomInfo != null) {
-        editServerPom(serverPath, docBuilder, clientPomInfo, clientType);
+        editServerPom(serverInServer.toString(), docBuilder, clientPomInfo, clientType);
 
       } else {
         getOutput().showError(
