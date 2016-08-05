@@ -106,7 +106,7 @@ public class Project extends AbstractCommandModule {
 
   @Command(name = "create", description = "This command is used to create new combined server & client project")
   @Parameters(values = {
-  @Parameter(name = "combinedprojectpath", description = "path to the Devonfw distribution (currentDir if not given)", optional = true),
+  @Parameter(name = "combinedprojectpath", description = "where to create the combined server and client project (currentDir if not given)", optional = true),
   @Parameter(name = "servername", description = "name for the server project"),
   @Parameter(name = "packagename", description = "package name for the server project"),
   @Parameter(name = "groupid", description = "groupid for server project"),
