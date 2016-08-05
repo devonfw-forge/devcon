@@ -156,11 +156,13 @@ public class Sencha extends AbstractCommandModule {
    * @param appDir Location of Sencha Ext JS6 Application
    * @throws Exception Exception thrown by the Sencha build command
    */
-  @Command(name = "build", description = "Builds a Sencha Ext JS6 project in a workspace", context = ContextType.PROJECT)
-  @Parameters(values = { @Parameter(name = "appDir", description = "Path to Sencha Ext JS6 Application (currentDir if not given)", optional = true), })
+  @Command(name = "build", description = "Builds a Sencha Ext JS6 project in a workspace", context = ContextType.NONE)
+  @Parameters(values = { @Parameter(name = "appDir", description = "Path to Sencha application (currentDir if not given)", optional = true), })
   public void build(String appDir) throws Exception {
 
     try {
+
+      appDir = appDir.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : appDir;
 
       ProcessBuilder processBuilder = new ProcessBuilder("sencha", "app", "build");
       processBuilder.directory(new File(appDir));
