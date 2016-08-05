@@ -158,7 +158,7 @@ public class Sencha extends AbstractCommandModule {
   public void build(String appDir) throws Exception {
 
     try {
-
+      appDir = appDir.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : appDir;
       ProcessBuilder processBuilder = new ProcessBuilder("sencha", "app", "build");
       processBuilder.directory(new File(appDir));
 
