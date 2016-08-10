@@ -4,10 +4,10 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
@@ -24,8 +24,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.tuple.Triple;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -64,7 +63,7 @@ public class Project extends AbstractCommandModule {
 
   private final String DEPLOY = "deploy";
 
-  private final String WORKSPACE = "workspace";
+  private final String WORKSPACE = "copyworkspace";
 
   private final String POM_XML = "pom.xml";
 
@@ -95,8 +94,8 @@ public class Project extends AbstractCommandModule {
 
         break;
       case "":
-        getOutput()
-            .showError("Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
+        getOutput().showError(
+            "Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
       }
     } catch (Exception e) {
       getOutput().showError("An error occured during executing Project Cmd");
@@ -113,19 +112,21 @@ public class Project extends AbstractCommandModule {
   @Parameter(name = "version", description = "version of server project"),
   @Parameter(name = "clienttype", description = "type of the client project: 'devon4sencha' or 'oasp4js'"),
   @Parameter(name = "clientname", description = "name for the client project"),
-  @Parameter(name = "clientpath", description = "path where the client project will be created. In case of sencha project this must point to a Sencha workspace.", optional = true),
-  @Parameter(name = "gituser", description = "Only for client type 'devon4sencha': a user with permissions to download the Devon distribution.", optional = true),
-  @Parameter(name = "gitpassword", description = "Only for client type 'devon4sencha': the password related to the user with permissions to download the Devon distribution", optional = true) })
+  @Parameter(name = "clientpath", description = "path where the client project will be created.", optional = true),
+  @Parameter(name = "createsenchaws", description = "Only for client type 'devon4sencha': if a new Sencha Workspace must be created to store new app. Values TRUE or FALSE (default)", optional = true) })
   public void create(String combinedprojectpath, String servername, String packagename, String groupid, String version,
-      String clienttype, String clientname, String clientpath, String gituser, String gitpassword) {
+      String clienttype, String clientname, String clientpath, String createsenchaws) {
 
     try {
 
       Optional<com.devonfw.devcon.common.api.Command> createServer = getCommand(this.OASP4J, this.CREATE);
 
-      combinedprojectpath = combinedprojectpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString()
-          : combinedprojectpath;
+      combinedprojectpath =
+          combinedprojectpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString()
+              : combinedprojectpath;
 
+      boolean createWs = Boolean.parseBoolean(createsenchaws.toLowerCase());
+      String clientJsonReference;
       if (createServer.isPresent()) {
         createServer.get().exec(combinedprojectpath, servername, packagename, groupid, version);
       } else {
@@ -133,25 +134,24 @@ public class Project extends AbstractCommandModule {
       }
 
       getOutput().showMessage("Creating client project...");
+
       if (clienttype.equals(this.DEVON4SENCHA)) {
 
-        Optional<com.devonfw.devcon.common.api.Command> createSenchaWorkspace = getCommand(this.SENCHA, this.WORKSPACE);
-        if (createSenchaWorkspace.isPresent()) {
-          createSenchaWorkspace.get().exec(clientpath, gituser, gitpassword);
-        } else {
-          getOutput().showError("No command workspace found for sencha module.");
-        }
+        if (!clientpath.isEmpty()) {
 
-        Optional<com.devonfw.devcon.common.api.Command> createSenchaApp = getCommand(this.SENCHA, this.CREATE);
-        if (createSenchaApp.isPresent()) {
-          createSenchaApp.get().exec(clientname, clientpath + File.separator + this.DEVON4SENCHA);
-          getOutput().showMessage("Adding devon.json file to combined project...");
-          System.out.println("CombinedProjectPath: " + combinedprojectpath);
-          Utils.addDevonJsonFile(new File(combinedprojectpath).toPath(), servername,
-              clientpath + File.separator + this.DEVON4SENCHA + File.separator + clientname);
+          if (createWs) {
+            createSenchaWs(clientpath + File.separator + this.DEVON4SENCHA, combinedprojectpath);
+            createSenchaApp(clientname, clientpath + File.separator + this.DEVON4SENCHA);
+            clientJsonReference = clientpath + File.separator + this.DEVON4SENCHA + File.separator + clientname;
+          } else {
+            createSenchaApp(clientname, clientpath);
+            clientJsonReference = clientpath + File.separator + clientname;
+          }
 
         } else {
-          getOutput().showError("No command create found for sencha module.");
+          createSenchaWs(combinedprojectpath + File.separator + this.DEVON4SENCHA, combinedprojectpath);
+          createSenchaApp(clientname, combinedprojectpath + File.separator + this.DEVON4SENCHA);
+          clientJsonReference = this.DEVON4SENCHA + File.separator + clientname;
         }
 
       } else if (clienttype.equals(this.OASP4JS)) {
@@ -160,18 +160,23 @@ public class Project extends AbstractCommandModule {
 
         if (createOasp4js.isPresent()) {
           createOasp4js.get().exec(clientname, clientpath);
-          getOutput().showMessage("Adding devon.json file to combined project...");
 
-          Utils.addDevonJsonFile(new File(combinedprojectpath).toPath(), servername, clientname);
+          clientJsonReference = clientpath.isEmpty() ? clientname : clientpath + File.separator + clientname;
+
         } else {
           getOutput().showError("No command create found for oasp4js module.");
+          return;
         }
 
       } else {
-        getOutput().showError(
-            "The parameter value for 'clienttype' is not valid. The options for this parameter are: 'devon4sencha' and 'oasp4js'.");
+        getOutput()
+            .showError(
+                "The parameter value for 'clienttype' is not valid. The options for this parameter are: 'devon4sencha' and 'oasp4js'.");
+        return;
       }
 
+      getOutput().showMessage("Adding devon.json file to combined project...");
+      Utils.addDevonJsonFile(new File(combinedprojectpath).toPath(), servername, clientJsonReference);
       getOutput().showMessage("Combined project created successfully.");
 
     } catch (Exception e) {
@@ -211,8 +216,8 @@ public class Project extends AbstractCommandModule {
         sencha_cmd.get().exec(clientport, clientpath);
         break;
       case "":
-        getOutput()
-            .showError("Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
+        getOutput().showError(
+            "Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
       }
     } catch (Exception e) {
       getOutput().showError("An error occured during executing Project Cmd");
@@ -246,8 +251,9 @@ public class Project extends AbstractCommandModule {
       }
 
       if (this.projectInfo.get().getSubProjects().size() == 0) {
-        getOutput().showError("The property 'projects' defined in " + getContextPathInfo().getCurrentWorkingDirectory()
-            + File.separator + "devon.json file is empty.");
+        getOutput().showError(
+            "The property 'projects' defined in " + getContextPathInfo().getCurrentWorkingDirectory() + File.separator
+                + "devon.json file is empty.");
         return;
       }
 
@@ -259,8 +265,9 @@ public class Project extends AbstractCommandModule {
       for (ProjectInfo projectInfo : subProjects) {
         getOutput().showMessage(projectInfo.getProjecType().toString());
         getOutput().showMessage(projectInfo.getPath().toString());
-        boolean thisIsClient = projectInfo.getProjecType() == ProjectType.DEVON4SENCHA
-            || projectInfo.getProjecType() == ProjectType.OASP4JS;
+        boolean thisIsClient =
+            projectInfo.getProjecType() == ProjectType.DEVON4SENCHA
+                || projectInfo.getProjecType() == ProjectType.OASP4JS;
         clientpath = (clientpath.isEmpty() && thisIsClient) ? projectInfo.getPath().toString() : clientpath;
         clienttype = (clienttype.isEmpty() && thisIsClient) ? projectInfo.getProjecType().toString() : clienttype;
         boolean thisIsServer = projectInfo.getProjecType() == ProjectType.OASP4J;
@@ -549,13 +556,18 @@ public class Project extends AbstractCommandModule {
           throw new Exception("No 'plugins' node found for jsclient profile in the server pom.xml");
         }
 
-        // IF SENCHA PROJECT, DELETE EXECUTIONS IN jsclient PROFILE, IN exec-maven-plugin PLUGIN
-        // if (clientType.equals(ProjectType.DEVON4SENCHA)) {
+        // if SENCHA project, delete executions in 'jsclient' profile, in 'exec-maven-plugin' plugin
+        // if OASP4JS project only comment these executions
         Optional<Node> execMavenPlugin = getExecMavenPluginNode(jsclientPlugins.get());
         if (execMavenPlugin.isPresent()) {
-          jsclientPlugins.get().removeChild(execMavenPlugin.get());
+          if (clientType.equals(ProjectType.DEVON4SENCHA)) {
+            jsclientPlugins.get().removeChild(execMavenPlugin.get());
+          } else {
+            commentNode(doc, jsclientPlugins.get(), execMavenPlugin.get());
+          }
+
         }
-        // }
+
         addJsclientPlugin(doc, jsclientPlugins.get(), clientPomInfo);
         applyChangesToPom(doc, serverPom);
 
@@ -585,7 +597,7 @@ public class Project extends AbstractCommandModule {
       return Optional.of(pluginsNode);
     } catch (Exception e) {
       getOutput().showError("In getPlugins method for jsclient profile. " + e.getMessage());
-      return null;
+      return Optional.absent();
     }
   }
 
@@ -597,8 +609,8 @@ public class Project extends AbstractCommandModule {
       Node execMavenPlugin = null;
 
       for (int i = 0; i < pluginsNode.getChildNodes().getLength(); i++) {
-        Node plugin = pluginsNode.getChildNodes().item(i);
 
+        Node plugin = pluginsNode.getChildNodes().item(i);
         for (int j = 0; j < plugin.getChildNodes().getLength(); j++) {
           Node n = plugin.getChildNodes().item(j);
           if (n.getNodeName().equals("artifactId")) {
@@ -619,8 +631,9 @@ public class Project extends AbstractCommandModule {
       return Optional.of(execMavenPlugin);
 
     } catch (Exception e) {
-      getOutput().showError("In getExecMavenPluginNode method. " + e.getMessage());
-      return null;
+      getOutput().showMessage(
+          "Exec-Maven-Plugin node could not be configured or is already configured. " + e.getMessage());
+      return Optional.absent();
     }
   }
 
@@ -736,7 +749,6 @@ public class Project extends AbstractCommandModule {
       transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
       DOMSource source = new DOMSource(doc);
       StreamResult result = new StreamResult(new File(serverPom.getPath()));
-      // StreamResult result = new StreamResult(new File("D:\\result.xml"));
       transformer.transform(source, result);
 
     } catch (Exception e) {
@@ -758,52 +770,111 @@ public class Project extends AbstractCommandModule {
     return result;
   }
 
-  /**
-   * @param filepath
-   * @param baseUrl
-   * @param context
-   */
-  @SuppressWarnings("unchecked")
-  public void modifyJsonFile(String filepath, String baseUrl, String context) {
+  // /**
+  // * @param filepath
+  // * @param baseUrl
+  // * @param context
+  // */
+  // @SuppressWarnings("unchecked")
+  // public void modifyJsonFile(String filepath, String baseUrl, String context) {
+  //
+  // JSONParser parser = new JSONParser();
+  // try {
+  // Object obj = parser.parse(new FileReader(filepath));
+  // JSONObject jsonObject = (JSONObject) obj;
+  //
+  // JSONObject proxy = (JSONObject) jsonObject.get("proxy");
+  //
+  // proxy.put("baseUrl", baseUrl);
+  // proxy.put("context", context);
+  //
+  // jsonObject.put("proxy", proxy);
+  // FileWriter file = new FileWriter(filepath);
+  // file.write(jsonObject.toJSONString().replace("\\/", "/"));
+  // file.flush();
+  // file.close();
+  // getOutput().showMessage("Modified baseUrl and context property from config.json file");
+  // } catch (Exception e) {
+  //
+  // getOutput().showError("An error occurred during the execution of project deploy command. " + e.getMessage());
+  // }
+  // }
+  //
+  // private void modifyJsFiles(String serverUrl, String js_file_path) {
+  //
+  // final String content = "window.Config.server =" + serverUrl + ";" + "\n" + "window.Config.CORSEnabled = true;";
+  // final String content1 =
+  // "window.Config = {" + "\n" + " defaultLocale: 'en_EN'," + "\n" + "supportedLocales: ['en_EN', 'es_ES']," + "\n"
+  // + "server: 'http://devon-ci.cloudapp.net" + serverUrl + "," + "\n CORSEnabled: true\n };";
+  //
+  // try {
+  // FileUtils.writeStringToFile(new File(js_file_path + "\\ConfigDevelopment.js"), content);
+  //
+  // FileUtils.writeStringToFile(new File(js_file_path + "\\Config.js"), content1);
+  //
+  // getOutput().showMessage("Modified server URL from config.js and configdevelopment.js file");
+  //
+  // } catch (Exception e) {
+  // getOutput().showError("An error occurred during the execution of project deploy command. " + e.getMessage());
+  // }
+  //
+  // }
 
-    JSONParser parser = new JSONParser();
+  private void commentNode(Document doc, Node parent, Node nodeToComment) {
+
     try {
-      Object obj = parser.parse(new FileReader(filepath));
-      JSONObject jsonObject = (JSONObject) obj;
+      Transformer transformer = TransformerFactory.newInstance().newTransformer();
+      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+      transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+      StreamResult result = new StreamResult(new StringWriter());
+      DOMSource source = new DOMSource(nodeToComment);
+      transformer.transform(source, result);
 
-      JSONObject proxy = (JSONObject) jsonObject.get("proxy");
+      String nodeContent = result.getWriter().toString();
 
-      proxy.put("baseUrl", baseUrl);
-      proxy.put("context", context);
-
-      jsonObject.put("proxy", proxy);
-      FileWriter file = new FileWriter(filepath);
-      file.write(jsonObject.toJSONString().replace("\\/", "/"));
-      file.flush();
-      file.close();
-      getOutput().showMessage("Modified baseUrl and context property from config.json file");
+      Comment comment = doc.createComment(nodeContent);
+      parent.insertBefore(comment, nodeToComment);
+      parent.removeChild(nodeToComment);
     } catch (Exception e) {
-
-      getOutput().showError("An error occurred during the execution of project deploy command. " + e.getMessage());
+      getOutput().showError(" in commentNode(). " + e.getMessage());
     }
+
   }
 
-  private void modifyJsFiles(String serverUrl, String js_file_path) {
-
-    final String content = "window.Config.server =" + serverUrl + ";" + "\n" + "window.Config.CORSEnabled = true;";
-    final String content1 =
-        "window.Config = {" + "\n" + " defaultLocale: 'en_EN'," + "\n" + "supportedLocales: ['en_EN', 'es_ES']," + "\n"
-            + "server: 'http://devon-ci.cloudapp.net" + serverUrl + "," + "\n CORSEnabled: true\n };";
+  private void createSenchaWs(String location, String distributionPath) throws Exception {
 
     try {
-      FileUtils.writeStringToFile(new File(js_file_path + "\\ConfigDevelopment.js"), content);
-
-      FileUtils.writeStringToFile(new File(js_file_path + "\\Config.js"), content1);
-
-      getOutput().showMessage("Modified server URL from config.js and configdevelopment.js file");
-
+      Optional<com.devonfw.devcon.common.api.Command> copySenchaWorkspace = getCommand(this.SENCHA, this.WORKSPACE);
+      if (copySenchaWorkspace.isPresent()) {
+        File newWorkspace = new File(location);
+        if (!newWorkspace.exists()) {
+          newWorkspace.mkdirs();
+        }
+        copySenchaWorkspace.get().exec(newWorkspace.getAbsolutePath(), distributionPath);
+      } else {
+        getOutput().showError("No command copyworkspace found for sencha module.");
+        return;
+      }
     } catch (Exception e) {
-      getOutput().showError("An error occurred during the execution of project deploy command. " + e.getMessage());
+      getOutput().showError("in createSenchaWs");
+      throw e;
+    }
+
+  }
+
+  private void createSenchaApp(String clientname, String workspacepath) throws Exception {
+
+    try {
+      Optional<com.devonfw.devcon.common.api.Command> createSenchaApp = getCommand(this.SENCHA, this.CREATE);
+      if (createSenchaApp.isPresent()) {
+        createSenchaApp.get().exec(clientname, workspacepath);
+      } else {
+        getOutput().showError("No command create found for sencha module.");
+        return;
+      }
+    } catch (Exception e) {
+      getOutput().showError("in createSenchaApp");
+      throw e;
     }
 
   }
