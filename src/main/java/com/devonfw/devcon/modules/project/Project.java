@@ -4,10 +4,10 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
@@ -24,8 +24,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.tuple.Triple;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -557,13 +556,18 @@ public class Project extends AbstractCommandModule {
           throw new Exception("No 'plugins' node found for jsclient profile in the server pom.xml");
         }
 
-        // IF SENCHA PROJECT, DELETE EXECUTIONS IN jsclient PROFILE, IN exec-maven-plugin PLUGIN
-        // if (clientType.equals(ProjectType.DEVON4SENCHA)) {
+        // if SENCHA project, delete executions in 'jsclient' profile, in 'exec-maven-plugin' plugin
+        // if OASP4JS project only comment these executions
         Optional<Node> execMavenPlugin = getExecMavenPluginNode(jsclientPlugins.get());
         if (execMavenPlugin.isPresent()) {
-          jsclientPlugins.get().removeChild(execMavenPlugin.get());
+          if (clientType.equals(ProjectType.DEVON4SENCHA)) {
+            jsclientPlugins.get().removeChild(execMavenPlugin.get());
+          } else {
+            commentNode(doc, jsclientPlugins.get(), execMavenPlugin.get());
+          }
+
         }
-        // }
+
         addJsclientPlugin(doc, jsclientPlugins.get(), clientPomInfo);
         applyChangesToPom(doc, serverPom);
 
@@ -593,7 +597,7 @@ public class Project extends AbstractCommandModule {
       return Optional.of(pluginsNode);
     } catch (Exception e) {
       getOutput().showError("In getPlugins method for jsclient profile. " + e.getMessage());
-      return null;
+      return Optional.absent();
     }
   }
 
@@ -605,8 +609,8 @@ public class Project extends AbstractCommandModule {
       Node execMavenPlugin = null;
 
       for (int i = 0; i < pluginsNode.getChildNodes().getLength(); i++) {
-        Node plugin = pluginsNode.getChildNodes().item(i);
 
+        Node plugin = pluginsNode.getChildNodes().item(i);
         for (int j = 0; j < plugin.getChildNodes().getLength(); j++) {
           Node n = plugin.getChildNodes().item(j);
           if (n.getNodeName().equals("artifactId")) {
@@ -627,8 +631,9 @@ public class Project extends AbstractCommandModule {
       return Optional.of(execMavenPlugin);
 
     } catch (Exception e) {
-      getOutput().showError("In getExecMavenPluginNode method. " + e.getMessage());
-      return null;
+      getOutput().showMessage(
+          "Exec-Maven-Plugin node could not be configured or is already configured. " + e.getMessage());
+      return Optional.absent();
     }
   }
 
@@ -744,7 +749,6 @@ public class Project extends AbstractCommandModule {
       transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
       DOMSource source = new DOMSource(doc);
       StreamResult result = new StreamResult(new File(serverPom.getPath()));
-      // StreamResult result = new StreamResult(new File("D:\\result.xml"));
       transformer.transform(source, result);
 
     } catch (Exception e) {
@@ -766,52 +770,73 @@ public class Project extends AbstractCommandModule {
     return result;
   }
 
-  /**
-   * @param filepath
-   * @param baseUrl
-   * @param context
-   */
-  @SuppressWarnings("unchecked")
-  public void modifyJsonFile(String filepath, String baseUrl, String context) {
+  // /**
+  // * @param filepath
+  // * @param baseUrl
+  // * @param context
+  // */
+  // @SuppressWarnings("unchecked")
+  // public void modifyJsonFile(String filepath, String baseUrl, String context) {
+  //
+  // JSONParser parser = new JSONParser();
+  // try {
+  // Object obj = parser.parse(new FileReader(filepath));
+  // JSONObject jsonObject = (JSONObject) obj;
+  //
+  // JSONObject proxy = (JSONObject) jsonObject.get("proxy");
+  //
+  // proxy.put("baseUrl", baseUrl);
+  // proxy.put("context", context);
+  //
+  // jsonObject.put("proxy", proxy);
+  // FileWriter file = new FileWriter(filepath);
+  // file.write(jsonObject.toJSONString().replace("\\/", "/"));
+  // file.flush();
+  // file.close();
+  // getOutput().showMessage("Modified baseUrl and context property from config.json file");
+  // } catch (Exception e) {
+  //
+  // getOutput().showError("An error occurred during the execution of project deploy command. " + e.getMessage());
+  // }
+  // }
+  //
+  // private void modifyJsFiles(String serverUrl, String js_file_path) {
+  //
+  // final String content = "window.Config.server =" + serverUrl + ";" + "\n" + "window.Config.CORSEnabled = true;";
+  // final String content1 =
+  // "window.Config = {" + "\n" + " defaultLocale: 'en_EN'," + "\n" + "supportedLocales: ['en_EN', 'es_ES']," + "\n"
+  // + "server: 'http://devon-ci.cloudapp.net" + serverUrl + "," + "\n CORSEnabled: true\n };";
+  //
+  // try {
+  // FileUtils.writeStringToFile(new File(js_file_path + "\\ConfigDevelopment.js"), content);
+  //
+  // FileUtils.writeStringToFile(new File(js_file_path + "\\Config.js"), content1);
+  //
+  // getOutput().showMessage("Modified server URL from config.js and configdevelopment.js file");
+  //
+  // } catch (Exception e) {
+  // getOutput().showError("An error occurred during the execution of project deploy command. " + e.getMessage());
+  // }
+  //
+  // }
 
-    JSONParser parser = new JSONParser();
+  private void commentNode(Document doc, Node parent, Node nodeToComment) {
+
     try {
-      Object obj = parser.parse(new FileReader(filepath));
-      JSONObject jsonObject = (JSONObject) obj;
+      Transformer transformer = TransformerFactory.newInstance().newTransformer();
+      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+      transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+      StreamResult result = new StreamResult(new StringWriter());
+      DOMSource source = new DOMSource(nodeToComment);
+      transformer.transform(source, result);
 
-      JSONObject proxy = (JSONObject) jsonObject.get("proxy");
+      String nodeContent = result.getWriter().toString();
 
-      proxy.put("baseUrl", baseUrl);
-      proxy.put("context", context);
-
-      jsonObject.put("proxy", proxy);
-      FileWriter file = new FileWriter(filepath);
-      file.write(jsonObject.toJSONString().replace("\\/", "/"));
-      file.flush();
-      file.close();
-      getOutput().showMessage("Modified baseUrl and context property from config.json file");
+      Comment comment = doc.createComment(nodeContent);
+      parent.insertBefore(comment, nodeToComment);
+      parent.removeChild(nodeToComment);
     } catch (Exception e) {
-
-      getOutput().showError("An error occurred during the execution of project deploy command. " + e.getMessage());
-    }
-  }
-
-  private void modifyJsFiles(String serverUrl, String js_file_path) {
-
-    final String content = "window.Config.server =" + serverUrl + ";" + "\n" + "window.Config.CORSEnabled = true;";
-    final String content1 =
-        "window.Config = {" + "\n" + " defaultLocale: 'en_EN'," + "\n" + "supportedLocales: ['en_EN', 'es_ES']," + "\n"
-            + "server: 'http://devon-ci.cloudapp.net" + serverUrl + "," + "\n CORSEnabled: true\n };";
-
-    try {
-      FileUtils.writeStringToFile(new File(js_file_path + "\\ConfigDevelopment.js"), content);
-
-      FileUtils.writeStringToFile(new File(js_file_path + "\\Config.js"), content1);
-
-      getOutput().showMessage("Modified server URL from config.js and configdevelopment.js file");
-
-    } catch (Exception e) {
-      getOutput().showError("An error occurred during the execution of project deploy command. " + e.getMessage());
+      getOutput().showError(" in commentNode(). " + e.getMessage());
     }
 
   }
