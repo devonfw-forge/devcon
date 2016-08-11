@@ -56,8 +56,8 @@ public class Oasp4js extends AbstractCommandModule {
         String projectPath = clientpath + File.separator + clientname;
         File projectFile = new File(projectPath);
         if (projectFile.exists()) {
-          getOutput().showError(
-              "The project " + projectPath + " already exists. Please delete it or choose other location.");
+          getOutput()
+              .showError("The project " + projectPath + " already exists. Please delete it or choose other location.");
         } else {
 
           File templateFile = new File(distInfo.get().getPath().toString() + File.separator + OASP4JS_BASE);
@@ -86,43 +86,44 @@ public class Oasp4js extends AbstractCommandModule {
   }
 
   @Command(name = "build", description = "This command will build the server project", context = ContextType.PROJECT)
-  @Parameters(values = { @Parameter(name = "path", description = "Path to Client project Workspace (currentDir if not given)", optional = true) })
-  public void build(String path) {
+  public void build() {
 
     try {
 
-      this.projectInfo = getContextPathInfo().getProjectRoot(path);
-      getOutput().showMessage(
-          "path " + this.projectInfo.get().getPath() + "project type " + this.projectInfo.get().getProjecType());
-      Process p;
-      if (this.projectInfo.isPresent()) {
-        if (this.projectInfo.get().getProjecType().equals(ProjectType.OASP4JS)) {
-          try {
-            String cmd = "cmd /c start npm install";
-
-            p = Runtime.getRuntime().exec(cmd, null, this.projectInfo.get().getPath().toFile());
-            p.waitFor();
-            getOutput().showMessage("Completed");
-          } catch (Exception e) {
-
-            getOutput().showError(
-                "Seems that you are not in a OASP4JS project. Please verify the devon.json configuration file");
-          }
-        }
-      } else {
-        getOutput().showError("devon.json configuration file not found.");
+      // this.projectInfo = getContextPathInfo().getProjectRoot(path);
+      if (!this.projectInfo.isPresent()) {
+        getOutput().showError("Not in a project or -path param not pointing to a project");
+        return;
       }
+
+      Process p;
+      if (this.projectInfo.get().getProjecType().equals(ProjectType.OASP4JS)) {
+        try {
+          String cmd = "cmd /c start npm install";
+
+          p = Runtime.getRuntime().exec(cmd, null, this.projectInfo.get().getPath().toFile());
+          p.waitFor();
+          getOutput().showMessage("Completed");
+        } catch (Exception e) {
+
+          getOutput().showError(
+              "Seems that you are not in a OASP4JS project. Please verify the devon.json configuration file");
+        }
+      }
+
     } catch (Exception e) {
       getOutput().showError("An error occured during execution of build command. " + e.getMessage());
     }
   }
 
-  @Command(name = "run", description = "This command runs a debug build of oasp4js")
-  @Parameters(values = { @Parameter(name = "clientpath", description = "the location of the oasp4js app", optional = true) })
-  public void run(String clientpath) {
+  @Command(name = "run", description = "This command runs a debug build of oasp4js", context = ContextType.PROJECT)
+  public void run() {
 
     try {
-      this.projectInfo = getContextPathInfo().getProjectRoot(clientpath);
+      if (!this.projectInfo.isPresent()) {
+        getOutput().showError("Not in a project or -path param not pointing to a project");
+        return;
+      }
 
       if (this.projectInfo.isPresent()) {
         if (this.projectInfo.get().getProjecType().equals(ProjectType.OASP4JS)) {

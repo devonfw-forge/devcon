@@ -78,6 +78,12 @@ public interface CommandModule {
   Optional<Command> getCommand(String module, String command);
 
   /**
+   * Impl for project module
+   */
+
+  Optional<Command> getCommand(String module, String command, ProjectInfo projectInfo);
+
+  /**
    * @param path
    * @return
    */
