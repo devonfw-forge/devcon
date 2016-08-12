@@ -69,10 +69,9 @@ public class Project extends AbstractCommandModule {
 
   @Command(name = "build", description = "This command will build the server & client project(unified server and client build)", context = ContextType.COMBINEDPROJECT)
   @Parameters(values = {
-  @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true),
   @Parameter(name = "clienttype", description = "This parameter shows which type of client is integrated with server i.e oasp4js or sencha", optional = false),
   @Parameter(name = "clientpath", description = "path to client directory", optional = true) })
-  public void build(String path, String clienttype, String clientpath) {
+  public void build(String clienttype, String clientpath) {
 
     // this.projectInfo = getContextPathInfo().getProjectRoot(serverpath);
     // Optional<ProjectInfo> projectInfo = this.contextPathInfo.getProjectRoot(path);
@@ -157,18 +156,18 @@ public class Project extends AbstractCommandModule {
           if (createWs) {
             createSenchaWs(clientpath + File.separator + this.DEVON4SENCHA, combinedprojectpath);
             createSenchaApp(clientname, clientpath + File.separator + this.DEVON4SENCHA);
-            // clientJsonReference = clientpath + File.separator + this.DEVON4SENCHA + File.separator + clientname;
+            clientJsonReference = clientpath + File.separator + this.DEVON4SENCHA + File.separator + clientname;
           } else {
             createSenchaApp(clientname, clientpath);
-            // clientJsonReference = clientpath + File.separator + clientname;
+            clientJsonReference = clientpath + File.separator + clientname;
           }
 
         } else {
           createSenchaWs(combinedprojectpath + File.separator + this.DEVON4SENCHA, combinedprojectpath);
           createSenchaApp(clientname, combinedprojectpath + File.separator + this.DEVON4SENCHA);
-          // clientJsonReference = this.DEVON4SENCHA + File.separator + clientname;
+          clientJsonReference = this.DEVON4SENCHA + File.separator + clientname;
         }
-        clientJsonReference = this.DEVON4SENCHA + "/" + clientname;
+
       } else if (clienttype.equals(this.OASP4JS)) {
 
         Optional<com.devonfw.devcon.common.api.Command> createOasp4js = getCommand(this.OASP4JS, this.CREATE);
@@ -176,7 +175,7 @@ public class Project extends AbstractCommandModule {
         if (createOasp4js.isPresent()) {
           createOasp4js.get().exec(clientname, clientpath);
 
-          clientJsonReference = clientname;
+          clientJsonReference = clientpath.isEmpty() ? clientname : clientpath + File.separator + clientname;
 
         } else {
           getOutput().showError("No command create found for oasp4js module.");
@@ -189,6 +188,7 @@ public class Project extends AbstractCommandModule {
         return;
       }
 
+      clientJsonReference = clientJsonReference.replace("\\", "\\\\");
       getOutput().showMessage("Adding devon.json file to combined project...");
       Utils.addDevonJsonFile(new File(combinedprojectpath).toPath(), servername, clientJsonReference);
       getOutput().showMessage("Combined project created successfully.");
@@ -262,9 +262,8 @@ public class Project extends AbstractCommandModule {
   @Parameter(name = "tomcatpath", description = "Path to tomcat folder (the distribution's Tomcat when not given)", optional = true),
   @Parameter(name = "clienttype", description = "Type of client either angular or Sencha (obtained from 'projects' property in devon.json when not given)", optional = true),
   @Parameter(name = "clientpath", description = "path to client project (obtained from 'projects' property in devon.json when not given)", optional = true),
-  @Parameter(name = "serverpath", description = "path to server project (obtained from 'projects' property in devon.json when not given)", optional = true),
-  @Parameter(name = "path", description = "Path to combined project (current working directory when not given)", optional = true) })
-  public void deploy(String tomcatpath, String clienttype, String clientpath, String serverpath, String path) {
+  @Parameter(name = "serverpath", description = "path to server project (obtained from 'projects' property in devon.json when not given)", optional = true), })
+  public void deploy(String tomcatpath, String clienttype, String clientpath, String serverpath) {
 
     ProcessBuilder install, packageWithClient;
     Process process, process1;
@@ -272,12 +271,16 @@ public class Project extends AbstractCommandModule {
 
     try {
 
+      if (!this.projectInfo.isPresent()) {
+        getOutput().showError("Not in a project or -path param not pointing to a project");
+        return;
+      }
       // this.projectInfo = getContextPathInfo().getProjectRoot(clientpath);
 
       getOutput().showMessage(getContextPathInfo().toString());
       getOutput().showMessage(getContextPathInfo().getCurrentWorkingDirectory().toString());
       getOutput().showMessage("Current directory: " + getContextPathInfo().getCurrentWorkingDirectory());
-      this.projectInfo = getContextPathInfo().getProjectRoot(path);
+      // this.projectInfo = getContextPathInfo().getProjectRoot(path);
       if (!this.projectInfo.isPresent()) {
         getOutput().showError("No devon.json file found in " + this.projectInfo.get().getPath().toAbsolutePath());
         return;
