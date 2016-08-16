@@ -9,7 +9,9 @@ import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.ContextType;
+import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.DistributionType;
+import com.devonfw.devcon.common.exception.InvalidConfigurationStateException;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Constants;
 import com.devonfw.devcon.common.utils.Utils;
@@ -61,9 +63,7 @@ public class Dist extends AbstractCommandModule {
       Optional<String> fileDownloaded = Downloader.downloadFromTeamForge(path, user, password, frsFileId);
 
       if (fileDownloaded.isPresent()) {
-        // Extractor.extract(path + File.separator + fileDownloaded.get().toString(), path);
         Extractor.unZip(path + File.separator + fileDownloaded.get().toString(), path);
-        // this.output.success("install");
 
         this.output
             .showMessage("Distribution successfully installed. You can now follow the manual steps as described\n"
@@ -88,8 +88,7 @@ public class Dist extends AbstractCommandModule {
    * @throws Exception
    */
   @Command(name = "init", description = "This command initialized a newly downloaded distribution", context = ContextType.NONE)
-  @Parameters(values = {
-  @Parameter(name = "path", description = "location of the Devon distribution (current dir if not given)", optional = true) })
+  @Parameters(values = { @Parameter(name = "path", description = "location of the Devon distribution (current dir if not given)", optional = true) })
   public void init(String path) throws Exception {
 
     String frsFileId = "";
@@ -99,7 +98,6 @@ public class Dist extends AbstractCommandModule {
     Path path_ = getPath(path);
     File updatebat = path_.resolve(Constants.UPDATE_ALL_WORKSPACES_BAT).toFile();
 
-    // Exit if file update-all-workspaces.bat does not exist
     if (!updatebat.exists()) {
       this.output.showError("Not a Devon distribution");
       return;
@@ -137,43 +135,49 @@ public class Dist extends AbstractCommandModule {
    * @param svnuser the user with permissions in the svn repository
    * @param svnpass the password of the user with permissions in the svn repository
    */
-  /*
-   * Out of release 1.0.0
-   * 
-   * @Command(name = "s2", description = "Initializes a Devon distribution for use with Shared Services.")
-   * 
-   * @Parameters(values = { @Parameter(name = "projectname", description = "the name for the new project"),
-   * 
-   * @Parameter(name = "artuser", description = "the user with permissions in the artifactory repository"),
-   * 
-   * @Parameter(name = "artencpass", description =
-   * "the encrypted password of the user with permissions in the artifactory repository"),
-   * 
-   * @Parameter(name = "svnurl", description = "the URL of the svn repository to do the checkout"),
-   * 
-   * @Parameter(name = "svnuser", description = "the user with permissions in the svn repository"),
-   * 
-   * @Parameter(name = "svnpass", description = "the password of the user with permissions in the svn repository") })
-   * public void s2(String projectname, String artuser, String artencpass, String svnurl, String svnuser, String
-   * svnpass) {
-   * 
-   * Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot(); SharedServices s2 = new
-   * SharedServices(this.output);
-   * 
-   * try { if (distInfo.isPresent()) { Path distPath = distInfo.get().getPath();
-   * 
-   * if (distInfo.get().getDistributionType().equals(DistributionType.DevonDist)) {
-   * 
-   * int initResult = s2.init(distPath, artuser, artencpass); if (initResult > 0) this.output.showMessage(
-   * "The configuration of the conf/settings.xml file could not be completed successfully. Please verify it");
-   * 
-   * int createResult = s2.create(distPath, projectname, svnurl, svnuser, svnpass); if (createResult > 0) throw new
-   * Exception("An error occurred while project creation.");
-   * 
-   * } else { throw new InvalidConfigurationStateException("The conf/settings.json seems to be invalid"); }
-   * 
-   * } else { this.output.showMessage("Seems that you are not in a Devon distribution."); }
-   * 
-   * } catch (Exception e) { this.output.showError(e.getMessage()); } }
-   */
+  @Command(name = "s2", description = "Initializes a Devon distribution for use with Shared Services.")
+  @Parameters(values = {
+  @Parameter(name = "projectname", description = "the name for the new project"),
+  @Parameter(name = "user", description = "the userId for Artifactory provided by S2 for the project"),
+  @Parameter(name = "pass", description = "the password for Artifactory"),
+  @Parameter(name = "engagementname", description = "the name of the repository for the engagement"),
+  @Parameter(name = "ciaas", description = "if the settings.xml must be configured for CIaaS set this as TRUE. Is an optional parameter with FALSE as default value.", optional = true),
+  @Parameter(name = "svnurl", description = "the url for the SVN provided by S2", optional = true),
+  @Parameter(name = "svnuser", description = "the user for the SVN", optional = true),
+  @Parameter(name = "svnpass", description = "the password for the SVN", optional = true) })
+  public void s2(String projectname, String user, String pass, String engagementname, String ciaas, String svnurl,
+      String svnuser, String svnpass) {
+
+    Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot();
+    SharedServices s2 = new SharedServices(this.output);
+    try {
+      if (distInfo.isPresent()) {
+        Path distPath = distInfo.get().getPath();
+
+        if (distInfo.get().getDistributionType().equals(DistributionType.DevonDist)) {
+
+          boolean configureForCiaas = Boolean.parseBoolean(ciaas);
+          String ciaas_value = configureForCiaas ? "ciaas" : "";
+          int initResult = s2.init(distPath, user, pass, engagementname, ciaas_value);
+          if (initResult > 0)
+            this.output
+                .showMessage("The configuration of the conf/settings.xml file could not be completed successfully. Please verify it");
+
+          int createResult = s2.create(distPath, projectname, svnurl, svnuser, svnpass);
+          if (createResult > 0)
+            throw new Exception("An error occurred while project creation.");
+
+        } else {
+          throw new InvalidConfigurationStateException("The conf/settings.json seems to be invalid");
+        }
+
+      } else {
+        this.output.showMessage("Seems that you are not in a Devon distribution.");
+      }
+
+    } catch (Exception e) {
+      this.output.showError(e.getMessage());
+    }
+  }
+
 }
