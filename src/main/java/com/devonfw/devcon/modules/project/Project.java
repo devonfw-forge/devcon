@@ -69,34 +69,54 @@ public class Project extends AbstractCommandModule {
 
   @Command(name = "build", description = "This command will build the server & client project(unified server and client build)", context = ContextType.COMBINEDPROJECT)
   @Parameters(values = {
-  @Parameter(name = "path", description = "Path to Server project Workspace (currentDir if not given)", optional = true),
-  @Parameter(name = "clienttype", description = "This parameter shows which type of client is integrated with server i.e oasp4js or sencha", optional = false),
-  @Parameter(name = "clientpath", description = "path to client directory", optional = false) })
-  public void build(String path, String clienttype, String clientpath) {
+  @Parameter(name = "clienttype", description = "This parameter shows which type of client is integrated with server i.e oasp4js or devon4sencha", optional = true),
+  @Parameter(name = "clientpath", description = "path to client directory", optional = true) })
+  public void build(String clienttype, String clientpath) {
 
-    // this.projectInfo = getContextPathInfo().getProjectRoot(serverpath);
-    // Optional<ProjectInfo> projectInfo = this.contextPathInfo.getProjectRoot(path);
-    // if (!projectInfo.isPresent()) {
-    // getOutput().showError("Not in a project or -path param not pointing to a project");
-    // return;
-    // }
+    String clientNewType;
+    if (!this.projectInfo.isPresent()) {
+      getOutput().showError("Not in a project or -path param not pointing to a project");
+      return;
+    }
     try {
-      Optional<com.devonfw.devcon.common.api.Command> oasp4j = getCommand("oasp4j", "build");
-      oasp4j.get().exec(path);
-      switch (clienttype == null ? "" : clienttype) {
-      case "oasp4js":
-        Optional<com.devonfw.devcon.common.api.Command> oasp4js_cmd = getCommand("oasp4js", "build");
-        oasp4js_cmd.get().exec(clientpath);
-        break;
-      case "sencha":
-        Optional<com.devonfw.devcon.common.api.Command> sencha_cmd = getCommand("sencha", "build");
-        sencha_cmd.get().exec(clientpath);
 
-        break;
-      case "":
+      if (!clienttype.isEmpty() && ((clienttype.equalsIgnoreCase(Constants.OASP4JS)
+          || clienttype.equalsIgnoreCase(Constants.DEVON4SENCHA)))) {
+        clienttype = clienttype;
+      } else if (!clienttype.isEmpty()) {
         getOutput().showError(
-            "Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
+            "Clienttype value is not valid. Please set client type to oasp4js or devon4sencha.You can enter it via command or set it in devon.json");
+        return;
       }
+      int size = this.projectInfo.get().getSubProjects().size();
+
+      for (int i = 0; i < size; i++) {
+        ProjectInfo p = this.projectInfo.get().getSubProjects().get(i);
+
+        if (p.getProjecType() == ProjectType.OASP4J) {
+          Optional<com.devonfw.devcon.common.api.Command> oasp4j = getCommand("oasp4j", "build", p);
+          oasp4j.get().exec();
+        } else {
+          clienttype = p.getProjecType().toString();
+          System.out.println("clienttype " + clienttype);
+          switch (clienttype.toLowerCase()) {
+          case Constants.OASP4JS:
+            Optional<com.devonfw.devcon.common.api.Command> oasp4js_cmd = getCommand("oasp4js", "build", p);
+            oasp4js_cmd.get().exec();
+            break;
+          case Constants.DEVON4SENCHA:
+            Optional<com.devonfw.devcon.common.api.Command> sencha_cmd = getCommand("sencha", "build", p);
+            sencha_cmd.get().exec();
+            break;
+          default:
+            getOutput().showError(
+                "Clienttype value is not valid. Please set client type to oasp4js or devon4sencha.You can enter it via command or set it in devon.json");
+            break;
+
+          }
+        }
+      }
+
     } catch (Exception e) {
       getOutput().showError("An error occured during executing Project Cmd");
     }
@@ -121,9 +141,8 @@ public class Project extends AbstractCommandModule {
 
       Optional<com.devonfw.devcon.common.api.Command> createServer = getCommand(this.OASP4J, this.CREATE);
 
-      combinedprojectpath =
-          combinedprojectpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString()
-              : combinedprojectpath;
+      combinedprojectpath = combinedprojectpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString()
+          : combinedprojectpath;
 
       boolean createWs = Boolean.parseBoolean(createsenchaws.toLowerCase());
       String clientJsonReference;
@@ -169,12 +188,12 @@ public class Project extends AbstractCommandModule {
         }
 
       } else {
-        getOutput()
-            .showError(
-                "The parameter value for 'clienttype' is not valid. The options for this parameter are: 'devon4sencha' and 'oasp4js'.");
+        getOutput().showError(
+            "The parameter value for 'clienttype' is not valid. The options for this parameter are: 'devon4sencha' and 'oasp4js'.");
         return;
       }
 
+      clientJsonReference = clientJsonReference.replace("\\", "\\\\");
       getOutput().showMessage("Adding devon.json file to combined project...");
       Utils.addDevonJsonFile(new File(combinedprojectpath).toPath(), servername, clientJsonReference);
       getOutput().showMessage("Combined project created successfully.");
@@ -194,31 +213,57 @@ public class Project extends AbstractCommandModule {
    */
   @Command(name = "run", description = "This command will run the server & client project(unified server and client build) in debug mode (seperate cliet and spring boot server(not on tomcat))", context = ContextType.COMBINEDPROJECT)
   @Parameters(values = {
-  @Parameter(name = "clienttype", description = "This parameter shows which type of client is integrated with server i.e oasp4js or sencha", optional = false),
-  @Parameter(name = "clientport", description = "User can configured port if client type is Sencha", optional = true),
+  @Parameter(name = "clienttype", description = "This parameter shows which type of client is integrated with server i.e oasp4js or devon4sencha", optional = true),
   @Parameter(name = "clientpath", description = "Location of the oasp4js app", optional = true),
   @Parameter(name = "serverport", description = "Port to start server", optional = true),
   @Parameter(name = "serverpath", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
-  public void run(String clienttype, String clientport, String clientpath, String serverport, String serverpath) {
+  public void run(String clienttype, String clientpath, String serverport, String serverpath) {
 
-    this.projectInfo = getContextPathInfo().getProjectRoot(serverpath);
+    if (!this.projectInfo.isPresent()) {
+      getOutput().showError("Not in a project or -path param not pointing to a project");
+      return;
+    }
+
     try {
-      Optional<com.devonfw.devcon.common.api.Command> cmd = getCommand(Constants.OASP4J, Constants.RUN);
-      cmd.get().exec(serverport, serverpath);
-
-      switch (clienttype == null ? "" : clienttype) {
-      case "oasp4js":
-        Optional<com.devonfw.devcon.common.api.Command> oasp4js_cmd = getCommand(Constants.OASP4JS, Constants.RUN);
-        oasp4js_cmd.get().exec(clientpath);
-        break;
-      case "sencha":
-        Optional<com.devonfw.devcon.common.api.Command> sencha_cmd = getCommand(Constants.SENCHA, Constants.RUN);
-        sencha_cmd.get().exec(clientport, clientpath);
-        break;
-      case "":
+      if (!clienttype.isEmpty() && ((clienttype.equalsIgnoreCase(Constants.OASP4JS)
+          || clienttype.equalsIgnoreCase(Constants.DEVON4SENCHA)))) {
+        clienttype = clienttype;
+      } else if (!clienttype.isEmpty()) {
         getOutput().showError(
-            "Clienttype is not specified cannot build client. Please set client type to oasp4js or Sencha");
+            "Clienttype value is not valid. Please set client type to oasp4js or devon4sencha.You can enter it via command or set it in devon.json");
+        return;
       }
+      int size = this.projectInfo.get().getSubProjects().size();
+      System.out.println("size " + size);
+      for (int i = 0; i < size; i++) {
+        ProjectInfo p = this.projectInfo.get().getSubProjects().get(i);
+        System.out.println("------------------type " + p.getConfig().get("type").toString());
+
+        if (p.getProjecType() == ProjectType.OASP4J) {
+          Optional<com.devonfw.devcon.common.api.Command> cmd = getCommand(Constants.OASP4J, Constants.RUN, p);
+          cmd.get().exec(serverport);
+        } else {
+          clienttype = p.getProjecType().toString();
+          System.out.println("clienttype " + clienttype);
+          switch (clienttype.toLowerCase()) {
+          case Constants.OASP4JS:
+            Optional<com.devonfw.devcon.common.api.Command> oasp4js_cmd =
+                getCommand(Constants.OASP4JS, Constants.RUN, p);
+            oasp4js_cmd.get().exec();
+            break;
+          case Constants.DEVON4SENCHA:
+            Optional<com.devonfw.devcon.common.api.Command> sencha_cmd = getCommand(Constants.SENCHA, Constants.RUN, p);
+            sencha_cmd.get().exec();
+            break;
+          default:
+            getOutput().showError(
+                "Clienttype value is not valid. Please set client type to oasp4js or devon4sencha.You can enter it via command or set it in devon.json");
+            break;
+
+          }
+        }
+      }
+
     } catch (Exception e) {
       getOutput().showError("An error occured during executing Project Cmd");
     }
@@ -229,9 +274,8 @@ public class Project extends AbstractCommandModule {
   @Parameter(name = "tomcatpath", description = "Path to tomcat folder (the distribution's Tomcat when not given)", optional = true),
   @Parameter(name = "clienttype", description = "Type of client either angular or Sencha (obtained from 'projects' property in devon.json when not given)", optional = true),
   @Parameter(name = "clientpath", description = "path to client project (obtained from 'projects' property in devon.json when not given)", optional = true),
-  @Parameter(name = "serverpath", description = "path to server project (obtained from 'projects' property in devon.json when not given)", optional = true),
-  @Parameter(name = "path", description = "Path to combined project (current working directory when not given)", optional = true) })
-  public void deploy(String tomcatpath, String clienttype, String clientpath, String serverpath, String path) {
+  @Parameter(name = "serverpath", description = "path to server project (obtained from 'projects' property in devon.json when not given)", optional = true), })
+  public void deploy(String tomcatpath, String clienttype, String clientpath, String serverpath) {
 
     ProcessBuilder install, packageWithClient;
     Process process, process1;
@@ -239,21 +283,24 @@ public class Project extends AbstractCommandModule {
 
     try {
 
+      if (!this.projectInfo.isPresent()) {
+        getOutput().showError("Not in a project or -path param not pointing to a project");
+        return;
+      }
       // this.projectInfo = getContextPathInfo().getProjectRoot(clientpath);
 
       getOutput().showMessage(getContextPathInfo().toString());
       getOutput().showMessage(getContextPathInfo().getCurrentWorkingDirectory().toString());
       getOutput().showMessage("Current directory: " + getContextPathInfo().getCurrentWorkingDirectory());
-      this.projectInfo = getContextPathInfo().getProjectRoot(path);
+      // this.projectInfo = getContextPathInfo().getProjectRoot(path);
       if (!this.projectInfo.isPresent()) {
         getOutput().showError("No devon.json file found in " + this.projectInfo.get().getPath().toAbsolutePath());
         return;
       }
 
       if (this.projectInfo.get().getSubProjects().size() == 0) {
-        getOutput().showError(
-            "The property 'projects' defined in " + getContextPathInfo().getCurrentWorkingDirectory() + File.separator
-                + "devon.json file is empty.");
+        getOutput().showError("The property 'projects' defined in " + getContextPathInfo().getCurrentWorkingDirectory()
+            + File.separator + "devon.json file is empty.");
         return;
       }
 
@@ -265,9 +312,8 @@ public class Project extends AbstractCommandModule {
       for (ProjectInfo projectInfo : subProjects) {
         getOutput().showMessage(projectInfo.getProjecType().toString());
         getOutput().showMessage(projectInfo.getPath().toString());
-        boolean thisIsClient =
-            projectInfo.getProjecType() == ProjectType.DEVON4SENCHA
-                || projectInfo.getProjecType() == ProjectType.OASP4JS;
+        boolean thisIsClient = projectInfo.getProjecType() == ProjectType.DEVON4SENCHA
+            || projectInfo.getProjecType() == ProjectType.OASP4JS;
         clientpath = (clientpath.isEmpty() && thisIsClient) ? projectInfo.getPath().toString() : clientpath;
         clienttype = (clienttype.isEmpty() && thisIsClient) ? projectInfo.getProjecType().toString() : clienttype;
         boolean thisIsServer = projectInfo.getProjecType() == ProjectType.OASP4J;
@@ -342,7 +388,7 @@ public class Project extends AbstractCommandModule {
         Optional<com.devonfw.devcon.common.api.Command> deploy = getCommand(this.OASP4J, this.DEPLOY);
         if (deploy.isPresent()) {
 
-          deploy.get().exec(tomcatpath, serverpath);
+          deploy.get().exec(tomcatpath);
 
         } else {
           getOutput().showError("No command deploy found for oasp4j module.");
@@ -631,8 +677,8 @@ public class Project extends AbstractCommandModule {
       return Optional.of(execMavenPlugin);
 
     } catch (Exception e) {
-      getOutput().showMessage(
-          "Exec-Maven-Plugin node could not be configured or is already configured. " + e.getMessage());
+      getOutput()
+          .showMessage("Exec-Maven-Plugin node could not be configured or is already configured. " + e.getMessage());
       return Optional.absent();
     }
   }

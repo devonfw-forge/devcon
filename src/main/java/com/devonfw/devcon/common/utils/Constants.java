@@ -117,6 +117,11 @@ public final class Constants {
   public final static String SENCHA = "sencha";
 
   /**
+  *
+  */
+  public final static String DEVON4SENCHA = "devon4sencha";
+
+  /**
    *
    */
   public final static String OASP4J = "oasp4j";
