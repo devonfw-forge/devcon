@@ -214,11 +214,10 @@ public class Project extends AbstractCommandModule {
   @Command(name = "run", description = "This command will run the server & client project(unified server and client build) in debug mode (seperate cliet and spring boot server(not on tomcat))", context = ContextType.COMBINEDPROJECT)
   @Parameters(values = {
   @Parameter(name = "clienttype", description = "This parameter shows which type of client is integrated with server i.e oasp4js or devon4sencha", optional = true),
-  @Parameter(name = "clientport", description = "User can configured port if client type is Sencha", optional = true),
   @Parameter(name = "clientpath", description = "Location of the oasp4js app", optional = true),
   @Parameter(name = "serverport", description = "Port to start server", optional = true),
   @Parameter(name = "serverpath", description = "Path to Server project Workspace (currentDir if not given)", optional = true) })
-  public void run(String clienttype, String clientport, String clientpath, String serverport, String serverpath) {
+  public void run(String clienttype, String clientpath, String serverport, String serverpath) {
 
     if (!this.projectInfo.isPresent()) {
       getOutput().showError("Not in a project or -path param not pointing to a project");
@@ -245,7 +244,7 @@ public class Project extends AbstractCommandModule {
           cmd.get().exec(serverport);
         } else {
           clienttype = p.getProjecType().toString();
-          System.out.println("clienttype " + clienttype + " clientport " + clientport);
+          System.out.println("clienttype " + clienttype);
           switch (clienttype.toLowerCase()) {
           case Constants.OASP4JS:
             Optional<com.devonfw.devcon.common.api.Command> oasp4js_cmd =
@@ -254,7 +253,7 @@ public class Project extends AbstractCommandModule {
             break;
           case Constants.DEVON4SENCHA:
             Optional<com.devonfw.devcon.common.api.Command> sencha_cmd = getCommand(Constants.SENCHA, Constants.RUN, p);
-            sencha_cmd.get().exec(clientport);
+            sencha_cmd.get().exec();
             break;
           default:
             getOutput().showError(

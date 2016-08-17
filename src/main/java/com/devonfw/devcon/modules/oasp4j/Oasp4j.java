@@ -164,7 +164,8 @@ public class Oasp4j extends AbstractCommandModule {
     String path_ = info.getPath().toString() + "\\server";
 
     try {
-      String commandStr = "mvn spring-boot:run -Drun.arguments=\"server.port=" + port_ + "\" ";
+      String commandStr = "mvn spring-boot:run -Drun.jvmArguments='-Dserver.port=" + port_ + "'";
+      System.out.println("Command generated ---------- " + commandStr);
       String cmd = "cmd /c start " + commandStr;
 
       Process p = Runtime.getRuntime().exec(cmd, null, new File(path_));

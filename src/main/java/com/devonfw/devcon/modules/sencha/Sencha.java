@@ -33,8 +33,7 @@ public class Sencha extends AbstractCommandModule {
 
   @SuppressWarnings("javadoc")
   @Command(name = "run", description = "compiles in DEBUG mode and then runs the internal Sencha web server (\"app watch\")", context = ContextType.PROJECT)
-  @Parameters(values = { @Parameter(name = "port", description = "", optional = true) })
-  public void run(String port) throws Exception {
+  public void run() throws Exception {
 
     // TODO ivanderk Implementatin for MacOSX & Unix
     if (!SystemUtils.IS_OS_WINDOWS) {
@@ -180,7 +179,7 @@ public class Sencha extends AbstractCommandModule {
       }
 
       if (pStatus == 0) {
-        run(Constants.SENCHA_CMD_WS_PORT); // TODO
+        run(); // TODO
         getOutput().showMessage(" Sencha Build Successful");
       } else {
         getOutput().showError(" Sencha Build Failed");
