@@ -179,7 +179,7 @@ public class Sencha extends AbstractCommandModule {
       }
 
       if (pStatus == 0) {
-        run(); // TODO
+
         getOutput().showMessage(" Sencha Build Successful");
       } else {
         getOutput().showError(" Sencha Build Failed");
