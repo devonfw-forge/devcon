@@ -59,18 +59,23 @@ public class CommandImpl implements Command {
 
   private ContextType context;
 
+  private boolean proxyParams;
+
   private ContextPathInfo contextPathInfo;
 
   public CommandImpl() {
+
     this.definedParameters = new ArrayList<>();
   }
 
-  public CommandImpl(String name, String description, ContextType context, Method method, String moduleName,
-      Class<?> module) {
+  public CommandImpl(String name, String description, ContextType context, boolean proxyParams, Method method,
+      String moduleName, Class<?> module) {
+
     this();
     this.name = name;
     this.description = description;
     this.context = context;
+    this.proxyParams = proxyParams;
     this.method = method;
     this.moduleName = moduleName;
     this.module = module;
@@ -142,8 +147,15 @@ public class CommandImpl implements Command {
     // When a context is given, a default --path parameter is added to the end
     if (this.context != ContextType.NONE) {
 
-      this.definedParameters
-          .add(new CommandParameter("path", "Give path to project (current folder used when not given)", pos++, true));
+      this.definedParameters.add(new CommandParameter("path",
+          "Give path to project (current folder used when not given)", pos++, true));
+    }
+
+    if (this.proxyParams) {
+      this.definedParameters.add(new CommandParameter("proxyHost", "Host parameter for optional Proxy configuration",
+          pos++, true));
+      this.definedParameters.add(new CommandParameter("proxyPort", "Port parameter for optional Proxy configuration",
+          pos++, true));
     }
   }
 
@@ -160,8 +172,9 @@ public class CommandImpl implements Command {
     List<CommandParameter> None = new ArrayList<>();
 
     for (CommandParameter defined : getDefinedParameters()) {
-      CommandParameter val = new CommandParameter(defined.getName().toLowerCase(), defined.getDescription(),
-          defined.getPosition(), defined.isOptional());
+      CommandParameter val =
+          new CommandParameter(defined.getName().toLowerCase(), defined.getDescription(), defined.getPosition(),
+              defined.isOptional());
 
       // take value when given
       if (given.containsKey(val.getName())) {
@@ -186,15 +199,15 @@ public class CommandImpl implements Command {
   }
 
   @Override
-  public Object exec(String... arguments)
-      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+  public Object exec(String... arguments) throws InstantiationException, IllegalAccessException,
+      IllegalArgumentException, InvocationTargetException {
 
     return this.exec(Arrays.asList(arguments));
   }
 
   @Override
-  public Object exec(List<String> arguments)
-      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+  public Object exec(List<String> arguments) throws InstantiationException, IllegalAccessException,
+      IllegalArgumentException, InvocationTargetException {
 
     Object module = this.module.newInstance();
 
@@ -204,8 +217,8 @@ public class CommandImpl implements Command {
   }
 
   @Override
-  public Object exec()
-      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+  public Object exec() throws InstantiationException, IllegalAccessException, IllegalArgumentException,
+      InvocationTargetException {
 
     Object module = this.module.newInstance();
 
@@ -259,6 +272,12 @@ public class CommandImpl implements Command {
   public ContextType getContext() {
 
     return this.context;
+  }
+
+  @Override
+  public boolean getProxyParams() {
+
+    return this.proxyParams;
   }
 
   /**

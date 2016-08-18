@@ -44,6 +44,7 @@ public class CommandManagerImpl implements CommandManager {
   }
 
   public CommandManagerImpl(CommandRegistry registry, Input input, Output output, ContextPathInfo contextPathInfo) {
+
     this();
     this.registry = registry;
     this.input = input;
@@ -89,8 +90,8 @@ public class CommandManagerImpl implements CommandManager {
 
       } else
 
-        this.output.showError(
-            "The command " + commandName + " is not recognized as valid command of the " + moduleName + " module");
+        this.output.showError("The command " + commandName + " is not recognized as valid command of the " + moduleName
+            + " module");
       return Pair.of(CommandResult.UNKNOWN_COMMAND, (Object) (moduleName + " " + commandName));
 
     } else {
@@ -156,8 +157,8 @@ public class CommandManagerImpl implements CommandManager {
    * @throws IllegalAccessException
    * @throws InvocationTargetException
    */
-  private Pair<CommandResult, Object> execCommand(Command cmd, Sentence sentence)
-      throws InstantiationException, IllegalAccessException, InvocationTargetException {
+  private Pair<CommandResult, Object> execCommand(Command cmd, Sentence sentence) throws InstantiationException,
+      IllegalAccessException, InvocationTargetException {
 
     if (sentence.isHelpRequested()) {
       this.output.showCommandHelp(cmd);
@@ -187,17 +188,53 @@ public class CommandManagerImpl implements CommandManager {
       projectInfo = Optional.absent();
     } else if (cmd.getContext() == ContextType.COMBINEDPROJECT) {
 
-      CommandParameter pathParam = givenParameters.get(givenParameters.size() - 1);
+      int pathIndex = 0;
+      for (CommandParameter commandParameter : givenParameters) {
+        if (commandParameter.getName().toLowerCase().equals("path")) {
+          pathIndex = commandParameter.getPosition();
+        }
+      }
+
+      CommandParameter pathParam = givenParameters.get(pathIndex);
       String path = (pathParam.getValue().isPresent()) ? pathParam.getValue().get() : "";
       projectInfo = getContextPathInfo().getCombinedProjectRoot(path);
-      givenParameters.remove(givenParameters.size() - 1);
+      givenParameters.remove(pathIndex);
 
     } else {
-      CommandParameter pathParam = givenParameters.get(givenParameters.size() - 1);
+
+      int pathIndex = 0;
+      for (CommandParameter commandParameter : givenParameters) {
+        if (commandParameter.getName().toLowerCase().equals("path")) {
+          pathIndex = commandParameter.getPosition();
+        }
+      }
+
+      CommandParameter pathParam = givenParameters.get(pathIndex);
       String path = (pathParam.getValue().isPresent()) ? pathParam.getValue().get() : "";
       projectInfo = getContextPathInfo().getProjectRoot(path);
-      givenParameters.remove(givenParameters.size() - 1);
+      givenParameters.remove(pathIndex);
     }
+
+    // if (cmd.getProxyParams()) {
+    // int proxyHostIndex = 0;
+    // int proxyPortIndex = 0;
+    // for (CommandParameter commandParameter : givenParameters) {
+    // if (commandParameter.getName().toLowerCase().equals("proxyhost")) {
+    // proxyHostIndex = commandParameter.getPosition() - 1;
+    // }
+    // if (commandParameter.getName().toLowerCase().equals("proxyport")) {
+    // proxyPortIndex = commandParameter.getPosition() - 1;
+    // }
+    // }
+    // // proxyHost
+    // CommandParameter proxyHostParam = givenParameters.get(proxyHostIndex);
+    // String proxyHost = (proxyHostParam.getValue().isPresent()) ? proxyHostParam.getValue().get() : "";
+    //
+    // // proxyPort
+    // CommandParameter proxyPortParam = givenParameters.get(proxyPortIndex);
+    // String proxyPort = (proxyPortParam.getValue().isPresent()) ? proxyPortParam.getValue().get() : "";
+    //
+    // }
 
     // optionally load missing values from config files
     List<String> completedparameters = completeParameters(projectInfo, givenParameters);

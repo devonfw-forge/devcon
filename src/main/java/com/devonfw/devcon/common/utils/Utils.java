@@ -3,14 +3,21 @@ package com.devonfw.devcon.common.utils;
 import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.Proxy.Type;
+import java.net.ProxySelector;
+import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -258,6 +265,34 @@ public class Utils {
           + e.getMessage());
     }
 
+  }
+
+  public static void setProxy(final String keyword, final String host, final String port) {
+
+    ProxySelector.setDefault(new ProxySelector() {
+      final ProxySelector delegate = ProxySelector.getDefault();
+
+      @Override
+      public List<Proxy> select(URI uri) {
+
+        if (uri.toString().contains(keyword) && uri.toString().contains("https")) {
+          return Arrays.asList(new Proxy(Type.HTTP, InetSocketAddress.createUnresolved(host, Integer.parseInt(port))));
+        }
+        if (uri.toString().contains(keyword) && uri.toString().contains("http")) {
+          return Arrays.asList(new Proxy(Type.HTTP, InetSocketAddress.createUnresolved(host, Integer.parseInt(port))));
+        }
+
+        return this.delegate == null ? Arrays.asList(Proxy.NO_PROXY) : this.delegate.select(uri);
+      }
+
+      @Override
+      public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+
+        if (uri == null || sa == null || ioe == null) {
+          throw new IllegalArgumentException("Arguments can't be null.");
+        }
+      }
+    });
   }
 
 }

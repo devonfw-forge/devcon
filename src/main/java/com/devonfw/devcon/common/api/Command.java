@@ -27,20 +27,22 @@ public interface Command extends Info, Comparable<Command> {
 
   ContextType getContext();
 
+  boolean getProxyParams();
+
   String getHelpText();
 
   List<CommandParameter> getDefinedParameters();
 
   Triple<CommandResult, String, List<CommandParameter>> getParametersWithInput(List<Pair<String, String>> list);
 
-  Object exec(String... arguments)
-      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException;
+  Object exec(String... arguments) throws InstantiationException, IllegalAccessException, IllegalArgumentException,
+      InvocationTargetException;
 
-  Object exec(List<String> arguments)
-      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException;
+  Object exec(List<String> arguments) throws InstantiationException, IllegalAccessException, IllegalArgumentException,
+      InvocationTargetException;
 
-  Object exec()
-      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException;
+  Object exec() throws InstantiationException, IllegalAccessException, IllegalArgumentException,
+      InvocationTargetException;
 
   void injectEnvironment(CommandRegistry registry, Input input, Output output, ContextPathInfo contextPathInfo,
       Optional<ProjectInfo> projectInfo);

@@ -6,18 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.ConnectException;
-import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
-import java.net.Proxy;
-import java.net.Proxy.Type;
-import java.net.ProxySelector;
-import java.net.SocketAddress;
-import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -32,6 +24,7 @@ import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.impl.utils.WindowsReqistry;
+import com.devonfw.devcon.common.utils.Utils;
 import com.devonfw.devcon.output.Output;
 import com.github.zafarkhaja.semver.Version;
 
@@ -56,23 +49,20 @@ public class SystemCommands extends AbstractCommandModule {
    */
   private static final String DOT_DEVCON_DIR = ".devcon";
 
-  private final String PROXY_HOST = "1.0.5.10";
-
-  private final int PROXY_PORT = 8080;
-
   /**
    *
    */
 
   @SuppressWarnings("javadoc")
-  @Command(name = "install", description = "Install Devcon on user´s HOME folder or alternative path")
+  @Command(name = "install", description = "Install Devcon on user´s HOME folder or alternative path", proxyParams = true)
   @Parameters(values = { @Parameter(name = "addToPath", description = "Add to %PATH% (by default \"true\")", optional = true) })
-  public void install(String addToPath) {
+  public void install(String addToPath, String proxyHost, String proxyPort) {
 
     Output out = getOutput();
     boolean addPath = Boolean.valueOf(addToPath.isEmpty() ? "true" : addToPath);
 
     Path devconPath = getContextPathInfo().getHomeDirectory().resolve(DOT_DEVCON_DIR);
+    System.out.println("User's HOME Directory: " + getContextPathInfo().getHomeDirectory());
     File devconDir = devconPath.toFile();
     File devconFile = devconPath.resolve(DEVCON_JAR_FILE).toFile();
 
@@ -83,6 +73,10 @@ public class SystemCommands extends AbstractCommandModule {
 
         // Create .decvon dir in User $HOME directory
         devconDir.mkdir();
+
+        if (!proxyHost.isEmpty() && !proxyPort.isEmpty()) {
+          Utils.setProxy("devcon", proxyHost, proxyPort);
+        }
 
         Pair<Version, String> downloadInfo = getDownloadData(Devcon.VERSION_URL);
         // TODO need change/fix??; file is downloaded again;
@@ -111,8 +105,9 @@ public class SystemCommands extends AbstractCommandModule {
         out.showMessage("The application has been installed. You need to close this console and open another one.");
         out.showMessage("Devcon is available as the command 'devcon' and its alias 'devon'.");
 
+      } catch (ConnectException e) {
+        out.showError("Connection error. Please verify your proxy or use the -ProxyHost and -ProxyPort parameters");
       } catch (JSONException | IOException e) {
-
         out.showError("while installing Devcon: %s", e.getMessage());
       }
     } else {
@@ -123,19 +118,24 @@ public class SystemCommands extends AbstractCommandModule {
   }
 
   @SuppressWarnings("javadoc")
-  @Command(name = "update", description = "Update Devcon as installed on user´s system")
+  @Command(name = "update", description = "Update Devcon as installed on user´s system", proxyParams = true)
   @Parameters(values = {})
-  public void update() {
+  public void update(String proxyHost, String proxyPort) {
 
     Output out = getOutput();
 
     Path devconPath = getContextPathInfo().getHomeDirectory().resolve(DOT_DEVCON_DIR);
+    System.out.println("User's HOME Directory: " + getContextPathInfo().getHomeDirectory());
     File devconDir = devconPath.toFile();
     File devconFile = devconPath.resolve(DEVCON_JAR_FILE).toFile();
 
     if (devconFile.exists()) {
 
       try {
+
+        if (!proxyHost.isEmpty() && !proxyPort.isEmpty()) {
+          Utils.setProxy("devcon", proxyHost, proxyPort);
+        }
 
         Pair<Version, String> downloadInfo = getDownloadData(Devcon.VERSION_URL);
         if (downloadInfo.getLeft().compareTo(Devcon.VERSION_) > 0) {
@@ -152,6 +152,8 @@ public class SystemCommands extends AbstractCommandModule {
           out.showMessage("Version up to date. No change is needed.");
         }
 
+      } catch (ConnectException e) {
+        out.showError("Connection error. Please verify your proxy or use the -ProxyHost and -ProxyPort parameters");
       } catch (JSONException | IOException e) {
 
         out.showError("while updating Devcon: " + e.getMessage());
@@ -181,12 +183,8 @@ public class SystemCommands extends AbstractCommandModule {
     Version version = null;
     String url_ = null;
     JSONObject json = null;
-    try {
-      json = new JSONObject(IOUtils.toString(new URL(Devcon.VERSION_URL), Charset.forName("UTF-8")));
-    } catch (ConnectException e) {
-      setProxy();
-      json = new JSONObject(IOUtils.toString(new URL(Devcon.VERSION_URL), Charset.forName("UTF-8")));
-    }
+
+    json = new JSONObject(IOUtils.toString(new URL(Devcon.VERSION_URL), Charset.forName("UTF-8")));
 
     version = Version.valueOf((String) json.get("version"));
     url_ = (String) json.get("url");
@@ -214,33 +212,4 @@ public class SystemCommands extends AbstractCommandModule {
     outFile.close();
   }
 
-  private void setProxy() {
-
-    ProxySelector.setDefault(new ProxySelector() {
-      final ProxySelector delegate = ProxySelector.getDefault();
-
-      @Override
-      public List<Proxy> select(URI uri) {
-
-        if (uri.toString().contains("devcon") && uri.toString().contains("https")) {
-          return Arrays.asList(new Proxy(Type.HTTP, InetSocketAddress.createUnresolved(SystemCommands.this.PROXY_HOST,
-              SystemCommands.this.PROXY_PORT)));
-        }
-        if (uri.toString().contains("devcon") && uri.toString().contains("http")) {
-          return Arrays.asList(new Proxy(Type.HTTP, InetSocketAddress.createUnresolved(SystemCommands.this.PROXY_HOST,
-              SystemCommands.this.PROXY_PORT)));
-        }
-
-        return this.delegate == null ? Arrays.asList(Proxy.NO_PROXY) : this.delegate.select(uri);
-      }
-
-      @Override
-      public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
-
-        if (uri == null || sa == null || ioe == null) {
-          throw new IllegalArgumentException("Arguments can't be null.");
-        }
-      }
-    });
-  }
 }
