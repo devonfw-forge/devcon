@@ -215,27 +215,6 @@ public class CommandManagerImpl implements CommandManager {
       givenParameters.remove(pathIndex);
     }
 
-    // if (cmd.getProxyParams()) {
-    // int proxyHostIndex = 0;
-    // int proxyPortIndex = 0;
-    // for (CommandParameter commandParameter : givenParameters) {
-    // if (commandParameter.getName().toLowerCase().equals("proxyhost")) {
-    // proxyHostIndex = commandParameter.getPosition() - 1;
-    // }
-    // if (commandParameter.getName().toLowerCase().equals("proxyport")) {
-    // proxyPortIndex = commandParameter.getPosition() - 1;
-    // }
-    // }
-    // // proxyHost
-    // CommandParameter proxyHostParam = givenParameters.get(proxyHostIndex);
-    // String proxyHost = (proxyHostParam.getValue().isPresent()) ? proxyHostParam.getValue().get() : "";
-    //
-    // // proxyPort
-    // CommandParameter proxyPortParam = givenParameters.get(proxyPortIndex);
-    // String proxyPort = (proxyPortParam.getValue().isPresent()) ? proxyPortParam.getValue().get() : "";
-    //
-    // }
-
     // optionally load missing values from config files
     List<String> completedparameters = completeParameters(projectInfo, givenParameters);
 

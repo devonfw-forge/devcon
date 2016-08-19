@@ -62,7 +62,6 @@ public class SystemCommands extends AbstractCommandModule {
     boolean addPath = Boolean.valueOf(addToPath.isEmpty() ? "true" : addToPath);
 
     Path devconPath = getContextPathInfo().getHomeDirectory().resolve(DOT_DEVCON_DIR);
-    System.out.println("User's HOME Directory: " + getContextPathInfo().getHomeDirectory());
     File devconDir = devconPath.toFile();
     File devconFile = devconPath.resolve(DEVCON_JAR_FILE).toFile();
 
@@ -125,7 +124,6 @@ public class SystemCommands extends AbstractCommandModule {
     Output out = getOutput();
 
     Path devconPath = getContextPathInfo().getHomeDirectory().resolve(DOT_DEVCON_DIR);
-    System.out.println("User's HOME Directory: " + getContextPathInfo().getHomeDirectory());
     File devconDir = devconPath.toFile();
     File devconFile = devconPath.resolve(DEVCON_JAR_FILE).toFile();
 
