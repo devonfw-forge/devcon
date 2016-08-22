@@ -134,8 +134,9 @@ public class Sencha extends AbstractCommandModule {
       if (dotGit.exists()) {
         FileUtils.deleteDirectory(dotGit);
       }
-      getOutput().showError(
-          "Connection error. Please verify your proxy or use the -proxyHost and -proxyPort parameters");
+      getOutput()
+          .showError(
+              "Connection error. Please verify your github credentials. Also if you work behind a proxy verify it's configuration or use the -proxyHost and -proxyPort parameters");
       throw te;
 
     } catch (Exception e) {
