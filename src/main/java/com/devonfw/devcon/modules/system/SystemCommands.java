@@ -24,7 +24,6 @@ import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.impl.utils.WindowsReqistry;
-import com.devonfw.devcon.common.utils.Utils;
 import com.devonfw.devcon.output.Output;
 import com.github.zafarkhaja.semver.Version;
 
@@ -56,7 +55,7 @@ public class SystemCommands extends AbstractCommandModule {
   @SuppressWarnings("javadoc")
   @Command(name = "install", description = "Install Devcon on user´s HOME folder or alternative path", proxyParams = true)
   @Parameters(values = { @Parameter(name = "addToPath", description = "Add to %PATH% (by default \"true\")", optional = true) })
-  public void install(String addToPath, String proxyHost, String proxyPort) {
+  public void install(String addToPath/* , String proxyHost, String proxyPort */) {
 
     Output out = getOutput();
     boolean addPath = Boolean.valueOf(addToPath.isEmpty() ? "true" : addToPath);
@@ -73,9 +72,9 @@ public class SystemCommands extends AbstractCommandModule {
         // Create .decvon dir in User $HOME directory
         devconDir.mkdir();
 
-        if (!proxyHost.isEmpty() && !proxyPort.isEmpty()) {
-          Utils.setProxy("devcon", proxyHost, proxyPort);
-        }
+        // if (!proxyHost.isEmpty() && !proxyPort.isEmpty()) {
+        // Utils.setProxy("devcon", proxyHost, proxyPort);
+        // }
 
         Pair<Version, String> downloadInfo = getDownloadData(Devcon.VERSION_URL);
         // TODO need change/fix??; file is downloaded again;
@@ -105,7 +104,7 @@ public class SystemCommands extends AbstractCommandModule {
         out.showMessage("Devcon is available as the command 'devcon' and its alias 'devon'.");
 
       } catch (ConnectException e) {
-        out.showError("Connection error. Please verify your proxy or use the -ProxyHost and -ProxyPort parameters");
+        out.showError("Connection error. Please verify your proxy or use the -proxyHost and -proxyPort parameters");
       } catch (JSONException | IOException e) {
         out.showError("while installing Devcon: %s", e.getMessage());
       }
@@ -119,7 +118,7 @@ public class SystemCommands extends AbstractCommandModule {
   @SuppressWarnings("javadoc")
   @Command(name = "update", description = "Update Devcon as installed on user´s system", proxyParams = true)
   @Parameters(values = {})
-  public void update(String proxyHost, String proxyPort) {
+  public void update(/* String proxyHost, String proxyPort */) {
 
     Output out = getOutput();
 
@@ -131,9 +130,9 @@ public class SystemCommands extends AbstractCommandModule {
 
       try {
 
-        if (!proxyHost.isEmpty() && !proxyPort.isEmpty()) {
-          Utils.setProxy("devcon", proxyHost, proxyPort);
-        }
+        // if (!proxyHost.isEmpty() && !proxyPort.isEmpty()) {
+        // Utils.setProxy("devcon", proxyHost, proxyPort);
+        // }
 
         Pair<Version, String> downloadInfo = getDownloadData(Devcon.VERSION_URL);
         if (downloadInfo.getLeft().compareTo(Devcon.VERSION_) > 0) {

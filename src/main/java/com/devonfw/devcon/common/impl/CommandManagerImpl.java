@@ -20,6 +20,7 @@ import com.devonfw.devcon.common.api.data.ContextType;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.Sentence;
 import com.devonfw.devcon.common.utils.ContextPathInfo;
+import com.devonfw.devcon.common.utils.Utils;
 import com.devonfw.devcon.input.Input;
 import com.devonfw.devcon.output.Output;
 import com.google.common.base.Optional;
@@ -181,6 +182,37 @@ public class CommandManagerImpl implements CommandManager {
 
     List<CommandParameter> givenParameters = completedResult.getRight();
 
+    if (cmd.getProxyParams()) {
+
+      int proxyHostIndex = 0;
+      int proxyPortIndex = 0;
+
+      for (CommandParameter commandParameter : givenParameters) {
+        if (commandParameter.getName().toLowerCase().equals("proxyhost")) {
+          proxyHostIndex = commandParameter.getPosition();
+        }
+        if (commandParameter.getName().toLowerCase().equals("proxyport")) {
+          proxyPortIndex = commandParameter.getPosition();
+        }
+      }
+
+      // proxyHost
+      CommandParameter proxyHostParam = givenParameters.get(proxyHostIndex);
+      String proxyHost = (proxyHostParam.getValue().isPresent()) ? proxyHostParam.getValue().get() : "";
+
+      // proxyPort
+      CommandParameter proxyPortParam = givenParameters.get(proxyPortIndex);
+      String proxyPort = (proxyPortParam.getValue().isPresent()) ? proxyPortParam.getValue().get() : "";
+
+      if (!proxyHost.isEmpty() && !proxyPort.isEmpty()) {
+        Utils.setProxy(proxyHost, proxyPort);
+      }
+
+      givenParameters.remove(proxyHostParam);
+      givenParameters.remove(proxyPortParam);
+
+    }
+
     // if context needs to be given; add projectinfo from last parameter --path (optional)
     // then remove it from the parameters to be passed to the command
     Optional<ProjectInfo> projectInfo;
@@ -198,7 +230,7 @@ public class CommandManagerImpl implements CommandManager {
       CommandParameter pathParam = givenParameters.get(pathIndex);
       String path = (pathParam.getValue().isPresent()) ? pathParam.getValue().get() : "";
       projectInfo = getContextPathInfo().getCombinedProjectRoot(path);
-      givenParameters.remove(pathIndex);
+      givenParameters.remove(pathParam);
 
     } else {
 
@@ -212,7 +244,7 @@ public class CommandManagerImpl implements CommandManager {
       CommandParameter pathParam = givenParameters.get(pathIndex);
       String path = (pathParam.getValue().isPresent()) ? pathParam.getValue().get() : "";
       projectInfo = getContextPathInfo().getProjectRoot(path);
-      givenParameters.remove(pathIndex);
+      givenParameters.remove(pathParam);
     }
 
     // optionally load missing values from config files

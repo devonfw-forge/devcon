@@ -13,7 +13,6 @@ import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.ContextType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
-import com.devonfw.devcon.common.utils.Utils;
 
 /**
  * This class contains command to clone oasp4j and devon repositories.
@@ -29,10 +28,6 @@ public class Github extends AbstractCommandModule {
 
   public static final String DOT_GIT = ".git";
 
-  // public static final String PROXY_HOST = "1.0.5.10";
-  //
-  // public static final int PROXY_PORT = 8080;
-
   /**
    * This command is to clone oasp4j repository.
    *
@@ -41,7 +36,7 @@ public class Github extends AbstractCommandModule {
    */
   @Command(name = "oasp4j", description = "This command clones oasp4j repository.", context = ContextType.NONE, proxyParams = true)
   @Parameters(values = { @Parameter(name = "path", description = "a location for the oasp4j download (Current directory if not provided)", optional = true) })
-  public void oasp4j(String path, String proxyHost, String proxyPort) throws Exception {
+  public void oasp4j(String path) throws Exception {
 
     path =
         path.isEmpty() ? this.contextPathInfo.getCurrentWorkingDirectory().toString() + File.separatorChar + "oasp4j"
@@ -51,10 +46,6 @@ public class Github extends AbstractCommandModule {
       File folder = new File(path);
       if (!folder.exists()) {
         folder.mkdirs();
-      }
-
-      if (!proxyHost.isEmpty() && !proxyPort.isEmpty()) {
-        Utils.setProxy("github", proxyHost, proxyPort);
       }
 
       getOutput().showMessage("Cloning from " + OASP4J_URL + " to " + path);
@@ -67,7 +58,7 @@ public class Github extends AbstractCommandModule {
         FileUtils.deleteDirectory(dotGit);
       }
       getOutput().showError(
-          "Connection error. Please verify your proxy or use the -ProxyHost and -ProxyPort parameters");
+          "Connection error. Please verify your proxy or use the -proxyHost and -proxyPort parameters");
       throw te;
     } catch (Exception e) {
       getOutput().showError("Getting the OASP4J code from Github: %s", e.getMessage());
@@ -89,8 +80,7 @@ public class Github extends AbstractCommandModule {
   @Parameter(name = "path", description = "a location for the devon download (Current directory if not provided)", optional = true),
   @Parameter(name = "username", description = "a user with permissions to download the Devon repository from Github."),
   @Parameter(name = "password", description = "the password for the user"), })
-  public void devoncode(String path, String username, String password, String proxyHost, String proxyPort)
-      throws Exception {
+  public void devoncode(String path, String username, String password) throws Exception {
 
     path =
         path.isEmpty() ? this.contextPathInfo.getCurrentWorkingDirectory().toString() + File.separatorChar + "devon"
@@ -103,10 +93,6 @@ public class Github extends AbstractCommandModule {
         folder.mkdirs();
       }
 
-      if (!proxyHost.isEmpty() && !proxyPort.isEmpty()) {
-        Utils.setProxy("github", proxyHost, proxyPort);
-      }
-
       Git result =
           Git.cloneRepository().setURI(DEVON_URL).setDirectory(folder)
               .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password)).call();
@@ -117,7 +103,7 @@ public class Github extends AbstractCommandModule {
         FileUtils.deleteDirectory(dotGit);
       }
       getOutput().showError(
-          "Connection error. Please verify your proxy or use the -ProxyHost and -ProxyPort parameters");
+          "Connection error. Please verify your proxy or use the -proxyHost and -proxyPort parameters");
       throw te;
     } catch (Exception e) {
       getOutput().showError("Getting the Devonfw code from Github: %s", e.getMessage());

@@ -110,8 +110,7 @@ public class Sencha extends AbstractCommandModule {
   @Parameter(name = "path", description = "a location for the workspace (Current directory if not provided)", optional = true),
   @Parameter(name = "username", description = "a Github user with permissions to access the Devon4Sencha repo"),
   @Parameter(name = "password", description = "the password of the user") })
-  public void workspace(String path, String username, String password, String proxyHost, String proxyPort)
-      throws Exception {
+  public void workspace(String path, String username, String password) throws Exception {
 
     path =
         path.isEmpty() ? this.contextPathInfo.getCurrentWorkingDirectory().toString() + File.separatorChar
@@ -125,10 +124,6 @@ public class Sencha extends AbstractCommandModule {
 
       getOutput().showMessage("Cloning from " + Constants.SENCHA_REPO_URL + " to " + path);
 
-      if (!proxyHost.isEmpty() && !proxyPort.isEmpty()) {
-        Utils.setProxy("github", proxyHost, proxyPort);
-      }
-
       Git result =
           Git.cloneRepository().setURI(Constants.SENCHA_REPO_URL).setDirectory(folder)
               .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password)).call();
@@ -140,7 +135,7 @@ public class Sencha extends AbstractCommandModule {
         FileUtils.deleteDirectory(dotGit);
       }
       getOutput().showError(
-          "Connection error. Please verify your proxy or use the -ProxyHost and -ProxyPort parameters");
+          "Connection error. Please verify your proxy or use the -proxyHost and -proxyPort parameters");
       throw te;
 
     } catch (Exception e) {

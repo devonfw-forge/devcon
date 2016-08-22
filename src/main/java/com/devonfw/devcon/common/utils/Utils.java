@@ -267,7 +267,7 @@ public class Utils {
 
   }
 
-  public static void setProxy(final String keyword, final String host, final String port) {
+  public static void setProxy(final String host, final String port) {
 
     ProxySelector.setDefault(new ProxySelector() {
       final ProxySelector delegate = ProxySelector.getDefault();
@@ -275,14 +275,8 @@ public class Utils {
       @Override
       public List<Proxy> select(URI uri) {
 
-        if (uri.toString().contains(keyword) && uri.toString().contains("https")) {
-          return Arrays.asList(new Proxy(Type.HTTP, InetSocketAddress.createUnresolved(host, Integer.parseInt(port))));
-        }
-        if (uri.toString().contains(keyword) && uri.toString().contains("http")) {
-          return Arrays.asList(new Proxy(Type.HTTP, InetSocketAddress.createUnresolved(host, Integer.parseInt(port))));
-        }
+        return Arrays.asList(new Proxy(Type.HTTP, InetSocketAddress.createUnresolved(host, Integer.parseInt(port))));
 
-        return this.delegate == null ? Arrays.asList(Proxy.NO_PROXY) : this.delegate.select(uri);
       }
 
       @Override
