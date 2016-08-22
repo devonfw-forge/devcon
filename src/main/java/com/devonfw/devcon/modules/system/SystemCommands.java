@@ -96,12 +96,13 @@ public class SystemCommands extends AbstractCommandModule {
         devonCmd.write(source);
         devonCmd.close();
 
-        out.showMessage("Intallation  successful!");
+        out.showMessage("Installation  successful!");
         if (!SystemUtils.IS_OS_WINDOWS) {
           out.showMessage("You´ll need to add the %s folder to your $PATH env variable.", devconPath.toString());
         }
-        out.showMessage("The application has been installed. You need to close this console and open another one.");
-        out.showMessage("Devcon is available as the command 'devcon' and its alias 'devon'.");
+        out.showMessage("The application has been installed.");
+        out.showMessage("You need to restart your session or reboot your PC before start using Devcon.");
+        out.showMessage("After that Devcon will be available as the command 'devcon' and its alias 'devon'.");
 
       } catch (ConnectException e) {
         out.showError("Connection error. Please verify your proxy or use the -proxyHost and -proxyPort parameters");
@@ -124,6 +125,23 @@ public class SystemCommands extends AbstractCommandModule {
 
     Path devconPath = getContextPathInfo().getHomeDirectory().resolve(DOT_DEVCON_DIR);
     File devconDir = devconPath.toFile();
+
+    // if devconDir is not in the 'default' user's Home directory we will look for it in other root drives
+    if (!devconDir.exists()) {
+      File[] roots = File.listRoots();
+      for (int i = 0; i < roots.length; i++) {
+        String drive = devconDir.getAbsolutePath().substring(0, 1);
+        File devconDirInOtherDrive =
+            new File(devconDir.getAbsolutePath().replace(drive, roots[i].toString().split(":")[0]));
+        if (devconDirInOtherDrive.exists()) {
+          devconPath = devconDirInOtherDrive.toPath();
+          break;
+        }
+      }
+    }
+
+    getOutput().showMessage("Devcon found in: " + devconPath.toString());
+
     File devconFile = devconPath.resolve(DEVCON_JAR_FILE).toFile();
 
     if (devconFile.exists()) {
