@@ -73,12 +73,13 @@ public class Oasp4j extends AbstractCommandModule {
   public void create(String serverpath, String servername, String packagename, String groupid, String version)
       throws IOException {
 
-    String command = new StringBuffer("cmd /c mvn -DarchetypeVersion=").append(Constants.OASP_TEMPLATE_VERSION)
-        .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
-        .append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=").append(Constants.OASP_ARTIFACT_ID)
-        .append(" archetype:generate -DgroupId=").append(groupid).append(" -DartifactId=").append(servername)
-        .append(" -Dversion=").append(version).append(" -Dpackage=").append(packagename)
-        .append(" -DinteractiveMode=false").toString();
+    String command =
+        new StringBuffer("cmd /c mvn -DarchetypeVersion=").append(Constants.OASP_TEMPLATE_VERSION)
+            .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
+            .append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
+            .append(Constants.OASP_ARTIFACT_ID).append(" archetype:generate -DgroupId=").append(groupid)
+            .append(" -DartifactId=").append(servername).append(" -Dversion=").append(version).append(" -Dpackage=")
+            .append(packagename).append(" -DinteractiveMode=false").toString();
 
     if (!SystemUtils.IS_OS_WINDOWS) {
       getOutput().showMessage("This task is currently only supported on Windows");
@@ -128,7 +129,7 @@ public class Oasp4j extends AbstractCommandModule {
 
       } catch (Exception e) {
         e.printStackTrace();
-        getOutput().showError("Errr creating workspace: " + e.getMessage());
+        getOutput().showError("Error creating workspace: " + e.getMessage());
       }
 
     } else {
@@ -147,8 +148,7 @@ public class Oasp4j extends AbstractCommandModule {
    * @param port Server will be started at this port
    */
   @Command(name = "run", description = "runs application from embedded tomcat", context = ContextType.PROJECT)
-  @Parameters(values = {
-  @Parameter(name = "port", description = "Port to start Spring boot app (port 8081 by default)", optional = true) })
+  @Parameters(values = { @Parameter(name = "port", description = "Port to start Spring boot app (port 8081 by default)", optional = true) })
   public void run(String port) {
 
     if (!this.projectInfo.isPresent()) {
@@ -223,8 +223,7 @@ public class Oasp4j extends AbstractCommandModule {
    * @param path server project path
    */
   @Command(name = "deploy", description = "This command will deploy the server project on tomcat", context = ContextType.PROJECT)
-  @Parameters(values = {
-  @Parameter(name = "tomcatpath", description = "Path to tomcat folder (if not provided and the project is in a Devonfw distribution the default software/tomcat folder will be used)", optional = true) })
+  @Parameters(values = { @Parameter(name = "tomcatpath", description = "Path to tomcat folder (if not provided and the project is in a Devonfw distribution the default software/tomcat folder will be used)", optional = true) })
   public void deploy(String tomcatpath) {
 
     String path;
@@ -250,9 +249,9 @@ public class Oasp4j extends AbstractCommandModule {
 
       if (appName.isPresent()) {
 
-        tomcatpath = tomcatpath.isEmpty()
-            ? distInfo.get().getPath().toFile().toString() + File.separator + "software" + File.separator + "tomcat"
-            : tomcatpath;
+        tomcatpath =
+            tomcatpath.isEmpty() ? distInfo.get().getPath().toFile().toString() + File.separator + "software"
+                + File.separator + "tomcat" : tomcatpath;
 
         File tomcatDir = new File(tomcatpath);
 
@@ -321,13 +320,13 @@ public class Oasp4j extends AbstractCommandModule {
                     int tomcatResult = tomcatProcess.waitFor();
 
                     if (tomcatResult == 0) {
-                      getOutput()
-                          .showMessage("##########################################################################");
-                      getOutput()
-                          .showMessage("After Tomcat finishes the loading process the app should be available in: ");
+                      getOutput().showMessage(
+                          "##########################################################################");
+                      getOutput().showMessage(
+                          "After Tomcat finishes the loading process the app should be available in: ");
                       getOutput().showMessage("localhost:8080/" + warFile.getName().replace(".war", ""));
-                      getOutput()
-                          .showMessage("##########################################################################");
+                      getOutput().showMessage(
+                          "##########################################################################");
                     }
 
                   } else {

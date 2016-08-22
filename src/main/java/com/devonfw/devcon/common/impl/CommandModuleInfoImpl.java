@@ -25,10 +25,12 @@ public class CommandModuleInfoImpl implements CommandModuleInfo {
   private HashMap<String, Command> commands;
 
   public CommandModuleInfoImpl() {
+
     this.commands = new HashMap<>();
   }
 
   public CommandModuleInfoImpl(String name, String description, boolean isVisible, Class<?> moduleClass) {
+
     this();
     this.name = name;
     this.description = description;
@@ -82,7 +84,8 @@ public class CommandModuleInfoImpl implements CommandModuleInfo {
           com.devonfw.devcon.common.api.annotations.Command cmd =
               (com.devonfw.devcon.common.api.annotations.Command) annotation;
           Command cmdImpl =
-              new CommandImpl(cmd.name(), cmd.description(), cmd.context(), method, moduleName, moduleClass);
+              new CommandImpl(cmd.name(), cmd.description(), cmd.context(), cmd.proxyParams(), method, moduleName,
+                  moduleClass);
           this.commands.put(cmd.name(), cmdImpl);
         }
       }

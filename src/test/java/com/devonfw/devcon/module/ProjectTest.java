@@ -105,9 +105,10 @@ public class ProjectTest {
     this.clientPath = this.serverPath;
     this.clientType = "oasp4js";
 
-    String[] args = { "project", "create", "-servername", this.serverName, "-distributionpath", this.serverPath,
-    "-packagename", this.packageName, "-groupid", this.groupId, "-version", this.version, "-clientname",
-    this.clientName, "-clientpath", this.clientPath, "-clienttype", this.clientType };
+    String[] args =
+        { "project", "create", "-servername", this.serverName, "-combinedprojectpath", this.serverPath, "-packagename",
+        this.packageName, "-groupid", this.groupId, "-version", this.version, "-clientname", this.clientName,
+        "-clientpath", this.clientPath, "-clienttype", this.clientType };
 
     assertTrue(this.inputMgr.parse(args));
   }

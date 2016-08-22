@@ -36,4 +36,11 @@ public @interface Command {
    */
   ContextType context() default ContextType.NONE;
 
+  /**
+   * Proxy configuration associated to the command
+   *
+   * @return if there are Proxy parameters associated to the command execution
+   */
+  boolean proxyParams() default false;
+
 }
