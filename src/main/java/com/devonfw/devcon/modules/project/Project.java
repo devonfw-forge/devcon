@@ -48,7 +48,7 @@ import com.google.common.base.Optional;
  *
  * @author pparrado
  */
-@CmdModuleRegistry(name = "project", description = "Module to automate tasks related to the devon projects (server + client)", visible = false)
+@CmdModuleRegistry(name = "project", description = "Module to automate tasks related to the devon projects (server + client)")
 public class Project extends AbstractCommandModule {
 
   private final String DEVON4SENCHA = "devon4sencha";
