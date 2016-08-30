@@ -88,7 +88,8 @@ public class Dist extends AbstractCommandModule {
    * @throws Exception
    */
   @Command(name = "init", description = "This command initialized a newly downloaded distribution", context = ContextType.NONE)
-  @Parameters(values = { @Parameter(name = "path", description = "location of the Devon distribution (current dir if not given)", optional = true) })
+  @Parameters(values = {
+  @Parameter(name = "path", description = "location of the Devon distribution (current dir if not given)", optional = true) })
   public void init(String path) throws Exception {
 
     String frsFileId = "";
@@ -136,8 +137,7 @@ public class Dist extends AbstractCommandModule {
    * @param svnpass the password of the user with permissions in the svn repository
    */
   @Command(name = "s2", description = "Initializes a Devon distribution for use with Shared Services.")
-  @Parameters(values = {
-  @Parameter(name = "projectname", description = "the name for the new project"),
+  @Parameters(values = { @Parameter(name = "projectname", description = "the name for the new project"),
   @Parameter(name = "user", description = "the userId for Artifactory provided by S2 for the project"),
   @Parameter(name = "pass", description = "the password for Artifactory"),
   @Parameter(name = "engagementname", description = "the name of the repository for the engagement"),
@@ -160,8 +160,8 @@ public class Dist extends AbstractCommandModule {
           String ciaas_value = configureForCiaas ? "ciaas" : "";
           int initResult = s2.init(distPath, user, pass, engagementname, ciaas_value);
           if (initResult > 0)
-            this.output
-                .showMessage("The configuration of the conf/settings.xml file could not be completed successfully. Please verify it");
+            this.output.showMessage(
+                "The configuration of the conf/settings.xml file could not be completed successfully. Please verify it");
 
           int createResult = s2.create(distPath, projectname, svnurl, svnuser, svnpass);
           if (createResult > 0)
@@ -180,4 +180,29 @@ public class Dist extends AbstractCommandModule {
     }
   }
 
+  /**
+   * This command provides the user with basic information about the Devon distribution
+   *
+   * @param path location to download the Devon distribution
+   *
+   */
+  @Command(name = "info", description = "Basic info about the distribution")
+  @Parameters(values = {
+  @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true) })
+  public void info(String path) {
+
+    try {
+      Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot(path);
+      if (distInfo.isPresent()) {
+        DistributionInfo info = distInfo.get();
+
+        this.output.showMessage("Distro '%s', version: '%s', present in: %s", info.getDistributionType().name(),
+            info.getVersion().toString(), info.getPath().toString());
+      } else {
+        this.output.showMessage("Seems that you are not in a Devon distribution.");
+      }
+    } catch (Exception e) {
+      this.output.showError(e.getMessage());
+    }
+  }
 }

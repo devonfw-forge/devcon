@@ -107,7 +107,11 @@ public class ContextPathInfo {
    */
   public Optional<DistributionInfo> getDistributionRoot(String path) {
 
-    return getDistributionRoot(getPath(path));
+    if ((path == null) || path.isEmpty()) {
+      return getDistributionRoot();
+    } else {
+      return getDistributionRoot(getPath(path));
+    }
   }
 
   /**
