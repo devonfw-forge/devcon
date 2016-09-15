@@ -109,4 +109,13 @@ public class Foo extends AbstractCommandModule {
 
   }
 
+  @Command(name = "generateError", description = "This command generated an error")
+  @SuppressWarnings("javadoc")
+  public String generateError() throws Exception {
+
+    // throw new Exception("BOOM!!!");
+    throw new Error("BOOM!!!");
+
+  }
+
 }

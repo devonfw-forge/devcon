@@ -13,5 +13,10 @@
     "opt":"v",
     "longOpt":"version",
     "description":"show devcon version"
+   },
+   {
+    "opt":"s",
+    "longOpt":"stacktrace",
+    "description":"show (if relevant) stack-trace when errors occur"
    }
 ]

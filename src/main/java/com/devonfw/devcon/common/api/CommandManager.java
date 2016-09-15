@@ -1,6 +1,5 @@
 package com.devonfw.devcon.common.api;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -28,8 +27,7 @@ public interface CommandManager {
    * @return Result of execution of command
    */
 
-  Pair<CommandResult, Object> execCommand(String moduleName, String commandName, String... params)
-      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException;
+  Pair<CommandResult, Object> execCommand(String moduleName, String commandName, String... params);
 
   /**
    * Execute command with command line input
@@ -38,7 +36,7 @@ public interface CommandManager {
    * @return
    * @throws Exception
    */
-  Pair<CommandResult, Object> execCmdLine(Sentence sentence) throws Exception;
+  Pair<CommandResult, Object> execCmdLine(Sentence sentence);
 
   /**
    * @return output

@@ -63,6 +63,10 @@ public class ConsoleInputManager {
         System.exit(0);
       }
 
+      if (cmd.hasOption("s")) {
+        Devcon.SHOW_STACK_TRACE = true;
+      }
+
       if (cmd.hasOption("p")) {
         // obtain user input from interactively displaying all params screen and gettng data from user
         sentence = prompUserForParams(cmd);
@@ -78,13 +82,31 @@ public class ConsoleInputManager {
 
       Pair<CommandResult, Object> result = this.commandManager.execCmdLine(sentence);
 
+      if (result.getLeft() == CommandResult.FAILURE) {
+
+        Object ex = result.getRight();
+        if ((ex != null) && (ex instanceof Throwable)) {
+
+          Throwable err = (Throwable) ex;
+          this.output.showError("An error occurred. Message: %s", err.getMessage());
+          if (Devcon.SHOW_STACK_TRACE) {
+            this.output.showError("Stacktrace:");
+            err.printStackTrace();
+          }
+        } else {
+          this.output.showError("Unexpected Error without error information");
+        }
+        return false;
+      }
+
       return ((result.getLeft() == CommandResult.OK) || (result.getLeft() == CommandResult.HELP_SHOWN));
 
-    } catch (Exception e) {
-      if (e.getMessage() != null) {
-        this.output.showError("An error occurred. Message: %s", e.getMessage());
-      } else {
-        this.output.showError("An error occurred.");
+    } catch (Throwable e) {
+
+      this.output.showError("An unexcpected error occurred");
+      if (Devcon.SHOW_STACK_TRACE) {
+        this.output.showError("Stacktrace:");
+        e.printStackTrace();
       }
       return false;
     }

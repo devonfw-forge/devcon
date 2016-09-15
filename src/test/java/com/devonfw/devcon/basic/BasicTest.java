@@ -11,6 +11,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.reflections.Reflections;
@@ -19,12 +21,17 @@ import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 
+import com.devonfw.devcon.common.CommandResult;
 import com.devonfw.devcon.common.api.Command;
+import com.devonfw.devcon.common.api.CommandManager;
 import com.devonfw.devcon.common.api.CommandModuleInfo;
 import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.data.CommandParameter;
+import com.devonfw.devcon.common.impl.CommandManagerImpl;
 import com.devonfw.devcon.common.impl.CommandRegistryImpl;
+import com.devonfw.devcon.input.ConsoleInput;
+import com.devonfw.devcon.output.ConsoleOutput;
 
 /**
  * Tests basic application functionalities.
@@ -35,6 +42,8 @@ public class BasicTest {
   Reflections reflections;
 
   CommandRegistry registry;
+
+  CommandManager cmdMgr;
 
   @SuppressWarnings("javadoc")
   @Before
@@ -47,6 +56,8 @@ public class BasicTest {
         new TypeAnnotationsScanner(), new MethodAnnotationsScanner());
 
     this.registry = new CommandRegistryImpl("com.devonfw.devcon.modules.*");
+    this.cmdMgr = new CommandManagerImpl(this.registry, new ConsoleInput(), new ConsoleOutput());
+
   }
 
   /**
@@ -173,4 +184,16 @@ public class BasicTest {
 
   }
 
+  @Test
+  public void testExceptionHandling() {
+
+    // given
+    Pair<CommandResult, Object> result = this.cmdMgr.execCommand("foo", "generateError");
+
+    // then
+    Assert.assertNotNull(result.getRight());
+    Assert.assertEquals(CommandResult.FAILURE, result.getLeft());
+    Assert.assertEquals("BOOM!!!", ((Error) result.getRight()).getMessage());
+
+  }
 }
