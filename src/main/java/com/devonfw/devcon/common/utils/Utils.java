@@ -13,6 +13,7 @@ import java.net.Proxy.Type;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.file.Path;
@@ -38,6 +39,17 @@ public class Utils {
   private static final String DEVON_JSON = "devon.json";
 
   private static final String OPTIONAL = "optionalParameters";
+
+  public static File getApplicationPath() {
+
+    try {
+      return new File(Devcon.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+    } catch (URISyntaxException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return null;
+    }
+  }
 
   public static <T, U> Pair<List<T>, List<U>> unzipList(List<Pair<T, U>> lst) {
 
@@ -167,19 +179,19 @@ public class Utils {
    */
   /*
    * public static void cloneRepository(String repoUrl, String cloneDir, String gitDir) throws Exception {
-   * 
+   *
    * try {
-   * 
+   *
    * if (gitDir == null || gitDir.isEmpty()) { gitDir = Utils.getGITBinPath(); } ProcessBuilder processBuilder = new
    * ProcessBuilder(gitDir + Constants.GIT_EXE, Constants.CLONE_OPTION, repoUrl, cloneDir); processBuilder.directory(new
    * File(gitDir));
-   * 
+   *
    * Process process = processBuilder.start();
-   * 
+   *
    * final InputStream isError = process.getErrorStream(); final InputStream isOutput = process.getInputStream();
-   * 
+   *
    * processErrorAndOutPut(isError, isOutput);
-   * 
+   *
    * // Wait to get exit value try { process.waitFor(); } catch (InterruptedException e) { throw e; } } catch (Exception
    * e) { throw e; } }
    */
@@ -243,8 +255,8 @@ public class Utils {
         FileUtils.writeStringToFile(settingsfile, content, "UTF-8");
       }
     } catch (Exception e) {
-      throw new Exception("An error occurred while adding the devon.json file. You may need to add it manually. "
-          + e.getMessage());
+      throw new Exception(
+          "An error occurred while adding the devon.json file. You may need to add it manually. " + e.getMessage());
     }
 
   }
@@ -254,15 +266,14 @@ public class Utils {
     try {
       File appFolder = pathToApp.toFile();
       if (appFolder.exists()) {
-        String content =
-            "{\"version\": \"" + Devcon.DEVON_DEFAULT_VERSION + "\",\n\"type\":\"COMBINED\",\n\"projects\":[\""
-                + serverPath + "\", \"" + clientPath + "\"]\n}";
+        String content = "{\"version\": \"" + Devcon.DEVON_DEFAULT_VERSION
+            + "\",\n\"type\":\"COMBINED\",\n\"projects\":[\"" + serverPath + "\", \"" + clientPath + "\"]\n}";
         File settingsfile = pathToApp.resolve("devon.json").toFile();
         FileUtils.writeStringToFile(settingsfile, content, "UTF-8");
       }
     } catch (Exception e) {
-      throw new Exception("An error occurred while adding the devon.json file. You may need to add it manually. "
-          + e.getMessage());
+      throw new Exception(
+          "An error occurred while adding the devon.json file. You may need to add it manually. " + e.getMessage());
     }
 
   }
