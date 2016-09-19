@@ -11,6 +11,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -24,6 +25,7 @@ import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.impl.utils.WindowsReqistry;
+import com.devonfw.devcon.common.utils.Utils;
 import com.devonfw.devcon.output.Output;
 import com.github.zafarkhaja.semver.Version;
 
@@ -54,66 +56,69 @@ public class SystemCommands extends AbstractCommandModule {
 
   @SuppressWarnings("javadoc")
   @Command(name = "install", description = "Install Devcon on user´s HOME folder or alternative path", proxyParams = true)
-  @Parameters(values = { @Parameter(name = "addToPath", description = "Add to %PATH% (by default \"true\")", optional = true) })
+  @Parameters(values = {
+  @Parameter(name = "addToPath", description = "Add to %PATH% (by default \"true\")", optional = true) })
   public void install(String addToPath/* , String proxyHost, String proxyPort */) {
 
     Output out = getOutput();
-    boolean addPath = Boolean.valueOf(addToPath.isEmpty() ? "true" : addToPath);
+    try {
 
-    Path devconPath = getContextPathInfo().getHomeDirectory().resolve(DOT_DEVCON_DIR);
-    File devconDir = devconPath.toFile();
-    File devconFile = devconPath.resolve(DEVCON_JAR_FILE).toFile();
+      boolean addPath = Boolean.valueOf(addToPath.isEmpty() ? "true" : addToPath);
 
-    if (!devconFile.exists()) {
+      Path devconPath = getContextPathInfo().getHomeDirectory().resolve(DOT_DEVCON_DIR);
+      File devconDir = devconPath.toFile();
+      File devconFile = devconPath.resolve(DEVCON_JAR_FILE).toFile();
 
-      getOutput().showMessage("Installing...");
-      try {
+      if (!devconFile.exists()) {
 
-        // Create .decvon dir in User $HOME directory
-        devconDir.mkdir();
+        getOutput().showMessage("Installing...");
+        try {
 
-        // if (!proxyHost.isEmpty() && !proxyPort.isEmpty()) {
-        // Utils.setProxy("devcon", proxyHost, proxyPort);
-        // }
+          // Create .decvon dir in User $HOME directory
+          devconDir.mkdir();
 
-        Pair<Version, String> downloadInfo = getDownloadData(Devcon.VERSION_URL);
-        // TODO need change/fix??; file is downloaded again;
-        updating(downloadInfo.getRight(), devconFile);
+          File devonJar = Utils.getApplicationPath();
+          FileUtils.copyFile(devonJar, devconFile);
 
-        if (addPath) {
-          updatePath(devconDir.toString());
+          if (addPath) {
+            updatePath(devconDir.toString());
+          }
+
+          OutputStreamWriter devconCmd =
+              new OutputStreamWriter(new FileOutputStream(devconPath.resolve("devcon.cmd").toFile()));
+          OutputStreamWriter devonCmd =
+              new OutputStreamWriter(new FileOutputStream(devconPath.resolve("devon.cmd").toFile()));
+
+          String source = String.format("@echo off\n" + "java -jar %s %%*\n", devconFile.toString());
+
+          devconCmd.write(source);
+          devconCmd.close();
+          devonCmd.write(source);
+          devonCmd.close();
+
+          out.showMessage("Installation  successful!");
+          if (!SystemUtils.IS_OS_WINDOWS) {
+            out.showMessage("You´ll need to add the %s folder to your $PATH env variable.", devconPath.toString());
+          }
+          out.showMessage("The application has been installed.");
+          out.showMessage("You need to restart your session or reboot your PC before start using Devcon.");
+          out.showMessage("After that Devcon will be available as the command 'devcon' and its alias 'devon'.");
+
+        } catch (ConnectException e) {
+          out.showError("Connection error. Please verify your proxy or use the -proxyHost and -proxyPort parameters");
+        } catch (JSONException | IOException e) {
+          out.showError("while installing Devcon: %s", e.getMessage());
         }
+      } else {
 
-        OutputStreamWriter devconCmd =
-            new OutputStreamWriter(new FileOutputStream(devconPath.resolve("devcon.cmd").toFile()));
-        OutputStreamWriter devonCmd =
-            new OutputStreamWriter(new FileOutputStream(devconPath.resolve("devon.cmd").toFile()));
-
-        String source = String.format("@echo off\n" + "java -jar %s %%*\n", devconFile.toString());
-
-        devconCmd.write(source);
-        devconCmd.close();
-        devonCmd.write(source);
-        devonCmd.close();
-
-        out.showMessage("Installation  successful!");
-        if (!SystemUtils.IS_OS_WINDOWS) {
-          out.showMessage("You´ll need to add the %s folder to your $PATH env variable.", devconPath.toString());
-        }
-        out.showMessage("The application has been installed.");
-        out.showMessage("You need to restart your session or reboot your PC before start using Devcon.");
-        out.showMessage("After that Devcon will be available as the command 'devcon' and its alias 'devon'.");
-
-      } catch (ConnectException e) {
-        out.showError("Connection error. Please verify your proxy or use the -proxyHost and -proxyPort parameters");
-      } catch (JSONException | IOException e) {
-        out.showError("while installing Devcon: %s", e.getMessage());
+        out.showError("Devcon is already installed!");
       }
-    } else {
+    } catch (Throwable err) {
 
-      out.showError("Devcon is already installed!");
+      out.showError("Unexpected error: %s", err.getMessage());
+      // TODO show stacktrace
+
     }
-
   }
 
   @SuppressWarnings("javadoc")
@@ -155,7 +160,7 @@ public class SystemCommands extends AbstractCommandModule {
         Pair<Version, String> downloadInfo = getDownloadData(Devcon.VERSION_URL);
         if (downloadInfo.getLeft().compareTo(Devcon.VERSION_) > 0) {
 
-          updating(downloadInfo.getRight(), devconFile);
+          update(downloadInfo.getRight(), devconFile);
           out.showMessage("Update successful!");
 
           // The apps own jar file has been overwritten by the updating method
@@ -207,7 +212,7 @@ public class SystemCommands extends AbstractCommandModule {
     return Pair.of(version, url_);
   }
 
-  private void updating(String url, File devconFile) throws IOException {
+  private void update(String url, File devconFile) throws IOException {
 
     InputStream in_ = new URL(url).openStream();
     FileOutputStream outFile = new FileOutputStream(devconFile);
