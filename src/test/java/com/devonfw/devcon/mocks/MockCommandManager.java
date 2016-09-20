@@ -1,6 +1,5 @@
 package com.devonfw.devcon.mocks;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,14 +52,13 @@ public class MockCommandManager implements CommandManager {
   }
 
   @Override
-  public Pair<CommandResult, Object> execCommand(String moduleName, String commandName, String... params)
-      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+  public Pair<CommandResult, Object> execCommand(String moduleName, String commandName, String... params) {
 
     return Pair.of(CommandResult.OK, (Object) "");
   }
 
   @Override
-  public Pair<CommandResult, Object> execCmdLine(Sentence sentence) throws Exception {
+  public Pair<CommandResult, Object> execCmdLine(Sentence sentence) {
 
     this.sentence = sentence;
     return Pair.of(CommandResult.OK, (Object) "");

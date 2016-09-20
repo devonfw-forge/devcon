@@ -2,6 +2,7 @@ package com.devonfw.devcon.common.impl;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -74,8 +75,7 @@ public class CommandManagerImpl implements CommandManager {
    */
 
   @Override
-  public Pair<CommandResult, Object> execCommand(String moduleName, String commandName, String... params)
-      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+  public Pair<CommandResult, Object> execCommand(String moduleName, String commandName, String... params) {
 
     Optional<CommandModuleInfo> module = this.registry.getCommandModule(moduleName);
     if (module.isPresent()) {
@@ -86,13 +86,12 @@ public class CommandManagerImpl implements CommandManager {
         Optional<ProjectInfo> projectInfo = Optional.absent();
         cmd.injectEnvironment(this.registry, this.input, this.output, this.contextPathInfo, projectInfo);
 
-        Object result = cmd.exec(params);
-        return Pair.of(CommandResult.OK, result);
+        return execCmd(cmd, Arrays.asList(params));
 
       } else
 
-        this.output.showError("The command " + commandName + " is not recognized as valid command of the " + moduleName
-            + " module");
+        this.output.showError(
+            "The command " + commandName + " is not recognized as valid command of the " + moduleName + " module");
       return Pair.of(CommandResult.UNKNOWN_COMMAND, (Object) (moduleName + " " + commandName));
 
     } else {
@@ -109,7 +108,7 @@ public class CommandManagerImpl implements CommandManager {
    * @throws Exception
    */
   @Override
-  public Pair<CommandResult, Object> execCmdLine(Sentence sentence) throws Exception {
+  public Pair<CommandResult, Object> execCmdLine(Sentence sentence) {
 
     Optional<CommandModuleInfo> module = this.registry.getCommandModule(sentence.getModuleName());
 
@@ -158,8 +157,7 @@ public class CommandManagerImpl implements CommandManager {
    * @throws IllegalAccessException
    * @throws InvocationTargetException
    */
-  private Pair<CommandResult, Object> execCommand(Command cmd, Sentence sentence) throws InstantiationException,
-      IllegalAccessException, InvocationTargetException {
+  private Pair<CommandResult, Object> execCommand(Command cmd, Sentence sentence) {
 
     if (sentence.isHelpRequested()) {
       this.output.showCommandHelp(cmd);
@@ -252,9 +250,28 @@ public class CommandManagerImpl implements CommandManager {
 
     // load environment api for command
     cmd.injectEnvironment(this.registry, this.input, this.output, new ContextPathInfo(), projectInfo);
-    Object result = cmd.exec(completedparameters);
+    return execCmd(cmd, completedparameters);
+  }
 
-    return Pair.of(CommandResult.OK, result);
+  /**
+   * @param cmd
+   * @param parameters
+   * @return
+   */
+  private Pair<CommandResult, Object> execCmd(Command cmd, List<String> parameters) {
+
+    try {
+      Object result = cmd.exec(parameters);
+      return Pair.of(CommandResult.OK, result);
+    } catch (Throwable ex) {
+      // get original exception from java.lang.reflect.InvocationTargetException
+      Throwable cause = ex.getCause();
+      if (cause != null) {
+        return Pair.of(CommandResult.FAILURE, (Object) cause);
+      } else {
+        return Pair.of(CommandResult.FAILURE, (Object) ex);
+      }
+    }
   }
 
   /**

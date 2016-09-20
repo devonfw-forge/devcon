@@ -38,6 +38,9 @@ public class Devcon {
   public static final boolean IN_EXEC_JAR =
       ClassLoader.getSystemClassLoader().getResource("resources/execjar.txt") != null;
 
+  // Show stack-trace when errors are thrown by the command
+  public static boolean SHOW_STACK_TRACE = false;
+
   /**
    * @param args command line arguments
    */
