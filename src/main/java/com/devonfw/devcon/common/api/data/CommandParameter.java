@@ -1,5 +1,6 @@
 package com.devonfw.devcon.common.api.data;
 
+import com.devonfw.devcon.common.api.annotations.InputType;
 import com.google.common.base.Optional;
 
 /**
@@ -17,7 +18,22 @@ public class CommandParameter {
 
   private boolean optional;
 
-  private Optional<String> value;;
+  private Optional<String> value;
+
+  private ParameterInputType inputType;
+
+  public CommandParameter(String name, String description, int position, boolean isoptional, InputType inputType) {
+
+    this(name, description, position, isoptional);
+    this.inputType = new ParameterInputType(inputType.name(), inputType.values());
+  }
+
+  public CommandParameter(String name, String description, int position, boolean isoptional,
+      ParameterInputType inputType) {
+
+    this(name, description, position, isoptional);
+    this.inputType = inputType;
+  }
 
   public CommandParameter(String name, String description, int position, boolean isoptional) {
 
@@ -29,7 +45,7 @@ public class CommandParameter {
   }
 
   public CommandParameter(CommandParameter other) {
-    this(other.name, other.description, other.position, other.optional);
+    this(other.name, other.description, other.position, other.optional, other.inputType);
   }
 
   public static CommandParameter copy(CommandParameter other) {
@@ -83,5 +99,13 @@ public class CommandParameter {
   public void setValue(String value) {
 
     this.value = Optional.of(value);
+  }
+
+  /**
+   * @return inputType
+   */
+  public ParameterInputType getInputType() {
+
+    return this.inputType;
   }
 }

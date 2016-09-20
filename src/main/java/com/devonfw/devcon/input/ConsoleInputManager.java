@@ -58,6 +58,14 @@ public class ConsoleInputManager {
         System.exit(0);
       }
 
+      if (cmd.hasOption("g")) {
+
+        GUIAppManager.main(this.registry, this.commandManager, args);
+        // Exit after return from GUI
+        System.exit(0);
+
+      }
+
       if (cmd.hasOption("p") && (cmd.hasOption("h"))) {
         this.output.showError("Cannot specifiy -h and -p at the same time");
         System.exit(0);

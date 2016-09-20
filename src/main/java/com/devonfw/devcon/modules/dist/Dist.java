@@ -6,11 +6,13 @@ import java.nio.file.Path;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
+import com.devonfw.devcon.common.api.annotations.InputType;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.ContextType;
 import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.DistributionType;
+import com.devonfw.devcon.common.api.data.InputTypeNames;
 import com.devonfw.devcon.common.exception.InvalidConfigurationStateException;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Constants;
@@ -36,10 +38,11 @@ public class Dist extends AbstractCommandModule {
    */
   @Command(name = "install", description = "This command downloads the distribution", context = ContextType.NONE)
   @Parameters(values = {
-  @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true),
-  @Parameter(name = "type", description = "the type of the distribution, the options are: \n 'oaspide' to download OASP IDE\n 'devondist' to download Devon IP IDE", optional = true),
+  @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
+  @Parameter(name = "type", description = "the type of the distribution, the options are: \n 'oaspide' to download OASP IDE\n 'devondist' to download Devon IP IDE", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
+  "oaspide", "devondist" })),
   @Parameter(name = "user", description = "a user with permissions to download the Devon distribution"),
-  @Parameter(name = "password", description = "the password related to the user with permissions to download the Devon distribution") })
+  @Parameter(name = "password", description = "the password related to the user with permissions to download the Devon distribution", inputType = @InputType(name = InputTypeNames.PASSWORD)) })
   public void install(String path, String type, String user, String password) throws Exception {
 
     String frsFileId = "";
@@ -89,7 +92,7 @@ public class Dist extends AbstractCommandModule {
    */
   @Command(name = "init", description = "This command initialized a newly downloaded distribution", context = ContextType.NONE)
   @Parameters(values = {
-  @Parameter(name = "path", description = "location of the Devon distribution (current dir if not given)", optional = true) })
+  @Parameter(name = "path", description = "location of the Devon distribution (current dir if not given)", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
   public void init(String path) throws Exception {
 
     String frsFileId = "";

@@ -19,6 +19,9 @@ import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +30,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.devonfw.devcon.Devcon;
+import com.devonfw.devcon.common.api.Command;
+import com.devonfw.devcon.common.api.CommandModuleInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
 
 /**
@@ -300,4 +305,67 @@ public class Utils {
     });
   }
 
+  /**
+   * @param commands
+   * @return
+   */
+  public Collection<Command> sortCommands(Collection<Command> commands) {
+
+    List<Command> lst = new ArrayList<>(commands);
+    Collections.sort(lst);
+    return lst;
+  }
+
+  public Collection<Command> sortCommands(Collection<Command> commands, Comparator<Command> cmdComparator) {
+
+    List<Command> cmdSortValList = new ArrayList<>();
+    List<Command> cmdUnOrderList = new ArrayList<>();
+    List<Command> finalCmdList = new ArrayList<>();
+    for (Command cmd : commands) {
+      if (cmd.getSortValue() >= 0) {
+        cmdSortValList.add(cmd);
+      } else {
+        cmdUnOrderList.add(cmd);
+      }
+
+    }
+    Collections.sort(cmdSortValList, cmdComparator);
+    Collections.sort(cmdUnOrderList);
+    finalCmdList.addAll(cmdSortValList);
+    finalCmdList.addAll(cmdUnOrderList);
+
+    return finalCmdList;
+  }
+
+  /**
+   * @param modules
+   * @return
+   */
+  public List<CommandModuleInfo> sortModules(List<CommandModuleInfo> modules) {
+
+    Collections.sort(modules);
+    return modules;
+  }
+
+  public List<CommandModuleInfo> sortModules(List<CommandModuleInfo> modules,
+      Comparator<CommandModuleInfo> moduleComparator) {
+
+    List<CommandModuleInfo> moduleSortValList = new ArrayList<>();
+    List<CommandModuleInfo> moduleUnOrderList = new ArrayList<>();
+    List<CommandModuleInfo> finalModuleList = new ArrayList<>();
+    for (CommandModuleInfo module : modules) {
+      if (module.getSortValue() >= 0) {
+        moduleSortValList.add(module);
+      } else {
+        moduleUnOrderList.add(module);
+      }
+
+    }
+    Collections.sort(moduleSortValList, moduleComparator);
+    Collections.sort(moduleUnOrderList);
+    finalModuleList.addAll(moduleSortValList);
+    finalModuleList.addAll(moduleUnOrderList);
+
+    return finalModuleList;
+  }
 }
