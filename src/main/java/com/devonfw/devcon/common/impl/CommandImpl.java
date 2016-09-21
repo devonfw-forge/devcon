@@ -153,12 +153,14 @@ public class CommandImpl implements Command {
     // When a context is given, a default --path parameter is added to the end
     if (this.context != ContextType.NONE) {
 
-      // this.definedParameters.add(new CommandParameter("path",
-      // "Give path to project (current folder used when not given)", pos++, true));
+      this.definedParameters
+          .add(new CommandParameter("path", "Give path to project (current folder used when not given)", pos++, true,
+              new ParameterInputType(InputTypeNames.PATH)));
     }
 
-    this.definedParameters.add(new CommandParameter("path", "Give path to project (current folder used when not given)",
-        pos++, true, new ParameterInputType(InputTypeNames.PATH)));
+    // this.definedParameters.add(new CommandParameter("path", "Give path to project (current folder used when not
+    // given)",
+    // pos++, true, new ParameterInputType(InputTypeNames.PATH)));
     if (this.proxyParams) {
       this.definedParameters
           .add(new CommandParameter("proxyHost", "Host parameter for optional Proxy configuration", pos++, true));

@@ -1,6 +1,8 @@
 package com.devonfw.devcon.modules.oasp4js;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -104,8 +106,20 @@ public class Oasp4js extends AbstractCommandModule {
           String cmd = "cmd /c start npm install";
 
           p = Runtime.getRuntime().exec(cmd, null, this.projectInfo.get().getPath().toFile());
-          p.waitFor();
-          getOutput().showMessage("Completed");
+          String line;
+          BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+          while ((line = in.readLine()) != null) {
+            System.out.println(line);
+            // getOutput().showMessage(line);
+            // this.consoleOutput.append(line).append("\n");
+          }
+          in.close();
+          int result = p.exitValue();
+          if (result == 0)
+            getOutput().showMessage("Project build successfully");
+          else
+            getOutput().showMessage("Project build failed");
+
         } catch (Exception e) {
 
           getOutput().showError(

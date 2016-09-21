@@ -6,9 +6,11 @@ import java.nio.file.Path;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
+import com.devonfw.devcon.common.api.annotations.InputType;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.DistributionInfo;
+import com.devonfw.devcon.common.api.data.InputTypeNames;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Constants;
 import com.devonfw.devcon.common.utils.Utils;
@@ -39,7 +41,7 @@ public class Workspace extends AbstractCommandModule {
    */
   @Command(name = "create", description = "This command is used to create new workspace with all default configuration")
   @Parameters(values = { @Parameter(name = "workspace", description = "This is the name of workspace to create"),
-  @Parameter(name = "distribution", description = "This is the location of the devon distribution (default: from current dir)", optional = true) })
+  @Parameter(name = "distribution", description = "This is the location of the devon distribution (default: from current dir)", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
   public void create(String workspace, String distribution) throws Exception {
 
     Optional<DistributionInfo> distInfo;

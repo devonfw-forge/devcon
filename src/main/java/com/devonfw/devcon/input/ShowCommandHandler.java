@@ -8,6 +8,7 @@ import com.devonfw.devcon.common.api.Command;
 import com.devonfw.devcon.common.api.CommandManager;
 import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.api.data.CommandParameter;
+import com.devonfw.devcon.common.api.data.InputTypeNames;
 import com.devonfw.devcon.common.api.data.ParameterInputType;
 import com.devonfw.devcon.output.GUIOutput;
 
@@ -52,7 +53,7 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
 
   private CommandManager cmdManager;
 
-  private TextArea console;
+  private TextArea console = TextAreaBuilder.create().prefWidth(600).prefHeight(300).wrapText(true).build();
 
   private List<String> mandatoryParamList = new ArrayList<>();
 
@@ -114,10 +115,10 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
     MenuItem item = ((MenuItem) event.getSource());
     String menu = item.getParentMenu().getText();
     String menuItem = item.getText().toLowerCase();
-    showForm();
     if (menuItem.equalsIgnoreCase("Exit")) {
       System.exit(0);
     }
+    showForm();
 
   }
 
@@ -191,6 +192,11 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
     for (final CommandParameter param : this.command.getDefinedParameters()) {
       Tooltip toolTip = new Tooltip(param.getDescription());
       ParameterInputType inputType = param.getInputType();
+
+      // To Handle Proxy paraams on GUI
+      if (inputType == null) {
+        inputType = new ParameterInputType(InputTypeNames.GENERIC);
+      }
       Text blankText = new Text();
       switch (inputType.getName()) {
 
@@ -308,7 +314,7 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
 
     Button ok = new Button("Ok");
     hbox.getChildren().add(ok);
-    this.console = TextAreaBuilder.create().prefWidth(600).prefHeight(300).wrapText(true).build();
+    // this.console = TextAreaBuilder.create().prefWidth(600).prefHeight(300).wrapText(true).build();
     this.guiOutput = new GUIOutput(this.console);
     ExecuteCommandHandler cmdHandler = new ExecuteCommandHandler(popParentScene(), this.command, this.cmdManager,
         this.screenController, grid, this.mandatoryParamList, this.guiOutput);

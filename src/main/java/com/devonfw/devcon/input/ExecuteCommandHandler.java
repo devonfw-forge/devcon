@@ -24,6 +24,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -117,7 +118,6 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
       this.screenController.show();
       break;
     case "ok":
-
       ObservableList<Node> nodList = this.grid.getChildren();
       for (Node e : nodList) {
         String id = e.getId();
@@ -180,9 +180,7 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
 
       try {
         this.cmdManager.setOutput(this.guiOutput);
-        //
-
-        ExecuteCommandHandler.this.grid.setDisable(true);
+        this.grid.setDisable(true);
         Platform.runLater(new Runnable() {
           @Override
           public void run() {
@@ -222,6 +220,8 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
       if (selectedFile != null) {
 
         path.setText(selectedFile.getAbsolutePath());
+        Tooltip tp = new Tooltip(selectedFile.getAbsolutePath());
+        path.setTooltip(tp);
 
       } else {
         path.setText("File selection cancelled.");

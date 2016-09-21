@@ -111,6 +111,8 @@ public class Oasp4j extends AbstractCommandModule {
         BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
         while ((line = in.readLine()) != null) {
           System.out.println(line);
+          getOutput().showMessage(line);
+          // this.consoleOutput.append(line).append("\n");
         }
         in.close();
 
@@ -122,8 +124,6 @@ public class Oasp4j extends AbstractCommandModule {
           if (Integer.parseInt(Constants.OASP_TEMPLATE_VERSION.replaceAll("\\.", "")) <= new Integer("211")) {
             modifyPom(serverpath + "\\" + servername + "\\server\\pom.xml", packagename);
           }
-
-          getOutput().showMessage("Project Creation completed successfully");
 
         } else {
           throw new Exception("Project creation failed");
@@ -169,21 +169,23 @@ public class Oasp4j extends AbstractCommandModule {
     try {
       String commandStr = "mvn spring-boot:run -Drun.jvmArguments='-Dserver.port=" + port_ + "'";
       System.out.println("Command generated ---------- " + commandStr);
-      String cmd = "cmd /c start " + commandStr;
+      String cmd = "cmd /c " + commandStr;
 
       Process p = Runtime.getRuntime().exec(cmd, null, new File(path_));
-      // String line;
-      // BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-      // while ((line = in.readLine()) != null) {
-      // System.out.println(line);
-      // }
-      // in.close();
-      int result = p.waitFor();
-      if (result == 0) {
-        getOutput().showMessage("Application started");
-      } else {
-        getOutput().showError("Application failed to start");
+      String line;
+      BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+      while ((line = in.readLine()) != null) {
+        System.out.println(line);
+        getOutput().showMessage(line);
       }
+      in.close();
+      // int result = p.waitFor();
+      // if (result == 0) {
+      // getOutput().showMessage("Application started");
+      // } else {
+      // getOutput().showError("Application failed to start");
+      // }
+
     } catch (Exception e) {
 
       getOutput().showError("An error occured during executing oasp4j Cmd: %s", e.getMessage());
@@ -212,10 +214,11 @@ public class Oasp4j extends AbstractCommandModule {
       BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
       while ((line = in.readLine()) != null) {
         System.out.println(line);
+        getOutput().showMessage(line);
       }
       in.close();
       p.waitFor();
-      getOutput().showMessage("Completed");
+
     } catch (Exception e) {
       getOutput().showError("An error occured during executing oasp4j Cmd" + e.getMessage());
     }
