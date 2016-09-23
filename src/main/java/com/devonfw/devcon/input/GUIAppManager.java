@@ -55,10 +55,10 @@ public class GUIAppManager extends Application {
     try {
 
       // To load logo from eclipse
-      String image = GUIAppManager.class.getClassLoader().getResource("Logo_Devcon-background.jpg").toExternalForm();
+      // String image = GUIAppManager.class.getClassLoader().getResource("Logo_Devcon-background.jpg").toExternalForm();
       // To load logo from Devcon jar uncomment following
-      // String image =
-      // GUIAppManager.class.getClassLoader().getResource("resources/Logo_Devcon-background.jpg").toExternalForm();
+      String image =
+          GUIAppManager.class.getClassLoader().getResource("resources/Logo_Devcon-background.jpg").toExternalForm();
 
       this.primaryStage = primaryStage;
 
