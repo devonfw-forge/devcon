@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Iterator;
@@ -102,19 +101,29 @@ public class Oasp4j extends AbstractCommandModule {
     if (!project.exists()) {
 
       Runtime rt = Runtime.getRuntime();
-      Process process = null;
+      final Process process;
 
       try {
         process = rt.exec(command, null, new File(serverpath));
+        final InputStream isError = process.getErrorStream();
+        final InputStream isOutput = process.getInputStream();
 
-        String line;
-        BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        while ((line = in.readLine()) != null) {
-          System.out.println(line);
-          getOutput().showMessage(line);
-          // this.consoleOutput.append(line).append("\n");
-        }
-        in.close();
+        Utils.processErrorAndOutPut(isError, isOutput, this.output);
+        // String line;
+        // BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        // while ((line = in.readLine()) != null) {
+        // System.out.println(line);
+        // getOutput().showMessage(line);
+        // // this.consoleOutput.append(line).append("\n");
+        // }
+        // in.close();
+        // ProcessBuilder processBuilder = new ProcessBuilder(command);
+        // processBuilder.directory(new File(serverpath));
+        // process = processBuilder.start();
+        // final InputStream isError = process.getErrorStream();
+        // final InputStream isOutput = process.getInputStream();
+        //
+        // Utils.processErrorAndOutPut(isError, isOutput, this.output);
 
         int result = process.waitFor();
         if (result == 0) {
@@ -173,12 +182,16 @@ public class Oasp4j extends AbstractCommandModule {
 
       Process p = Runtime.getRuntime().exec(cmd, null, new File(path_));
       String line;
-      BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-      while ((line = in.readLine()) != null) {
-        System.out.println(line);
-        getOutput().showMessage(line);
-      }
-      in.close();
+      final InputStream isError = p.getErrorStream();
+      final InputStream isOutput = p.getInputStream();
+
+      Utils.processErrorAndOutPut(isError, isOutput, this.output);
+      // BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+      // while ((line = in.readLine()) != null) {
+      // System.out.println(line);
+      // getOutput().showMessage(line);
+      // }
+      // in.close();
       // int result = p.waitFor();
       // if (result == 0) {
       // getOutput().showMessage("Application started");
@@ -209,15 +222,22 @@ public class Oasp4j extends AbstractCommandModule {
       String cmd = "cmd /c mvn clean install";
 
       p = Runtime.getRuntime().exec(cmd, null, this.projectInfo.get().getPath().toFile());
+      // ProcessBuilder processBuilder =
+      // new ProcessBuilder("D:\\Devon2.0.1\\software\\maven\\bin\\mvn.bat", "clean", "install");
+      // processBuilder.directory(this.projectInfo.get().getPath().toFile());
+      // process = processBuilder.start();
+      final InputStream isError = p.getErrorStream();
+      final InputStream isOutput = p.getInputStream();
 
-      String line;
-      BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-      while ((line = in.readLine()) != null) {
-        System.out.println(line);
-        getOutput().showMessage(line);
-      }
-      in.close();
-      p.waitFor();
+      Utils.processErrorAndOutPut(isError, isOutput, this.output);
+      // String line;
+      // BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+      // while ((line = in.readLine()) != null) {
+      // System.out.println(line);
+      // getOutput().showMessage(line);
+      // }
+      // in.close();
+      // p.exitValue();
 
     } catch (Exception e) {
       getOutput().showError("An error occured during executing oasp4j Cmd" + e.getMessage());
@@ -294,7 +314,7 @@ public class Oasp4j extends AbstractCommandModule {
             final InputStream isError = process.getErrorStream();
             final InputStream isOutput = process.getInputStream();
 
-            Utils.processErrorAndOutPut(isError, isOutput);
+            Utils.processErrorAndOutPut(isError, isOutput, getOutput());
 
             process.waitFor();
 
@@ -322,7 +342,7 @@ public class Oasp4j extends AbstractCommandModule {
                     final InputStream isTomcatError = tomcatProcess.getErrorStream();
                     final InputStream isTomcatOutput = tomcatProcess.getInputStream();
 
-                    Utils.processErrorAndOutPut(isTomcatError, isTomcatOutput);
+                    Utils.processErrorAndOutPut(isTomcatError, isTomcatOutput, getOutput());
 
                     int tomcatResult = tomcatProcess.waitFor();
 

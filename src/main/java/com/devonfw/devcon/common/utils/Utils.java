@@ -33,6 +33,7 @@ import com.devonfw.devcon.Devcon;
 import com.devonfw.devcon.common.api.Command;
 import com.devonfw.devcon.common.api.CommandModuleInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
+import com.devonfw.devcon.output.Output;
 
 /**
  * General utilities
@@ -206,7 +207,7 @@ public class Utils {
    * @param isOutput
    */
   @SuppressWarnings("javadoc")
-  public static void processErrorAndOutPut(final InputStream isError, final InputStream isOutput) {
+  public static void processErrorAndOutPut(final InputStream isError, final InputStream isOutput, final Output output) {
 
     final InputStreamReader isErrReader = new InputStreamReader(isError);
     final InputStreamReader isOutReader = new InputStreamReader(isOutput);
@@ -220,7 +221,8 @@ public class Utils {
         String line;
         try {
           while ((line = bre.readLine()) != null) {
-            System.out.println(line);
+            // System.out.println(line);
+            output.showError(line);
           }
         } catch (Exception e) {
         }
@@ -236,12 +238,14 @@ public class Utils {
         String line;
         try {
           while ((line = bre.readLine()) != null) {
-            System.out.println("OUTPUT:" + line);
+            // System.out.println("OUTPUT:" + line);
+            output.showMessage(line);
           }
         } catch (Exception e) {
         }
       }
     }).start();
+
   }
 
   /**

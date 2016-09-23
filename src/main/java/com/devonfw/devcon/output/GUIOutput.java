@@ -1,5 +1,7 @@
 package com.devonfw.devcon.output;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -14,6 +16,7 @@ import com.devonfw.devcon.common.api.data.CommandParameter;
 import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Info;
 
+import javafx.application.Platform;
 import javafx.scene.control.TextArea;
 
 /**
@@ -27,26 +30,48 @@ public class GUIOutput implements Output {
 
   private StringBuffer consoleOutput = new StringBuffer();
 
+  /**
+   * The constructor.
+   */
   public GUIOutput() {
     this.out_ = new TextArea();
   }
 
+  /**
+   * The constructor.
+   *
+   * @param out - Textarea in which output should be set
+   */
   public GUIOutput(TextArea out) {
     this();
     this.out_ = out;
   }
 
+  @SuppressWarnings("javadoc")
   @Override
   public void showMessage(String message, String... args) {
 
-    this.consoleOutput.append(message).append("\n");
-    this.out_.setText(this.consoleOutput.toString());
+    this.consoleOutput.append(String.format(message, args)).append("\n");
+    Platform.runLater(new Runnable() {
+      @Override
+      public void run() {
+
+        GUIOutput.this.out_.setText(GUIOutput.this.consoleOutput.toString());
+        GUIOutput.this.out_.selectPositionCaret(GUIOutput.this.out_.getLength());
+        GUIOutput.this.out_.deselect();
+      }
+    });
+
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void showCommandHelp(Command command) {
 
-    StringBuffer consoleOutput = new StringBuffer();
+    StringWriter buffer = new StringWriter();
+
     Options options = new Options();
     for (CommandParameter commandParam : command.getDefinedParameters()) {
       options.addOption(commandParam.getName(), false, commandParam.getDescription());
@@ -56,25 +81,25 @@ public class GUIOutput implements Output {
 
     String helpText = command.getHelpText();
 
-    formatter.printHelp(120, command.getModuleName() + " " + command.getName(), command.getDescription(), options, null,
-        true);
+    formatter.printHelp(new PrintWriter(buffer), 120, command.getModuleName() + " " + command.getName(),
+        command.getDescription(), options, 1, 2, null, true);
 
-    consoleOutput.append(command.getModuleName()).append(" ").append(command.getName()).append("\n")
-        .append(command.getDescription()).append("\n").append(options.toString());
-    // Only print out help text when actually present
     if (!helpText.isEmpty()) {
-      // this.out_.setText("");
-      consoleOutput.append("\n").append(helpText);
-      this.out_.setText(consoleOutput.toString());
+      buffer.append("\n");
+      buffer.append(helpText);
     }
-    this.out_.setText(consoleOutput.toString());
+    this.out_.setText(buffer.toString());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void showModuleHelp(CommandModuleInfo module) {
 
+    StringWriter buffer = new StringWriter();
     StringBuilder footer = new StringBuilder();
-    StringBuilder consoleOutput = new StringBuilder();
+
     footer.append("Available commands for module: " + module.getName() + "\n");
 
     // Obtain sorted command list
@@ -84,12 +109,12 @@ public class GUIOutput implements Output {
 
     Options options = new Options();
     String usage = "usage: " + module.getName() + " <<command>> [parameters...]";
-    // HelpFormatter formatter = new HelpFormatter();
-    //
-    // formatter.printHelp(120, usage, module.getDescription(), options, footer.toString(), true);
-    consoleOutput.append(usage).append("\n").append(module.getDescription()).append("\n").append(options).append("\n")
-        .append(footer.toString());
-    this.out_.setText(consoleOutput.toString());
+
+    HelpFormatter formatter = new HelpFormatter();
+    formatter.printHelp(new PrintWriter(buffer), 120, usage, module.getDescription(), options, 1, 2, footer.toString(),
+        true);
+
+    this.out_.setText(buffer.toString());
   }
 
   /**
@@ -103,11 +128,14 @@ public class GUIOutput implements Output {
     return lst;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void showGeneralHelp(String header, String usage, List<DevconOption> options,
       List<CommandModuleInfo> modules) {
 
-    StringBuffer consoleOutput = new StringBuffer();
+    StringWriter buffer = new StringWriter();
 
     Options options_ = new Options();
 
@@ -123,9 +151,10 @@ public class GUIOutput implements Output {
       if (moduleInfo.isVisible())
         footer.append("> " + moduleInfo.getName() + ": " + moduleInfo.getDescription() + "\n");
     }
-    consoleOutput.append("usage: " + usage).append("\n").append(header).append("\n").append(options_).append("\n")
-        .append(footer.toString());
-    this.out_.setText(consoleOutput.toString());
+
+    HelpFormatter formatter = new HelpFormatter();
+    formatter.printHelp(new PrintWriter(buffer), 120, usage, header, options_, 1, 2, footer.toString(), true);
+    this.out_.setText(buffer.toString());
   }
 
   /**
@@ -138,6 +167,9 @@ public class GUIOutput implements Output {
     return modules;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void showError(String message, String... args) {
 
@@ -145,6 +177,9 @@ public class GUIOutput implements Output {
     this.out_.setText(this.consoleOutput.toString());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void status(String message, String... args) {
 
@@ -152,6 +187,9 @@ public class GUIOutput implements Output {
     this.out_.setText(this.consoleOutput.toString());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void statusInNewLine(String message, String... args) {
 
@@ -159,6 +197,9 @@ public class GUIOutput implements Output {
     this.out_.setText(this.consoleOutput.toString());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void success(String command) {
 

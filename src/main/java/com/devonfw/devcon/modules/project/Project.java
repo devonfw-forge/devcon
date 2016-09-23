@@ -359,7 +359,7 @@ public class Project extends AbstractCommandModule {
         final InputStream isError = process.getErrorStream();
         final InputStream isOutput = process.getInputStream();
 
-        Utils.processErrorAndOutPut(isError, isOutput);
+        Utils.processErrorAndOutPut(isError, isOutput, getOutput());
         errCode = process.waitFor();
         if (errCode == 0) {
           getOutput().showMessage("Execution successful. ");
@@ -379,7 +379,7 @@ public class Project extends AbstractCommandModule {
         final InputStream isError1 = process1.getErrorStream();
         final InputStream isOutput1 = process1.getInputStream();
 
-        Utils.processErrorAndOutPut(isError1, isOutput1);
+        Utils.processErrorAndOutPut(isError1, isOutput1, getOutput());
 
         errCode1 = process1.waitFor();
         if (errCode1 == 0) {

@@ -13,7 +13,6 @@ import com.devonfw.devcon.common.api.CommandManager;
 import com.devonfw.devcon.common.api.data.Sentence;
 import com.devonfw.devcon.output.GUIOutput;
 
-import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -52,8 +51,13 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
 
   private GUIOutput guiOutput;
 
-  // public static final BlockingQueue<String> blockingQueue = new BlockingQueue<>(2);
+  public static final String BACK = "back";
 
+  public static final String OK = "ok";
+
+  public static final String SELECT_PATH = "select path";
+
+  @SuppressWarnings("javadoc")
   public ExecuteCommandHandler() {
 
   }
@@ -107,69 +111,66 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
 
     HashMap<String, String> commandParams = new HashMap<>();
 
-    Button b = (Button) event.getSource();
-    // b.setId("ok");
-    String label = b.getText();
-    System.out.println("Label " + label);
+    final Button button = (Button) event.getSource();
+
+    String label = button.getText();
 
     switch (label.toLowerCase().trim()) {
-    case "back":
+    case BACK:
       this.screenController.setScene(this.popParentScene);
       this.screenController.show();
       break;
-    case "ok":
+    case OK:
+
       ObservableList<Node> nodList = this.grid.getChildren();
       for (Node e : nodList) {
         String id = e.getId();
         if (id != null && !id.isEmpty()) {
           boolean result;
-          String paramName = id.substring(id.indexOf("_") + 1);
-          System.out.println("paramName " + paramName);
+          String paramName1 = id.substring(id.indexOf("_") + 1);
+
           if (id.startsWith("text_")) {
             TextField t = (TextField) e;
             System.out.println("val is " + t.getText());
-            result = validateParam(paramName, t.getText());
+            result = validateParam(paramName1, t.getText());
             if (!result) {
               t.setStyle("-fx-text-box-border: red; ");
               return;
             }
 
-            commandParams.put(paramName, t.getText());
+            commandParams.put(paramName1, t.getText());
 
           } else if (id.startsWith("combo_")) {
             ComboBox<String> comboBox = (ComboBox<String>) e;
             System.out.println("comboBox param name " + comboBox.getId() + " val is " + comboBox.getValue());
-            result = validateParam(paramName, comboBox.getValue());
+            result = validateParam(paramName1, comboBox.getValue());
             if (!result) {
               comboBox.setStyle("-fx-border-color:red;");
               return;
             }
-            commandParams.put(paramName, comboBox.getValue());
+            commandParams.put(paramName1, comboBox.getValue());
 
           } else if (id.startsWith("password_")) {
             PasswordField pw = (PasswordField) e;
             System.out.println(" passsowrd val is " + pw.getText());
-            result = validateParam(paramName, pw.getText());
+            result = validateParam(paramName1, pw.getText());
             if (!result) {
               pw.setStyle("-fx-border-color:red;");
               return;
             }
 
-            commandParams.put(paramName, pw.getText());
+            commandParams.put(paramName1, pw.getText());
 
-          } else if (id.startsWith("path_" + paramName)) {
+          } else if (id.startsWith("path_" + paramName1)) {
             Button path = (Button) e;
             System.out.println("select path " + path.getText());
-            // result = validateParam(paramName, path.getText());
-            // if (!result)
-            // path.setStyle("-fx-border-color:red;");
-            commandParams.put(paramName, path.getText());
+            commandParams.put(paramName1, path.getText());
 
           }
         }
 
       }
-      System.out.println("commandParams****************** " + commandParams);
+
       final Sentence sentence = new Sentence();
       sentence.setModuleName(this.command.getModuleName());
       sentence.setCommandName(this.command.getName());
@@ -179,29 +180,50 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
       }
 
       try {
+
         this.cmdManager.setOutput(this.guiOutput);
-        this.grid.setDisable(true);
-        Platform.runLater(new Runnable() {
+        // this.grid.setDisable(true);
+
+        new Thread(new Runnable() {
           @Override
           public void run() {
 
             Pair<CommandResult, Object> result = null;
             try {
               result = ExecuteCommandHandler.this.cmdManager.execCmdLine(sentence);
+              boolean cmdResult =
+                  ((result.getLeft() == CommandResult.OK) || (result.getLeft() == CommandResult.HELP_SHOWN));
+              System.out.println("result******************* " + cmdResult);
+
+              // ExecuteCommandHandler.this.grid.setDisable(false);
+              button.setDisable(false);
             } catch (Exception e) {
               // TODO Auto-generated catch block
               e.printStackTrace();
             }
 
-            boolean cmdResult =
-                ((result.getLeft() == CommandResult.OK) || (result.getLeft() == CommandResult.HELP_SHOWN));
-            System.out.println("result******************* " + cmdResult);
-
-            ExecuteCommandHandler.this.grid.setDisable(false);
           }
-        });
-
-        b.setDisable(false);
+        }).start();
+        // Platform.runLater(new Runnable() {
+        // @Override
+        // public void run() {
+        //
+        // Pair<CommandResult, Object> result = null;
+        // try {
+        // result = ExecuteCommandHandler.this.cmdManager.execCmdLine(sentence);
+        // boolean cmdResult =
+        // ((result.getLeft() == CommandResult.OK) || (result.getLeft() == CommandResult.HELP_SHOWN));
+        // System.out.println("result******************* " + cmdResult);
+        //
+        // // ExecuteCommandHandler.this.grid.setDisable(false);
+        // b.setDisable(false);
+        // } catch (Exception e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
+        //
+        // }
+        // });
 
       } catch (Exception e1) {
         // TODO Auto-generated catch block
@@ -213,7 +235,7 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
       // this.screenController.setScene(this.popParentScene);
       // this.screenController.show();
       break;
-    case "select path":
+    case SELECT_PATH:
       DirectoryChooser chooser = new DirectoryChooser();
       File selectedFile = chooser.showDialog(null);
       Button path = (Button) event.getSource();
@@ -226,19 +248,7 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
       } else {
         path.setText("File selection cancelled.");
       }
-      // Label l = new Label();
-      // if (selectedFile != null) {
-      //
-      // l.setText(selectedFile.getAbsolutePath());
-      // } else {
-      // l.setText("File selection cancelled.");
-      // }
-      // int colIndex = GridPane.getColumnIndex(b);
-      // int rowIndex = GridPane.getRowIndex(b);
-      // int index = this.grid.getChildren().indexOf(b);
-      // this.grid.getChildren().remove(index);
-      //
-      // this.grid.add(l, colIndex, rowIndex);
+
       break;
     }
 

@@ -179,6 +179,9 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
     helpText.setEditable(false);
     grid.add(helpText, 0, 1, 2, 2);
 
+    // clearing console output
+    this.console.clear();
+
     int order = 4;
 
     grid.getColumnConstraints().clear();

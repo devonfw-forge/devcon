@@ -119,7 +119,7 @@ public class Dist extends AbstractCommandModule {
       final InputStream isError = process.getErrorStream();
       final InputStream isOutput = process.getInputStream();
 
-      Utils.processErrorAndOutPut(isError, isOutput);
+      Utils.processErrorAndOutPut(isError, isOutput, this.output);
 
       this.output.showMessage("Distribution initialized.");
 
@@ -191,7 +191,7 @@ public class Dist extends AbstractCommandModule {
    */
   @Command(name = "info", description = "Basic info about the distribution")
   @Parameters(values = {
-  @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true) })
+  @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
   public void info(String path) {
 
     try {

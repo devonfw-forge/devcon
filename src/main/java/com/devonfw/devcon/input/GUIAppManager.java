@@ -21,7 +21,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 /**
- * TODO ssarmoka This type ...
+ * TODO This is the class which launch Devcon GUI.
  *
  * @author ssarmoka
  */
@@ -36,12 +36,6 @@ public class GUIAppManager extends Application {
     GUIAppManager.registry = registry;
     GUIAppManager.cmdManager = commandManager;
 
-    // Input input = new ConsoleInput(System.in, System.out);
-    // Output output = new ConsoleOutput(System.out);
-    // registry = new CommandRegistryImpl("com.devonfw.devcon.modules.*");
-    // cmdManager = new CommandManagerImpl(registry, input, output);
-    // ConsoleInputManager inputmanager =
-    // new ConsoleInputManager(registry, input, output, new CommandManagerImpl(registry, input, output));
     main(args);
   }
 
@@ -60,9 +54,11 @@ public class GUIAppManager extends Application {
 
     try {
 
+      // To load logo from eclipse
       String image = GUIAppManager.class.getClassLoader().getResource("Logo_Devcon-background.jpg").toExternalForm();
+      // To load logo from Devcon jar uncomment following
+      // String image =
       // GUIAppManager.class.getClassLoader().getResource("resources/Logo_Devcon-background.jpg").toExternalForm();
-      // ClassLoader.getSystemClassLoader().getResource("Logo_Devcon-background.jpg").toExternalForm();
 
       this.primaryStage = primaryStage;
 
