@@ -1,4 +1,4 @@
-package com.devonfw.devcon.modules.dist;
+package com.devonfw.devcon.common.utils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -23,6 +23,7 @@ import com.collabnet.ce.soap60.webservices.cemain.ICollabNetSoap;
 import com.collabnet.ce.soap60.webservices.filestorage.IFileStorageAppSoap;
 import com.collabnet.ce.soap60.webservices.frs.FrsFileSoapDO;
 import com.collabnet.ce.soap60.webservices.frs.IFrsAppSoap;
+import com.devonfw.devcon.modules.dist.DistConstants;
 import com.devonfw.devcon.output.ConsoleOutput;
 import com.devonfw.devcon.output.DownloadingProgress;
 import com.devonfw.devcon.output.Output;

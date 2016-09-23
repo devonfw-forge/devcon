@@ -23,6 +23,8 @@ import com.devonfw.devcon.common.api.data.ContextType;
 import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
+import com.devonfw.devcon.common.utils.Downloader;
+import com.devonfw.devcon.common.utils.Extractor;
 import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
 
@@ -38,6 +40,10 @@ public class Oasp4js extends AbstractCommandModule {
   private static String GULP_SERV = "cmd /c start gulp serve";
 
   private static String OASP4JS_BASE = "software\\nodejs\\oasp4js_base";
+
+  private static String OASP4JS_ang1 = "frs51721";
+
+  private static String OASP4JS_ang2 = "frs99999";
 
   @Command(name = "create", description = "This command creates a basic Oasp4js app")
   @Parameters(values = { @Parameter(name = "clientname", description = "The name for the project"),
@@ -56,8 +62,8 @@ public class Oasp4js extends AbstractCommandModule {
         String projectPath = clientpath + File.separator + clientname;
         File projectFile = new File(projectPath);
         if (projectFile.exists()) {
-          getOutput()
-              .showError("The project " + projectPath + " already exists. Please delete it or choose other location.");
+          getOutput().showError(
+              "The project " + projectPath + " already exists. Please delete it or choose other location.");
         } else {
 
           File templateFile = new File(distInfo.get().getPath().toString() + File.separator + OASP4JS_BASE);
@@ -144,6 +150,48 @@ public class Oasp4js extends AbstractCommandModule {
 
     } catch (Exception e) {
       getOutput().showError("An error occured during execution of run command. " + e.getMessage());
+    }
+  }
+
+  @Command(name = "jumpstart", description = "This command downloads the Oasp4js sample app with all its dependencies from Teamforge", context = ContextType.NONE)
+  @Parameters(values = {
+  @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true),
+  @Parameter(name = "angularVersion", description = "the version of the , the options are: \n '1' to download OASP4js based on Angular 1 \n '2' to download OASP4js based on Angular 2", optional = true),
+  @Parameter(name = "user", description = "a user with download permissions in Teamforge"),
+  @Parameter(name = "password", description = "the password related to the user with download permissions") })
+  public void jumpstart(String path, String angularVersion, String user, String password) {
+
+    String frsFileId = "";
+
+    // Default parameters
+    path = path.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : path.trim();
+    angularVersion = angularVersion.isEmpty() ? "1" : angularVersion.trim();
+
+    this.output.status("downloading file...");
+
+    try {
+
+      if (angularVersion.equals("1")) {
+        frsFileId = OASP4JS_ang1;
+      } else if (angularVersion.equals("2")) {
+        frsFileId = OASP4JS_ang2;
+      } else {
+        throw new Exception("The value for the parameter 'angularVersion' is invalid.");
+      }
+
+      Optional<String> fileDownloaded = Downloader.downloadFromTeamForge(path, user, password, frsFileId);
+
+      if (fileDownloaded.isPresent()) {
+        Extractor.unZip(path + File.separator + fileDownloaded.get().toString(), path);
+
+        this.output.showMessage("File successfully downloaded.");
+
+      } else {
+        throw new Exception("An error occurred while downloading the file.");
+      }
+
+    } catch (Exception e) {
+      getOutput().showError(e.getMessage());
     }
   }
 

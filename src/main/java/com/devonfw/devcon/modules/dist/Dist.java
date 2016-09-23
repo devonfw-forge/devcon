@@ -14,6 +14,8 @@ import com.devonfw.devcon.common.api.data.DistributionType;
 import com.devonfw.devcon.common.exception.InvalidConfigurationStateException;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Constants;
+import com.devonfw.devcon.common.utils.Downloader;
+import com.devonfw.devcon.common.utils.Extractor;
 import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
 
