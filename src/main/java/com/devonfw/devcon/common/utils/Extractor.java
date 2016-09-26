@@ -1,4 +1,4 @@
-package com.devonfw.devcon.modules.dist;
+package com.devonfw.devcon.common.utils;
 
 import java.io.File;
 import java.io.FileInputStream;

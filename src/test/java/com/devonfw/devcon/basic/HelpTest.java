@@ -77,7 +77,7 @@ public class HelpTest {
     }
 
     // then
-    assertEquals(36, total);
+    assertEquals(37, total);
 
   }
 
