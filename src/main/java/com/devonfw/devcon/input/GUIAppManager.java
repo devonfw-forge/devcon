@@ -5,10 +5,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import com.devonfw.devcon.Devcon;
 import com.devonfw.devcon.common.api.Command;
 import com.devonfw.devcon.common.api.CommandManager;
 import com.devonfw.devcon.common.api.CommandModuleInfo;
 import com.devonfw.devcon.common.api.CommandRegistry;
+import com.devonfw.devcon.common.utils.Constants;
 import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
 
@@ -54,11 +56,9 @@ public class GUIAppManager extends Application {
 
     try {
 
-      // To load logo from eclipse
-      // String image = GUIAppManager.class.getClassLoader().getResource("Logo_Devcon-background.jpg").toExternalForm();
-      // To load logo from Devcon jar uncomment following
-      String image =
-          GUIAppManager.class.getClassLoader().getResource("resources/Logo_Devcon-background.jpg").toExternalForm();
+      String root = (Devcon.IN_EXEC_JAR) ? "resources/" : "";
+
+      String image = GUIAppManager.class.getClassLoader().getResource(root + Constants.DEVCON_LOGO).toExternalForm();
 
       this.primaryStage = primaryStage;
 

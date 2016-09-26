@@ -173,7 +173,7 @@ public class GUIOutput implements Output {
   @Override
   public void showError(String message, String... args) {
 
-    this.consoleOutput.append("[ERROR] " + message);
+    this.consoleOutput.append("[ERROR] " + String.format(message, args));
     this.out_.setText(this.consoleOutput.toString());
   }
 
@@ -183,7 +183,7 @@ public class GUIOutput implements Output {
   @Override
   public void status(String message, String... args) {
 
-    this.consoleOutput.append("\r[INFO] " + message);
+    this.consoleOutput.append("\r[INFO] " + String.format(message, args));
     this.out_.setText(this.consoleOutput.toString());
   }
 
@@ -193,7 +193,7 @@ public class GUIOutput implements Output {
   @Override
   public void statusInNewLine(String message, String... args) {
 
-    this.consoleOutput.append("\n[INFO] " + message);
+    this.consoleOutput.append("\n[INFO] " + String.format(message, args));
     this.out_.setText(this.consoleOutput.toString());
   }
 

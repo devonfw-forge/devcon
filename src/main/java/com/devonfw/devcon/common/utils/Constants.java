@@ -181,4 +181,6 @@ public final class Constants {
   public final static String TOMCAT_START_UP_BAT_FILES = "\\software\\tomcat\\bin";
 
   public final static String DEFAULT_PORT = "8080";
+
+  public final static String DEVCON_LOGO = "Logo_Devcon-background.jpg";
 }
