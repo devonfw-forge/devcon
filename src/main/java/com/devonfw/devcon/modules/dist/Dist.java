@@ -141,7 +141,7 @@ public class Dist extends AbstractCommandModule {
    */
   @Command(name = "s2", description = "Initializes a Devon distribution for use with Shared Services.")
   @Parameters(values = {
-  @Parameter(name = "projectname", description = "the name for the new project", inputType = @InputType(name = InputTypeNames.PATH)),
+  @Parameter(name = "projectname", description = "the name for the new project", inputType = @InputType(name = InputTypeNames.GENERIC)),
   @Parameter(name = "user", description = "the userId for Artifactory provided by S2 for the project", inputType = @InputType(name = InputTypeNames.GENERIC)),
   @Parameter(name = "pass", description = "the password for Artifactory", inputType = @InputType(name = InputTypeNames.PASSWORD)),
   @Parameter(name = "engagementname", description = "the name of the repository for the engagement", inputType = @InputType(name = InputTypeNames.GENERIC)),
