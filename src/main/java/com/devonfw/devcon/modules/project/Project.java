@@ -137,7 +137,7 @@ public class Project extends AbstractCommandModule {
   "oasp4js", "devon4sencha" })), @Parameter(name = "clientname", description = "name for the client project"),
   @Parameter(name = "clientpath", description = "path where the client project will be created.", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
   @Parameter(name = "createsenchaws", description = "Only for client type 'devon4sencha': if a new Sencha Workspace must be created to store new app. Values TRUE or FALSE (default)", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
-  "True", "False" })) })
+  "False", "True" })) })
   public void create(String combinedprojectpath, String servername, String packagename, String groupid, String version,
       String clienttype, String clientname, String clientpath, String createsenchaws) {
 

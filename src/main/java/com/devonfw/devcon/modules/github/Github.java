@@ -36,7 +36,7 @@ public class Github extends AbstractCommandModule {
    * @param path location to download the oasp4j repository.
    * @throws Exception
    */
-  @Command(name = "oasp4j", description = "This command clones oasp4j repository.", context = ContextType.NONE)
+  @Command(name = "oasp4j", description = "This command clones oasp4j repository.", context = ContextType.NONE, proxyParams = true)
   @Parameters(values = {
   @Parameter(name = "path", description = "a location for the oasp4j download (Current directory if not provided)", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
   public void oasp4j(String path) throws Exception {
@@ -77,7 +77,7 @@ public class Github extends AbstractCommandModule {
    * @param password
    * @throws Exception
    */
-  @Command(name = "devoncode", description = "This command clones the Devonfw repository.", context = ContextType.NONE, proxyParams = false)
+  @Command(name = "devoncode", description = "This command clones the Devonfw repository.", context = ContextType.NONE, proxyParams = true)
   @Parameters(values = {
   @Parameter(name = "path", description = "a location for the devon download (Current directory if not provided)", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
   @Parameter(name = "username", description = "a user with permissions to download the Devon repository from Github."),

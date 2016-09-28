@@ -140,14 +140,16 @@ public class Dist extends AbstractCommandModule {
    * @param svnpass the password of the user with permissions in the svn repository
    */
   @Command(name = "s2", description = "Initializes a Devon distribution for use with Shared Services.")
-  @Parameters(values = { @Parameter(name = "projectname", description = "the name for the new project"),
-  @Parameter(name = "user", description = "the userId for Artifactory provided by S2 for the project"),
-  @Parameter(name = "pass", description = "the password for Artifactory"),
-  @Parameter(name = "engagementname", description = "the name of the repository for the engagement"),
-  @Parameter(name = "ciaas", description = "if the settings.xml must be configured for CIaaS set this as TRUE. Is an optional parameter with FALSE as default value.", optional = true),
-  @Parameter(name = "svnurl", description = "the url for the SVN provided by S2", optional = true),
-  @Parameter(name = "svnuser", description = "the user for the SVN", optional = true),
-  @Parameter(name = "svnpass", description = "the password for the SVN", optional = true) })
+  @Parameters(values = {
+  @Parameter(name = "projectname", description = "the name for the new project", inputType = @InputType(name = InputTypeNames.PATH)),
+  @Parameter(name = "user", description = "the userId for Artifactory provided by S2 for the project", inputType = @InputType(name = InputTypeNames.GENERIC)),
+  @Parameter(name = "pass", description = "the password for Artifactory", inputType = @InputType(name = InputTypeNames.PASSWORD)),
+  @Parameter(name = "engagementname", description = "the name of the repository for the engagement", inputType = @InputType(name = InputTypeNames.GENERIC)),
+  @Parameter(name = "ciaas", description = "if the settings.xml must be configured for CIaaS set this as TRUE. Is an optional parameter with FALSE as default value.", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
+  "False", "True" })),
+  @Parameter(name = "svnurl", description = "the url for the SVN provided by S2", optional = true, inputType = @InputType(name = InputTypeNames.GENERIC)),
+  @Parameter(name = "svnuser", description = "the user for the SVN", optional = true, inputType = @InputType(name = InputTypeNames.GENERIC)),
+  @Parameter(name = "svnpass", description = "the password for the SVN", optional = true, inputType = @InputType(name = InputTypeNames.PASSWORD)) })
   public void s2(String projectname, String user, String pass, String engagementname, String ciaas, String svnurl,
       String svnuser, String svnpass) {
 

@@ -166,6 +166,7 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
    */
   private void showCommandControls(final GridPane grid) {
 
+    Text mandtory_field_text = new Text("");
     // set scene title
     Text scenetitle = new Text(this.command.getModuleName() + " " + this.command.getName());
     scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
@@ -179,18 +180,21 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
     helpText.setEditable(false);
     grid.add(helpText, 0, 1, 2, 2);
 
-    // clearing console output
+    // clearing console output , set prompt text and set background color
     this.console.clear();
-
+    this.console.setPromptText("OUTPUT HERE");
+    this.console.setStyle("-fx-background-color: #b5c9c9;");
     int order = 4;
 
     grid.getColumnConstraints().clear();
     grid.getRowConstraints().clear();
-    Text t = new Text(MANDATORY_FIELD);
-    t.setFill(Color.RED);
+    if (this.command.getDefinedParameters().size() > 0) {
+      mandtory_field_text = new Text(MANDATORY_FIELD);
+      mandtory_field_text.setFill(Color.RED);
+    }
 
     HBox hbox1 = new HBox();
-    hbox1.getChildren().add(t);
+    hbox1.getChildren().add(mandtory_field_text);
     grid.add(hbox1, 0, 3, 1, 1);
     for (final CommandParameter param : this.command.getDefinedParameters()) {
       Tooltip toolTip = new Tooltip(param.getDescription());
