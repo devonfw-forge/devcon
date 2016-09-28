@@ -1,6 +1,5 @@
 package com.devonfw.devcon.input;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -29,10 +28,23 @@ import javafx.stage.Stage;
  */
 public class GUIAppManager extends Application {
 
+  /**
+   * CommandRegistry instance
+   */
   public static CommandRegistry registry;
 
+  /**
+   * CommandManager instance
+   */
   public static CommandManager cmdManager;
 
+  private Stage primaryStage;
+
+  /**
+   * @param registry CommandRegistry instance
+   * @param commandManager CommandManager instance
+   * @param args arguments
+   */
   public static void main(CommandRegistry registry, CommandManager commandManager, String[] args) {
 
     GUIAppManager.registry = registry;
@@ -41,16 +53,18 @@ public class GUIAppManager extends Application {
     main(args);
   }
 
+  /**
+   * @param args input arguments
+   */
   public static void main(String[] args) {
 
     launch(args);
   }
 
-  private Stage primaryStage;
-
   /**
    * {@inheritDoc}
    */
+  @SuppressWarnings("hiding")
   @Override
   public void start(Stage primaryStage) throws Exception {
 
@@ -62,7 +76,6 @@ public class GUIAppManager extends Application {
 
       this.primaryStage = primaryStage;
 
-      // TODO Auto-generated method stub
       primaryStage.setTitle("Devcon");
 
       BorderPane borderPane = new BorderPane();
@@ -71,7 +84,7 @@ public class GUIAppManager extends Application {
       borderPane.setStyle("-fx-background-image: url('" + image + "'); " + "-fx-background-position: center center; "
           + "-fx-background-repeat: stretch; -fx-background-color: #5b5150;");
 
-      Scene scene = new Scene(borderPane, 700, 650); // 889, 600
+      Scene scene = new Scene(borderPane, 700, 650);
       primaryStage.setScene(scene);
       primaryStage.show();
     } catch (Exception e) {
@@ -93,7 +106,7 @@ public class GUIAppManager extends Application {
 
     List<CommandModuleInfo> modules =
         utils.sortModules(registry.getCommandModules(), new NumericSortComparator<CommandModuleInfo>());
-    List<Menu> menuList = new ArrayList<>();
+
     for (int i = 0; i < modules.size(); i++) {
 
       if (!modules.get(i).isVisible())
@@ -122,8 +135,4 @@ public class GUIAppManager extends Application {
 
   }
 
-  public Stage getStage() {
-
-    return this.primaryStage;
-  }
 }

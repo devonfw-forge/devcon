@@ -10,10 +10,10 @@ import com.devonfw.devcon.common.CommandResult;
 import com.devonfw.devcon.common.api.Command;
 import com.devonfw.devcon.common.api.CommandManager;
 import com.devonfw.devcon.common.api.data.Sentence;
+import com.devonfw.devcon.common.utils.Constants;
 import com.devonfw.devcon.output.GUIOutput;
 
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -27,7 +27,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 /**
- * TODO ssarmoka This type ...
+ * This class is for handling events on forms, executing respective commands.
  *
  * @author ssarmoka
  */
@@ -47,12 +47,6 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
 
   private GUIOutput guiOutput;
 
-  public static final String BACK = "back";
-
-  public static final String OK = "ok";
-
-  public static final String SELECT_PATH = "select path";
-
   @SuppressWarnings("javadoc")
   public ExecuteCommandHandler() {
 
@@ -61,11 +55,11 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
   /**
    * The constructor.
    *
-   * @param popParentScene
-   * @param command
-   * @param cmdManager
-   * @param screenController
-   * @param grid
+   * @param popParentScene -stored parent scene (home screen)
+   * @param command -command instance
+   * @param cmdManager - CommandManager instance
+   * @param screenController - Stage
+   * @param grid -gridpane in scene
    */
   public ExecuteCommandHandler(Scene popParentScene, Command command, CommandManager cmdManager, Stage screenController,
       GridPane grid) {
@@ -77,6 +71,16 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
 
   }
 
+  /**
+   * The constructor.
+   *
+   * @param popParentScene -stored parent scene (home screen)
+   * @param command -command instance
+   * @param cmdManager - CommandManager instance
+   * @param screenController - Stage
+   * @param grid -gridpane in scene
+   * @param mandatoryParamList -mandatory parameter list
+   */
   public ExecuteCommandHandler(Scene popParentScene, Command command, CommandManager cmdManager, Stage screenController,
       GridPane grid, List<String> mandatoryParamList) {
     this.popParentScene = popParentScene;
@@ -88,6 +92,17 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
 
   }
 
+  /**
+   * The constructor.
+   * 
+   * @param popParentScene -stored parent scene (home screen)
+   * @param command -command instance
+   * @param cmdManager - CommandManager instance
+   * @param screenController - Stage
+   * @param grid -gridpane in scene
+   * @param mandatoryParamList -mandatory parameter list
+   * @param guiOutput -output instance
+   */
   public ExecuteCommandHandler(Scene popParentScene, Command command, CommandManager cmdManager, Stage screenController,
       GridPane grid, List<String> mandatoryParamList, GUIOutput guiOutput) {
     this.popParentScene = popParentScene;
@@ -102,6 +117,7 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
   /**
    * {@inheritDoc}
    */
+  @SuppressWarnings("unchecked")
   @Override
   public void handle(ActionEvent event) {
 
@@ -112,11 +128,11 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
     String label = button.getText();
 
     switch (label.toLowerCase().trim()) {
-    case BACK:
+    case Constants.BACK:
       this.screenController.setScene(this.popParentScene);
       this.screenController.show();
       break;
-    case OK:
+    case Constants.OK:
 
       ObservableList<Node> nodList = this.grid.getChildren();
       for (Node e : nodList) {
@@ -127,7 +143,6 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
 
           if (id.startsWith("text_")) {
             TextField t = (TextField) e;
-            System.out.println("val is " + t.getText());
             result = validateParam(paramName, t.getText());
             if (!result) {
               t.setStyle("-fx-text-box-border: red; ");
@@ -138,7 +153,7 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
 
           } else if (id.startsWith("combo_")) {
             ComboBox<String> comboBox = (ComboBox<String>) e;
-            System.out.println("comboBox param name " + comboBox.getId() + " val is " + comboBox.getValue());
+
             result = validateParam(paramName, comboBox.getValue());
             if (!result) {
               comboBox.setStyle("-fx-border-color:red;");
@@ -148,7 +163,7 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
 
           } else if (id.startsWith("password_")) {
             PasswordField pw = (PasswordField) e;
-            System.out.println(" passsowrd val is " + pw.getText());
+
             result = validateParam(paramName, pw.getText());
             if (!result) {
               pw.setStyle("-fx-border-color:red;");
@@ -160,7 +175,7 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
           } else if (id.startsWith("path_" + paramName)) {
             HBox path = (HBox) e;
             TextField selectedPath = (TextField) path.getChildren().get(0);
-            System.out.println("select path " + selectedPath.getText());
+
             commandParams.put(paramName, selectedPath.getText());
 
           }
@@ -179,7 +194,6 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
       try {
 
         this.cmdManager.setOutput(this.guiOutput);
-        // this.grid.setDisable(true);
 
         new Thread(new Runnable() {
           @Override
@@ -190,54 +204,34 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
               result = ExecuteCommandHandler.this.cmdManager.execCmdLine(sentence);
               boolean cmdResult =
                   ((result.getLeft() == CommandResult.OK) || (result.getLeft() == CommandResult.HELP_SHOWN));
-              System.out.println("result******************* " + cmdResult);
 
-              // ExecuteCommandHandler.this.grid.setDisable(false);
               button.setDisable(false);
             } catch (Exception e) {
-              // TODO Auto-generated catch block
-              e.printStackTrace();
+
+              ExecuteCommandHandler.this.guiOutput.showError("ERROR : ", e.getMessage());
+
             }
 
           }
         }).start();
-        // Platform.runLater(new Runnable() {
-        // @Override
-        // public void run() {
-        //
-        // Pair<CommandResult, Object> result = null;
-        // try {
-        // result = ExecuteCommandHandler.this.cmdManager.execCmdLine(sentence);
-        // boolean cmdResult =
-        // ((result.getLeft() == CommandResult.OK) || (result.getLeft() == CommandResult.HELP_SHOWN));
-        // System.out.println("result******************* " + cmdResult);
-        //
-        // // ExecuteCommandHandler.this.grid.setDisable(false);
-        // b.setDisable(false);
-        // } catch (Exception e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
-        //
-        // }
-        // });
 
       } catch (Exception e1) {
-        // TODO Auto-generated catch block
-        e1.printStackTrace();
+        ExecuteCommandHandler.this.guiOutput.showError("ERROR : ", e1.getMessage());
       }
 
-      // }
-      // });
-      // this.screenController.setScene(this.popParentScene);
-      // this.screenController.show();
       break;
 
     }
 
   }
 
-  // For valid params method return true
+  /**
+   * Validating mandatory parameters For valid params method return true
+   *
+   * @param paramName
+   * @param value
+   * @return
+   */
   private boolean validateParam(String paramName, String value) {
 
     if (this.mandatoryParamList.contains(paramName) && (value == null || value.isEmpty())) {
@@ -245,19 +239,6 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
     }
     return true;
 
-  }
-
-  public Task<Pair<CommandResult, Object>> createWorker(final Sentence sentence) {
-
-    return new Task<Pair<CommandResult, Object>>() {
-      @Override
-      protected Pair<CommandResult, Object> call() throws Exception {
-
-        Pair<CommandResult, Object> result = ExecuteCommandHandler.this.cmdManager.execCmdLine(sentence);
-
-        return result;
-      }
-    };
   }
 
 }

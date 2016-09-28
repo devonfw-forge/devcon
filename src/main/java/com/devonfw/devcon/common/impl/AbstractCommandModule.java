@@ -159,7 +159,7 @@ public class AbstractCommandModule implements CommandModule {
 
     Optional<Command> cmd = this.registry.getCommand(module, command);
     if (cmd.isPresent()) {
-      System.out.println("path in oasp4j " + this.projectInfo.get().getPath().toString());
+
       cmd.get().injectEnvironment(this.registry, this.input, this.output, this.contextPathInfo,
           Optional.of(projectInfo));
     }

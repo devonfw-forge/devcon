@@ -221,7 +221,7 @@ public class Utils {
         String line;
         try {
           while ((line = bre.readLine()) != null) {
-            // System.out.println(line);
+
             output.showError(line);
           }
         } catch (Exception e) {
@@ -238,7 +238,7 @@ public class Utils {
         String line;
         try {
           while ((line = bre.readLine()) != null) {
-            // System.out.println("OUTPUT:" + line);
+
             output.showMessage(line);
           }
         } catch (Exception e) {

@@ -101,7 +101,7 @@ public class Project extends AbstractCommandModule {
           oasp4j.get().exec();
         } else {
           clienttype = p.getProjecType().toString();
-          System.out.println("clienttype " + clienttype);
+
           switch (clienttype.toLowerCase()) {
           case Constants.OASP4JS:
             Optional<com.devonfw.devcon.common.api.Command> oasp4js_cmd = getCommand("oasp4js", "build", p);
@@ -239,17 +239,16 @@ public class Project extends AbstractCommandModule {
         return;
       }
       int size = this.projectInfo.get().getSubProjects().size();
-      System.out.println("size " + size);
+
       for (int i = 0; i < size; i++) {
         ProjectInfo p = this.projectInfo.get().getSubProjects().get(i);
-        System.out.println("------------------type " + p.getConfig().get("type").toString());
 
         if (p.getProjecType() == ProjectType.OASP4J) {
           Optional<com.devonfw.devcon.common.api.Command> cmd = getCommand(Constants.OASP4J, Constants.RUN, p);
           cmd.get().exec(serverport);
         } else {
           clienttype = p.getProjecType().toString();
-          System.out.println("clienttype " + clienttype);
+
           switch (clienttype.toLowerCase()) {
           case Constants.OASP4JS:
             Optional<com.devonfw.devcon.common.api.Command> oasp4js_cmd =

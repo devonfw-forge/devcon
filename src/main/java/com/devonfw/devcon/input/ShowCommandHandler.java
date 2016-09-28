@@ -11,6 +11,7 @@ import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.api.data.CommandParameter;
 import com.devonfw.devcon.common.api.data.InputTypeNames;
 import com.devonfw.devcon.common.api.data.ParameterInputType;
+import com.devonfw.devcon.common.utils.Constants;
 import com.devonfw.devcon.output.GUIOutput;
 
 import javafx.collections.FXCollections;
@@ -39,7 +40,8 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
 /**
- * TODO ssarmoka This type ...
+ * This class is to create form for respective command in menu items. This will create UI control depending on inputType
+ * provided for each parameter. for e.g if inputtype is generic it will add textfield in form,
  *
  * @author ssarmoka
  */
@@ -55,22 +57,13 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
 
   private CommandManager cmdManager;
 
-  private TextArea console;// = TextAreaBuilder.create().prefWidth(600).prefHeight(300).wrapText(true).build();
+  private TextArea console;
 
   private List<String> mandatoryParamList = new ArrayList<>();
 
-  public static final double HEIGHT = 25;
-
-  public static final double WIDTH = 180;
-
-  public static final String MANDATORY_FIELD = "* : Indicates mandatory field";
-
-  public static final String ASTRIKE = "*";
-
-  public static final String SELECT_PATH = "Choose Directory";
-
-  public static final String CONSOLE_PROMPT_TEXT = "Console output here... ";
-
+  /**
+   * Instance of output for Devcon GUI
+   */
   public GUIOutput guiOutput;
 
   /**
@@ -90,9 +83,11 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
   /**
    * The constructor.
    *
-   * @param cmdManager
+   * @param command - command instance
    *
-   * @param primaryStage
+   * @param cmdManager -command manager instance
+   *
+   * @param primaryStage -stage from javafx application
    */
   public ShowCommandHandler(Command command, CommandManager cmdManager, Stage primaryStage) {
     this();
@@ -104,7 +99,7 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
   /**
    * The constructor.
    *
-   * @param registry
+   * @param registry - CommandRegistry instance
    */
   public ShowCommandHandler(CommandRegistry registry) {
     this.registry = registry;
@@ -117,7 +112,7 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
   public void handle(ActionEvent event) {
 
     MenuItem item = ((MenuItem) event.getSource());
-    String menu = item.getParentMenu().getText();
+
     String menuItem = item.getText().toLowerCase();
     if (menuItem.equalsIgnoreCase("Exit")) {
       System.exit(0);
@@ -143,13 +138,8 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
     this.screenController.setScene(scene);
   }
 
-  private void closeForm() {
-
-    this.screenController.setScene(popParentScene());
-  }
-
   /**
-   * @return
+   * @return Scene
    */
   public Scene popParentScene() {
 
@@ -166,7 +156,7 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
   }
 
   /**
-   * @param scene
+   * @param grid
    */
   private void showCommandControls(final GridPane grid) {
 
@@ -184,16 +174,12 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
     helpText.setEditable(false);
     grid.add(helpText, 0, 1, 2, 2);
 
-    // clearing console output , set prompt text and set background color
-    // this.console.clear();
-    // this.console.setPromptText("OUTPUT HERE");
-    // this.console.setStyle("-fx-background-color: #b5c9c9;");
     int order = 4;
 
     grid.getColumnConstraints().clear();
     grid.getRowConstraints().clear();
     if (this.command.getDefinedParameters().size() > 0) {
-      mandtory_field_text = new Text(MANDATORY_FIELD);
+      mandtory_field_text = new Text(Constants.MANDATORY_FIELD);
       mandtory_field_text.setFill(Color.RED);
     }
 
@@ -213,7 +199,7 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
 
       case LIST:
         Label list = new Label(param.getName());
-        Text text = new Text(ASTRIKE);
+        Text text = new Text(Constants.ASTRIKE);
         text.setFill(Color.RED);
         HBox hb = new HBox();
         hb.getChildren().add(list);
@@ -234,14 +220,14 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
         comboBox.getSelectionModel().select(0); // default selection for option in drop down list
         comboBox.setId("combo_" + param.getName());
         comboBox.setTooltip(toolTip);
-        comboBox.setMinHeight(HEIGHT);
-        comboBox.setPrefWidth(WIDTH);
+        comboBox.setMinHeight(Constants.HEIGHT);
+        comboBox.setPrefWidth(Constants.WIDTH);
         grid.add(comboBox, 1, order);
         break;
 
       case PASSWORD:
         final Label message = new Label("");
-        Text text1 = new Text(ASTRIKE);
+        Text text1 = new Text(Constants.ASTRIKE);
         text1.setFill(Color.RED);
         Label pw = new Label(param.getName());
         pw.setStyle("-fx-background-color: #efeeee;");
@@ -257,15 +243,15 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
         final PasswordField pwBox = new PasswordField();
         pwBox.setId("password_" + param.getName());
         pwBox.setTooltip(toolTip);
-        pwBox.setMinHeight(HEIGHT);
-        pwBox.setMaxWidth(WIDTH);
-        pwBox.setPrefWidth(WIDTH);
+        pwBox.setMinHeight(Constants.HEIGHT);
+        pwBox.setMaxWidth(Constants.WIDTH);
+        pwBox.setPrefWidth(Constants.WIDTH);
         grid.add(pwBox, 1, order);
         break;
 
       case PATH:
         Label path = new Label(param.getName());
-        Text text2 = new Text(ASTRIKE);
+        Text text2 = new Text(Constants.ASTRIKE);
         text2.setFill(Color.RED);
         path.setStyle("-fx-background-color: #efeeee;");
         HBox hb2 = new HBox();
@@ -284,7 +270,7 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
         final TextField selectedPath = new TextField();
         selectedPath.setText(this.cmdManager.getContextPathInfo().getCurrentWorkingDirectory().toString());
         selectedPath.setEditable(false);
-        Button pathSelector = new Button(SELECT_PATH);
+        Button pathSelector = new Button(Constants.SELECT_PATH);
         pathSelector.setTooltip(toolTip);
         pathSelector.setOnAction(new EventHandler<ActionEvent>() {
           @Override
@@ -299,20 +285,17 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
         directorySelector.getChildren().add(selectedPath);
         directorySelector.getChildren().add(pathSelector);
         directorySelector.setId("path_" + param.getName());
-        // pathSelector.setPrefWidth(WIDTH);
-        // pathSelector.setMinHeight(HEIGHT);
-        // selectedPath.setPrefWidth(WIDTH);
-        // selectedPath.setMinHeight(HEIGHT);
+
         directorySelector.setSpacing(5);
-        directorySelector.setPrefHeight(HEIGHT);
-        directorySelector.setPrefWidth(WIDTH);
+        directorySelector.setPrefHeight(Constants.HEIGHT);
+        directorySelector.setPrefWidth(Constants.WIDTH);
         grid.add(directorySelector, 1, order);
-        // grid.add(pathSelector, 2, order);
+
         break;
 
       default: /* GENERIC */
         final Label genLabel = new Label(param.getName());
-        Text text3 = new Text(ASTRIKE);
+        Text text3 = new Text(Constants.ASTRIKE);
         text3.setFill(Color.RED);
         genLabel.setStyle("-fx-background-color: #efeeee;");
         HBox hb3 = new HBox();
@@ -326,8 +309,8 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
         grid.add(hb3, 0, order);
 
         TextField userTextField = new TextField();
-        userTextField.setMinHeight(HEIGHT);
-        userTextField.setMaxWidth(WIDTH);
+        userTextField.setMinHeight(Constants.HEIGHT);
+        userTextField.setMaxWidth(Constants.WIDTH);
         userTextField.setId("text_" + param.getName());
         userTextField.setTooltip(toolTip);
         userTextField.setPromptText("Enter " + param.getName());
@@ -340,7 +323,6 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
     }
 
     int rowNum = grid.getChildren().size();
-    // System.out.println("Row Number " + rowNum);
 
     HBox hbox = new HBox(10);
 
@@ -350,7 +332,7 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
     this.guiOutput = new GUIOutput(this.console);
     this.console.setEditable(false);
     this.console.setId("console");
-    this.console.setPromptText(CONSOLE_PROMPT_TEXT);
+    this.console.setPromptText(Constants.CONSOLE_PROMPT_TEXT);
 
     // this.console.setStyle("-fx-background-color: #b5c9c9;");
     grid.add(this.console, 0, rowNum + 5, 2, 2);
@@ -361,13 +343,7 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
     Button back = new Button("Back");
     hbox.getChildren().add(back);
     back.setOnAction(cmdHandler);
-    // grid.add(hbox1, 1, rowNum + 1);
     grid.add(hbox, 1, rowNum + 1);
-
-    // this.console = TextAreaBuilder.create().prefWidth(600).prefHeight(300).wrapText(true).build();
-    // HBox console = new HBox();
-    // console.getChildren().add(ta);
-
   }
 
   private void chooseDirectory(Stage primaryStage, TextField filePath) {
@@ -375,12 +351,8 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
     DirectoryChooser directoryChooser = new DirectoryChooser();
     File selectedFile = directoryChooser.showDialog(primaryStage);
     directoryChooser.setInitialDirectory(this.cmdManager.getContextPathInfo().getCurrentWorkingDirectory().toFile());
-
     if (selectedFile != null) {
-
       filePath.setText(selectedFile.getAbsolutePath());
-      Tooltip tp = new Tooltip(selectedFile.getAbsolutePath());
-
     }
   }
 

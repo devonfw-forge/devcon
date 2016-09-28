@@ -89,8 +89,6 @@ public class Oasp4j extends AbstractCommandModule {
 
     serverpath = serverpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : serverpath;
 
-    System.out.println("serverpath is " + serverpath);
-
     File projectDir = new File(serverpath);
 
     if (!projectDir.exists()) {
@@ -169,7 +167,6 @@ public class Oasp4j extends AbstractCommandModule {
     }
 
     ProjectInfo info = this.projectInfo.get();
-    System.out.println("path before modification " + info.getPath().toString());
 
     // Get port from a) parameter or b) devon.json file or c) default value passed as 2nd paranter to info.getProperty
     String port_ = (port.isEmpty()) ? info.getProperty("port", "8081").toString() : port.trim();
@@ -177,7 +174,7 @@ public class Oasp4j extends AbstractCommandModule {
 
     try {
       String commandStr = "mvn spring-boot:run -Drun.jvmArguments='-Dserver.port=" + port_ + "'";
-      System.out.println("Command generated ---------- " + commandStr);
+
       String cmd = "cmd /c " + commandStr;
 
       Process p = Runtime.getRuntime().exec(cmd, null, new File(path_));
@@ -394,7 +391,7 @@ public class Oasp4j extends AbstractCommandModule {
       while ((sCurrentLine = br.readLine()) != null) {
         sb.append(sCurrentLine);
       }
-      // System.out.println("sCurrentLine " + sb);
+
     }
 
     return sb.toString();
