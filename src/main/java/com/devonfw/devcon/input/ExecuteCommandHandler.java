@@ -1,6 +1,5 @@
 package com.devonfw.devcon.input;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -23,9 +22,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
-import javafx.stage.DirectoryChooser;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 /**
@@ -44,8 +42,6 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
   private CommandManager cmdManager;
 
   private Command command;
-
-  private String paramName;
 
   private List<String> mandatoryParamList;
 
@@ -127,44 +123,45 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
         String id = e.getId();
         if (id != null && !id.isEmpty()) {
           boolean result;
-          String paramName1 = id.substring(id.indexOf("_") + 1);
+          String paramName = id.substring(id.indexOf("_") + 1);
 
           if (id.startsWith("text_")) {
             TextField t = (TextField) e;
             System.out.println("val is " + t.getText());
-            result = validateParam(paramName1, t.getText());
+            result = validateParam(paramName, t.getText());
             if (!result) {
               t.setStyle("-fx-text-box-border: red; ");
               return;
             }
 
-            commandParams.put(paramName1, t.getText());
+            commandParams.put(paramName, t.getText());
 
           } else if (id.startsWith("combo_")) {
             ComboBox<String> comboBox = (ComboBox<String>) e;
             System.out.println("comboBox param name " + comboBox.getId() + " val is " + comboBox.getValue());
-            result = validateParam(paramName1, comboBox.getValue());
+            result = validateParam(paramName, comboBox.getValue());
             if (!result) {
               comboBox.setStyle("-fx-border-color:red;");
               return;
             }
-            commandParams.put(paramName1, comboBox.getValue());
+            commandParams.put(paramName, comboBox.getValue());
 
           } else if (id.startsWith("password_")) {
             PasswordField pw = (PasswordField) e;
             System.out.println(" passsowrd val is " + pw.getText());
-            result = validateParam(paramName1, pw.getText());
+            result = validateParam(paramName, pw.getText());
             if (!result) {
               pw.setStyle("-fx-border-color:red;");
               return;
             }
 
-            commandParams.put(paramName1, pw.getText());
+            commandParams.put(paramName, pw.getText());
 
-          } else if (id.startsWith("path_" + paramName1)) {
-            Button path = (Button) e;
-            System.out.println("select path " + path.getText());
-            commandParams.put(paramName1, path.getText());
+          } else if (id.startsWith("path_" + paramName)) {
+            HBox path = (HBox) e;
+            TextField selectedPath = (TextField) path.getChildren().get(0);
+            System.out.println("select path " + selectedPath.getText());
+            commandParams.put(paramName, selectedPath.getText());
 
           }
         }
@@ -235,21 +232,7 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
       // this.screenController.setScene(this.popParentScene);
       // this.screenController.show();
       break;
-    case SELECT_PATH:
-      DirectoryChooser chooser = new DirectoryChooser();
-      File selectedFile = chooser.showDialog(null);
-      Button path = (Button) event.getSource();
-      if (selectedFile != null) {
 
-        path.setText(selectedFile.getAbsolutePath());
-        Tooltip tp = new Tooltip(selectedFile.getAbsolutePath());
-        path.setTooltip(tp);
-
-      } else {
-        path.setText("File selection cancelled.");
-      }
-
-      break;
     }
 
   }

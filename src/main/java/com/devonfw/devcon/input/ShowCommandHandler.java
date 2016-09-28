@@ -1,5 +1,6 @@
 package com.devonfw.devcon.input;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,6 +35,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
 /**
@@ -53,7 +55,7 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
 
   private CommandManager cmdManager;
 
-  private TextArea console = TextAreaBuilder.create().prefWidth(600).prefHeight(300).wrapText(true).build();
+  private TextArea console;// = TextAreaBuilder.create().prefWidth(600).prefHeight(300).wrapText(true).build();
 
   private List<String> mandatoryParamList = new ArrayList<>();
 
@@ -65,7 +67,9 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
 
   public static final String ASTRIKE = "*";
 
-  public static final String SELECT_PATH = "select path";
+  public static final String SELECT_PATH = "Choose Directory";
+
+  public static final String CONSOLE_PROMPT_TEXT = "Console output here... ";
 
   public GUIOutput guiOutput;
 
@@ -181,9 +185,9 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
     grid.add(helpText, 0, 1, 2, 2);
 
     // clearing console output , set prompt text and set background color
-    this.console.clear();
-    this.console.setPromptText("OUTPUT HERE");
-    this.console.setStyle("-fx-background-color: #b5c9c9;");
+    // this.console.clear();
+    // this.console.setPromptText("OUTPUT HERE");
+    // this.console.setStyle("-fx-background-color: #b5c9c9;");
     int order = 4;
 
     grid.getColumnConstraints().clear();
@@ -275,14 +279,35 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
 
         grid.add(hb2, 0, order); // col row
 
+        HBox directorySelector = new HBox();
+
+        final TextField selectedPath = new TextField();
+        selectedPath.setText(this.cmdManager.getContextPathInfo().getCurrentWorkingDirectory().toString());
+        selectedPath.setEditable(false);
         Button pathSelector = new Button(SELECT_PATH);
         pathSelector.setTooltip(toolTip);
-        pathSelector.setOnAction(new ExecuteCommandHandler(popParentScene(), this.command, this.cmdManager,
-            this.screenController, grid, this.mandatoryParamList));
-        pathSelector.setId("path_" + param.getName());
-        pathSelector.setPrefWidth(WIDTH);
-        pathSelector.setMinHeight(HEIGHT);
-        grid.add(pathSelector, 1, order);
+        pathSelector.setOnAction(new EventHandler<ActionEvent>() {
+          @Override
+          public void handle(ActionEvent t) {
+
+            chooseDirectory(ShowCommandHandler.this.screenController, selectedPath);
+          }
+        });
+
+        ;
+
+        directorySelector.getChildren().add(selectedPath);
+        directorySelector.getChildren().add(pathSelector);
+        directorySelector.setId("path_" + param.getName());
+        // pathSelector.setPrefWidth(WIDTH);
+        // pathSelector.setMinHeight(HEIGHT);
+        // selectedPath.setPrefWidth(WIDTH);
+        // selectedPath.setMinHeight(HEIGHT);
+        directorySelector.setSpacing(5);
+        directorySelector.setPrefHeight(HEIGHT);
+        directorySelector.setPrefWidth(WIDTH);
+        grid.add(directorySelector, 1, order);
+        // grid.add(pathSelector, 2, order);
         break;
 
       default: /* GENERIC */
@@ -321,8 +346,14 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
 
     Button ok = new Button("Ok");
     hbox.getChildren().add(ok);
-    // this.console = TextAreaBuilder.create().prefWidth(600).prefHeight(300).wrapText(true).build();
+    this.console = TextAreaBuilder.create().prefWidth(600).prefHeight(300).wrapText(true).build();
     this.guiOutput = new GUIOutput(this.console);
+    this.console.setEditable(false);
+    this.console.setId("console");
+    this.console.setPromptText(CONSOLE_PROMPT_TEXT);
+
+    // this.console.setStyle("-fx-background-color: #b5c9c9;");
+    grid.add(this.console, 0, rowNum + 5, 2, 2);
     ExecuteCommandHandler cmdHandler = new ExecuteCommandHandler(popParentScene(), this.command, this.cmdManager,
         this.screenController, grid, this.mandatoryParamList, this.guiOutput);
     ok.setOnAction(cmdHandler);
@@ -336,15 +367,21 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
     // this.console = TextAreaBuilder.create().prefWidth(600).prefHeight(300).wrapText(true).build();
     // HBox console = new HBox();
     // console.getChildren().add(ta);
-    this.console.setEditable(false);
-    this.console.setId("console");
-    grid.add(this.console, 0, rowNum + 5, 2, 2);
 
   }
 
-  public TextArea getConsole() {
+  private void chooseDirectory(Stage primaryStage, TextField filePath) {
 
-    return this.console;
+    DirectoryChooser directoryChooser = new DirectoryChooser();
+    File selectedFile = directoryChooser.showDialog(primaryStage);
+    directoryChooser.setInitialDirectory(this.cmdManager.getContextPathInfo().getCurrentWorkingDirectory().toFile());
+
+    if (selectedFile != null) {
+
+      filePath.setText(selectedFile.getAbsolutePath());
+      Tooltip tp = new Tooltip(selectedFile.getAbsolutePath());
+
+    }
   }
 
 }
