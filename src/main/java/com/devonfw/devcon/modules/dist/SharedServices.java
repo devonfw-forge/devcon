@@ -39,7 +39,7 @@ public class SharedServices {
       final InputStream isError = process.getErrorStream();
       final InputStream isOutput = process.getInputStream();
 
-      Utils.processErrorAndOutPut(isError, isOutput);
+      Utils.processErrorAndOutPut(isError, isOutput, this.out);
 
       int exitStatus = process.waitFor();
       System.out.println("s2-init.bat exit status: " + exitStatus);
@@ -65,7 +65,7 @@ public class SharedServices {
       final InputStream isError = process.getErrorStream();
       final InputStream isOutput = process.getInputStream();
 
-      Utils.processErrorAndOutPut(isError, isOutput);
+      Utils.processErrorAndOutPut(isError, isOutput, this.out);
 
       int exitStatus = process.waitFor();
       return exitStatus;

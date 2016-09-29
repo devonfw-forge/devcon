@@ -20,6 +20,8 @@ public class CommandModuleInfoImpl implements CommandModuleInfo {
 
   private String description;
 
+  private int sortValue;
+
   private boolean isVisible;
 
   private HashMap<String, Command> commands;
@@ -29,11 +31,13 @@ public class CommandModuleInfoImpl implements CommandModuleInfo {
     this.commands = new HashMap<>();
   }
 
-  public CommandModuleInfoImpl(String name, String description, boolean isVisible, Class<?> moduleClass) {
+  public CommandModuleInfoImpl(String name, String description, int sortValue, boolean isVisible,
+      Class<?> moduleClass) {
 
     this();
     this.name = name;
     this.description = description;
+    this.sortValue = sortValue;
     this.isVisible = isVisible;
     addCommands(name, moduleClass);
   }
@@ -83,9 +87,8 @@ public class CommandModuleInfoImpl implements CommandModuleInfo {
           Annotation annotation = method.getAnnotation(klass);
           com.devonfw.devcon.common.api.annotations.Command cmd =
               (com.devonfw.devcon.common.api.annotations.Command) annotation;
-          Command cmdImpl =
-              new CommandImpl(cmd.name(), cmd.description(), cmd.context(), cmd.proxyParams(), method, moduleName,
-                  moduleClass);
+          Command cmdImpl = new CommandImpl(cmd.name(), cmd.description(), cmd.sort(), cmd.context(), cmd.proxyParams(),
+              method, moduleName, moduleClass);
           this.commands.put(cmd.name(), cmdImpl);
         }
       }
@@ -102,5 +105,15 @@ public class CommandModuleInfoImpl implements CommandModuleInfo {
   public int compareTo(CommandModuleInfo o) {
 
     return getName().compareTo(o.getName());
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getSortValue() {
+
+    // TODO Auto-generated method stub
+    return this.sortValue;
   }
 }

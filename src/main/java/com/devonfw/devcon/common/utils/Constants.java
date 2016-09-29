@@ -181,4 +181,50 @@ public final class Constants {
   public final static String TOMCAT_START_UP_BAT_FILES = "\\software\\tomcat\\bin";
 
   public final static String DEFAULT_PORT = "8080";
+
+  /**
+   * Devcon logo file name
+   */
+  public final static String DEVCON_LOGO = "Logo_Devcon-background.jpg";
+
+  /**
+   * HEIGHT
+   */
+  public static final double HEIGHT = 25;
+
+  /**
+   * WIDTH
+   */
+  public static final double WIDTH = 180;
+
+  /**
+   * MANDATORY_FIELD
+   */
+  public static final String MANDATORY_FIELD = "* : Indicates mandatory field";
+
+  /**
+   * ASTRIKE
+   */
+  public static final String ASTRIKE = "*";
+
+  /**
+   * SELECT_PATH
+   */
+  public static final String SELECT_PATH = "Choose Directory";
+
+  /**
+   * CONSOLE_PROMPT_TEXT
+   */
+  public static final String CONSOLE_PROMPT_TEXT = "Console output here... ";
+
+  /**
+   * BACK
+   */
+  public static final String BACK = "back";
+
+  /**
+   * OK
+   */
+  public static final String OK = "ok";
+
 }

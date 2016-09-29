@@ -47,7 +47,7 @@ public class CommandRegistryImpl implements CommandRegistry {
       CmdModuleRegistry moduleAnnotation = (CmdModuleRegistry) annotation;
 
       CommandModuleInfo cmdmodule = new CommandModuleInfoImpl(moduleAnnotation.name(), moduleAnnotation.description(),
-          moduleAnnotation.visible(), moduleClass);
+          moduleAnnotation.sort(), moduleAnnotation.visible(), moduleClass);
       this.modules.put(cmdmodule.getName(), cmdmodule);
     }
   }
@@ -81,6 +81,11 @@ public class CommandRegistryImpl implements CommandRegistry {
    * the description of the element
    */
   private String description;
+
+  /**
+   * sort value of module
+   */
+  private int sortValue;
 
   /**
    * determines whether component is visible on the console
@@ -142,4 +147,19 @@ public class CommandRegistryImpl implements CommandRegistry {
     return new ArrayList<CommandModuleInfo>(this.modules.values());
   }
 
+  /**
+   * @return sortValue
+   */
+  public int getSortValue() {
+
+    return this.sortValue;
+  }
+
+  /**
+   * @param sortValue the sortValue to set
+   */
+  public void setSortValue(int sortValue) {
+
+    this.sortValue = sortValue;
+  }
 }

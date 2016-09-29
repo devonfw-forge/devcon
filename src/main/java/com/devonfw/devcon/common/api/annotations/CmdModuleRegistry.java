@@ -34,4 +34,11 @@ public @interface CmdModuleRegistry {
    */
   boolean visible() default true;
 
+  /**
+   * To sort modules using sort attributes. If sort >=0, it will be sorted by descending value. Modules which do not
+   * have any value for sort attribute or which have value <1 will be omitted from numeric sort and will be sorted
+   * alphabetically. This modules will be appended to the modules which are sorted numerically.-DevconGUI
+   */
+  int sort() default -1;
+
 }

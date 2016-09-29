@@ -6,11 +6,13 @@ import java.nio.file.Path;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
+import com.devonfw.devcon.common.api.annotations.InputType;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.ContextType;
 import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.DistributionType;
+import com.devonfw.devcon.common.api.data.InputTypeNames;
 import com.devonfw.devcon.common.exception.InvalidConfigurationStateException;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Constants;
@@ -38,10 +40,11 @@ public class Dist extends AbstractCommandModule {
    */
   @Command(name = "install", description = "This command downloads the distribution", context = ContextType.NONE)
   @Parameters(values = {
-  @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true),
-  @Parameter(name = "type", description = "the type of the distribution, the options are: \n 'oaspide' to download OASP IDE\n 'devondist' to download Devon IP IDE", optional = true),
+  @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
+  @Parameter(name = "type", description = "the type of the distribution, the options are: \n 'oaspide' to download OASP IDE\n 'devondist' to download Devon IP IDE", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
+  "oaspide", "devondist" })),
   @Parameter(name = "user", description = "a user with permissions to download the Devon distribution"),
-  @Parameter(name = "password", description = "the password related to the user with permissions to download the Devon distribution") })
+  @Parameter(name = "password", description = "the password related to the user with permissions to download the Devon distribution", inputType = @InputType(name = InputTypeNames.PASSWORD)) })
   public void install(String path, String type, String user, String password) throws Exception {
 
     String frsFileId = "";
@@ -91,7 +94,7 @@ public class Dist extends AbstractCommandModule {
    */
   @Command(name = "init", description = "This command initialized a newly downloaded distribution", context = ContextType.NONE)
   @Parameters(values = {
-  @Parameter(name = "path", description = "location of the Devon distribution (current dir if not given)", optional = true) })
+  @Parameter(name = "path", description = "location of the Devon distribution (current dir if not given)", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
   public void init(String path) throws Exception {
 
     String frsFileId = "";
@@ -118,7 +121,7 @@ public class Dist extends AbstractCommandModule {
       final InputStream isError = process.getErrorStream();
       final InputStream isOutput = process.getInputStream();
 
-      Utils.processErrorAndOutPut(isError, isOutput);
+      Utils.processErrorAndOutPut(isError, isOutput, this.output);
 
       this.output.showMessage("Distribution initialized.");
 
@@ -139,14 +142,16 @@ public class Dist extends AbstractCommandModule {
    * @param svnpass the password of the user with permissions in the svn repository
    */
   @Command(name = "s2", description = "Initializes a Devon distribution for use with Shared Services.")
-  @Parameters(values = { @Parameter(name = "projectname", description = "the name for the new project"),
-  @Parameter(name = "user", description = "the userId for Artifactory provided by S2 for the project"),
-  @Parameter(name = "pass", description = "the password for Artifactory"),
-  @Parameter(name = "engagementname", description = "the name of the repository for the engagement"),
-  @Parameter(name = "ciaas", description = "if the settings.xml must be configured for CIaaS set this as TRUE. Is an optional parameter with FALSE as default value.", optional = true),
-  @Parameter(name = "svnurl", description = "the url for the SVN provided by S2", optional = true),
-  @Parameter(name = "svnuser", description = "the user for the SVN", optional = true),
-  @Parameter(name = "svnpass", description = "the password for the SVN", optional = true) })
+  @Parameters(values = {
+  @Parameter(name = "projectname", description = "the name for the new project", inputType = @InputType(name = InputTypeNames.GENERIC)),
+  @Parameter(name = "user", description = "the userId for Artifactory provided by S2 for the project", inputType = @InputType(name = InputTypeNames.GENERIC)),
+  @Parameter(name = "pass", description = "the password for Artifactory", inputType = @InputType(name = InputTypeNames.PASSWORD)),
+  @Parameter(name = "engagementname", description = "the name of the repository for the engagement", inputType = @InputType(name = InputTypeNames.GENERIC)),
+  @Parameter(name = "ciaas", description = "if the settings.xml must be configured for CIaaS set this as TRUE. Is an optional parameter with FALSE as default value.", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
+  "False", "True" })),
+  @Parameter(name = "svnurl", description = "the url for the SVN provided by S2", optional = true, inputType = @InputType(name = InputTypeNames.GENERIC)),
+  @Parameter(name = "svnuser", description = "the user for the SVN", optional = true, inputType = @InputType(name = InputTypeNames.GENERIC)),
+  @Parameter(name = "svnpass", description = "the password for the SVN", optional = true, inputType = @InputType(name = InputTypeNames.PASSWORD)) })
   public void s2(String projectname, String user, String pass, String engagementname, String ciaas, String svnurl,
       String svnuser, String svnpass) {
 
@@ -190,7 +195,7 @@ public class Dist extends AbstractCommandModule {
    */
   @Command(name = "info", description = "Basic info about the distribution")
   @Parameters(values = {
-  @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true) })
+  @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
   public void info(String path) {
 
     try {

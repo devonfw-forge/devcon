@@ -11,4 +11,5 @@ public interface Info {
 
   public String getDescription();
 
+  public int getSortValue();
 }

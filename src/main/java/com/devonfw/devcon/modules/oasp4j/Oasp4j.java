@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Iterator;
@@ -29,10 +28,12 @@ import org.w3c.dom.NodeList;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
+import com.devonfw.devcon.common.api.annotations.InputType;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.ContextType;
 import com.devonfw.devcon.common.api.data.DistributionInfo;
+import com.devonfw.devcon.common.api.data.InputTypeNames;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
@@ -45,7 +46,7 @@ import com.google.common.base.Optional;
  *
  * @author ssarmoka
  */
-@CmdModuleRegistry(name = "oasp4j", description = "Oasp4j(server project) related commands")
+@CmdModuleRegistry(name = "oasp4j", description = "Oasp4j(server project) related commands", sort = 3)
 public class Oasp4j extends AbstractCommandModule {
 
   /**
@@ -65,7 +66,8 @@ public class Oasp4j extends AbstractCommandModule {
    * @throws IOException
    */
   @Command(name = "create", description = "This command is used to create new server project")
-  @Parameters(values = { @Parameter(name = "serverpath", description = "where to create", optional = true),
+  @Parameters(values = {
+  @Parameter(name = "serverpath", description = "where to create", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
   @Parameter(name = "servername", description = "Name of project", optional = true),
   @Parameter(name = "packagename", description = "package name in server project"),
   @Parameter(name = "groupid", description = "groupid for server project"),
@@ -73,13 +75,12 @@ public class Oasp4j extends AbstractCommandModule {
   public void create(String serverpath, String servername, String packagename, String groupid, String version)
       throws IOException {
 
-    String command =
-        new StringBuffer("cmd /c mvn -DarchetypeVersion=").append(Constants.OASP_TEMPLATE_VERSION)
-            .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
-            .append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
-            .append(Constants.OASP_ARTIFACT_ID).append(" archetype:generate -DgroupId=").append(groupid)
-            .append(" -DartifactId=").append(servername).append(" -Dversion=").append(version).append(" -Dpackage=")
-            .append(packagename).append(" -DinteractiveMode=false").toString();
+    String command = new StringBuffer("cmd /c mvn -DarchetypeVersion=").append(Constants.OASP_TEMPLATE_VERSION)
+        .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
+        .append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=").append(Constants.OASP_ARTIFACT_ID)
+        .append(" archetype:generate -DgroupId=").append(groupid).append(" -DartifactId=").append(servername)
+        .append(" -Dversion=").append(version).append(" -Dpackage=").append(packagename)
+        .append(" -DinteractiveMode=false").toString();
 
     if (!SystemUtils.IS_OS_WINDOWS) {
       getOutput().showMessage("This task is currently only supported on Windows");
@@ -87,8 +88,6 @@ public class Oasp4j extends AbstractCommandModule {
     }
 
     serverpath = serverpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : serverpath;
-
-    System.out.println("serverpath is " + serverpath);
 
     File projectDir = new File(serverpath);
 
@@ -100,17 +99,29 @@ public class Oasp4j extends AbstractCommandModule {
     if (!project.exists()) {
 
       Runtime rt = Runtime.getRuntime();
-      Process process = null;
+      final Process process;
 
       try {
         process = rt.exec(command, null, new File(serverpath));
+        final InputStream isError = process.getErrorStream();
+        final InputStream isOutput = process.getInputStream();
 
-        String line;
-        BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        while ((line = in.readLine()) != null) {
-          System.out.println(line);
-        }
-        in.close();
+        Utils.processErrorAndOutPut(isError, isOutput, this.output);
+        // String line;
+        // BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        // while ((line = in.readLine()) != null) {
+        // System.out.println(line);
+        // getOutput().showMessage(line);
+        // // this.consoleOutput.append(line).append("\n");
+        // }
+        // in.close();
+        // ProcessBuilder processBuilder = new ProcessBuilder(command);
+        // processBuilder.directory(new File(serverpath));
+        // process = processBuilder.start();
+        // final InputStream isError = process.getErrorStream();
+        // final InputStream isOutput = process.getInputStream();
+        //
+        // Utils.processErrorAndOutPut(isError, isOutput, this.output);
 
         int result = process.waitFor();
         if (result == 0) {
@@ -120,8 +131,6 @@ public class Oasp4j extends AbstractCommandModule {
           if (Integer.parseInt(Constants.OASP_TEMPLATE_VERSION.replaceAll("\\.", "")) <= new Integer("211")) {
             modifyPom(serverpath + "\\" + servername + "\\server\\pom.xml", packagename);
           }
-
-          getOutput().showMessage("Project Creation completed successfully");
 
         } else {
           throw new Exception("Project creation failed");
@@ -148,7 +157,8 @@ public class Oasp4j extends AbstractCommandModule {
    * @param port Server will be started at this port
    */
   @Command(name = "run", description = "runs application from embedded tomcat", context = ContextType.PROJECT)
-  @Parameters(values = { @Parameter(name = "port", description = "Port to start Spring boot app (port 8081 by default)", optional = true) })
+  @Parameters(values = {
+  @Parameter(name = "port", description = "Port to start Spring boot app (port 8081 by default)", optional = true) })
   public void run(String port) {
 
     if (!this.projectInfo.isPresent()) {
@@ -157,7 +167,6 @@ public class Oasp4j extends AbstractCommandModule {
     }
 
     ProjectInfo info = this.projectInfo.get();
-    System.out.println("path before modification " + info.getPath().toString());
 
     // Get port from a) parameter or b) devon.json file or c) default value passed as 2nd paranter to info.getProperty
     String port_ = (port.isEmpty()) ? info.getProperty("port", "8081").toString() : port.trim();
@@ -165,22 +174,28 @@ public class Oasp4j extends AbstractCommandModule {
 
     try {
       String commandStr = "mvn spring-boot:run -Drun.jvmArguments='-Dserver.port=" + port_ + "'";
-      System.out.println("Command generated ---------- " + commandStr);
-      String cmd = "cmd /c start " + commandStr;
+
+      String cmd = "cmd /c " + commandStr;
 
       Process p = Runtime.getRuntime().exec(cmd, null, new File(path_));
-      // String line;
+      String line;
+      final InputStream isError = p.getErrorStream();
+      final InputStream isOutput = p.getInputStream();
+
+      Utils.processErrorAndOutPut(isError, isOutput, this.output);
       // BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
       // while ((line = in.readLine()) != null) {
       // System.out.println(line);
+      // getOutput().showMessage(line);
       // }
       // in.close();
-      int result = p.waitFor();
-      if (result == 0) {
-        getOutput().showMessage("Application started");
-      } else {
-        getOutput().showError("Application failed to start");
-      }
+      // int result = p.waitFor();
+      // if (result == 0) {
+      // getOutput().showMessage("Application started");
+      // } else {
+      // getOutput().showError("Application failed to start");
+      // }
+
     } catch (Exception e) {
 
       getOutput().showError("An error occured during executing oasp4j Cmd: %s", e.getMessage());
@@ -204,15 +219,23 @@ public class Oasp4j extends AbstractCommandModule {
       String cmd = "cmd /c mvn clean install";
 
       p = Runtime.getRuntime().exec(cmd, null, this.projectInfo.get().getPath().toFile());
+      // ProcessBuilder processBuilder =
+      // new ProcessBuilder("D:\\Devon2.0.1\\software\\maven\\bin\\mvn.bat", "clean", "install");
+      // processBuilder.directory(this.projectInfo.get().getPath().toFile());
+      // process = processBuilder.start();
+      final InputStream isError = p.getErrorStream();
+      final InputStream isOutput = p.getInputStream();
 
-      String line;
-      BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-      while ((line = in.readLine()) != null) {
-        System.out.println(line);
-      }
-      in.close();
-      p.waitFor();
-      getOutput().showMessage("Completed");
+      Utils.processErrorAndOutPut(isError, isOutput, this.output);
+      // String line;
+      // BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+      // while ((line = in.readLine()) != null) {
+      // System.out.println(line);
+      // getOutput().showMessage(line);
+      // }
+      // in.close();
+      // p.exitValue();
+
     } catch (Exception e) {
       getOutput().showError("An error occured during executing oasp4j Cmd" + e.getMessage());
     }
@@ -223,7 +246,8 @@ public class Oasp4j extends AbstractCommandModule {
    * @param path server project path
    */
   @Command(name = "deploy", description = "This command will deploy the server project on tomcat", context = ContextType.PROJECT)
-  @Parameters(values = { @Parameter(name = "tomcatpath", description = "Path to tomcat folder (if not provided and the project is in a Devonfw distribution the default software/tomcat folder will be used)", optional = true) })
+  @Parameters(values = {
+  @Parameter(name = "tomcatpath", description = "Path to tomcat folder (if not provided and the project is in a Devonfw distribution the default software/tomcat folder will be used)", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
   public void deploy(String tomcatpath) {
 
     String path;
@@ -249,9 +273,9 @@ public class Oasp4j extends AbstractCommandModule {
 
       if (appName.isPresent()) {
 
-        tomcatpath =
-            tomcatpath.isEmpty() ? distInfo.get().getPath().toFile().toString() + File.separator + "software"
-                + File.separator + "tomcat" : tomcatpath;
+        tomcatpath = tomcatpath.isEmpty()
+            ? distInfo.get().getPath().toFile().toString() + File.separator + "software" + File.separator + "tomcat"
+            : tomcatpath;
 
         File tomcatDir = new File(tomcatpath);
 
@@ -287,7 +311,7 @@ public class Oasp4j extends AbstractCommandModule {
             final InputStream isError = process.getErrorStream();
             final InputStream isOutput = process.getInputStream();
 
-            Utils.processErrorAndOutPut(isError, isOutput);
+            Utils.processErrorAndOutPut(isError, isOutput, getOutput());
 
             process.waitFor();
 
@@ -315,18 +339,18 @@ public class Oasp4j extends AbstractCommandModule {
                     final InputStream isTomcatError = tomcatProcess.getErrorStream();
                     final InputStream isTomcatOutput = tomcatProcess.getInputStream();
 
-                    Utils.processErrorAndOutPut(isTomcatError, isTomcatOutput);
+                    Utils.processErrorAndOutPut(isTomcatError, isTomcatOutput, getOutput());
 
                     int tomcatResult = tomcatProcess.waitFor();
 
                     if (tomcatResult == 0) {
-                      getOutput().showMessage(
-                          "##########################################################################");
-                      getOutput().showMessage(
-                          "After Tomcat finishes the loading process the app should be available in: ");
+                      getOutput()
+                          .showMessage("##########################################################################");
+                      getOutput()
+                          .showMessage("After Tomcat finishes the loading process the app should be available in: ");
                       getOutput().showMessage("localhost:8080/" + warFile.getName().replace(".war", ""));
-                      getOutput().showMessage(
-                          "##########################################################################");
+                      getOutput()
+                          .showMessage("##########################################################################");
                     }
 
                   } else {
@@ -367,7 +391,7 @@ public class Oasp4j extends AbstractCommandModule {
       while ((sCurrentLine = br.readLine()) != null) {
         sb.append(sCurrentLine);
       }
-      // System.out.println("sCurrentLine " + sb);
+
     }
 
     return sb.toString();

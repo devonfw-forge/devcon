@@ -1,6 +1,8 @@
 package com.devonfw.devcon.modules.oasp4js;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -17,10 +19,12 @@ import org.w3c.dom.Node;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
+import com.devonfw.devcon.common.api.annotations.InputType;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.ContextType;
 import com.devonfw.devcon.common.api.data.DistributionInfo;
+import com.devonfw.devcon.common.api.data.InputTypeNames;
 import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Downloader;
@@ -47,7 +51,7 @@ public class Oasp4js extends AbstractCommandModule {
 
   @Command(name = "create", description = "This command creates a basic Oasp4js app")
   @Parameters(values = { @Parameter(name = "clientname", description = "The name for the project"),
-  @Parameter(name = "clientpath", description = "The location for the new project", optional = true) })
+  @Parameter(name = "clientpath", description = "The location for the new project", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
   public void create(String clientname, String clientpath) {
 
     getOutput().showMessage("Creating project " + clientname + "...");
@@ -108,8 +112,20 @@ public class Oasp4js extends AbstractCommandModule {
           String cmd = "cmd /c start npm install";
 
           p = Runtime.getRuntime().exec(cmd, null, this.projectInfo.get().getPath().toFile());
-          p.waitFor();
-          getOutput().showMessage("Completed");
+          String line;
+          BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+          while ((line = in.readLine()) != null) {
+            System.out.println(line);
+            // getOutput().showMessage(line);
+            // this.consoleOutput.append(line).append("\n");
+          }
+          in.close();
+          int result = p.exitValue();
+          if (result == 0)
+            getOutput().showMessage("Project build successfully");
+          else
+            getOutput().showMessage("Project build failed");
+
         } catch (Exception e) {
 
           getOutput().showError(
