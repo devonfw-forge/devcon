@@ -264,8 +264,8 @@ public class Utils {
         FileUtils.writeStringToFile(settingsfile, content, "UTF-8");
       }
     } catch (Exception e) {
-      throw new Exception(
-          "An error occurred while adding the devon.json file. You may need to add it manually. " + e.getMessage());
+      throw new Exception("An error occurred while adding the devon.json file. You may need to add it manually. "
+          + e.getMessage());
     }
 
   }
@@ -275,14 +275,15 @@ public class Utils {
     try {
       File appFolder = pathToApp.toFile();
       if (appFolder.exists()) {
-        String content = "{\"version\": \"" + Devcon.DEVON_DEFAULT_VERSION
-            + "\",\n\"type\":\"COMBINED\",\n\"projects\":[\"" + serverPath + "\", \"" + clientPath + "\"]\n}";
+        String content =
+            "{\"version\": \"" + Devcon.DEVON_DEFAULT_VERSION + "\",\n\"type\":\"COMBINED\",\n\"projects\":[\""
+                + serverPath + "\", \"" + clientPath + "\"]\n}";
         File settingsfile = pathToApp.resolve("devon.json").toFile();
         FileUtils.writeStringToFile(settingsfile, content, "UTF-8");
       }
     } catch (Exception e) {
-      throw new Exception(
-          "An error occurred while adding the devon.json file. You may need to add it manually. " + e.getMessage());
+      throw new Exception("An error occurred while adding the devon.json file. You may need to add it manually. "
+          + e.getMessage());
     }
 
   }
@@ -357,6 +358,7 @@ public class Utils {
     List<CommandModuleInfo> moduleSortValList = new ArrayList<>();
     List<CommandModuleInfo> moduleUnOrderList = new ArrayList<>();
     List<CommandModuleInfo> finalModuleList = new ArrayList<>();
+    List<CommandModuleInfo> finalOrderedModuleList = new ArrayList<>();
     for (CommandModuleInfo module : modules) {
       if (module.getSortValue() >= 0) {
         moduleSortValList.add(module);
@@ -370,6 +372,15 @@ public class Utils {
     finalModuleList.addAll(moduleSortValList);
     finalModuleList.addAll(moduleUnOrderList);
 
-    return finalModuleList;
+    // to put 'system' module as first menu
+    for (CommandModuleInfo finalModule : finalModuleList) {
+      if (finalModule.getName().equals("system")) {
+        finalOrderedModuleList.add(0, finalModule);
+      } else {
+        finalOrderedModuleList.add(finalModule);
+      }
+    }
+
+    return finalOrderedModuleList;
   }
 }

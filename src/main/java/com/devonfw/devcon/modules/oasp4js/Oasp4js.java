@@ -50,7 +50,8 @@ public class Oasp4js extends AbstractCommandModule {
   private static String OASP4JS_ang2 = "frs99999";
 
   @Command(name = "create", description = "This command creates a basic Oasp4js app")
-  @Parameters(values = { @Parameter(name = "clientname", description = "The name for the project"),
+  @Parameters(values = {
+  @Parameter(name = "clientname", description = "The name for the project"),
   @Parameter(name = "clientpath", description = "The location for the new project", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
   public void create(String clientname, String clientpath) {
 
@@ -171,10 +172,11 @@ public class Oasp4js extends AbstractCommandModule {
 
   @Command(name = "jumpstart", description = "This command downloads the Oasp4js sample app with all its dependencies from Teamforge", context = ContextType.NONE)
   @Parameters(values = {
-  @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true),
-  @Parameter(name = "angularVersion", description = "the version of the , the options are: \n '1' to download OASP4js based on Angular 1 \n '2' to download OASP4js based on Angular 2", optional = true),
+  @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
+  @Parameter(name = "angularVersion", description = "the version of the , the options are: \n '1' to download OASP4js based on Angular 1 \n '2' to download OASP4js based on Angular 2", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
+  "1", "2" })),
   @Parameter(name = "user", description = "a user with download permissions in Teamforge"),
-  @Parameter(name = "password", description = "the password related to the user with download permissions") })
+  @Parameter(name = "password", description = "the password related to the user with download permissions", inputType = @InputType(name = InputTypeNames.PASSWORD)) })
   public void jumpstart(String path, String angularVersion, String user, String password) {
 
     String frsFileId = "";
@@ -207,7 +209,7 @@ public class Oasp4js extends AbstractCommandModule {
       }
 
     } catch (Exception e) {
-      getOutput().showError(e.getMessage());
+      getOutput().showError("Download Failed." + e.getMessage());
     }
   }
 

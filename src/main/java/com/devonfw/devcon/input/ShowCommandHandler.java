@@ -5,21 +5,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.devonfw.devcon.common.api.Command;
-import com.devonfw.devcon.common.api.CommandManager;
-import com.devonfw.devcon.common.api.CommandRegistry;
-import com.devonfw.devcon.common.api.data.CommandParameter;
-import com.devonfw.devcon.common.api.data.InputTypeNames;
-import com.devonfw.devcon.common.api.data.ParameterInputType;
-import com.devonfw.devcon.common.utils.Constants;
-import com.devonfw.devcon.output.GUIOutput;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -30,14 +23,26 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextAreaBuilder;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Polygon;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+
+import com.devonfw.devcon.common.api.Command;
+import com.devonfw.devcon.common.api.CommandManager;
+import com.devonfw.devcon.common.api.CommandRegistry;
+import com.devonfw.devcon.common.api.data.CommandParameter;
+import com.devonfw.devcon.common.api.data.InputTypeNames;
+import com.devonfw.devcon.common.api.data.ParameterInputType;
+import com.devonfw.devcon.common.utils.Constants;
+import com.devonfw.devcon.output.GUIOutput;
 
 /**
  * This class is to create form for respective command in menu items. This will create UI control depending on inputType
@@ -78,6 +83,7 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
    * The constructor.
    */
   public ShowCommandHandler() {
+
   }
 
   /**
@@ -90,6 +96,7 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
    * @param primaryStage -stage from javafx application
    */
   public ShowCommandHandler(Command command, CommandManager cmdManager, Stage primaryStage) {
+
     this();
     this.command = command;
     this.screenController = primaryStage;
@@ -102,6 +109,7 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
    * @param registry - CommandRegistry instance
    */
   public ShowCommandHandler(CommandRegistry registry) {
+
     this.registry = registry;
   }
 
@@ -164,28 +172,29 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
     // set scene title
     Text scenetitle = new Text(this.command.getModuleName() + " " + this.command.getName());
     scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-    grid.add(scenetitle, 0, 0, 2, 1);
+    grid.add(scenetitle, 0, 1, 2, 1);
 
     // Displaying helptext
     TextArea helpText = new TextArea();
     helpText.setStyle("-fx-background-color: #dcecf5;");
     helpText.setWrapText(true);
-    helpText.setText(this.command.getHelpText());
+    helpText.setText(this.command.getDescription());
     helpText.setEditable(false);
-    grid.add(helpText, 0, 1, 2, 2);
+    grid.add(helpText, 0, 2, 2, 2);
 
-    int order = 4;
+    int order = 5;
 
+    // mandatory fields message
     grid.getColumnConstraints().clear();
     grid.getRowConstraints().clear();
     if (this.command.getDefinedParameters().size() > 0) {
       mandtory_field_text = new Text(Constants.MANDATORY_FIELD);
       mandtory_field_text.setFill(Color.RED);
     }
-
     HBox hbox1 = new HBox();
     hbox1.getChildren().add(mandtory_field_text);
-    grid.add(hbox1, 0, 3, 1, 1);
+    grid.add(hbox1, 0, 4, 1, 1);
+
     for (final CommandParameter param : this.command.getDefinedParameters()) {
       Tooltip toolTip = new Tooltip(param.getDescription());
       ParameterInputType inputType = param.getInputType();
@@ -324,10 +333,6 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
 
     int rowNum = grid.getChildren().size();
 
-    HBox hbox = new HBox(10);
-
-    Button ok = new Button("Ok");
-    hbox.getChildren().add(ok);
     this.console = TextAreaBuilder.create().prefWidth(600).prefHeight(300).wrapText(true).build();
     this.guiOutput = new GUIOutput(this.console);
     this.console.setEditable(false);
@@ -336,13 +341,36 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
 
     // this.console.setStyle("-fx-background-color: #b5c9c9;");
     grid.add(this.console, 0, rowNum + 5, 2, 2);
-    ExecuteCommandHandler cmdHandler = new ExecuteCommandHandler(popParentScene(), this.command, this.cmdManager,
-        this.screenController, grid, this.mandatoryParamList, this.guiOutput);
-    ok.setOnAction(cmdHandler);
+    ExecuteCommandHandler cmdHandler =
+        new ExecuteCommandHandler(popParentScene(), this.command, this.cmdManager, this.screenController, grid,
+            this.mandatoryParamList, this.guiOutput);
 
-    Button back = new Button("Back");
-    hbox.getChildren().add(back);
+    // Start button
+    HBox hbox = new HBox(10);
+    hbox.setPrefWidth(100);
+    Button start = new Button("Start");
+    start.setMinWidth(hbox.getPrefWidth());
+    changeBackgroundOnHover(start);
+    start.setCursor(Cursor.HAND);
+    hbox.getChildren().add(start);
+    start.setOnAction(cmdHandler);
+
+    // back button
+    VBox vbox = new VBox();
+    vbox.setPrefWidth(80);
+    Button back = new Button("back");
+    back.setAlignment(Pos.BASELINE_RIGHT);
+    back.setMinWidth(vbox.getPrefWidth());
+    vbox.getChildren().add(back);
+    grid.add(vbox, 0, 0);
     back.setOnAction(cmdHandler);
+
+    // left arrow
+    Polygon leftArrow = new Polygon();
+    leftArrow.getPoints().addAll(
+        new Double[] { 15.0, 10.0, 25.0, 2.0, 25.0, 7.0, 35.0, 7.0, 35.0, 13.0, 25.0, 13.0, 25.0, 18.0 });
+    grid.add(leftArrow, 0, 0);
+
     grid.add(hbox, 1, rowNum + 1);
   }
 
@@ -354,6 +382,25 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
     if (selectedFile != null) {
       filePath.setText(selectedFile.getAbsolutePath());
     }
+  }
+
+  public void changeBackgroundOnHover(final Node node) {
+
+    node.setStyle(Constants.STANDARD_BUTTON_START_STYLE);
+    node.setOnMouseEntered(new EventHandler<MouseEvent>() {
+      @Override
+      public void handle(MouseEvent mouseEvent) {
+
+        node.setStyle(Constants.HOVERED_BUTTON_START_STYLE);
+      }
+    });
+    node.setOnMouseExited(new EventHandler<MouseEvent>() {
+      @Override
+      public void handle(MouseEvent mouseEvent) {
+
+        node.setStyle(Constants.STANDARD_BUTTON_START_STYLE);
+      }
+    });
   }
 
 }
