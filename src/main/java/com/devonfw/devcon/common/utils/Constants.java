@@ -223,8 +223,17 @@ public final class Constants {
   public static final String BACK = "back";
 
   /**
-   * OK
+   * START
    */
-  public static final String OK = "ok";
+  public static final String START = "start";
 
+  /**
+   * STANDARD_BUTTON_START_STYLE
+   */
+  public static final String STANDARD_BUTTON_START_STYLE = "-fx-background-color: #0099ff; -fx-text-fill: white;";
+
+  /**
+   * STANDARD_BUTTON_START_STYLE
+   */
+  public static final String HOVERED_BUTTON_START_STYLE = "-fx-background-color: #99d6ff; -fx-text-fill: black;";
 }

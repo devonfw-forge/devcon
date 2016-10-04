@@ -21,8 +21,10 @@ import org.json.JSONObject;
 import com.devonfw.devcon.Devcon;
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
+import com.devonfw.devcon.common.api.annotations.InputType;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
+import com.devonfw.devcon.common.api.data.InputTypeNames;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.impl.utils.WindowsReqistry;
 import com.devonfw.devcon.common.utils.Utils;
@@ -56,8 +58,8 @@ public class SystemCommands extends AbstractCommandModule {
 
   @SuppressWarnings("javadoc")
   @Command(name = "install", description = "Install Devcon on user´s HOME folder or alternative path", proxyParams = true)
-  @Parameters(values = {
-  @Parameter(name = "addToPath", description = "Add to %PATH% (by default \"true\")", optional = true) })
+  @Parameters(values = { @Parameter(name = "addToPath", description = "Add to %PATH% (by default \"true\")", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
+  "true", "false" })) })
   public void install(String addToPath/* , String proxyHost, String proxyPort */) {
 
     Output out = getOutput();
