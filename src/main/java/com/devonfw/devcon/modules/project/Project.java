@@ -69,7 +69,7 @@ public class Project extends AbstractCommandModule {
 
   private final String POM_XML = "pom.xml";
 
-  @Command(name = "build", description = "This command will build the server & client project(unified server and client build)", context = ContextType.COMBINEDPROJECT)
+  @Command(name = "build", description = "This command will build the server & client project (unified server and client build)", context = ContextType.COMBINEDPROJECT)
   @Parameters(values = {
   @Parameter(name = "clienttype", description = "This parameter shows which type of client is integrated with server i.e oasp4js or devon4sencha", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
   "", "oasp4js", "devon4sencha" })),
@@ -128,7 +128,7 @@ public class Project extends AbstractCommandModule {
 
   }
 
-  @Command(name = "create", description = "This command is used to create new combined server & client project")
+  @Command(name = "create", description = "This command creates a new combined server & client project")
   @Parameters(values = {
   @Parameter(name = "combinedprojectpath", description = "where to create the combined server and client project (currentDir if not given)", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
   @Parameter(name = "servername", description = "name for the server project"),
@@ -220,10 +220,10 @@ public class Project extends AbstractCommandModule {
    * @param serverport Port to run server project
    * @param serverpath Path of server directory
    */
-  @Command(name = "run", description = "This command will run the server & client project(unified server and client build) in debug mode (seperate cliet and spring boot server(not on tomcat))", context = ContextType.COMBINEDPROJECT)
+  @Command(name = "run", description = "This command runs the server & client project (unified server and client build) in debug mode. It runs client app and spring boot server seperately.", context = ContextType.COMBINEDPROJECT)
   @Parameters(values = {
   @Parameter(name = "clienttype", description = "This parameter shows which type of client is integrated with server i.e oasp4js or devon4sencha", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
-  "oasp4js", "devon4sencha" })),
+  "", "oasp4js", "devon4sencha" })),
   @Parameter(name = "clientpath", description = "Location of the oasp4js app", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
   @Parameter(name = "serverport", description = "Port to start server", optional = true),
   @Parameter(name = "serverpath", description = "Path to Server project Workspace (currentDir if not given)", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
@@ -280,7 +280,7 @@ public class Project extends AbstractCommandModule {
     }
   }
 
-  @Command(name = "deploy", description = "This command is to automate the deploy process of a combined server & client project", context = ContextType.COMBINEDPROJECT)
+  @Command(name = "deploy", description = "This command automates the deploy process of a combined server & client project", context = ContextType.COMBINEDPROJECT)
   @Parameters(values = {
   @Parameter(name = "tomcatpath", description = "Path to tomcat folder (the distribution's Tomcat when not given)", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
   @Parameter(name = "clienttype", description = "Type of client either angular or Sencha (obtained from 'projects' property in devon.json when not given)", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {

@@ -47,7 +47,7 @@ public class Oasp4js extends AbstractCommandModule {
 
   private static String OASP4JS_ang1 = "frs51721";
 
-  private static String OASP4JS_ang2 = "frs99999";
+  private static String OASP4JS_ang2 = "frs51961";
 
   @Command(name = "create", description = "This command creates a basic Oasp4js app")
   @Parameters(values = {
@@ -96,7 +96,7 @@ public class Oasp4js extends AbstractCommandModule {
     }
   }
 
-  @Command(name = "build", description = "This command will build the server project", context = ContextType.PROJECT)
+  @Command(name = "build", description = "This command will build the oasp4js project.", context = ContextType.PROJECT)
   public void build() {
 
     try {
