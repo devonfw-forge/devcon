@@ -39,8 +39,9 @@ public class Workspace extends AbstractCommandModule {
    * @param workspace Name of the workspace folder
    * @throws Exception Exception thrown by workspace create command
    */
-  @Command(name = "create", description = "This command is used to create new workspace with all default configuration")
-  @Parameters(values = { @Parameter(name = "workspace", description = "This is the name of workspace to create"),
+  @Command(name = "create", description = "This command creates a new workspace with all default configuration in a Devonfw distribution.")
+  @Parameters(values = {
+  @Parameter(name = "workspace", description = "This is the name of workspace to create"),
   @Parameter(name = "distribution", description = "This is the location of the devon distribution (default: from current dir)", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
   public void create(String workspace, String distribution) throws Exception {
 
@@ -59,8 +60,9 @@ public class Workspace extends AbstractCommandModule {
       if (!w.exists()) {
         w.mkdirs();
         String noPause = "noPause";
-        ProcessBuilder processBuilder = new ProcessBuilder(
-            distPath.toFile().getAbsolutePath() + File.separator + Constants.UPDATE_ALL_WORKSPACES_BAT, noPause);
+        ProcessBuilder processBuilder =
+            new ProcessBuilder(distPath.toFile().getAbsolutePath() + File.separator
+                + Constants.UPDATE_ALL_WORKSPACES_BAT, noPause);
         processBuilder.directory(distPath.toFile());
 
         Process process = processBuilder.start();

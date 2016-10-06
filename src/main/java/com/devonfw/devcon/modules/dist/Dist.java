@@ -38,11 +38,11 @@ public class Dist extends AbstractCommandModule {
    * @param password the password related to the user with permissions to download the Devon distribution
    * @throws Exception
    */
-  @Command(name = "install", description = "This command downloads the distribution", context = ContextType.NONE)
+  @Command(name = "install", description = "This command downloads the last version of a distribution from Teamforge. You can select between Devonfw distribution (by default) and Oasp-ide distribution.", context = ContextType.NONE)
   @Parameters(values = {
   @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
   @Parameter(name = "type", description = "the type of the distribution, the options are: \n 'oaspide' to download OASP IDE\n 'devondist' to download Devon IP IDE", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
-  "oaspide", "devondist" })),
+  "devondist", "oaspide" })),
   @Parameter(name = "user", description = "a user with permissions to download the Devon distribution"),
   @Parameter(name = "password", description = "the password related to the user with permissions to download the Devon distribution", inputType = @InputType(name = InputTypeNames.PASSWORD)) })
   public void install(String path, String type, String user, String password) throws Exception {
@@ -92,9 +92,8 @@ public class Dist extends AbstractCommandModule {
    * @param path location of the Devon distribution
    * @throws Exception
    */
-  @Command(name = "init", description = "This command initialized a newly downloaded distribution", context = ContextType.NONE)
-  @Parameters(values = {
-  @Parameter(name = "path", description = "location of the Devon distribution (current dir if not given)", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
+  @Command(name = "init", description = "This command initializes a newly downloaded distribution", context = ContextType.NONE)
+  @Parameters(values = { @Parameter(name = "path", description = "location of the Devon distribution (current dir if not given)", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
   public void init(String path) throws Exception {
 
     String frsFileId = "";
@@ -141,7 +140,7 @@ public class Dist extends AbstractCommandModule {
    * @param svnuser the user with permissions in the svn repository
    * @param svnpass the password of the user with permissions in the svn repository
    */
-  @Command(name = "s2", description = "Initializes a Devon distribution for use with Shared Services.")
+  @Command(name = "s2", description = "This command initializes a Devonfw distribution configuring it for Shared Services use.")
   @Parameters(values = {
   @Parameter(name = "projectname", description = "the name for the new project", inputType = @InputType(name = InputTypeNames.GENERIC)),
   @Parameter(name = "user", description = "the userId for Artifactory provided by S2 for the project", inputType = @InputType(name = InputTypeNames.GENERIC)),
@@ -167,8 +166,8 @@ public class Dist extends AbstractCommandModule {
           String ciaas_value = configureForCiaas ? "ciaas" : "";
           int initResult = s2.init(distPath, user, pass, engagementname, ciaas_value);
           if (initResult > 0)
-            this.output.showMessage(
-                "The configuration of the conf/settings.xml file could not be completed successfully. Please verify it");
+            this.output
+                .showMessage("The configuration of the conf/settings.xml file could not be completed successfully. Please verify it");
 
           int createResult = s2.create(distPath, projectname, svnurl, svnuser, svnpass);
           if (createResult > 0)
@@ -194,8 +193,7 @@ public class Dist extends AbstractCommandModule {
    *
    */
   @Command(name = "info", description = "Basic info about the distribution")
-  @Parameters(values = {
-  @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
+  @Parameters(values = { @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
   public void info(String path) {
 
     try {
@@ -203,8 +201,8 @@ public class Dist extends AbstractCommandModule {
       if (distInfo.isPresent()) {
         DistributionInfo info = distInfo.get();
 
-        this.output.showMessage("Distro '%s', version: '%s', present in: %s", info.getDistributionType().name(),
-            info.getVersion().toString(), info.getPath().toString());
+        this.output.showMessage("Distro '%s', version: '%s', present in: %s", info.getDistributionType().name(), info
+            .getVersion().toString(), info.getPath().toString());
       } else {
         this.output.showMessage("Seems that you are not in a Devon distribution.");
       }

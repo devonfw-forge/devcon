@@ -22,15 +22,16 @@ public class Help extends AbstractCommandModule {
   @Command(name = "overview", description = "This command provides a quick overview the basic usage of devcon")
   public void overview() {
 
-    this.output.showGeneralHelp(
-        "Devcon is a command line tool that provides many automated tasks around the full life-cycle of Devon applications.",
-        "devon <<module>> <<command>> [parameters...]", this.contextPathInfo.getGlobalOptions(),
-        this.registry.getCommandModules());
+    this.output
+        .showGeneralHelp(
+            "Devcon is a command line tool that provides many automated tasks around the full life-cycle of Devon applications.",
+            "devon <<module>> <<command>> [parameters...]", this.contextPathInfo.getGlobalOptions(),
+            this.registry.getCommandModules());
 
   }
 
   @SuppressWarnings("javadoc")
-  @Command(name = "userguide", description = "Show the Devcon user guide")
+  @Command(name = "userguide", description = "Shows the Devcon user guide")
   public void guide() {
 
     try {
