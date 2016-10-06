@@ -1,8 +1,19 @@
 package com.devonfw.devcon.input;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.commons.lang3.tuple.Pair;
+
+import com.devonfw.devcon.common.CommandResult;
+import com.devonfw.devcon.common.api.Command;
+import com.devonfw.devcon.common.api.CommandManager;
+import com.devonfw.devcon.common.api.data.Sentence;
+import com.devonfw.devcon.common.utils.Constants;
+import com.devonfw.devcon.common.utils.ProcessUtils;
+import com.devonfw.devcon.output.GUIOutput;
 
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -16,15 +27,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-
-import org.apache.commons.lang3.tuple.Pair;
-
-import com.devonfw.devcon.common.CommandResult;
-import com.devonfw.devcon.common.api.Command;
-import com.devonfw.devcon.common.api.CommandManager;
-import com.devonfw.devcon.common.api.data.Sentence;
-import com.devonfw.devcon.common.utils.Constants;
-import com.devonfw.devcon.output.GUIOutput;
 
 /**
  * This class is for handling events on forms, executing respective commands.
@@ -47,6 +49,8 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
 
   private GUIOutput guiOutput;
 
+  private ProcessUtils processUtils = new ProcessUtils();
+
   @SuppressWarnings("javadoc")
   public ExecuteCommandHandler() {
 
@@ -61,8 +65,8 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
    * @param screenController - Stage
    * @param grid -gridpane in scene
    */
-  public ExecuteCommandHandler(Scene popParentScene, Command command, CommandManager cmdManager,
-      Stage screenController, GridPane grid) {
+  public ExecuteCommandHandler(Scene popParentScene, Command command, CommandManager cmdManager, Stage screenController,
+      GridPane grid) {
 
     this.popParentScene = popParentScene;
     this.screenController = screenController;
@@ -82,8 +86,8 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
    * @param grid -gridpane in scene
    * @param mandatoryParamList -mandatory parameter list
    */
-  public ExecuteCommandHandler(Scene popParentScene, Command command, CommandManager cmdManager,
-      Stage screenController, GridPane grid, List<String> mandatoryParamList) {
+  public ExecuteCommandHandler(Scene popParentScene, Command command, CommandManager cmdManager, Stage screenController,
+      GridPane grid, List<String> mandatoryParamList) {
 
     this.popParentScene = popParentScene;
     this.screenController = screenController;
@@ -105,8 +109,8 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
    * @param mandatoryParamList -mandatory parameter list
    * @param guiOutput -output instance
    */
-  public ExecuteCommandHandler(Scene popParentScene, Command command, CommandManager cmdManager,
-      Stage screenController, GridPane grid, List<String> mandatoryParamList, GUIOutput guiOutput) {
+  public ExecuteCommandHandler(Scene popParentScene, Command command, CommandManager cmdManager, Stage screenController,
+      GridPane grid, List<String> mandatoryParamList, GUIOutput guiOutput) {
 
     this.popParentScene = popParentScene;
     this.screenController = screenController;
@@ -132,6 +136,21 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
 
     switch (label.toLowerCase().trim()) {
     case Constants.BACK:
+
+      new Thread(new Runnable() {
+        @Override
+        public void run() {
+
+          try {
+            ExecuteCommandHandler.this.processUtils.killProcess();
+          } catch (IOException e2) {
+            // TODO Auto-generated catch block
+            ExecuteCommandHandler.this.guiOutput
+                .showError("Exception occured while exiting from process " + e2.getMessage());
+          }
+        }
+      }).start();
+
       this.screenController.setScene(this.popParentScene);
       this.screenController.show();
       break;

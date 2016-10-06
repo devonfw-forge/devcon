@@ -236,4 +236,9 @@ public final class Constants {
    * STANDARD_BUTTON_START_STYLE
    */
   public static final String HOVERED_BUTTON_START_STYLE = "-fx-background-color: #99d6ff; -fx-text-fill: black;";
+
+  /**
+   * Taskkill commands in windows
+   */
+  public static final String TASKKILL_PID_CMD = "taskkill /F /PID ";
 }
