@@ -5,6 +5,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.devonfw.devcon.common.api.Command;
+import com.devonfw.devcon.common.api.CommandManager;
+import com.devonfw.devcon.common.api.CommandRegistry;
+import com.devonfw.devcon.common.api.data.CommandParameter;
+import com.devonfw.devcon.common.api.data.InputTypeNames;
+import com.devonfw.devcon.common.api.data.ParameterInputType;
+import com.devonfw.devcon.common.utils.Constants;
+import com.devonfw.devcon.output.GUIOutput;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -34,15 +43,6 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-
-import com.devonfw.devcon.common.api.Command;
-import com.devonfw.devcon.common.api.CommandManager;
-import com.devonfw.devcon.common.api.CommandRegistry;
-import com.devonfw.devcon.common.api.data.CommandParameter;
-import com.devonfw.devcon.common.api.data.InputTypeNames;
-import com.devonfw.devcon.common.api.data.ParameterInputType;
-import com.devonfw.devcon.common.utils.Constants;
-import com.devonfw.devcon.output.GUIOutput;
 
 /**
  * This class is to create form for respective command in menu items. This will create UI control depending on inputType
@@ -341,9 +341,8 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
 
     // this.console.setStyle("-fx-background-color: #b5c9c9;");
     grid.add(this.console, 0, rowNum + 5, 2, 2);
-    ExecuteCommandHandler cmdHandler =
-        new ExecuteCommandHandler(popParentScene(), this.command, this.cmdManager, this.screenController, grid,
-            this.mandatoryParamList, this.guiOutput);
+    ExecuteCommandHandler cmdHandler = new ExecuteCommandHandler(popParentScene(), this.command, this.cmdManager,
+        this.screenController, grid, this.mandatoryParamList, this.guiOutput);
 
     // Start button
     HBox hbox = new HBox(10);
@@ -367,8 +366,8 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
 
     // left arrow
     Polygon leftArrow = new Polygon();
-    leftArrow.getPoints().addAll(
-        new Double[] { 15.0, 10.0, 25.0, 2.0, 25.0, 7.0, 35.0, 7.0, 35.0, 13.0, 25.0, 13.0, 25.0, 18.0 });
+    leftArrow.getPoints()
+        .addAll(new Double[] { 15.0, 10.0, 25.0, 2.0, 25.0, 7.0, 35.0, 7.0, 35.0, 13.0, 25.0, 13.0, 25.0, 18.0 });
     grid.add(leftArrow, 0, 0);
 
     grid.add(hbox, 1, rowNum + 1);
@@ -377,8 +376,10 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
   private void chooseDirectory(Stage primaryStage, TextField filePath) {
 
     DirectoryChooser directoryChooser = new DirectoryChooser();
+    String currentWorkingDir = this.cmdManager.getContextPathInfo().getCurrentWorkingDirectory().toString();
+    String defaultLocation = currentWorkingDir.substring(0, currentWorkingDir.lastIndexOf("\\"));
+    directoryChooser.setInitialDirectory(new File(defaultLocation));
     File selectedFile = directoryChooser.showDialog(primaryStage);
-    directoryChooser.setInitialDirectory(this.cmdManager.getContextPathInfo().getCurrentWorkingDirectory().toFile());
     if (selectedFile != null) {
       filePath.setText(selectedFile.getAbsolutePath());
     }
