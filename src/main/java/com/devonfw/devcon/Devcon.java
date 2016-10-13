@@ -17,7 +17,7 @@ import com.github.zafarkhaja.semver.Version;
  */
 public class Devcon {
 
-  public static final String VERSION = "1.1.0-SNAPSHOT";
+  public static final String VERSION = "1.1.0";
 
   // Mock url. Can be used with node.js http-server, for example. See public/version.json for data
   // public static final String VERSION_URL = "http://localhost:8080/version.json";
