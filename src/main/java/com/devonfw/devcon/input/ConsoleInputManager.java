@@ -7,6 +7,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.UnrecognizedOptionException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.devonfw.devcon.Devcon;
@@ -109,6 +110,10 @@ public class ConsoleInputManager {
 
       return ((result.getLeft() == CommandResult.OK) || (result.getLeft() == CommandResult.HELP_SHOWN));
 
+    } catch (UnrecognizedOptionException e) {
+
+      this.output.showError(e.getMessage());
+      return false;
     } catch (Throwable e) {
 
       this.output.showError("An unexcpected error occurred");
