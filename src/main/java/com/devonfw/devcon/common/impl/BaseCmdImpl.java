@@ -1,12 +1,8 @@
 package com.devonfw.devcon.common.impl;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,10 +16,10 @@ import com.devonfw.devcon.common.CommandResult;
 import com.devonfw.devcon.common.api.Command;
 import com.devonfw.devcon.common.api.CommandModule;
 import com.devonfw.devcon.common.api.CommandRegistry;
-import com.devonfw.devcon.common.api.annotations.Parameter;
-import com.devonfw.devcon.common.api.annotations.Parameters;
 import com.devonfw.devcon.common.api.data.CommandParameter;
 import com.devonfw.devcon.common.api.data.ContextType;
+import com.devonfw.devcon.common.api.data.InputTypeNames;
+import com.devonfw.devcon.common.api.data.ParameterInputType;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.input.Input;
@@ -35,54 +31,35 @@ import com.google.common.base.Optional;
  *
  * @author ivanderk
  */
-public class CommandImpl implements Command {
+public abstract class BaseCmdImpl implements Command {
 
-  private String name;
+  protected String name;
 
-  private String description;
+  protected String description;
 
-  private int sortValue;
+  protected int sortValue;
 
-  private String moduleName;
+  protected String moduleName;
 
-  private Class<?> module;
+  protected List<CommandParameter> definedParameters;
 
-  private Method method;
+  protected CommandRegistry registry;
 
-  private List<CommandParameter> definedParameters;
+  protected Optional<ProjectInfo> projectInfo;
 
-  private CommandRegistry registry;
+  protected Input input;
 
-  private Optional<ProjectInfo> projectInfo;
+  protected Output output;
 
-  private Input input;
+  protected ContextType context;
 
-  private Output output;
+  protected boolean proxyParams;
 
-  private ContextType context;
+  protected ContextPathInfo contextPathInfo;
 
-  private boolean proxyParams;
-
-  private ContextPathInfo contextPathInfo;
-
-  public CommandImpl() {
+  public BaseCmdImpl() {
 
     this.definedParameters = new ArrayList<>();
-  }
-
-  public CommandImpl(String name, String description, int sortValue, ContextType context, boolean proxyParams,
-      Method method, String moduleName, Class<?> module) {
-
-    this();
-    this.name = name;
-    this.description = description;
-    this.sortValue = sortValue;
-    this.context = context;
-    this.proxyParams = proxyParams;
-    this.method = method;
-    this.moduleName = moduleName;
-    this.module = module;
-    addParameters(method);
   }
 
   @Override
@@ -97,10 +74,29 @@ public class CommandImpl implements Command {
 
   }
 
+  protected void patchParameters() {
+
+    int length = this.definedParameters.size();
+    // When a context is given, a default --path parameter is added to the end
+    if (this.context != ContextType.NONE) {
+
+      this.definedParameters
+          .add(new CommandParameter("path", "Give path to project (current folder used when not given)", length++, true,
+              new ParameterInputType(InputTypeNames.PATH)));
+    }
+
+    if (this.proxyParams) {
+      this.definedParameters
+          .add(new CommandParameter("proxyHost", "Host parameter for optional Proxy configuration", length++, true));
+      this.definedParameters
+          .add(new CommandParameter("proxyPort", "Port parameter for optional Proxy configuration", length++, true));
+    }
+  }
+
   /**
    * @param module
    */
-  private void injectEnvIfCommandModule(Object module) {
+  protected void injectEnvIfCommandModule(Object module) {
 
     // When Command Module, inject environment
     if (module instanceof CommandModule) {
@@ -129,40 +125,6 @@ public class CommandImpl implements Command {
   public List<CommandParameter> getDefinedParameters() {
 
     return this.definedParameters;
-  }
-
-  void addParameters(Method method) {
-
-    int pos = 0;
-
-    Annotation annotation = method.getAnnotation(Parameters.class);
-    if (annotation != null) {
-      Parameters params = (Parameters) annotation;
-
-      List<Parameter> paramsList = Arrays.asList(params.values());
-
-      for (Parameter param : paramsList) {
-        CommandParameter cmdParam =
-            new CommandParameter(param.name(), param.description(), pos++, param.optional(), param.inputType());
-        this.definedParameters.add(cmdParam);
-      }
-    }
-
-    // When a context is given, a default --path parameter is added to the end
-    if (this.context != ContextType.NONE) {
-
-      // this.definedParameters.add(new CommandParameter("path",
-      // "Give path to project (current folder used when not given)", pos++, true));
-    }
-
-    this.definedParameters.add(new CommandParameter("path", "Give path to project (current folder used when not given)",
-        pos++, true, new ParameterInputType(InputTypeNames.PATH)));
-    if (this.proxyParams) {
-      this.definedParameters
-          .add(new CommandParameter("proxyHost", "Host parameter for optional Proxy configuration", pos++, true));
-      this.definedParameters
-          .add(new CommandParameter("proxyPort", "Port parameter for optional Proxy configuration", pos++, true));
-    }
   }
 
   @Override
@@ -201,52 +163,6 @@ public class CommandImpl implements Command {
     }
     return Triple.of(CommandResult.OK, CommandResult.OK_MSG, parameters);
 
-  }
-
-  @Override
-  public Object exec(String... arguments)
-      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-
-    return this.exec(Arrays.asList(arguments));
-  }
-
-  @Override
-  public Object exec(List<String> arguments)
-      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-
-    Object module = this.module.newInstance();
-
-    injectEnvIfCommandModule(module);
-
-    return this.method.invoke(module, arguments.toArray());
-  }
-
-  @Override
-  public Object exec()
-      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-
-    Object module = this.module.newInstance();
-
-    injectEnvIfCommandModule(module);
-
-    return this.method.invoke(module);
-
-  }
-
-  /**
-   * @return module
-   */
-  public Class<?> getModule() {
-
-    return this.module;
-  }
-
-  /**
-   * @return method
-   */
-  public Method getMethod() {
-
-    return this.method;
   }
 
   /**

@@ -1,0 +1,20 @@
+{
+    "name": "st",
+    "description": "Commands related with Devonfw St & Serverless programming",
+    "visible": true,
+    "sort": -1,
+    "commands": [{
+        "name": "init",
+        "path": "init.js",
+        "description": "Create Serverless project",
+        "context": "NONE",
+        "proxyParams": false,
+        "parameters": [{
+            "name": "path",
+            "description": "Path to create project (default: current dir)",
+            "optional":true,
+            "sort": -1,
+            "inputType": {"name":"list", "values":["hamlet", "village", "town", "city", "metropolis"]}
+        }]
+    }]
+}
