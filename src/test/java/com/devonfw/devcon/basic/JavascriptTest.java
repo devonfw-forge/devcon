@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystems;
@@ -26,7 +27,12 @@ import com.devonfw.devcon.common.api.data.CommandParameter;
 import com.devonfw.devcon.common.api.data.ContextType;
 import com.devonfw.devcon.common.api.data.InputTypeNames;
 import com.devonfw.devcon.common.api.data.ParameterInputType;
+import com.devonfw.devcon.common.api.data.ProjectInfo;
+import com.devonfw.devcon.common.impl.CommandRegistryImpl;
 import com.devonfw.devcon.common.impl.JavaScriptsCmdRegistryImpl;
+import com.devonfw.devcon.common.utils.ContextPathInfo;
+import com.devonfw.devcon.input.ConsoleInput;
+import com.devonfw.devcon.output.ConsoleOutput;
 import com.google.common.base.Optional;
 
 /**
@@ -41,9 +47,13 @@ public class JavascriptTest {
 
   private Path testDist;
 
+  CommandRegistry registry;
+
+  CommandRegistry jsregistry;
+
   @SuppressWarnings("javadoc")
   @Before
-  public void setup() throws IOException, URISyntaxException {
+  public void setup() throws IOException, URISyntaxException, ParseException {
 
     // For testing purposes,
     // create tempFiles in System Temp File
@@ -79,6 +89,9 @@ public class JavascriptTest {
 
     File initJsFile = initModule.resolve("init.js").toFile();
     FileUtils.writeStringToFile(initJsFile, JsTxt, "UTF-8");
+
+    this.registry = new CommandRegistryImpl("com.devonfw.devcon.modules.*");
+    this.jsregistry = new JavaScriptsCmdRegistryImpl(this.testRoot.resolve("test-javascript/st/"));
   }
 
   @SuppressWarnings("javadoc")
@@ -101,12 +114,10 @@ public class JavascriptTest {
 
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   public void testJsCmdRegistry() throws ParseException, IOException {
 
-    CommandRegistry registry = new JavaScriptsCmdRegistryImpl(this.testRoot.resolve("test-javascript/st/"));
-    Optional<Command> _cmd = registry.getCommand("st", "init");
+    Optional<Command> _cmd = this.jsregistry.getCommand("st", "init");
     assertTrue("Has 'st init' command", _cmd.isPresent());
     Command cmd = _cmd.get();
 
@@ -125,5 +136,31 @@ public class JavascriptTest {
     assertEquals(InputTypeNames.LIST, inputType.getName());
     assertArrayEquals(new String[] { "hamlet", "village", "town", "city", "metropolis" }, inputType.getValues());
 
+  }
+
+  @Test
+  public void testNashorn() {
+
+    assertTrue("Running on Java 1.8 (Nashorn)", Devcon.scriptEngine.isPresent());
+
+    this.registry.add(this.jsregistry);
+    Optional<Command> _cmd = this.registry.getCommand("st", "init");
+    assertTrue("Has 'st init' command", _cmd.isPresent());
+  }
+
+  @Test
+  public void testExec()
+      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+
+    Optional<Command> _cmd = this.jsregistry.getCommand("st", "init");
+    Command cmd = _cmd.get();
+    Optional<ProjectInfo> none = Optional.absent();
+    cmd.injectEnvironment(this.jsregistry, new ConsoleInput(), new ConsoleOutput(), new ContextPathInfo(), none);
+
+    Object rs = cmd.exec("ARGUMENT1", "ARGUMENT2");
+    assertEquals("ARGUMENT1ARGUMENT2", rs.toString());
+
+    Object rs2 = cmd.exec();
+    assertEquals(null, rs2);
   }
 }

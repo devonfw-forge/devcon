@@ -1,0 +1,16 @@
+(function() {
+
+  var CmdModule = Java.type('com.devonfw.devcon.common.impl.JsCommandModule');
+  var ScriptCmdModule = Java.extend(CmdModule);
+
+  var script = new ScriptCmdModule({
+    exec: function(argarr) {
+
+      var $_$  = %s;
+      return $_$.apply(Java.super(script), argarr);
+    }
+  });
+
+   return script;
+})();
+

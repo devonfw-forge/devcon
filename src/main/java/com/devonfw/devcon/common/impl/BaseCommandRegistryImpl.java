@@ -63,4 +63,14 @@ public class BaseCommandRegistryImpl implements CommandRegistry {
     this.modules = modules;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void add(CommandRegistry otherRegistry) {
+
+    BaseCommandRegistryImpl other = (BaseCommandRegistryImpl) otherRegistry;
+    getModules().putAll(other.getModules());
+  }
+
 }

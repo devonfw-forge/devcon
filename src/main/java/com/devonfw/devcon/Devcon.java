@@ -1,14 +1,25 @@
 package com.devonfw.devcon;
 
+import java.io.IOException;
+import java.nio.file.Path;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+
+import org.json.simple.parser.ParseException;
+
 import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.impl.CommandManagerImpl;
 import com.devonfw.devcon.common.impl.CommandRegistryImpl;
+import com.devonfw.devcon.common.impl.JavaScriptsCmdRegistryImpl;
+import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.input.ConsoleInput;
 import com.devonfw.devcon.input.ConsoleInputManager;
 import com.devonfw.devcon.input.Input;
 import com.devonfw.devcon.output.ConsoleOutput;
 import com.devonfw.devcon.output.Output;
 import com.github.zafarkhaja.semver.Version;
+import com.google.common.base.Optional;
 
 /**
  * Main class of DevCon
@@ -38,6 +49,10 @@ public class Devcon {
   public static final boolean IN_EXEC_JAR =
       ClassLoader.getSystemClassLoader().getResource("resources/execjar.txt") != null;
 
+  // Obtain script engine; only on Java 1.8+ is Javascript supported (version "Nashorn")
+  public static final Optional<ScriptEngine> scriptEngine =
+      Optional.fromNullable(new ScriptEngineManager().getEngineByName("nashorn"));
+
   // Show stack-trace when errors are thrown by the command
   public static boolean SHOW_STACK_TRACE = false;
 
@@ -51,6 +66,19 @@ public class Devcon {
     Input input = new ConsoleInput(System.in, System.out);
     Output output = new ConsoleOutput(System.out);
     CommandRegistry registry = new CommandRegistryImpl("com.devonfw.devcon.modules.*");
+
+    Path scriptDir = ContextPathInfo.INSTANCE.getHomeDirectory().resolve(".devcon/scripts");
+    if (scriptEngine.isPresent() && scriptDir.toFile().exists()) {
+      try {
+        JavaScriptsCmdRegistryImpl jsregistry = new JavaScriptsCmdRegistryImpl(scriptDir);
+        registry.add(jsregistry);
+
+      } catch (ParseException | IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+        System.exit(-1);
+      }
+    }
 
     ConsoleInputManager inputmanager =
         new ConsoleInputManager(registry, input, output, new CommandManagerImpl(registry, input, output));
