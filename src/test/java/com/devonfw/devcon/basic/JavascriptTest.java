@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -57,14 +56,14 @@ public class JavascriptTest {
 
     // For testing purposes,
     // create tempFiles in System Temp File
-    // this.testRoot = Files.createTempDirectory("devcon");
+    this.testRoot = Files.createTempDirectory("devcon");
 
     // OR
 
     // create tempFiles in fixed root on your hard drive in an accessible path, for example:
-    Path tmpRoot = FileSystems.getDefault().getPath("d:/tmp");
-    this.testRoot = tmpRoot.resolve("devcon");
-    Files.createDirectories(this.testRoot);
+    // Path tmpRoot = FileSystems.getDefault().getPath("d:/tmp");
+    // this.testRoot = tmpRoot.resolve("devcon");
+    // Files.createDirectories(this.testRoot);
 
     this.testDist = this.testRoot.resolve("test-javascript");
     Files.createDirectories(this.testDist);
@@ -83,7 +82,6 @@ public class JavascriptTest {
     FileUtils.writeStringToFile(commandsJson, CommandsJsonTxt, "UTF-8");
 
     // init.js
-
     URL JsUrl = ClassLoader.getSystemClassLoader().getResource(root + "init.js");
     String JsTxt = FileUtils.readFileToString(new File(JsUrl.toURI()), "UTF-8");
 
@@ -117,6 +115,10 @@ public class JavascriptTest {
   @Test
   public void testJsCmdRegistry() throws ParseException, IOException {
 
+    if (!Devcon.scriptEngine.isPresent()) {
+      return;
+    }
+
     Optional<Command> _cmd = this.jsregistry.getCommand("st", "init");
     assertTrue("Has 'st init' command", _cmd.isPresent());
     Command cmd = _cmd.get();
@@ -141,6 +143,10 @@ public class JavascriptTest {
   @Test
   public void testNashorn() {
 
+    if (!Devcon.scriptEngine.isPresent()) {
+      return;
+    }
+
     assertTrue("Running on Java 1.8 (Nashorn)", Devcon.scriptEngine.isPresent());
 
     this.registry.add(this.jsregistry);
@@ -151,6 +157,10 @@ public class JavascriptTest {
   @Test
   public void testExec()
       throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+
+    if (!Devcon.scriptEngine.isPresent()) {
+      return;
+    }
 
     Optional<Command> _cmd = this.jsregistry.getCommand("st", "init");
     Command cmd = _cmd.get();
