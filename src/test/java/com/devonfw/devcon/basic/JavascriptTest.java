@@ -35,7 +35,7 @@ import com.devonfw.devcon.output.ConsoleOutput;
 import com.google.common.base.Optional;
 
 /**
- * TODO ivanderk This type ...
+ * TODO ivanderk This class contains the unit tests related with Javascript Commands
  *
  * @author ivanderk
  */

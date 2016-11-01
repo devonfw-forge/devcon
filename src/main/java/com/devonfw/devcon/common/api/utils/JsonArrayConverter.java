@@ -1,7 +1,8 @@
 package com.devonfw.devcon.common.api.utils;
 
 /**
- * TODO ivanderk This type ...
+ *
+ * Defines interface for conversion of all Json Array to array with type T
  *
  * @author ivanderk
  */

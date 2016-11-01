@@ -31,7 +31,7 @@ import com.devonfw.devcon.common.api.utils.JsonObjectConverter;
 import com.devonfw.devcon.common.exception.InvalidConfigurationStateException;
 
 /**
- * Implementation of {@link Command}
+ * Implementation of {@link Command} for JavaScript Devcon Commands
  *
  * @author ivanderk
  */
@@ -41,6 +41,9 @@ public class JsCmdImpl extends BaseCmdImpl {
 
   private File script;
 
+  /**
+   * @return Returns Javascript template used to encapsulate Javascript Commands
+   */
   public static String loadSource() {
 
     String root = (Devcon.IN_EXEC_JAR) ? "resources/" : "";
@@ -54,6 +57,19 @@ public class JsCmdImpl extends BaseCmdImpl {
     }
   }
 
+  /**
+   *
+   * The constructor.
+   * 
+   * @param name Command name
+   * @param script JavaScript source file
+   * @param description Helpt text for Command
+   * @param sortValue Order in which the command is shown in the help command listing
+   * @param context Command execution context
+   * @param proxyParams Possible proxy data
+   * @param moduleName Name of the module containing the Command
+   * @param paramsJson raw json data defining the command´s parameters
+   */
   public JsCmdImpl(String name, File script, String description, int sortValue, ContextType context,
       boolean proxyParams, String moduleName, JSONArray paramsJson) {
 

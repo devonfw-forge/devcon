@@ -40,18 +40,13 @@ public class JavaScriptsCmdRegistryImpl extends BaseCommandRegistryImpl {
 
   /**
    *
-   * Read all
+   * Read all modules from root directory
    *
    * @param scripts Path where to find scripts modules
    * @throws IOException
    * @throws ParseException
    */
   private void registerModules(Path scriptModules) throws ParseException, IOException {
-
-    /*
-     * Path rootCmds = scriptModules.resolve("commands.json"); if (rootCmds.toFile().exists()) {
-     * processCommands(rootCmds); }
-     */
 
     Collection<File> files = getCommandJsons(scriptModules);
     for (File commandJson : files) {
@@ -60,7 +55,10 @@ public class JavaScriptsCmdRegistryImpl extends BaseCommandRegistryImpl {
   }
 
   /**
-   * @param scriptModules
+   *
+   * Get all command.json files within base-path, scanned recursively
+   *
+   * @param JavaScript Modules
    * @return
    */
   private Collection<File> getCommandJsons(Path scriptModules) {
@@ -94,13 +92,14 @@ public class JavaScriptsCmdRegistryImpl extends BaseCommandRegistryImpl {
   }
 
   /**
+   *
+   * Process Commands in command.json file
+   *
    * @param commandJson
    * @throws IOException
    * @throws ParseException
    */
   private void processCommands(File commandJson) throws ParseException, IOException {
-
-    // CommandModuleInfo module = new CommandModuleInfoImpl(name, description, sortValue, isVisible, moduleClass);
 
     JSONParser parser = new JSONParser();
 

@@ -16,10 +16,12 @@ import com.devonfw.devcon.common.api.utils.JsonObjectConverter;
 public class JsonValues {
 
   /**
-   * @param root
-   * @param string
-   * @param i
-   * @return
+   * Get & convert Json object 'number' property value to Long
+   *
+   * @param obj raw Json object
+   * @param string key name
+   * @param dflt default value
+   * @return a long value
    */
   public static long getJsonLong(JSONObject obj, String key, int dflt) {
 
@@ -32,9 +34,11 @@ public class JsonValues {
   }
 
   /**
-   * @param obj
-   * @param key
-   * @return
+   * Get Json array from object property
+   *
+   * @param obj raw Json object
+   * @param key key name
+   * @return the Json array
    */
   public static JSONArray getJSONArray(JSONObject obj, String key) {
 
@@ -47,10 +51,12 @@ public class JsonValues {
   }
 
   /**
-   * @param obj
-   * @param key
-   * @param deflt
-   * @return
+   * Get & convert Json object 'bool' property value to boolean
+   *
+   * @param obj raw Json object
+   * @param string key name
+   * @param dflt default value
+   * @return a boolean value
    */
   public static boolean getJsonBoolean(JSONObject obj, String key, boolean deflt) {
 
@@ -63,10 +69,12 @@ public class JsonValues {
   }
 
   /**
-   * @param obj
-   * @param key
-   * @param deflt
-   * @return
+   * Get & convert Json object 'string' property value to String
+   *
+   * @param obj raw Json object
+   * @param string key name
+   * @param dflt default value
+   * @return a String value
    */
   public static String getJsonString(JSONObject obj, String key, String deflt) {
 
@@ -78,11 +86,27 @@ public class JsonValues {
     }
   }
 
+  /**
+   * Get & convert Json 'object' property to class instance
+   *
+   * @param obj raw Json object
+   * @param string key name
+   * @return a class instance
+   */
   public static <T> T getTypedObject(JSONObject obj, String key, JsonObjectConverter<T> converter) {
 
     return getTypedObject(obj, key, null, converter);
   }
 
+  /**
+   * Get & convert Json 'object' property to class instance with possible default valie
+   *
+   * @param obj raw Json object
+   * @param string key name
+   * @param deflt default value
+   * @param converter Converter logic for whole object
+   * @return a class instance
+   */
   public static <T> T getTypedObject(JSONObject obj, String key, T deflt, JsonObjectConverter<T> converter) {
 
     JSONObject target = (JSONObject) obj.get(key);
@@ -93,6 +117,15 @@ public class JsonValues {
     }
   }
 
+  /**
+   * Get & convert Json 'array' property to typed array
+   *
+   * @param obj raw Json object
+   * @param string key name
+   * @param klass Array element class variable used to instantiate Array
+   * @param converter Converter logic for array element
+   * @return a class instance
+   */
   public static <T> T[] getTypedArray(JSONObject obj, String key, Class<T> klass, JsonArrayConverter<T> converter) {
 
     JSONArray target = (JSONArray) obj.get(key);

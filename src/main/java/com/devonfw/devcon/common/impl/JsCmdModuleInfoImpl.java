@@ -36,6 +36,12 @@ public class JsCmdModuleInfoImpl extends BaseCmdModuleInfoImpl {
     addCommands(name, jsonCmds);
   }
 
+  /**
+   * Add commands from within Module
+   * 
+   * @param moduleName module Name
+   * @param jsonCmds Raw json array containing commands
+   */
   void addCommands(String moduleName, JSONArray jsonCmds) {
 
     try {
