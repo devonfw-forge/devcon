@@ -17,6 +17,7 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -37,20 +38,18 @@ import com.devonfw.devcon.common.exception.InvalidConfigurationStateException;
  */
 public class JsCmdImpl extends BaseCmdImpl {
 
-  private static final String source = JsCmdImpl.loadSource();
-
   private File script;
 
   /**
    * @return Returns Javascript template used to encapsulate Javascript Commands
    */
-  public static String loadSource() {
+  private String loadSource() {
 
     String root = (Devcon.IN_EXEC_JAR) ? "resources/" : "";
     URL commandsJsonUrl = ClassLoader.getSystemClassLoader().getResource(root + "jstemplate.txt");
 
     try {
-      return FileUtils.readFileToString(new File(commandsJsonUrl.toURI()), "UTF-8");
+      return IOUtils.toString(commandsJsonUrl.toURI(), "utf-8");
     } catch (IOException | URISyntaxException e) {
       e.printStackTrace();
       return null;
@@ -60,7 +59,7 @@ public class JsCmdImpl extends BaseCmdImpl {
   /**
    *
    * The constructor.
-   * 
+   *
    * @param name Command name
    * @param script JavaScript source file
    * @param description Helpt text for Command
@@ -144,12 +143,12 @@ public class JsCmdImpl extends BaseCmdImpl {
     try {
 
       String fn = FileUtils.readFileToString(this.script, "UTF-8");
-      JsCommandModule cm = (JsCommandModule) engine.eval(String.format(source, fn));
+
+      JsCommandModule cm = (JsCommandModule) engine.eval(String.format(loadSource(), fn));
       injectEnvIfCommandModule(cm);
       return cm.exec(arguments);
 
     } catch (Exception e) {
-
       this.output.showError(e.getMessage());
       return null;
     }
