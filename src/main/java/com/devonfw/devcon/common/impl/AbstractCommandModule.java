@@ -18,7 +18,7 @@ import com.google.common.base.Optional;
  *
  * @author pparrado
  */
-public class AbstractCommandModule implements CommandModule {
+public abstract class AbstractCommandModule implements CommandModule {
 
   /**
    * {@link ConsoleOutput} instance

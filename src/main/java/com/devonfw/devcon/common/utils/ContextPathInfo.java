@@ -41,6 +41,8 @@ import com.google.common.base.Optional;
  */
 public class ContextPathInfo {
 
+  public static final ContextPathInfo INSTANCE = new ContextPathInfo();
+
   private static final String OASP_IDE = "oasp-ide";
 
   private static final String DEVON_DIST = "devon-dist";

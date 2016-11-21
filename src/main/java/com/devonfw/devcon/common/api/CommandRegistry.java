@@ -17,4 +17,9 @@ public interface CommandRegistry {
 
   Optional<Command> getCommand(String module, String command);
 
+  /**
+   * @param registry Add modules & commands from otherRegistry to this one
+   */
+  void add(CommandRegistry otherRegistry);
+
 }

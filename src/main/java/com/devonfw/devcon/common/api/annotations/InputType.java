@@ -26,7 +26,7 @@ public @interface InputType {
    *
    * @return the description
    */
-  String value() default "";
+  // String value() default "";
 
   /**
    * Default multiple values (in case relevant)
