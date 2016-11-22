@@ -74,6 +74,7 @@ public class GUIAppManager extends Application {
       String root = (Devcon.IN_EXEC_JAR) ? "resources/" : "";
 
       String image = GUIAppManager.class.getClassLoader().getResource(root + Constants.DEVCON_LOGO).toExternalForm();
+      String icon = GUIAppManager.class.getClassLoader().getResource(root + Constants.DEVCON_ICON).toExternalForm();
 
       this.primaryStage = primaryStage;
 
@@ -87,7 +88,7 @@ public class GUIAppManager extends Application {
 
       Scene scene = new Scene(borderPane, 700, 800);
       primaryStage.setScene(scene);
-      primaryStage.getIcons().add(new Image("Logo_Devcon-icon.png"));
+      primaryStage.getIcons().add(new Image(icon));
       primaryStage.show();
     } catch (Exception e) {
       // TODO: handle exception

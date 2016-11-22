@@ -187,6 +187,8 @@ public final class Constants {
    */
   public final static String DEVCON_LOGO = "Logo_Devcon-background.jpg";
 
+  public final static String DEVCON_ICON = "Logo_Devcon-icon.png";
+
   /**
    * HEIGHT
    */
