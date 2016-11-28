@@ -4,14 +4,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.layout.BorderPane;
-import javafx.stage.Stage;
-
 import com.devonfw.devcon.Devcon;
 import com.devonfw.devcon.common.api.Command;
 import com.devonfw.devcon.common.api.CommandManager;
@@ -20,6 +12,15 @@ import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.utils.Constants;
 import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
+
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 
 /**
  * TODO This is the class which launch Devcon GUI.
@@ -73,6 +74,7 @@ public class GUIAppManager extends Application {
       String root = (Devcon.IN_EXEC_JAR) ? "resources/" : "";
 
       String image = GUIAppManager.class.getClassLoader().getResource(root + Constants.DEVCON_LOGO).toExternalForm();
+      String icon = GUIAppManager.class.getClassLoader().getResource(root + Constants.DEVCON_ICON).toExternalForm();
 
       this.primaryStage = primaryStage;
 
@@ -86,6 +88,7 @@ public class GUIAppManager extends Application {
 
       Scene scene = new Scene(borderPane, 700, 800);
       primaryStage.setScene(scene);
+      primaryStage.getIcons().add(new Image(icon));
       primaryStage.show();
     } catch (Exception e) {
       // TODO: handle exception
