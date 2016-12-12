@@ -47,7 +47,7 @@ public class Dist extends AbstractCommandModule {
   @Parameter(name = "password", description = "the password related to the user with permissions to download the Devon distribution", inputType = @InputType(name = InputTypeNames.PASSWORD)) })
   public void install(String path, String type, String user, String password) throws Exception {
 
-    String frsFileId = "";
+    Optional<String> teamforgeFileId;
 
     // Default parameters
     path = path.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : path.trim();
@@ -58,14 +58,18 @@ public class Dist extends AbstractCommandModule {
     try {
 
       if (type.toLowerCase().equals(DistConstants.OASP_IDE)) {
-        frsFileId = DistConstants.OAPS_FILE_ID;
+        teamforgeFileId = Downloader.getFileID(DistConstants.OASP_FILE_ID);
+        if (!teamforgeFileId.isPresent())
+          throw new Exception("Property " + DistConstants.OASP_FILE_ID + " not found.");
       } else if (type.toLowerCase().equals(DistConstants.DEVON_DIST)) {
-        frsFileId = DistConstants.DEVON_FILE_ID;
+        teamforgeFileId = Downloader.getFileID(DistConstants.DEVON_FILE_ID);
+        if (!teamforgeFileId.isPresent())
+          throw new Exception("Property " + DistConstants.DEVON_FILE_ID + " not found.");
       } else {
         throw new Exception("The parameter 'type' of the install command is unknown");
       }
 
-      Optional<String> fileDownloaded = Downloader.downloadFromTeamForge(path, user, password, frsFileId);
+      Optional<String> fileDownloaded = Downloader.downloadFromTeamForge(path, user, password, teamforgeFileId.get());
 
       if (fileDownloaded.isPresent()) {
         Extractor.unZip(path + File.separator + fileDownloaded.get().toString(), path);
@@ -93,7 +97,8 @@ public class Dist extends AbstractCommandModule {
    * @throws Exception
    */
   @Command(name = "init", description = "This command initializes a newly downloaded distribution", context = ContextType.NONE)
-  @Parameters(values = { @Parameter(name = "path", description = "location of the Devon distribution (current dir if not given)", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
+  @Parameters(values = {
+  @Parameter(name = "path", description = "location of the Devon distribution (current dir if not given)", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
   public void init(String path) throws Exception {
 
     String frsFileId = "";
@@ -166,8 +171,8 @@ public class Dist extends AbstractCommandModule {
           String ciaas_value = configureForCiaas ? "ciaas" : "";
           int initResult = s2.init(distPath, user, pass, engagementname, ciaas_value);
           if (initResult > 0)
-            this.output
-                .showMessage("The configuration of the conf/settings.xml file could not be completed successfully. Please verify it");
+            this.output.showMessage(
+                "The configuration of the conf/settings.xml file could not be completed successfully. Please verify it");
 
           int createResult = s2.create(distPath, projectname, svnurl, svnuser, svnpass);
           if (createResult > 0)
@@ -193,7 +198,8 @@ public class Dist extends AbstractCommandModule {
    *
    */
   @Command(name = "info", description = "Basic info about the distribution")
-  @Parameters(values = { @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
+  @Parameters(values = {
+  @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
   public void info(String path) {
 
     try {
@@ -201,8 +207,8 @@ public class Dist extends AbstractCommandModule {
       if (distInfo.isPresent()) {
         DistributionInfo info = distInfo.get();
 
-        this.output.showMessage("Distro '%s', version: '%s', present in: %s", info.getDistributionType().name(), info
-            .getVersion().toString(), info.getPath().toString());
+        this.output.showMessage("Distro '%s', version: '%s', present in: %s", info.getDistributionType().name(),
+            info.getVersion().toString(), info.getPath().toString());
       } else {
         this.output.showMessage("Seems that you are not in a Devon distribution.");
       }

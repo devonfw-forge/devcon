@@ -10,6 +10,7 @@ import java.math.RoundingMode;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.FileAlreadyExistsException;
 import java.rmi.RemoteException;
 import java.text.DecimalFormat;
@@ -17,12 +18,14 @@ import java.text.DecimalFormat;
 import javax.activation.DataHandler;
 
 import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 
 import com.collabnet.ce.soap60.webservices.ClientSoapStubFactory;
 import com.collabnet.ce.soap60.webservices.cemain.ICollabNetSoap;
 import com.collabnet.ce.soap60.webservices.filestorage.IFileStorageAppSoap;
 import com.collabnet.ce.soap60.webservices.frs.FrsFileSoapDO;
 import com.collabnet.ce.soap60.webservices.frs.IFrsAppSoap;
+import com.devonfw.devcon.Devcon;
 import com.devonfw.devcon.modules.dist.DistConstants;
 import com.devonfw.devcon.output.ConsoleOutput;
 import com.devonfw.devcon.output.DownloadingProgress;
@@ -63,9 +66,8 @@ public class Downloader {
 
         String sessionId = _sfSoap.login(user, password);
         if (sessionId != null) {
-          IFileStorageAppSoap _fileStorageAppSoap =
-              (IFileStorageAppSoap) ClientSoapStubFactory.getSoapStub(IFileStorageAppSoap.class,
-                  DistConstants.REPOSITORY_URL);
+          IFileStorageAppSoap _fileStorageAppSoap = (IFileStorageAppSoap) ClientSoapStubFactory
+              .getSoapStub(IFileStorageAppSoap.class, DistConstants.REPOSITORY_URL);
 
           IFrsAppSoap frsAppSoap =
               (IFrsAppSoap) ClientSoapStubFactory.getSoapStub(IFrsAppSoap.class, DistConstants.REPOSITORY_URL);
@@ -87,7 +89,8 @@ public class Downloader {
             DecimalFormat df = new DecimalFormat("#.##");
             df.setRoundingMode(RoundingMode.CEILING);
 
-            out.status("Downloading " + file.getFilename() + " (" + df.format(size) + "MB). It may take a few minutes.");
+            out.status(
+                "Downloading " + file.getFilename() + " (" + df.format(size) + "MB). It may take a few minutes.");
 
             // start showing progressBar
             progressBar = new DownloadingProgress(file.getSize(), userTempDir);
@@ -128,8 +131,8 @@ public class Downloader {
       out.showError(e.getMessage());
       return null;
     } catch (FileNotFoundException e) {
-      out.showError("Download failed. File " + fileName + " not found in the repository "
-          + DistConstants.REPOSITORY_URL + ". " + e.getMessage());
+      out.showError("Download failed. File " + fileName + " not found in the repository " + DistConstants.REPOSITORY_URL
+          + ". " + e.getMessage());
       return null;
     } catch (FileAlreadyExistsException e) {
       out.showError("Download failed. File " + e.getFile() + " already exists.");
@@ -176,10 +179,10 @@ public class Downloader {
         folder.mkdirs();
       }
 
-      outputStream = new BufferedOutputStream(new FileOutputStream(new File(path + File.separator + tempFileName /*
-                                                                                                                  * +
-                                                                                                                  * ".zip"
-                                                                                                                  */)));
+      outputStream =
+          new BufferedOutputStream(new FileOutputStream(new File(path + File.separator + tempFileName /*
+                                                                                                       * + ".zip"
+                                                                                                       */)));
       inputStream = url.openConnection(proxy).getInputStream();
       final byte[] buffer = new byte[65536];
       while (true) {
@@ -196,6 +199,29 @@ public class Downloader {
     } finally {
       if (outputStream != null)
         outputStream.close();
+    }
+
+  }
+
+  /**
+   * Method to obtain the ID of a file stored in the Teamforge site. The fileId is read from the devonfw.github.io
+   * repository, from the "version.json" file
+   *
+   * @param fileReference the reference of the file in Teamforge
+   * @return the file ID
+   */
+  public static Optional<String> getFileID(String fileReference) {
+
+    try {
+      String fileId = null;
+      JSONObject json = null;
+
+      json = new JSONObject(IOUtils.toString(new URL(Devcon.VERSION_URL), Charset.forName("UTF-8")));
+
+      fileId = (String) json.get(fileReference);
+      return Optional.of(fileId);
+    } catch (Exception e) {
+      return Optional.absent();
     }
 
   }

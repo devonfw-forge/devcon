@@ -45,13 +45,12 @@ public class Oasp4js extends AbstractCommandModule {
 
   private static String OASP4JS_BASE = "software\\nodejs\\oasp4js_base";
 
-  private static String OASP4JS_ang1 = "frs51721";
+  private static String OASP4JS_ang1_ID = "oasp4js_ang1_id";
 
-  private static String OASP4JS_ang2 = "frs51961";
+  private static String OASP4JS_ang2_ID = "oasp4js_ang2_id";
 
   @Command(name = "create", description = "This command creates a basic Oasp4js app")
-  @Parameters(values = {
-  @Parameter(name = "clientname", description = "The name for the project"),
+  @Parameters(values = { @Parameter(name = "clientname", description = "The name for the project"),
   @Parameter(name = "clientpath", description = "The location for the new project", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
   public void create(String clientname, String clientpath) {
 
@@ -67,8 +66,8 @@ public class Oasp4js extends AbstractCommandModule {
         String projectPath = clientpath + File.separator + clientname;
         File projectFile = new File(projectPath);
         if (projectFile.exists()) {
-          getOutput().showError(
-              "The project " + projectPath + " already exists. Please delete it or choose other location.");
+          getOutput()
+              .showError("The project " + projectPath + " already exists. Please delete it or choose other location.");
         } else {
 
           File templateFile = new File(distInfo.get().getPath().toString() + File.separator + OASP4JS_BASE);
@@ -174,30 +173,35 @@ public class Oasp4js extends AbstractCommandModule {
   @Parameters(values = {
   @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
   @Parameter(name = "angularVersion", description = "the version of the , the options are: \n '1' to download OASP4js based on Angular 1 \n '2' to download OASP4js based on Angular 2", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
-  "1", "2" })),
-  @Parameter(name = "user", description = "a user with download permissions in Teamforge"),
+  "1", "2" })), @Parameter(name = "user", description = "a user with download permissions in Teamforge"),
   @Parameter(name = "password", description = "the password related to the user with download permissions", inputType = @InputType(name = InputTypeNames.PASSWORD)) })
   public void jumpstart(String path, String angularVersion, String user, String password) {
 
-    String frsFileId = "";
+    Optional<String> frsFileId;
 
     // Default parameters
     path = path.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : path.trim();
     angularVersion = angularVersion.isEmpty() ? "1" : angularVersion.trim();
 
-    this.output.status("downloading file...");
+    this.output.status("Downloading file...");
 
     try {
 
       if (angularVersion.equals("1")) {
-        frsFileId = OASP4JS_ang1;
+        // frsFileId = OASP4JS_ang1;
+        frsFileId = Downloader.getFileID(OASP4JS_ang1_ID);
+        if (!frsFileId.isPresent())
+          throw new Exception("Property " + OASP4JS_ang1_ID + " not found.");
       } else if (angularVersion.equals("2")) {
-        frsFileId = OASP4JS_ang2;
+        // frsFileId = OASP4JS_ang2;
+        frsFileId = Downloader.getFileID(OASP4JS_ang2_ID);
+        if (!frsFileId.isPresent())
+          throw new Exception("Property " + OASP4JS_ang2_ID + " not found.");
       } else {
         throw new Exception("The value for the parameter 'angularVersion' is invalid.");
       }
 
-      Optional<String> fileDownloaded = Downloader.downloadFromTeamForge(path, user, password, frsFileId);
+      Optional<String> fileDownloaded = Downloader.downloadFromTeamForge(path, user, password, frsFileId.get());
 
       if (fileDownloaded.isPresent()) {
         Extractor.unZip(path + File.separator + fileDownloaded.get().toString(), path);

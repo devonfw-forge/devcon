@@ -16,12 +16,12 @@ public final class DistConstants {
   /**
    * oasp distribution file id
    */
-  public static final String OAPS_FILE_ID = "frs49076";
+  public static final String OASP_FILE_ID = "oaspide_file_id";
 
   /**
    * devon distribution file id
    */
-  public static final String DEVON_FILE_ID = "frs50508";
+  public static final String DEVON_FILE_ID = "devondist_file_id";
 
   /**
    * distribution type for oasp

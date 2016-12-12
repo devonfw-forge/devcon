@@ -213,21 +213,21 @@ public class Utils {
     final InputStreamReader isOutReader = new InputStreamReader(isOutput);
 
     // Thread to process error
-    new Thread(new Runnable() {
-      @Override
-      public void run() {
-
-        BufferedReader bre = new BufferedReader(isErrReader);
-        String line;
-        try {
-          while ((line = bre.readLine()) != null) {
-
-            output.showError(line);
-          }
-        } catch (Exception e) {
-        }
-      }
-    }).start();
+    // new Thread(new Runnable() {
+    // @Override
+    // public void run() {
+    //
+    // BufferedReader bre = new BufferedReader(isErrReader);
+    // String line;
+    // try {
+    // while ((line = bre.readLine()) != null) {
+    //
+    // output.showError(line);
+    // }
+    // } catch (Exception e) {
+    // }
+    // }
+    // }).start();
 
     // Thread to process output
     new Thread(new Runnable() {
@@ -264,8 +264,8 @@ public class Utils {
         FileUtils.writeStringToFile(settingsfile, content, "UTF-8");
       }
     } catch (Exception e) {
-      throw new Exception("An error occurred while adding the devon.json file. You may need to add it manually. "
-          + e.getMessage());
+      throw new Exception(
+          "An error occurred while adding the devon.json file. You may need to add it manually. " + e.getMessage());
     }
 
   }
@@ -275,15 +275,14 @@ public class Utils {
     try {
       File appFolder = pathToApp.toFile();
       if (appFolder.exists()) {
-        String content =
-            "{\"version\": \"" + Devcon.DEVON_DEFAULT_VERSION + "\",\n\"type\":\"COMBINED\",\n\"projects\":[\""
-                + serverPath + "\", \"" + clientPath + "\"]\n}";
+        String content = "{\"version\": \"" + Devcon.DEVON_DEFAULT_VERSION
+            + "\",\n\"type\":\"COMBINED\",\n\"projects\":[\"" + serverPath + "\", \"" + clientPath + "\"]\n}";
         File settingsfile = pathToApp.resolve("devon.json").toFile();
         FileUtils.writeStringToFile(settingsfile, content, "UTF-8");
       }
     } catch (Exception e) {
-      throw new Exception("An error occurred while adding the devon.json file. You may need to add it manually. "
-          + e.getMessage());
+      throw new Exception(
+          "An error occurred while adding the devon.json file. You may need to add it manually. " + e.getMessage());
     }
 
   }
