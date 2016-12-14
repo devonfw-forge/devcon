@@ -204,22 +204,22 @@ public class Downloader {
   }
 
   /**
-   * Method to obtain the ID of a file stored in the Teamforge site. The fileId is read from the devonfw.github.io
-   * repository, from the "version.json" file
+   * Method to obtain the Devcon's configuration properties from the devonfw.github.io repository, from the
+   * "version.json" file
    *
-   * @param fileReference the reference of the file in Teamforge
+   * @param property the reference of the file in Teamforge
    * @return the file ID
    */
-  public static Optional<String> getFileID(String fileReference) {
+  public static Optional<String> getDevconConfigProperty(String property) {
 
     try {
-      String fileId = null;
+      String propertyValue = null;
       JSONObject json = null;
 
       json = new JSONObject(IOUtils.toString(new URL(Devcon.VERSION_URL), Charset.forName("UTF-8")));
 
-      fileId = (String) json.get(fileReference);
-      return Optional.of(fileId);
+      propertyValue = (String) json.get(property);
+      return Optional.of(propertyValue);
     } catch (Exception e) {
       return Optional.absent();
     }

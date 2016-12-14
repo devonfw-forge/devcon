@@ -189,12 +189,12 @@ public class Oasp4js extends AbstractCommandModule {
 
       if (angularVersion.equals("1")) {
         // frsFileId = OASP4JS_ang1;
-        frsFileId = Downloader.getFileID(OASP4JS_ang1_ID);
+        frsFileId = Downloader.getDevconConfigProperty(OASP4JS_ang1_ID);
         if (!frsFileId.isPresent())
           throw new Exception("Property " + OASP4JS_ang1_ID + " not found.");
       } else if (angularVersion.equals("2")) {
         // frsFileId = OASP4JS_ang2;
-        frsFileId = Downloader.getFileID(OASP4JS_ang2_ID);
+        frsFileId = Downloader.getDevconConfigProperty(OASP4JS_ang2_ID);
         if (!frsFileId.isPresent())
           throw new Exception("Property " + OASP4JS_ang2_ID + " not found.");
       } else {

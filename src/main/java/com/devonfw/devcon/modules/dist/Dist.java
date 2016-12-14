@@ -58,11 +58,11 @@ public class Dist extends AbstractCommandModule {
     try {
 
       if (type.toLowerCase().equals(DistConstants.OASP_IDE)) {
-        teamforgeFileId = Downloader.getFileID(DistConstants.OASP_FILE_ID);
+        teamforgeFileId = Downloader.getDevconConfigProperty(DistConstants.OASP_FILE_ID);
         if (!teamforgeFileId.isPresent())
           throw new Exception("Property " + DistConstants.OASP_FILE_ID + " not found.");
       } else if (type.toLowerCase().equals(DistConstants.DEVON_DIST)) {
-        teamforgeFileId = Downloader.getFileID(DistConstants.DEVON_FILE_ID);
+        teamforgeFileId = Downloader.getDevconConfigProperty(DistConstants.DEVON_FILE_ID);
         if (!teamforgeFileId.isPresent())
           throw new Exception("Property " + DistConstants.DEVON_FILE_ID + " not found.");
       } else {
