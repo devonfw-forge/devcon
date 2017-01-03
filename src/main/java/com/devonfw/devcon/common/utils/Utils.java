@@ -32,8 +32,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.devonfw.devcon.Devcon;
 import com.devonfw.devcon.common.api.Command;
 import com.devonfw.devcon.common.api.CommandModuleInfo;
+import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.output.Output;
+import com.google.common.base.Optional;
 
 /**
  * General utilities
@@ -46,12 +48,15 @@ public class Utils {
 
   private static final String OPTIONAL = "optionalParameters";
 
+  private static final String DIST_SCRIPTS = "software/devcon/scripts";
+
+  private static final String LOCAL_SCRIPTS = ".devcon/scripts";
+
   public static File getApplicationPath() {
 
     try {
       return new File(Devcon.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
     } catch (URISyntaxException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
       return null;
     }
@@ -178,31 +183,6 @@ public class Utils {
   }
 
   /**
-   * @param repoUrl
-   * @param cloneDir
-   * @param gitDir
-   * @throws Exception
-   */
-  /*
-   * public static void cloneRepository(String repoUrl, String cloneDir, String gitDir) throws Exception {
-   *
-   * try {
-   *
-   * if (gitDir == null || gitDir.isEmpty()) { gitDir = Utils.getGITBinPath(); } ProcessBuilder processBuilder = new
-   * ProcessBuilder(gitDir + Constants.GIT_EXE, Constants.CLONE_OPTION, repoUrl, cloneDir); processBuilder.directory(new
-   * File(gitDir));
-   *
-   * Process process = processBuilder.start();
-   *
-   * final InputStream isError = process.getErrorStream(); final InputStream isOutput = process.getInputStream();
-   *
-   * processErrorAndOutPut(isError, isOutput);
-   *
-   * // Wait to get exit value try { process.waitFor(); } catch (InterruptedException e) { throw e; } } catch (Exception
-   * e) { throw e; } }
-   */
-
-  /**
    * @param isError
    * @param isOutput
    */
@@ -212,24 +192,6 @@ public class Utils {
     final InputStreamReader isErrReader = new InputStreamReader(isError);
     final InputStreamReader isOutReader = new InputStreamReader(isOutput);
 
-    // Thread to process error
-    // new Thread(new Runnable() {
-    // @Override
-    // public void run() {
-    //
-    // BufferedReader bre = new BufferedReader(isErrReader);
-    // String line;
-    // try {
-    // while ((line = bre.readLine()) != null) {
-    //
-    // output.showError(line);
-    // }
-    // } catch (Exception e) {
-    // }
-    // }
-    // }).start();
-
-    // Thread to process output
     new Thread(new Runnable() {
       @Override
       public void run() {
@@ -381,5 +343,19 @@ public class Utils {
     }
 
     return finalOrderedModuleList;
+  }
+
+  /**
+   * Returns the path where the custom JS modules should be searched
+   *
+   * @return the JS modules path
+   */
+  public static Path getScriptDir() {
+
+    Optional<DistributionInfo> distInfo = ContextPathInfo.INSTANCE.getDistributionRoot();
+
+    return distInfo.isPresent() ? distInfo.get().getPath().resolve(DIST_SCRIPTS)
+        : ContextPathInfo.INSTANCE.getHomeDirectory().resolve(LOCAL_SCRIPTS);
+
   }
 }
