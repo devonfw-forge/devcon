@@ -12,6 +12,11 @@ public final class Constants {
   public static final String MODULES_PACKAGE = "com.devonfw.devcon.modules";
 
   /**
+   * the location for the Devcon modules
+   */
+  public static final String MODULES_LOCATION = "com.devonfw.devcon.modules.*";
+
+  /**
    * the path to the folder where the resources are located
    */
   public static final String RESOURCES_PATH = "src/main/resources/";
@@ -248,4 +253,9 @@ public final class Constants {
    * Taskkill commands in windows
    */
   public static final String TASKKILL_PID_CMD = "taskkill /F /PID ";
+
+  /**
+   * Script (JS) engine name
+   */
+  public static final String SCRIPT_ENGINE_NAME = "nashorn";
 }
