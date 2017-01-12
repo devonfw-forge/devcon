@@ -32,7 +32,7 @@ public class Devcon {
   /**
    * current version of the tool
    */
-  public static final String VERSION = "1.2.0";
+  public static final String VERSION = "1.2.1";
 
   /**
    * url where the versions configuration file is located

@@ -24,12 +24,15 @@ import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.InputType;
 import com.devonfw.devcon.common.api.annotations.Parameter;
 import com.devonfw.devcon.common.api.annotations.Parameters;
+import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.InputTypeNames;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.impl.utils.WindowsReqistry;
+import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.common.utils.Utils;
 import com.devonfw.devcon.output.Output;
 import com.github.zafarkhaja.semver.Version;
+import com.google.common.base.Optional;
 
 /**
  * System-wide commands and those related with Devcon itself
@@ -58,7 +61,8 @@ public class SystemCommands extends AbstractCommandModule {
 
   @SuppressWarnings("javadoc")
   @Command(name = "install", description = "Install Devcon on user´s HOME folder or alternative path", proxyParams = true)
-  @Parameters(values = { @Parameter(name = "addToPath", description = "Add to %PATH% (by default \"true\")", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
+  @Parameters(values = {
+  @Parameter(name = "addToPath", description = "Add to %PATH% (by default \"true\")", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
   "true", "false" })) })
   public void install(String addToPath/* , String proxyHost, String proxyPort */) {
 
@@ -126,11 +130,14 @@ public class SystemCommands extends AbstractCommandModule {
   @SuppressWarnings("javadoc")
   @Command(name = "update", description = "Update Devcon as installed on user´s system", proxyParams = true)
   @Parameters(values = {})
-  public void update(/* String proxyHost, String proxyPort */) {
+  public void update() {
 
     Output out = getOutput();
 
-    Path devconPath = getContextPathInfo().getHomeDirectory().resolve(DOT_DEVCON_DIR);
+    Optional<DistributionInfo> distInfo = ContextPathInfo.INSTANCE.getDistributionRoot();
+
+    Path devconPath = distInfo.isPresent() ? distInfo.get().getPath().resolve("software/devcon")
+        : getContextPathInfo().getHomeDirectory().resolve(DOT_DEVCON_DIR);
     File devconDir = devconPath.toFile();
 
     // if devconDir is not in the 'default' user's Home directory we will look for it in other root drives
