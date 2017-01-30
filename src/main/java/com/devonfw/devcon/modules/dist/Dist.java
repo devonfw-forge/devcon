@@ -155,9 +155,16 @@ public class Dist extends AbstractCommandModule {
   "False", "True" })),
   @Parameter(name = "svnurl", description = "the url for the SVN provided by S2", optional = true, inputType = @InputType(name = InputTypeNames.GENERIC)),
   @Parameter(name = "svnuser", description = "the user for the SVN", optional = true, inputType = @InputType(name = InputTypeNames.GENERIC)),
-  @Parameter(name = "svnpass", description = "the password for the SVN", optional = true, inputType = @InputType(name = InputTypeNames.PASSWORD)) })
+  @Parameter(name = "svnpass", description = "the password for the SVN", optional = true, inputType = @InputType(name = InputTypeNames.PASSWORD)),
+  @Parameter(name = "plurl", description = "the url for the Production Line Instance provided by S2", optional = true, inputType = @InputType(name = InputTypeNames.GENERIC)),
+  @Parameter(name = "pluser", description = "the user login for the PL instance", optional = true, inputType = @InputType(name = InputTypeNames.GENERIC)),
+  @Parameter(name = "plpass", description = "the user passwod for the PL instance", optional = true, inputType = @InputType(name = InputTypeNames.PASSWORD)),
+  @Parameter(name = "plJenkinsConnectionName", description = "Eclipse Jenkins connection Name", optional = true, inputType = @InputType(name = InputTypeNames.GENERIC)),
+  @Parameter(name = "plSonarQubeConnectionName", description = "Eclipse SonarQube connection Name", optional = true, inputType = @InputType(name = InputTypeNames.GENERIC)),
+  @Parameter(name = "plGerritConnectionName", description = "Eclipse Gerrit connection Name", optional = true, inputType = @InputType(name = InputTypeNames.GENERIC))})
   public void s2(String projectname, String user, String pass, String engagementname, String ciaas, String svnurl,
-      String svnuser, String svnpass) {
+      String svnuser, String svnpass,String plurl, String pluser, String plpass, String plJenkinsConnectionName,
+      String plSonarQubeConnectionName, String plGerritConnectionName) {
 
     Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot();
     SharedServices s2 = new SharedServices(this.output);
@@ -177,7 +184,12 @@ public class Dist extends AbstractCommandModule {
           int createResult = s2.create(distPath, projectname, svnurl, svnuser, svnpass);
           if (createResult > 0)
             throw new Exception("An error occurred while project creation.");
-
+          
+          int initPL = s2.initPL(distPath, plurl, pluser, plpass, plJenkinsConnectionName, plSonarQubeConnectionName, plGerritConnectionName);
+          if (initPL > 0)
+        	  this.output.showMessage(
+                      "The configuration of the eclipse views could not be completed successfully. Please verify it");
+          
         } else {
           throw new InvalidConfigurationStateException("The conf/settings.json seems to be invalid");
         }

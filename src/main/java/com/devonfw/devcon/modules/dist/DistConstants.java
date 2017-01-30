@@ -42,5 +42,10 @@ public final class DistConstants {
    * script to configure settings.xml for Shared Services
    */
   public static final String INIT_SCRIPT = "s2-init.bat";
+  
+  /**
+   * script to configure settings.xml for Shared Services
+   */
+  public static final String INIT_PL_SCRIPT = "s2-pl-init.bat";
 
 }
