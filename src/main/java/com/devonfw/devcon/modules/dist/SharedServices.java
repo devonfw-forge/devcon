@@ -75,16 +75,13 @@ public class SharedServices {
 
   }
   
-public int initPL(Path distPath, String plUrl, String plUser, String plEncPass,
-		String plJenkinsConnectionName, String plSonarQubeConnectionName, 
-		String plGerritConnectionName) throws Exception {
+public int initPL(Path distPath, String plname, String pluser, String projectName) throws Exception {
 	  
 	  try {
 	  
 	  File batchFile = new File(distPath.toString() + File.separator + DistConstants.INIT_PL_SCRIPT);
       ProcessBuilder processBuilder =
-          new ProcessBuilder(batchFile.getAbsolutePath(), plUser, plEncPass, plJenkinsConnectionName, 
-        		  plSonarQubeConnectionName, plGerritConnectionName);
+          new ProcessBuilder(batchFile.getAbsolutePath(), plname, pluser, projectName);
       processBuilder.redirectErrorStream(true);
       processBuilder.redirectOutput(Redirect.PIPE);
 
