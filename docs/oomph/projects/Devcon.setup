@@ -40,11 +40,11 @@
         storageURI="scope://Workspace"
         label="devcon remote uri">
       <choice
-          value="ssh://git@github.com:${github.fork.name}/devcon.git"
-          label="SSH"/>
-      <choice
           value="https://github.com/${github.fork.name}/devcon.git"
           label="HTTPS"/>
+      <choice
+          value="ssh://git@github.com/${github.fork.name}/devcon.git"
+          label="SSH"/>
     </setupTask>
     <setupTask
         xsi:type="setup:VariableTask"
