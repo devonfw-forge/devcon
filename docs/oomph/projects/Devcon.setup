@@ -65,7 +65,7 @@
       label="Master"/>
   <logicalProjectContainer
       xsi:type="setup:ProjectCatalog"
-      href="index:/org.eclipse.setup#//@projectCatalogs[name='com.github']"/>
+      href="http://devonfw.github.io/devon-ide/oomph/projects/catalog_devonfw.setup#/"/>
   <description>
     Devcon is a cross-platform command line tool running on the JVM that provides many automated tasks around the full life-cycle of Devon applications, from installing the basic working environment and generating a new project, to running a test server and deploying an application to production.
 
