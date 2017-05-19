@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Path;
 
+import org.apache.commons.lang3.SystemUtils;
+
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.InputType;
@@ -40,8 +42,7 @@ public class Workspace extends AbstractCommandModule {
    * @throws Exception Exception thrown by workspace create command
    */
   @Command(name = "create", description = "This command creates a new workspace with all default configuration in a Devonfw distribution.")
-  @Parameters(values = {
-  @Parameter(name = "workspace", description = "This is the name of workspace to create"),
+  @Parameters(values = { @Parameter(name = "workspace", description = "This is the name of workspace to create"),
   @Parameter(name = "distribution", description = "This is the location of the devon distribution (default: from current dir)", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
   public void create(String workspace, String distribution) throws Exception {
 
@@ -56,14 +57,22 @@ public class Workspace extends AbstractCommandModule {
       Path distPath = distInfo.get().getPath();
 
       File w = new File(distPath + File.separator + Constants.WORKSPACES + File.separator + workspace);
-
+      ProcessBuilder processBuilder = null;
       if (!w.exists()) {
         w.mkdirs();
         String noPause = "noPause";
-        ProcessBuilder processBuilder =
-            new ProcessBuilder(distPath.toFile().getAbsolutePath() + File.separator
-                + Constants.UPDATE_ALL_WORKSPACES_BAT, noPause);
-        processBuilder.directory(distPath.toFile());
+        if (SystemUtils.IS_OS_WINDOWS) {
+          processBuilder = new ProcessBuilder(
+              distPath.toFile().getAbsolutePath() + File.separator + Constants.UPDATE_ALL_WORKSPACES_BAT, noPause);
+          processBuilder.directory(distPath.toFile());
+
+        } else if (SystemUtils.IS_OS_LINUX) {
+          String args[] = new String[] { Constants.LINUX_BASH, "-c",
+          ". " + distPath.toFile().getAbsolutePath() + File.separator + Constants.UPDATE_ALL_WORKSPACES_SH, noPause };
+          processBuilder = new ProcessBuilder(args);
+          processBuilder.directory(distPath.toFile());
+
+        }
 
         Process process = processBuilder.start();
 

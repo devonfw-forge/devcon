@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Path;
 
+import org.apache.commons.lang3.SystemUtils;
+
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
 import com.devonfw.devcon.common.api.annotations.InputType;
@@ -102,11 +104,17 @@ public class Dist extends AbstractCommandModule {
   public void init(String path) throws Exception {
 
     String frsFileId = "";
+    File updatebat = null;
 
     // Default parameters
     path = path.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : path.trim();
     Path path_ = getPath(path);
-    File updatebat = path_.resolve(Constants.UPDATE_ALL_WORKSPACES_BAT).toFile();
+
+    if (SystemUtils.IS_OS_WINDOWS) {
+      updatebat = path_.resolve(Constants.UPDATE_ALL_WORKSPACES_BAT).toFile();
+    } else if (SystemUtils.IS_OS_LINUX) {
+      updatebat = path_.resolve(Constants.UPDATE_ALL_WORKSPACES_SH).toFile();
+    }
 
     if (!updatebat.exists()) {
       this.output.showError("Not a Devon distribution");

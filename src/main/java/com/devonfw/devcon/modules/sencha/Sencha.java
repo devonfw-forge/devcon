@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.nio.file.Path;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
@@ -39,10 +38,10 @@ public class Sencha extends AbstractCommandModule {
   public void run() throws Exception {
 
     // TODO ivanderk Implementatin for MacOSX & Unix
-    if (!SystemUtils.IS_OS_WINDOWS) {
-      getOutput().showMessage("This task is currently only supported on Windows");
-      return;
-    }
+    // if (!SystemUtils.IS_OS_WINDOWS) {
+    // getOutput().showMessage("This task is currently only supported on Windows");
+    // return;
+    // }
 
     if (!this.projectInfo.isPresent()) {
       getOutput().showError("Not in a project or -path param not pointing to a project");
