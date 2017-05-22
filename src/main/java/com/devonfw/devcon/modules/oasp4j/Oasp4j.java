@@ -75,7 +75,7 @@ public class Oasp4j extends AbstractCommandModule {
   public void create(String serverpath, String servername, String packagename, String groupid, String version)
       throws Exception {
 
-    Optional<String> oaspTemplateVersion_op = Optional.of("2.3.0");// Downloader.getDevconConfigProperty(Constants.OASP_TEMPLATE_VERSION);
+    Optional<String> oaspTemplateVersion_op = Downloader.getDevconConfigProperty(Constants.OASP_TEMPLATE_VERSION); //Optional.of("2.3.0");
     String oaspTemplateVersion =
         oaspTemplateVersion_op.isPresent() ? oaspTemplateVersion_op.get() : Constants.OASP_TEMPLATE_LAST_STABLE_VERSION;
     if (!oaspTemplateVersion_op.isPresent())
