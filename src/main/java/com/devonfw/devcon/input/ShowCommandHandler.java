@@ -380,7 +380,7 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
 
     DirectoryChooser directoryChooser = new DirectoryChooser();
     String currentWorkingDir = this.cmdManager.getContextPathInfo().getCurrentWorkingDirectory().toString();
-    String defaultLocation = currentWorkingDir.substring(0, currentWorkingDir.lastIndexOf("\\"));
+    String defaultLocation = currentWorkingDir.substring(0, currentWorkingDir.lastIndexOf(File.separator));
     directoryChooser.setInitialDirectory(new File(defaultLocation));
     File selectedFile = directoryChooser.showDialog(primaryStage);
     if (selectedFile != null) {

@@ -97,56 +97,56 @@
       <artifactId>activation</artifactId>
       <scope>system</scope>
       <version>1.0</version>
-      <systemPath>${basedir}\src\lib\activation.jar</systemPath>
+      <systemPath>${basedir}${file.separator}src${file.separator}lib${file.separator}activation.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>axis</groupId>
       <artifactId>axis</artifactId>
       <scope>system</scope>
       <version>1.0</version>
-      <systemPath>${basedir}\src\lib\axis.jar</systemPath>
+      <systemPath>${basedir}${file.separator}src${file.separator}lib${file.separator}axis.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>commons-discovery</groupId>
       <artifactId>commons-discovery</artifactId>
       <scope>system</scope>
       <version>1.0</version>
-      <systemPath>${basedir}\src\lib\commons-discovery.jar</systemPath>
+      <systemPath>${basedir}${file.separator}src${file.separator}lib${file.separator}commons-discovery.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <scope>system</scope>
       <version>1.0</version>
-      <systemPath>${basedir}\src\lib\commons-logging.jar</systemPath>
+      <systemPath>${basedir}${file.separator}src${file.separator}lib${file.separator}commons-logging.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>jaxrpc</groupId>
       <artifactId>jaxrpc</artifactId>
       <scope>system</scope>
       <version>1.0</version>
-      <systemPath>${basedir}\src\lib\jaxrpc.jar</systemPath>
+      <systemPath>${basedir}${file.separator}src${file.separator}lib${file.separator}jaxrpc.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>mail</groupId>
       <artifactId>mail</artifactId>
       <scope>system</scope>
       <version>1.0</version>
-      <systemPath>${basedir}\src\lib\mail.jar</systemPath>
+      <systemPath>${basedir}${file.separator}src${file.separator}lib${file.separator}mail.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>saaj</groupId>
       <artifactId>saaj</artifactId>
       <scope>system</scope>
       <version>1.0</version>
-      <systemPath>${basedir}\src\lib\saaj.jar</systemPath>
+      <systemPath>${basedir}${file.separator}src${file.separator}lib${file.separator}saaj.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>sf_soap60_sdk</groupId>
       <artifactId>sf_soap60_sdk</artifactId>
       <scope>system</scope>
       <version>1.0</version>
-      <systemPath>${basedir}\src\lib\sf_soap60_sdk.jar</systemPath>
+      <systemPath>${basedir}${file.separator}src${file.separator}lib${file.separator}sf_soap60_sdk.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>

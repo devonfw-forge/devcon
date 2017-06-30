@@ -38,7 +38,6 @@ import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Constants;
-import com.devonfw.devcon.common.utils.Downloader;
 import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
 
@@ -76,7 +75,7 @@ public class Oasp4j extends AbstractCommandModule {
   public void create(String serverpath, String servername, String packagename, String groupid, String version)
       throws Exception {
 
-    Optional<String> oaspTemplateVersion_op = Downloader.getDevconConfigProperty(Constants.OASP_TEMPLATE_VERSION);
+    Optional<String> oaspTemplateVersion_op = Downloader.getDevconConfigProperty(Constants.OASP_TEMPLATE_VERSION); //Optional.of("2.3.0");
     String oaspTemplateVersion =
         oaspTemplateVersion_op.isPresent() ? oaspTemplateVersion_op.get() : Constants.OASP_TEMPLATE_LAST_STABLE_VERSION;
     if (!oaspTemplateVersion_op.isPresent())
@@ -84,18 +83,14 @@ public class Oasp4j extends AbstractCommandModule {
 
     this.output.showMessage("Using the oasp template version: " + oaspTemplateVersion);
 
-    String command = new StringBuffer("cmd /c mvn -DarchetypeVersion=").append(oaspTemplateVersion)
+    String baseCommand = new StringBuffer("mvn -DarchetypeVersion=").append(oaspTemplateVersion)
         .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
         .append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=").append(Constants.OASP_ARTIFACT_ID)
         .append(" archetype:generate -DgroupId=").append(groupid).append(" -DartifactId=").append(servername)
         .append(" -Dversion=").append(version).append(" -Dpackage=").append(packagename)
         .append(" -DinteractiveMode=false").toString();
 
-    if (!SystemUtils.IS_OS_WINDOWS) {
-      getOutput().showMessage("This task is currently only supported on Windows");
-      return;
-    }
-
+    System.out.println("basecommand is -- " + baseCommand);
     serverpath = serverpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : serverpath;
 
     File projectDir = new File(serverpath);
@@ -108,10 +103,19 @@ public class Oasp4j extends AbstractCommandModule {
     if (!project.exists()) {
 
       Runtime rt = Runtime.getRuntime();
-      final Process process;
+      Process process = null;
 
       try {
-        process = rt.exec(command, null, new File(serverpath));
+
+        if (SystemUtils.IS_OS_WINDOWS) {
+          process = Runtime.getRuntime().exec(Constants.WINDOWS_CMD_PROMPT + baseCommand, null, new File(serverpath));
+
+        } else if (SystemUtils.IS_OS_LINUX) {
+          String args[] = new String[] { Constants.LINUX_BASH, "-c", baseCommand };
+          // process = new ProcessBuilder(args).start();
+          process = Runtime.getRuntime().exec(args, null, new File(serverpath));
+        }
+        // process = rt.exec(command, null, new File(serverpath));
         final InputStream isError = process.getErrorStream();
         final InputStream isOutput = process.getInputStream();
 
@@ -139,7 +143,8 @@ public class Oasp4j extends AbstractCommandModule {
 
           if (Integer.parseInt(
               /* Constants.OASP_TEMPLATE_VERSION */oaspTemplateVersion.replaceAll("\\.", "")) <= new Integer("211")) {
-            modifyPom(serverpath + "\\" + servername + "\\server\\pom.xml", packagename);
+            modifyPom(serverpath + File.separator + servername + File.separator + "server" + File.separator + "pom.xml",
+                packagename);
           }
 
           getOutput().showMessage("Oasp4j project created successfully");
@@ -173,6 +178,7 @@ public class Oasp4j extends AbstractCommandModule {
   @Parameter(name = "port", description = "Port to start Spring boot app (port 8081 by default)", optional = true) })
   public void run(String port) {
 
+    Process process = null;
     if (!this.projectInfo.isPresent()) {
       getOutput().showError("Not in a project or -path param not pointing to a project");
       return;
@@ -181,18 +187,28 @@ public class Oasp4j extends AbstractCommandModule {
     ProjectInfo info = this.projectInfo.get();
 
     // Get port from a) parameter or b) devon.json file or c) default value passed as 2nd paranter to info.getProperty
-    String port_ = (port.isEmpty()) ? info.getProperty("port", "8081").toString() : port.trim();
-    String path_ = info.getPath().toString() + "\\server";
 
     try {
-      String commandStr = "mvn spring-boot:run -Drun.jvmArguments='-Dserver.port=" + port_ + "'";
+      String port_ = (port.isEmpty()) ? info.getProperty("port", "8081").toString() : port.trim();
+      String path_ = info.getPath().toString() + File.separator + "server";
 
-      String cmd = "cmd /c " + commandStr;
+      if (SystemUtils.IS_OS_WINDOWS) {
 
-      Process p = Runtime.getRuntime().exec(cmd, null, new File(path_));
+        String baseCommand = "mvn spring-boot:run -Drun.jvmArguments=\"-Dserver.port=" + port_ + "\"";
+
+        process = Runtime.getRuntime().exec(Constants.WINDOWS_CMD_PROMPT + baseCommand, null, new File(path_));
+      } else if (SystemUtils.IS_OS_LINUX) {
+        String baseCommand = "mvn spring-boot:run -Drun.jvmArguments='-Dserver.port=" + port_ + "'";
+
+        String args[] = new String[] { Constants.LINUX_BASH, "-c", baseCommand };
+        process = Runtime.getRuntime().exec(args, null, new File(path_));
+
+      }
+
+      // Process p = Runtime.getRuntime().exec(cmd, null, new File(path_));
       String line;
-      final InputStream isError = p.getErrorStream();
-      final InputStream isOutput = p.getInputStream();
+      final InputStream isError = process.getErrorStream();
+      final InputStream isOutput = process.getInputStream();
 
       Utils.processErrorAndOutPut(isError, isOutput, this.output);
       // BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -226,11 +242,19 @@ public class Oasp4j extends AbstractCommandModule {
       return;
     }
 
-    Process p;
+    Process p = null;
     try {
-      String cmd = "cmd /c mvn clean install";
 
-      p = Runtime.getRuntime().exec(cmd, null, this.projectInfo.get().getPath().toFile());
+      String baseCommand = "mvn clean install";
+      if (SystemUtils.IS_OS_WINDOWS) {
+        p = Runtime.getRuntime().exec(Constants.WINDOWS_CMD_PROMPT + baseCommand, null,
+            this.projectInfo.get().getPath().toFile());
+      } else if (SystemUtils.IS_OS_LINUX) {
+        String args[] = new String[] { Constants.LINUX_BASH, "-c", baseCommand };
+        p = Runtime.getRuntime().exec(args, null, this.projectInfo.get().getPath().toFile());
+      }
+
+      // p = Runtime.getRuntime().exec(cmd, null, this.projectInfo.get().getPath().toFile());
       // ProcessBuilder processBuilder =
       // new ProcessBuilder("D:\\Devon2.0.1\\software\\maven\\bin\\mvn.bat", "clean", "install");
       // processBuilder.directory(this.projectInfo.get().getPath().toFile());
@@ -311,13 +335,34 @@ public class Oasp4j extends AbstractCommandModule {
         if (project.exists()) {
 
           // PACKAGING THE APP (creating the .war file)
-          File mvnBat =
-              new File(distInfo.get().getPath().toString() + File.separator + "software\\maven\\bin\\mvn.bat");
+
+          File mvnBat = null;
+
+          if (SystemUtils.IS_OS_WINDOWS) {
+
+            mvnBat = new File(distInfo.get().getPath().toString() + File.separator + "software\\maven\\bin\\mvn.bat");
+          } else if (SystemUtils.IS_OS_LINUX) {
+            mvnBat = new File(distInfo.get().getPath().toString() + File.separator + "software" + File.separator
+                + "maven" + File.separator + "bin" + File.separator + "mvn.cmd");
+          }
+
+          ProcessBuilder processBuilder = null;
+          File startTomcatBat = null;
           if (mvnBat.exists()) {
 
-            ProcessBuilder processBuilder = new ProcessBuilder(mvnBat.getAbsolutePath(), "package");
-            processBuilder.directory(project);
+            if (SystemUtils.IS_OS_WINDOWS) {
+              startTomcatBat = new File(newTomcat4app + File.separator + "bin" + File.separator + "startup.bat");
 
+              processBuilder = new ProcessBuilder(mvnBat.getAbsolutePath(), "package");
+
+            } else if (SystemUtils.IS_OS_LINUX) {
+              startTomcatBat = new File(newTomcat4app + File.separator + "bin" + File.separator + "startup.sh");
+
+              String args[] = new String[] { Constants.LINUX_BASH, "-c", mvnBat.getAbsolutePath(), "package" };
+              processBuilder = new ProcessBuilder(args);
+
+            }
+            processBuilder.directory(project);
             Process process = processBuilder.start();
 
             final InputStream isError = process.getErrorStream();
@@ -339,12 +384,18 @@ public class Oasp4j extends AbstractCommandModule {
                   FileUtils.copyFileToDirectory(warFile, tomcatWebApps, true);
 
                   // LAUNCHING TOMCAT
-                  File startTomcatBat =
-                      new File(newTomcat4app + File.separator + "bin" + File.separator + "startup.bat");
 
+                  ProcessBuilder tomcatProcessBuilder = null;
                   if (startTomcatBat.exists()) {
-                    ProcessBuilder tomcatProcessBuilder = new ProcessBuilder(startTomcatBat.getAbsolutePath());
-                    tomcatProcessBuilder.directory(new File(newTomcat4app + File.separator + "bin"));
+
+                    if (SystemUtils.IS_OS_WINDOWS) {
+                      tomcatProcessBuilder = new ProcessBuilder(startTomcatBat.getAbsolutePath());
+                      tomcatProcessBuilder.directory(new File(newTomcat4app + File.separator + "bin"));
+                    } else if (SystemUtils.IS_OS_LINUX) {
+                      String args1[] = new String[] { Constants.LINUX_BASH, "-c", "sh catalina.sh start" };
+                      tomcatProcessBuilder = new ProcessBuilder(args1);
+                      tomcatProcessBuilder.directory(new File(newTomcat4app + File.separator + "bin"));
+                    }
 
                     Process tomcatProcess = tomcatProcessBuilder.start();
 
