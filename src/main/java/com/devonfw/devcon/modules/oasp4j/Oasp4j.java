@@ -38,6 +38,7 @@ import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Constants;
+import com.devonfw.devcon.common.utils.Downloader;
 import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
 
@@ -75,7 +76,7 @@ public class Oasp4j extends AbstractCommandModule {
   public void create(String serverpath, String servername, String packagename, String groupid, String version)
       throws Exception {
 
-    Optional<String> oaspTemplateVersion_op = Downloader.getDevconConfigProperty(Constants.OASP_TEMPLATE_VERSION); //Optional.of("2.3.0");
+    Optional<String> oaspTemplateVersion_op = Downloader.getDevconConfigProperty(Constants.OASP_TEMPLATE_VERSION); // Optional.of("2.3.0");
     String oaspTemplateVersion =
         oaspTemplateVersion_op.isPresent() ? oaspTemplateVersion_op.get() : Constants.OASP_TEMPLATE_LAST_STABLE_VERSION;
     if (!oaspTemplateVersion_op.isPresent())
