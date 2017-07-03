@@ -92,13 +92,16 @@ public class SystemCommands extends AbstractCommandModule {
               updatePath(devconDir.toString());
             }
 
-          OutputStreamWriter devconCmd =
-              new OutputStreamWriter(new FileOutputStream(devconPath.resolve("devcon.cmd").toFile()));
-          OutputStreamWriter devonCmd =
-              new OutputStreamWriter(new FileOutputStream(devconPath.resolve("devon.cmd").toFile()));
+            OutputStreamWriter devconCmd =
+                new OutputStreamWriter(new FileOutputStream(devconPath.resolve("devcon.cmd").toFile()));
+            OutputStreamWriter devonCmd =
+                new OutputStreamWriter(new FileOutputStream(devconPath.resolve("devon.cmd").toFile()));
 
-          String source = String.format("@echo off\n" + "java -jar %s %%*\n", devconFile.toString());
-
+            String source = String.format("@echo off\n" + "java -jar %s %%*\n", devconFile.toString());
+            devconCmd.write(source);
+            devconCmd.close();
+            devonCmd.write(source);
+            devonCmd.close();
           } else if (SystemUtils.IS_OS_LINUX) {
             if (addPath) {
 
@@ -110,43 +113,9 @@ public class SystemCommands extends AbstractCommandModule {
                   SystemCommands.class.getClassLoader().getResource(root + Constants.DEVCON_SCRIPT).toExternalForm();
               System.out.println("sriptPath value ----------- " + scriptPath);
 
-              // Runtime.getRuntime().exec(
-              // "jar xf " + devconFile.toString() + " devconScript.sh && ./devconScript.sh && rm devconScript.sh");
               Process procBuildScript =
                   new ProcessBuilder(Constants.LINUX_BASH, "-c", "/" + Constants.DEVCON_SCRIPT, devconDir.toString())
                       .start();
-              // String[] cmdScript = new String[] { Constants.LINUX_BASH, "-c", scriptPath };
-              // ProcessBuilder procBuildScript = new ProcessBuilder(Constants.LINUX_BASH, "-c",
-              // "/home/ssarmoka/DeonDistro/devon_distro/workspaces/FinalDevconWs1/devcon/src/main/resources/devconScript.sh",
-              // devconDir.toString());
-              // Process process = procBuildScript.start();
-              // final InputStream isError = process.getErrorStream();
-              // final InputStream isOutput = process.getInputStream();
-              //
-              // Utils.processErrorAndOutPut(isError, isOutput, this.output);
-              // int result = process.waitFor();
-              // if (result == 0) {
-              // System.out.println("Success-----");
-              // }
-
-              // String[] cmdScript = new String[] { Constants.LINUX_BASH, "-c", scriptPath };
-              // Process procScript = Runtime.getRuntime().exec(cmdScript);
-              //
-              // String line;
-              // BufferedReader in = new BufferedReader(new InputStreamReader(procScript.getInputStream()));
-              // while ((line = in.readLine()) != null) {
-              // System.out.println(line);
-              // getOutput().showMessage(line);
-              // // this.consoleOutput.append(line).append("\n");
-              // }
-              // in.close();
-              // ProcessBuilder processBuilder = new ProcessBuilder(command);
-              // processBuilder.directory(new File(serverpath));
-              // process = processBuilder.start();
-              // final InputStream isError = process.getErrorStream();
-              // final InputStream isOutput = process.getInputStream();
-              //
-              // Utils.processErrorAndOutPut(isError, isOutput, this.output);
 
             }
 
