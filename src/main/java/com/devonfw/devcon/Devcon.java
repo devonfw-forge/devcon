@@ -52,7 +52,7 @@ public class Devcon {
   /**
    * to be used as version of devon.json files
    */
-  public static final String DEVON_DEFAULT_VERSION = "2.1.0";
+  public static final String DEVON_DEFAULT_VERSION = "2.2.0";
 
   /**
    * devcon's starter message
