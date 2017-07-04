@@ -13,7 +13,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -43,6 +42,8 @@ public class Oasp4js extends AbstractCommandModule {
 
   private static String GULP_SERV = "cmd /c start gulp serve";
 
+  private static String[] STATE = { "successfully", "failed" };
+
   private static String OASP4JS_BASE = "software\\nodejs\\oasp4js_base";
 
   private static String OASP4JS_ang1_ID = "oasp4js_ang1_id";
@@ -65,26 +66,29 @@ public class Oasp4js extends AbstractCommandModule {
 
         String projectPath = clientpath + File.separator + clientname;
         File projectFile = new File(projectPath);
+
         if (projectFile.exists()) {
           getOutput()
               .showError("The project " + projectPath + " already exists. Please delete it or choose other location.");
         } else {
 
-          File templateFile = new File(distInfo.get().getPath().toString() + File.separator + OASP4JS_BASE);
-          if (templateFile.exists()) {
+          String cmd = "cmd /c ng new " + clientname;
+          Process p = Runtime.getRuntime().exec(cmd, null, new File(clientpath));
 
-            FileUtils.copyDirectory(templateFile, projectFile, false);
-
+          String line;
+          BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+          while ((line = in.readLine()) != null) {
+            getOutput().showMessage(line);
+          }
+          in.close();
+          int result = p.exitValue();
+          if (result == 0) {
             getOutput().showMessage("Adding devon.json file...");
             Utils.addDevonJsonFile(projectFile.toPath(), ProjectType.OASP4JS);
-            getOutput().showMessage("Editing java/pom.xml...");
-            editPom(projectFile.toPath(), clientname);
-
-            getOutput().showMessage(
-                "Project created successfully. Please launch 'npm install' to resolve the project dependencies.");
-          } else {
-            getOutput().showError("Base project " + OASP4JS_BASE + " not found.");
           }
+
+          getOutput().showMessage("Project build " + STATE[result]);
+
         }
       } else {
         getOutput().showError("Seems that you are not in a Devon distribution.");
@@ -100,7 +104,6 @@ public class Oasp4js extends AbstractCommandModule {
 
     try {
 
-      // this.projectInfo = getContextPathInfo().getProjectRoot(path);
       if (!this.projectInfo.isPresent()) {
         getOutput().showError("Not in a project or -path param not pointing to a project");
         return;
@@ -109,22 +112,20 @@ public class Oasp4js extends AbstractCommandModule {
       Process p;
       if (this.projectInfo.get().getProjecType().equals(ProjectType.OASP4JS)) {
         try {
-          String cmd = "cmd /c start npm install";
+          String cmd = "cmd /c ng build --progress false";
 
           p = Runtime.getRuntime().exec(cmd, null, this.projectInfo.get().getPath().toFile());
+          getOutput().showError("Building project...");
           String line;
           BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
           while ((line = in.readLine()) != null) {
             System.out.println(line);
-            // getOutput().showMessage(line);
-            // this.consoleOutput.append(line).append("\n");
+            getOutput().showMessage(line);
           }
           in.close();
           int result = p.exitValue();
-          if (result == 0)
-            getOutput().showMessage("Project build successfully");
-          else
-            getOutput().showMessage("Project build failed");
+
+          getOutput().showMessage("Project build " + STATE[result]);
 
         } catch (Exception e) {
 
@@ -151,10 +152,18 @@ public class Oasp4js extends AbstractCommandModule {
         if (this.projectInfo.get().getProjecType().equals(ProjectType.OASP4JS)) {
 
           Process p;
-          p = Runtime.getRuntime().exec(GULP_SERV, null, new File(this.projectInfo.get().getPath().toString()));
+          String cmd = "cmd /c ng serve --progress false";
+          p = Runtime.getRuntime().exec(cmd, null, this.projectInfo.get().getPath().toFile());
+          getOutput().showMessage("Project starting");
+          String line;
+          BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+          while ((line = in.readLine()) != null) {
+            System.out.println(line);
+            getOutput().showMessage(line);
+          }
+          in.close();
           p.waitFor();
           getOutput().showMessage("Starting application");
-
         } else {
           getOutput().showError(
               "Seems that you are not in a OASP4JS project. Please verify the devon.json configuration file");
