@@ -1,5 +1,7 @@
 package com.devonfw.devcon.common.utils;
 
+import java.io.File;
+
 /**
  * Class to encapsulate common constant values
  *
@@ -184,11 +186,14 @@ public final class Constants {
 
   public final static String SERVER = "server";
 
-  public final static String SETTING_FILE_PATH = "\\conf\\.m2\\settings.xml";
+  public final static String SETTING_FILE_PATH =
+      File.separator + "conf" + File.separator + ".m2" + File.separator + "settings.xml";
 
-  public final static String TOMCAT_USER_FILE_PATH = "\\software\\tomcat\\conf\\tomcat-users.xml";
+  public final static String TOMCAT_USER_FILE_PATH =
+      File.separator + "software" + File.separator + "tomcat" + File.separator + "conf" + "tomcat-users.xml";
 
-  public final static String TOMCAT_START_UP_BAT_FILES = "\\software\\tomcat\\bin";
+  public final static String TOMCAT_START_UP_BAT_FILES =
+      File.separator + "software" + File.separator + "tomcat" + File.separator + "bin";
 
   public final static String DEFAULT_PORT = "8080";
 
@@ -258,4 +263,19 @@ public final class Constants {
    * Script (JS) engine name
    */
   public static final String SCRIPT_ENGINE_NAME = "nashorn";
+
+  /**
+   *
+   */
+  public static final String WINDOWS_CMD_PROMPT = "cmd /c ";
+
+  /**
+   *
+   */
+
+  public static final String LINUX_BASH = "/bin/bash";
+
+  public static final String DEVCON_SCRIPT = "devconScript.sh";
+
+  public static final String UPDATE_ALL_WORKSPACES_SH = "update-all-workspaces.sh";
 }

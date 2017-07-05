@@ -23,6 +23,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
@@ -83,13 +84,12 @@ public class Project extends AbstractCommandModule {
     }
     try {
 
-      if (!clienttype.isEmpty()
-          && ((clienttype.equalsIgnoreCase(Constants.OASP4JS) || clienttype.equalsIgnoreCase(Constants.DEVON4SENCHA)))) {
+      if (!clienttype.isEmpty() && ((clienttype.equalsIgnoreCase(Constants.OASP4JS)
+          || clienttype.equalsIgnoreCase(Constants.DEVON4SENCHA)))) {
         clienttype = clienttype;
       } else if (!clienttype.isEmpty()) {
-        getOutput()
-            .showError(
-                "Clienttype value is not valid. Please set client type to oasp4js or devon4sencha.You can enter it via command or set it in devon.json");
+        getOutput().showError(
+            "Clienttype value is not valid. Please set client type to oasp4js or devon4sencha.You can enter it via command or set it in devon.json");
         return;
       }
       int size = this.projectInfo.get().getSubProjects().size();
@@ -113,9 +113,8 @@ public class Project extends AbstractCommandModule {
             sencha_cmd.get().exec();
             break;
           default:
-            getOutput()
-                .showError(
-                    "Clienttype value is not valid. Please set client type to oasp4js or devon4sencha.You can enter it via command or set it in devon.json");
+            getOutput().showError(
+                "Clienttype value is not valid. Please set client type to oasp4js or devon4sencha.You can enter it via command or set it in devon.json");
             break;
 
           }
@@ -136,8 +135,7 @@ public class Project extends AbstractCommandModule {
   @Parameter(name = "groupid", description = "groupid for server project"),
   @Parameter(name = "version", description = "version of server project"),
   @Parameter(name = "clienttype", description = "type of the client project: 'devon4sencha' or 'oasp4js'", inputType = @InputType(name = InputTypeNames.LIST, values = {
-  "oasp4js", "devon4sencha" })),
-  @Parameter(name = "clientname", description = "name for the client project"),
+  "oasp4js", "devon4sencha" })), @Parameter(name = "clientname", description = "name for the client project"),
   @Parameter(name = "clientpath", description = "path where the client project will be created.", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
   @Parameter(name = "createsenchaws", description = "Only for client type 'devon4sencha': if a new Sencha Workspace must be created to store new app. Values TRUE or FALSE (default)", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
   "False", "True" })) })
@@ -148,9 +146,8 @@ public class Project extends AbstractCommandModule {
 
       Optional<com.devonfw.devcon.common.api.Command> createServer = getCommand(this.OASP4J, this.CREATE);
 
-      combinedprojectpath =
-          combinedprojectpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString()
-              : combinedprojectpath;
+      combinedprojectpath = combinedprojectpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString()
+          : combinedprojectpath;
 
       boolean createWs = Boolean.parseBoolean(createsenchaws.toLowerCase());
       String clientJsonReference;
@@ -196,9 +193,8 @@ public class Project extends AbstractCommandModule {
         }
 
       } else {
-        getOutput()
-            .showError(
-                "The parameter value for 'clienttype' is not valid. The options for this parameter are: 'devon4sencha' and 'oasp4js'.");
+        getOutput().showError(
+            "The parameter value for 'clienttype' is not valid. The options for this parameter are: 'devon4sencha' and 'oasp4js'.");
         return;
       }
 
@@ -235,13 +231,12 @@ public class Project extends AbstractCommandModule {
     }
 
     try {
-      if (!clienttype.isEmpty()
-          && ((clienttype.equalsIgnoreCase(Constants.OASP4JS) || clienttype.equalsIgnoreCase(Constants.DEVON4SENCHA)))) {
+      if (!clienttype.isEmpty() && ((clienttype.equalsIgnoreCase(Constants.OASP4JS)
+          || clienttype.equalsIgnoreCase(Constants.DEVON4SENCHA)))) {
         clienttype = clienttype;
       } else if (!clienttype.isEmpty()) {
-        getOutput()
-            .showError(
-                "Clienttype value is not valid. Please set client type to oasp4js or devon4sencha.You can enter it via command or set it in devon.json");
+        getOutput().showError(
+            "Clienttype value is not valid. Please set client type to oasp4js or devon4sencha.You can enter it via command or set it in devon.json");
         return;
       }
       int size = this.projectInfo.get().getSubProjects().size();
@@ -266,9 +261,8 @@ public class Project extends AbstractCommandModule {
             sencha_cmd.get().exec();
             break;
           default:
-            getOutput()
-                .showError(
-                    "Clienttype value is not valid. Please set client type to oasp4js or devon4sencha.You can enter it via command or set it in devon.json");
+            getOutput().showError(
+                "Clienttype value is not valid. Please set client type to oasp4js or devon4sencha.You can enter it via command or set it in devon.json");
             break;
 
           }
@@ -290,7 +284,7 @@ public class Project extends AbstractCommandModule {
   public void deploy(String tomcatpath, String clienttype, String clientpath, String serverpath) {
 
     ProcessBuilder install, packageWithClient;
-    Process process, process1;
+    Process process = null, process1 = null;
     int errCode, errCode1;
 
     try {
@@ -311,9 +305,8 @@ public class Project extends AbstractCommandModule {
       }
 
       if (this.projectInfo.get().getSubProjects().size() == 0) {
-        getOutput().showError(
-            "The property 'projects' defined in " + getContextPathInfo().getCurrentWorkingDirectory() + File.separator
-                + "devon.json file is empty.");
+        getOutput().showError("The property 'projects' defined in " + getContextPathInfo().getCurrentWorkingDirectory()
+            + File.separator + "devon.json file is empty.");
         return;
       }
 
@@ -325,9 +318,8 @@ public class Project extends AbstractCommandModule {
       for (ProjectInfo projectInfo : subProjects) {
         getOutput().showMessage(projectInfo.getProjecType().toString());
         getOutput().showMessage(projectInfo.getPath().toString());
-        boolean thisIsClient =
-            projectInfo.getProjecType() == ProjectType.DEVON4SENCHA
-                || projectInfo.getProjecType() == ProjectType.OASP4JS;
+        boolean thisIsClient = projectInfo.getProjecType() == ProjectType.DEVON4SENCHA
+            || projectInfo.getProjecType() == ProjectType.OASP4JS;
         clientpath = (clientpath.isEmpty() && thisIsClient) ? projectInfo.getPath().toString() : clientpath;
         clienttype = (clienttype.isEmpty() && thisIsClient) ? projectInfo.getProjecType().toString() : clienttype;
         boolean thisIsServer = projectInfo.getProjecType() == ProjectType.OASP4J;
@@ -345,7 +337,13 @@ public class Project extends AbstractCommandModule {
       String distributionpath = distRootPath.toString();
       getOutput().showMessage("distpath " + distributionpath);
 
-      File mvnBat = new File(distributionpath + "\\software\\maven\\bin\\mvn.bat");
+      File mvnBat = null;
+      if (SystemUtils.IS_OS_WINDOWS) {
+        mvnBat = new File(distributionpath + "\\software\\maven\\bin\\mvn.bat");
+      } else if (SystemUtils.IS_OS_LINUX) {
+        mvnBat = new File(distInfo.get().getPath().toString() + File.separator + "software" + File.separator + "maven"
+            + File.separator + "bin" + File.separator + "mvn.cmd");
+      }
 
       if (!mvnBat.exists()) {
         getOutput().showMessage(mvnBat.toString() + " not found");
@@ -361,9 +359,15 @@ public class Project extends AbstractCommandModule {
           return;
         }
 
-        install = new ProcessBuilder(mvnBat.getAbsolutePath(), "install");
-        install.directory(clientpath_java);
-        process = install.start();
+        if (SystemUtils.IS_OS_WINDOWS) {
+          install = new ProcessBuilder(mvnBat.getAbsolutePath(), "install");
+          install.directory(clientpath_java);
+          process = install.start();
+        } else if (SystemUtils.IS_OS_LINUX) {
+          String[] args = { Constants.LINUX_BASH, "-c", "mvn install" };
+          process = Runtime.getRuntime().exec(args, null, clientpath_java);
+        }
+
         final InputStream isError = process.getErrorStream();
         final InputStream isOutput = process.getInputStream();
 
@@ -381,9 +385,15 @@ public class Project extends AbstractCommandModule {
         configureServerPOM(serverpath, clientpath, clientType);
         configureWebSecurityClass(serverpath);
 
-        packageWithClient = new ProcessBuilder(mvnBat.getAbsolutePath(), "package", "-P", "jsclient");
-        packageWithClient.directory(new File(serverpath));
-        process1 = packageWithClient.start();
+        if (SystemUtils.IS_OS_WINDOWS) {
+          packageWithClient = new ProcessBuilder(mvnBat.getAbsolutePath(), "package", "-P", "jsclient");
+          packageWithClient.directory(new File(serverpath));
+          process1 = packageWithClient.start();
+        } else if (SystemUtils.IS_OS_LINUX) {
+          String[] args1 = { Constants.LINUX_BASH, "-c", "mvn package -P jsclient" };
+          process1 = Runtime.getRuntime().exec(args1, null, new File(serverpath));
+        }
+
         final InputStream isError1 = process1.getErrorStream();
         final InputStream isOutput1 = process1.getInputStream();
 
@@ -691,8 +701,8 @@ public class Project extends AbstractCommandModule {
       return Optional.of(execMavenPlugin);
 
     } catch (Exception e) {
-      getOutput().showMessage(
-          "Exec-Maven-Plugin node could not be configured or is already configured. " + e.getMessage());
+      getOutput()
+          .showMessage("Exec-Maven-Plugin node could not be configured or is already configured. " + e.getMessage());
       return Optional.absent();
     }
   }

@@ -28,6 +28,7 @@ import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.InputTypeNames;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.impl.utils.WindowsReqistry;
+import com.devonfw.devcon.common.utils.Constants;
 import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.common.utils.Utils;
 import com.devonfw.devcon.output.Output;
@@ -86,21 +87,50 @@ public class SystemCommands extends AbstractCommandModule {
           File devonJar = Utils.getApplicationPath();
           FileUtils.copyFile(devonJar, devconFile);
 
-          if (addPath) {
-            updatePath(devconDir.toString());
+          if (SystemUtils.IS_OS_WINDOWS) {
+            if (addPath) {
+              updatePath(devconDir.toString());
+            }
+
+            OutputStreamWriter devconCmd =
+                new OutputStreamWriter(new FileOutputStream(devconPath.resolve("devcon.cmd").toFile()));
+            OutputStreamWriter devonCmd =
+                new OutputStreamWriter(new FileOutputStream(devconPath.resolve("devon.cmd").toFile()));
+
+            String source = String.format("@echo off\n" + "java -jar %s %%*\n", devconFile.toString());
+            devconCmd.write(source);
+            devconCmd.close();
+            devonCmd.write(source);
+            devonCmd.close();
+          } else if (SystemUtils.IS_OS_LINUX) {
+            if (addPath) {
+
+              System.out.println("Devcon.IN_EXEC_JAR ------- " + Devcon.IN_EXEC_JAR);
+              String root = (Devcon.IN_EXEC_JAR) ? ("resources" + File.separator) : "";
+              System.out.println("root value ----------- " + root);
+
+              String scriptPath =
+                  SystemCommands.class.getClassLoader().getResource(root + Constants.DEVCON_SCRIPT).toExternalForm();
+              System.out.println("sriptPath value ----------- " + scriptPath);
+
+              Process procBuildScript =
+                  new ProcessBuilder(Constants.LINUX_BASH, "-c", "/" + Constants.DEVCON_SCRIPT, devconDir.toString())
+                      .start();
+
+            }
+
+            OutputStreamWriter devconCmd =
+                new OutputStreamWriter(new FileOutputStream(devconPath.resolve("devcon.sh").toFile()));
+            OutputStreamWriter devonCmd =
+                new OutputStreamWriter(new FileOutputStream(devconPath.resolve("devon.sh").toFile()));
+
+            String source = String.format("@echo off\n" + "java -jar %s $*\n", devconFile.toString());
+
+            devconCmd.write(source);
+            devconCmd.close();
+            devonCmd.write(source);
+            devonCmd.close();
           }
-
-          OutputStreamWriter devconCmd =
-              new OutputStreamWriter(new FileOutputStream(devconPath.resolve("devcon.cmd").toFile()));
-          OutputStreamWriter devonCmd =
-              new OutputStreamWriter(new FileOutputStream(devconPath.resolve("devon.cmd").toFile()));
-
-          String source = String.format("@echo off\n" + "java -jar %s %%*\n", devconFile.toString());
-
-          devconCmd.write(source);
-          devconCmd.close();
-          devonCmd.write(source);
-          devonCmd.close();
 
           out.showMessage("Installation  successful!");
           if (!SystemUtils.IS_OS_WINDOWS) {

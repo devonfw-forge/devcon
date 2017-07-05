@@ -74,5 +74,34 @@ public class SharedServices {
     }
 
   }
+  
+public int initPL(Path distPath, String plUrl, String plUser, String plEncPass,
+		String plJenkinsConnectionName, String plSonarQubeConnectionName, 
+		String plGerritConnectionName) throws Exception {
+	  
+	  try {
+	  
+	  File batchFile = new File(distPath.toString() + File.separator + DistConstants.INIT_PL_SCRIPT);
+      ProcessBuilder processBuilder =
+          new ProcessBuilder(batchFile.getAbsolutePath(), plUser, plEncPass, plJenkinsConnectionName, 
+        		  plSonarQubeConnectionName, plGerritConnectionName);
+      processBuilder.redirectErrorStream(true);
+      processBuilder.redirectOutput(Redirect.PIPE);
+
+      processBuilder.directory(new File(distPath.toString()));
+      Process process = processBuilder.start();
+
+      final InputStream isError = process.getErrorStream();
+      final InputStream isOutput = process.getInputStream();
+
+      Utils.processErrorAndOutPut(isError, isOutput, this.out);
+
+      int exitStatus = process.waitFor();
+      System.out.println("s2-pl-init.bat exit status: " + exitStatus);
+      return exitStatus;
+    } catch (Exception e) {
+      throw e;
+    }
+  }
 
 }

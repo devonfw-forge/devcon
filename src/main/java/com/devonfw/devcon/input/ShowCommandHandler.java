@@ -28,6 +28,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextAreaBuilder;
 import javafx.scene.control.TextField;
@@ -140,7 +141,9 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
     grid.setHgap(10);
     grid.setVgap(10);
     grid.setPadding(new Insets(25, 25, 25, 25));
-    Scene scene = new Scene(grid, this.screenController.getWidth(), this.screenController.getHeight());
+    ScrollPane scrollPane = new ScrollPane(grid);
+    scrollPane.setFitToWidth(true);
+    Scene scene = new Scene(scrollPane, this.screenController.getWidth(), this.screenController.getHeight());
     showCommandControls(grid);
 
     this.screenController.setScene(scene);
@@ -377,7 +380,7 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
 
     DirectoryChooser directoryChooser = new DirectoryChooser();
     String currentWorkingDir = this.cmdManager.getContextPathInfo().getCurrentWorkingDirectory().toString();
-    String defaultLocation = currentWorkingDir.substring(0, currentWorkingDir.lastIndexOf("\\"));
+    String defaultLocation = currentWorkingDir.substring(0, currentWorkingDir.lastIndexOf(File.separator));
     directoryChooser.setInitialDirectory(new File(defaultLocation));
     File selectedFile = directoryChooser.showDialog(primaryStage);
     if (selectedFile != null) {
