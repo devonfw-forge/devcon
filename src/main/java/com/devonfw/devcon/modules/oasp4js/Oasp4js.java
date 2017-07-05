@@ -3,18 +3,6 @@ package com.devonfw.devcon.modules.oasp4js;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.nio.file.Path;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 import com.devonfw.devcon.common.api.annotations.CmdModuleRegistry;
 import com.devonfw.devcon.common.api.annotations.Command;
@@ -38,15 +26,8 @@ import com.google.common.base.Optional;
 @CmdModuleRegistry(name = "oasp4js", description = "Module to automate tasks related to oasp4js")
 public class Oasp4js extends AbstractCommandModule {
 
-  private static String GULP_SERV = "cmd /c start gulp serve";
 
   private static String[] STATE = { "successfully", "failed" };
-
-  private static String OASP4JS_BASE = "software\\nodejs\\oasp4js_base";
-
-  private static String OASP4JS_ang1_ID = "oasp4js_ang1_id";
-
-  private static String OASP4JS_ang2_ID = "oasp4js_ang2_id";
 
   @Command(name = "create", description = "This command creates a basic Oasp4js app")
   @Parameters(values = { @Parameter(name = "clientname", description = "The name for the project"),
@@ -175,38 +156,4 @@ public class Oasp4js extends AbstractCommandModule {
       getOutput().showError("An error occured during execution of run command. " + e.getMessage());
     }
   }
-
-  private void editPom(Path project, String clientname) throws Exception {
-
-    try {
-      File pom = new File(project.toString() + File.separator + "java" + File.separator + "pom.xml");
-      if (pom.exists()) {
-        // getting the pom content
-        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-        Document doc = docBuilder.parse(pom);
-        doc.getDocumentElement().normalize();
-
-        // setting the artifactId
-        Node artifactId = doc.getElementsByTagName("artifactId").item(0);
-        artifactId.setTextContent(clientname);
-
-        // writing changes
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-        DOMSource source = new DOMSource(doc);
-        StreamResult result = new StreamResult(new File(pom.getPath()));
-        transformer.transform(source, result);
-
-      } else {
-        getOutput().showError(pom.toString() + " not found. You may need to configure it manually.");
-      }
-    } catch (Exception e) {
-      throw e;
-    }
-
-  }
-
 }
