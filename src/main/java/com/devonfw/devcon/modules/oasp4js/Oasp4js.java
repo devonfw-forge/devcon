@@ -26,8 +26,6 @@ import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.InputTypeNames;
 import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
-import com.devonfw.devcon.common.utils.Downloader;
-import com.devonfw.devcon.common.utils.Extractor;
 import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
 
@@ -115,7 +113,7 @@ public class Oasp4js extends AbstractCommandModule {
           String cmd = "cmd /c ng build --progress false";
 
           p = Runtime.getRuntime().exec(cmd, null, this.projectInfo.get().getPath().toFile());
-          getOutput().showError("Building project...");
+          getOutput().showMessage("Building project...");
           String line;
           BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
           while ((line = in.readLine()) != null) {
@@ -175,54 +173,6 @@ public class Oasp4js extends AbstractCommandModule {
 
     } catch (Exception e) {
       getOutput().showError("An error occured during execution of run command. " + e.getMessage());
-    }
-  }
-
-  @Command(name = "jumpstart", description = "This command downloads the Oasp4js sample app with all its dependencies from Teamforge", context = ContextType.NONE)
-  @Parameters(values = {
-  @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
-  @Parameter(name = "angularVersion", description = "the version of the , the options are: \n '1' to download OASP4js based on Angular 1 \n '2' to download OASP4js based on Angular 2", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
-  "1", "2" })), @Parameter(name = "user", description = "a user with download permissions in Teamforge"),
-  @Parameter(name = "password", description = "the password related to the user with download permissions", inputType = @InputType(name = InputTypeNames.PASSWORD)) })
-  public void jumpstart(String path, String angularVersion, String user, String password) {
-
-    Optional<String> frsFileId;
-
-    // Default parameters
-    path = path.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : path.trim();
-    angularVersion = angularVersion.isEmpty() ? "1" : angularVersion.trim();
-
-    this.output.status("Downloading file...");
-
-    try {
-
-      if (angularVersion.equals("1")) {
-        // frsFileId = OASP4JS_ang1;
-        frsFileId = Downloader.getDevconConfigProperty(OASP4JS_ang1_ID);
-        if (!frsFileId.isPresent())
-          throw new Exception("Property " + OASP4JS_ang1_ID + " not found.");
-      } else if (angularVersion.equals("2")) {
-        // frsFileId = OASP4JS_ang2;
-        frsFileId = Downloader.getDevconConfigProperty(OASP4JS_ang2_ID);
-        if (!frsFileId.isPresent())
-          throw new Exception("Property " + OASP4JS_ang2_ID + " not found.");
-      } else {
-        throw new Exception("The value for the parameter 'angularVersion' is invalid.");
-      }
-
-      Optional<String> fileDownloaded = Downloader.downloadFromTeamForge(path, user, password, frsFileId.get());
-
-      if (fileDownloaded.isPresent()) {
-        Extractor.unZip(path + File.separator + fileDownloaded.get().toString(), path);
-
-        this.output.showMessage("File successfully downloaded.");
-
-      } else {
-        throw new Exception("An error occurred while downloading the file.");
-      }
-
-    } catch (Exception e) {
-      getOutput().showError("Download Failed." + e.getMessage());
     }
   }
 
