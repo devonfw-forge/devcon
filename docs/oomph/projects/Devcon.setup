@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<setup:Project
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:git="http://www.eclipse.org/oomph/setup/git/1.0"
+    xmlns:maven="http://www.eclipse.org/oomph/setup/maven/1.0"
+    xmlns:setup="http://www.eclipse.org/oomph/setup/1.0"
+    xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://de-mucevolve02/oomph/tasks/models/Git.ecore http://www.eclipse.org/oomph/setup/maven/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Maven.ecore"
+    name="devcon"
+    label="devcon">
+  <setupTask
+      xsi:type="setup:EclipseIniTask"
+      option="-Xmx"
+      value="1024m"
+      vm="true">
+    <description>Set the heap space needed to work with the projects of ${scope.project.label}</description>
+  </setupTask>
+  <setupTask
+      xsi:type="setup:CompoundTask"
+      name="Git">
+    <setupTask
+        xsi:type="setup:VariableTask"
+        id="devcon.git.clone.location.stman"
+        excludedTriggers="BOOTSTRAP"
+        type="FOLDER"
+        name="devcon.git.clone.location"
+        value="${workspace.location/devcon}"
+        storageURI="scope://Workspace"
+        label=""/>
+    <setupTask
+        xsi:type="git:GitCloneTask"
+        excludedTriggers="BOOTSTRAP"
+        location="${devcon.git.clone.location}"
+        remoteURI="${github.remote.uri}"
+        pushURI="${github.remote.uri}"/>
+    <setupTask
+        xsi:type="setup:VariableTask"
+        name="github.remote.uri"
+        storageURI="scope://Workspace"
+        label="devcon remote uri">
+      <choice
+          value="https://github.com/${github.fork.name}/devcon.git"
+          label="HTTPS"/>
+      <choice
+          value="ssh://git@github.com/${github.fork.name}/devcon.git"
+          label="SSH"/>
+    </setupTask>
+    <setupTask
+        xsi:type="setup:VariableTask"
+        name="github.fork.name"
+        defaultValue="devonfw"
+        storageURI="scope://Workspace"
+        label="devcon fork"/>
+  </setupTask>
+  <setupTask
+      xsi:type="maven:MavenImportTask"
+      projectNameTemplate="">
+    <sourceLocator
+        rootFolder="${workspace.location/devcon}"/>
+  </setupTask>
+  <stream name="develop"
+      label="Develop"/>
+  <stream name="master"
+      label="Master"/>
+  <logicalProjectContainer
+      xsi:type="setup:ProjectCatalog"
+      href="http://devonfw.github.io/devon-ide/oomph/projects/catalog_devonfw.setup#/"/>
+  <description>
+    Devcon is a cross-platform command line tool running on the JVM that provides many automated tasks around the full life-cycle of Devon applications, from installing the basic working environment and generating a new project, to running a test server and deploying an application to production.
+
+    Devcon is the easiest way to use Devon. With a focus on project automation, easy command execution and declarative configuration, it gets out of your way and lets you focus on your code.
+  </description>
+</setup:Project>
