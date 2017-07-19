@@ -33,9 +33,9 @@ public class Oasp4js extends AbstractCommandModule {
 
   private static String NG_NEW = " ng new ";
 
-  private static String NG_BUILD = " ng build --progress false ";
+  private static String NG_BUILD = " ng build --progress false";
 
-  private static String NG_SERVE = " ng serve --progress false ";
+  private static String NG_SERVE = " ng serve --progress false";
 
   @Command(name = "create", description = "This command creates a basic Oasp4js app")
   @Parameters(values = { @Parameter(name = "clientname", description = "The name for the project"),
@@ -45,22 +45,19 @@ public class Oasp4js extends AbstractCommandModule {
     getOutput().showMessage("Creating project " + clientname + "...");
 
     try {
-      getOutput().showMessage("1.CLIENTPATH:" + clientpath);
+
       Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot();
-      getOutput().showMessage("CURRENTWORKINGDIR:" + this.contextPathInfo.getCurrentWorkingDirectory().toString());
       clientpath = clientpath.isEmpty() ? this.contextPathInfo.getCurrentWorkingDirectory().toString() : clientpath;
-      getOutput().showMessage("2.CLIENTPATH:" + clientpath);
+
       if (distInfo.isPresent()) {
 
         String projectPath = clientpath + File.separator + clientname;
-        getOutput().showMessage("1.PROJECTPATH:" + projectPath);
         File projectFile = new File(projectPath);
 
         if (projectFile.exists()) {
           getOutput()
               .showError("The project " + projectPath + " already exists. Please delete it or choose other location.");
         } else {
-          getOutput().showMessage("3.CLIENTPATH:" + clientpath);
           Process process = null;
 
           if (SystemUtils.IS_OS_WINDOWS) {
@@ -69,15 +66,10 @@ public class Oasp4js extends AbstractCommandModule {
                 new File(clientpath));
 
           } else if (SystemUtils.IS_OS_LINUX) {
-            getOutput().showMessage("Linux OS");
-            String args[] = new String[] { Constants.LINUX_BASH, "-c", NG_NEW, clientname };
-            for (String string : args) {
-              getOutput().showMessage(string);
-            }
-            getOutput().showMessage("4.CLIENTPATH: ", clientpath);
-            getOutput().showMessage("2.PROJECTPATH: ", projectPath);
 
+            String args[] = new String[] { Constants.LINUX_BASH, "-c", NG_NEW + clientname };
             process = Runtime.getRuntime().exec(args, null, new File(clientpath));
+
           }
 
           String line;
@@ -86,7 +78,7 @@ public class Oasp4js extends AbstractCommandModule {
             getOutput().showMessage(line);
           }
           in.close();
-          int result = process.exitValue();
+          int result = process.waitFor();
           if (result == 0) {
             getOutput().showMessage("Adding devon.json file...");
             Utils.addDevonJsonFile(projectFile.toPath(), ProjectType.OASP4JS);
@@ -116,36 +108,34 @@ public class Oasp4js extends AbstractCommandModule {
 
       Process p;
       if (this.projectInfo.get().getProjecType().equals(ProjectType.OASP4JS)) {
-        try {
 
-          Process process = null;
+        Process process = null;
 
-          if (SystemUtils.IS_OS_WINDOWS) {
-            process = Runtime.getRuntime().exec(Constants.WINDOWS_CMD_PROMPT + NG_BUILD, null,
-                this.projectInfo.get().getPath().toFile());
+        if (SystemUtils.IS_OS_WINDOWS) {
+          process = Runtime.getRuntime().exec(Constants.WINDOWS_CMD_PROMPT + NG_BUILD, null,
+              this.projectInfo.get().getPath().toFile());
 
-          } else if (SystemUtils.IS_OS_LINUX) {
-            String args[] = new String[] { Constants.LINUX_BASH, "-c", NG_BUILD };
-            process = Runtime.getRuntime().exec(args, null, this.projectInfo.get().getPath().toFile());
-          }
-
-          getOutput().showMessage("Building project...");
-          String line;
-          BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-          while ((line = in.readLine()) != null) {
-            System.out.println(line);
-            getOutput().showMessage(line);
-          }
-          in.close();
-          int result = process.exitValue();
-
-          getOutput().showMessage("Project build " + STATE[result]);
-
-        } catch (Exception e) {
-
-          getOutput().showError(
-              "Seems that you are not in a OASP4JS project. Please verify the devon.json configuration file");
+        } else if (SystemUtils.IS_OS_LINUX) {
+          String args[] = new String[] { Constants.LINUX_BASH, "-c", "ng build --progress false" };
+          getOutput().showMessage("Building -> " + this.projectInfo.get().getPath().toFile().toString());
+          process = Runtime.getRuntime().exec(args, null, this.projectInfo.get().getPath().toFile());
         }
+
+        getOutput().showMessage("Building project...");
+        String line;
+        BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        while ((line = in.readLine()) != null) {
+          System.out.println(line);
+          getOutput().showMessage(line);
+        }
+        in.close();
+        int result = process.waitFor();
+
+        getOutput().showMessage("Project build " + STATE[result]);
+
+      } else {
+        getOutput()
+            .showError("Seems that you are not in a OASP4JS project. Please verify the devon.json configuration file");
       }
 
     } catch (Exception e) {
@@ -172,11 +162,11 @@ public class Oasp4js extends AbstractCommandModule {
                 this.projectInfo.get().getPath().toFile());
 
           } else if (SystemUtils.IS_OS_LINUX) {
-            String args[] = new String[] { Constants.LINUX_BASH, "-c", NG_SERVE };
+            String args[] = new String[] { Constants.LINUX_BASH, "-c", "ng serve --progress false" };
             process = Runtime.getRuntime().exec(args, null, this.projectInfo.get().getPath().toFile());
           }
 
-          getOutput().showMessage("Project starting");
+          getOutput().showMessage("Project starting...");
           String line;
           BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
           while ((line = in.readLine()) != null) {
@@ -184,8 +174,11 @@ public class Oasp4js extends AbstractCommandModule {
             getOutput().showMessage(line);
           }
           in.close();
-          process.waitFor();
-          getOutput().showMessage("Starting application");
+          int result = process.waitFor();
+          if (result == 0) {
+            getOutput().showMessage("Starting application");
+          }
+
         } else {
           getOutput().showError(
               "Seems that you are not in a OASP4JS project. Please verify the devon.json configuration file");
