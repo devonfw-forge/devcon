@@ -117,7 +117,6 @@ public class Oasp4js extends AbstractCommandModule {
 
         } else if (SystemUtils.IS_OS_LINUX) {
           String args[] = new String[] { Constants.LINUX_BASH, "-c", "ng build --progress false" };
-          getOutput().showMessage("Building -> " + this.projectInfo.get().getPath().toFile().toString());
           process = Runtime.getRuntime().exec(args, null, this.projectInfo.get().getPath().toFile());
         }
 
