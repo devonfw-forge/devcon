@@ -156,6 +156,7 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
       break;
     case Constants.START:
 
+      button.setDisable(true);
       ObservableList<Node> nodList = this.grid.getChildren();
       for (Node e : nodList) {
         String id = e.getId();
