@@ -227,7 +227,6 @@ public class ExecuteCommandHandler implements EventHandler<ActionEvent> {
               result = ExecuteCommandHandler.this.cmdManager.execCmdLine(sentence);
               boolean cmdResult =
                   ((result.getLeft() == CommandResult.OK) || (result.getLeft() == CommandResult.HELP_SHOWN));
-
               button.setDisable(false);
             } catch (Exception e) {
 

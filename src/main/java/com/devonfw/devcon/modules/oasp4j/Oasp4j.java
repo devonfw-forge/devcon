@@ -192,7 +192,7 @@ public class Oasp4j extends AbstractCommandModule {
       final InputStream isError = process.getErrorStream();
       final InputStream isOutput = process.getInputStream();
 
-      Utils.processErrorAndOutPut(isError, isOutput, this.output);
+      Utils.processOutput(isError, isOutput, this.output);
 
     } catch (Exception e) {
 
@@ -227,7 +227,7 @@ public class Oasp4j extends AbstractCommandModule {
       final InputStream isError = p.getErrorStream();
       final InputStream isOutput = p.getInputStream();
 
-      Utils.processErrorAndOutPut(isError, isOutput, this.output);
+      Utils.processOutput(isError, isOutput, this.output);
 
     } catch (Exception e) {
       getOutput().showError("An error occured during executing oasp4j Cmd" + e.getMessage());
