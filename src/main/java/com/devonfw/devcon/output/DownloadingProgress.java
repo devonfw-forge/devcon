@@ -1,6 +1,7 @@
 package com.devonfw.devcon.output;
 
 import java.io.File;
+import java.util.Observable;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -9,12 +10,14 @@ import org.apache.commons.io.FilenameUtils;
  *
  * @author pparrado
  */
-public class DownloadingProgress implements Runnable {
+public class DownloadingProgress extends Observable implements Runnable {
   private volatile boolean running = true;
 
   private volatile Long finalSize;
 
   private volatile String tempPath;
+
+  public static volatile double downloadProgress;;
 
   public DownloadingProgress(Long finalSize, String tempPath) {
 
@@ -57,6 +60,7 @@ public class DownloadingProgress implements Runnable {
               bar.append(" ");
             }
             bar.append("]");
+            downloadProgress = p;
             System.out.print("\r" + bar.toString() + " " + p + "% downloaded");
           }
 

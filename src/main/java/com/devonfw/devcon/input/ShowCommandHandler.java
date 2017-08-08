@@ -12,6 +12,7 @@ import com.devonfw.devcon.common.api.data.CommandParameter;
 import com.devonfw.devcon.common.api.data.InputTypeNames;
 import com.devonfw.devcon.common.api.data.ParameterInputType;
 import com.devonfw.devcon.common.utils.Constants;
+import com.devonfw.devcon.output.DownloadingProgress;
 import com.devonfw.devcon.output.GUIOutput;
 
 import javafx.collections.FXCollections;
@@ -28,6 +29,8 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextAreaBuilder;
@@ -66,6 +69,10 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
   private TextArea console;
 
   private List<String> mandatoryParamList = new ArrayList<>();
+
+  public static Button start;
+
+  private ProgressBar p2 = new ProgressBar();
 
   /**
    * Instance of output for Devcon GUI
@@ -334,7 +341,45 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
 
     }
 
+    final ProgressIndicator pi = new ProgressIndicator();
     int rowNum = grid.getChildren().size();
+    if (this.command.getModuleName().equalsIgnoreCase("Dist") && this.command.getName().equalsIgnoreCase("install")) {
+      HBox progressBarHbox = new HBox();
+      progressBarHbox.getChildren().add(this.p2);
+      progressBarHbox.getChildren().add(pi);
+
+      grid.add(progressBarHbox, 0, rowNum + 2, 2, 2);
+      progressBarHbox.setPrefWidth(600);
+
+      // grid.add(pi, 4, rowNum + 2, 2, 2);
+
+    }
+
+    this.p2.setPrefWidth(575);
+    Thread progressBarUpdate = new Thread(new Runnable() {
+      @Override
+      public void run() {
+
+        while ((DownloadingProgress.downloadProgress / 100) != 1) {
+
+          ShowCommandHandler.this.p2.progressProperty().setValue((DownloadingProgress.downloadProgress) / 100);
+
+          pi.setVisible(true);
+          pi.setProgress((DownloadingProgress.downloadProgress) / 100);
+
+          try {
+            Thread.sleep(2000);
+          } catch (InterruptedException e) {
+
+            e.printStackTrace();
+          }
+        }
+
+      }
+    });
+    progressBarUpdate.start();
+
+    // int rowNum = grid.getChildren().size();
 
     this.console = TextAreaBuilder.create().prefWidth(600).prefHeight(300).wrapText(true).build();
     this.guiOutput = new GUIOutput(this.console);
@@ -350,7 +395,7 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
     // Start button
     HBox hbox = new HBox(10);
     hbox.setPrefWidth(100);
-    Button start = new Button("Start");
+    start = new Button("Start");
     start.setMinWidth(hbox.getPrefWidth());
     changeBackgroundOnHover(start);
     start.setCursor(Cursor.HAND);
