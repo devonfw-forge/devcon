@@ -133,7 +133,7 @@ public class Dist extends AbstractCommandModule {
       final InputStream isError = process.getErrorStream();
       final InputStream isOutput = process.getInputStream();
 
-      Utils.processErrorAndOutPut(isError, isOutput, this.output);
+      Utils.processOutput(isError, isOutput, this.output);
 
       this.output.showMessage("Distribution initialized.");
 
@@ -169,9 +169,9 @@ public class Dist extends AbstractCommandModule {
   @Parameter(name = "plpass", description = "the user passwod for the PL instance", optional = true, inputType = @InputType(name = InputTypeNames.PASSWORD)),
   @Parameter(name = "plJenkinsConnectionName", description = "Eclipse Jenkins connection Name", optional = true, inputType = @InputType(name = InputTypeNames.GENERIC)),
   @Parameter(name = "plSonarQubeConnectionName", description = "Eclipse SonarQube connection Name", optional = true, inputType = @InputType(name = InputTypeNames.GENERIC)),
-  @Parameter(name = "plGerritConnectionName", description = "Eclipse Gerrit connection Name", optional = true, inputType = @InputType(name = InputTypeNames.GENERIC))})
+  @Parameter(name = "plGerritConnectionName", description = "Eclipse Gerrit connection Name", optional = true, inputType = @InputType(name = InputTypeNames.GENERIC)) })
   public void s2(String projectname, String user, String pass, String engagementname, String ciaas, String svnurl,
-      String svnuser, String svnpass,String plurl, String pluser, String plpass, String plJenkinsConnectionName,
+      String svnuser, String svnpass, String plurl, String pluser, String plpass, String plJenkinsConnectionName,
       String plSonarQubeConnectionName, String plGerritConnectionName) {
 
     Optional<DistributionInfo> distInfo = getContextPathInfo().getDistributionRoot();
@@ -192,12 +192,13 @@ public class Dist extends AbstractCommandModule {
           int createResult = s2.create(distPath, projectname, svnurl, svnuser, svnpass);
           if (createResult > 0)
             throw new Exception("An error occurred while project creation.");
-          
-          int initPL = s2.initPL(distPath, plurl, pluser, plpass, plJenkinsConnectionName, plSonarQubeConnectionName, plGerritConnectionName);
+
+          int initPL = s2.initPL(distPath, plurl, pluser, plpass, plJenkinsConnectionName, plSonarQubeConnectionName,
+              plGerritConnectionName);
           if (initPL > 0)
-        	  this.output.showMessage(
-                      "The configuration of the eclipse views could not be completed successfully. Please verify it");
-          
+            this.output.showMessage(
+                "The configuration of the eclipse views could not be completed successfully. Please verify it");
+
         } else {
           throw new InvalidConfigurationStateException("The conf/settings.json seems to be invalid");
         }

@@ -79,7 +79,7 @@ public class Workspace extends AbstractCommandModule {
         final InputStream isError = process.getErrorStream();
         final InputStream isOutput = process.getInputStream();
 
-        Utils.processErrorAndOutPut(isError, isOutput, getOutput());
+        Utils.processOutput(isError, isOutput, getOutput());
 
       } else {
         getOutput().showError("This workspace already exists!");

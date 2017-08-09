@@ -91,7 +91,7 @@ public class Oasp4j extends AbstractCommandModule {
         .append(" -Dversion=").append(version).append(" -Dpackage=").append(packagename)
         .append(" -DinteractiveMode=false").toString();
 
-    System.out.println("basecommand is -- " + baseCommand);
+    getOutput().showMessage("Command executed to create project is -- " + baseCommand);
     serverpath = serverpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : serverpath;
 
     File projectDir = new File(serverpath);
@@ -113,37 +113,19 @@ public class Oasp4j extends AbstractCommandModule {
 
         } else if (SystemUtils.IS_OS_LINUX) {
           String args[] = new String[] { Constants.LINUX_BASH, "-c", baseCommand };
-          // process = new ProcessBuilder(args).start();
           process = Runtime.getRuntime().exec(args, null, new File(serverpath));
         }
-        // process = rt.exec(command, null, new File(serverpath));
         final InputStream isError = process.getErrorStream();
         final InputStream isOutput = process.getInputStream();
 
         Utils.processErrorAndOutPut(isError, isOutput, this.output);
-        // String line;
-        // BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        // while ((line = in.readLine()) != null) {
-        // System.out.println(line);
-        // getOutput().showMessage(line);
-        // // this.consoleOutput.append(line).append("\n");
-        // }
-        // in.close();
-        // ProcessBuilder processBuilder = new ProcessBuilder(command);
-        // processBuilder.directory(new File(serverpath));
-        // process = processBuilder.start();
-        // final InputStream isError = process.getErrorStream();
-        // final InputStream isOutput = process.getInputStream();
-        //
-        // Utils.processErrorAndOutPut(isError, isOutput, this.output);
 
         int result = process.waitFor();
         if (result == 0) {
           getOutput().showMessage("Adding devon.json file...");
           Utils.addDevonJsonFile(project.toPath(), ProjectType.OASP4J);
 
-          if (Integer.parseInt(
-              /* Constants.OASP_TEMPLATE_VERSION */oaspTemplateVersion.replaceAll("\\.", "")) <= new Integer("211")) {
+          if (Integer.parseInt(oaspTemplateVersion.replaceAll("\\.", "")) <= new Integer("211")) {
             modifyPom(serverpath + File.separator + servername + File.separator + "server" + File.separator + "pom.xml",
                 packagename);
           }
@@ -206,24 +188,11 @@ public class Oasp4j extends AbstractCommandModule {
 
       }
 
-      // Process p = Runtime.getRuntime().exec(cmd, null, new File(path_));
       String line;
       final InputStream isError = process.getErrorStream();
       final InputStream isOutput = process.getInputStream();
 
-      Utils.processErrorAndOutPut(isError, isOutput, this.output);
-      // BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-      // while ((line = in.readLine()) != null) {
-      // System.out.println(line);
-      // getOutput().showMessage(line);
-      // }
-      // in.close();
-      // int result = p.waitFor();
-      // if (result == 0) {
-      // getOutput().showMessage("Application started");
-      // } else {
-      // getOutput().showError("Application failed to start");
-      // }
+      Utils.processOutput(isError, isOutput, this.output);
 
     } catch (Exception e) {
 
@@ -255,23 +224,10 @@ public class Oasp4j extends AbstractCommandModule {
         p = Runtime.getRuntime().exec(args, null, this.projectInfo.get().getPath().toFile());
       }
 
-      // p = Runtime.getRuntime().exec(cmd, null, this.projectInfo.get().getPath().toFile());
-      // ProcessBuilder processBuilder =
-      // new ProcessBuilder("D:\\Devon2.0.1\\software\\maven\\bin\\mvn.bat", "clean", "install");
-      // processBuilder.directory(this.projectInfo.get().getPath().toFile());
-      // process = processBuilder.start();
       final InputStream isError = p.getErrorStream();
       final InputStream isOutput = p.getInputStream();
 
-      Utils.processErrorAndOutPut(isError, isOutput, this.output);
-      // String line;
-      // BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-      // while ((line = in.readLine()) != null) {
-      // System.out.println(line);
-      // getOutput().showMessage(line);
-      // }
-      // in.close();
-      // p.exitValue();
+      Utils.processOutput(isError, isOutput, this.output);
 
     } catch (Exception e) {
       getOutput().showError("An error occured during executing oasp4j Cmd" + e.getMessage());
@@ -289,8 +245,6 @@ public class Oasp4j extends AbstractCommandModule {
 
     String path;
     try {
-
-      // this.projectInfo = getContextPathInfo().getProjectRoot(path);
 
       Optional<DistributionInfo> distInfo = this.contextPathInfo.getDistributionRoot();
 
@@ -559,7 +513,6 @@ public class Oasp4j extends AbstractCommandModule {
       transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
       DOMSource source = new DOMSource(doc);
       StreamResult result = new StreamResult(fXmlFile);
-      // StreamResult result = new StreamResult(new File("D:\\result.xml"));
       transformer.transform(source, result);
 
     } catch (Exception e) {

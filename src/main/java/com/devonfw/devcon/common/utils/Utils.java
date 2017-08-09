@@ -34,6 +34,7 @@ import com.devonfw.devcon.common.api.Command;
 import com.devonfw.devcon.common.api.CommandModuleInfo;
 import com.devonfw.devcon.common.api.data.DistributionInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
+import com.devonfw.devcon.input.ShowCommandHandler;
 import com.devonfw.devcon.output.Output;
 import com.google.common.base.Optional;
 
@@ -187,12 +188,13 @@ public class Utils {
    * @param isOutput
    */
   @SuppressWarnings("javadoc")
-  public static void processErrorAndOutPut(final InputStream isError, final InputStream isOutput, final Output output) {
+  public static Thread processErrorAndOutPut(final InputStream isError, final InputStream isOutput,
+      final Output output) {
 
     final InputStreamReader isErrReader = new InputStreamReader(isError);
     final InputStreamReader isOutReader = new InputStreamReader(isOutput);
 
-    new Thread(new Runnable() {
+    Thread newThread = new Thread(new Runnable() {
       @Override
       public void run() {
 
@@ -203,10 +205,13 @@ public class Utils {
 
             output.showMessage(line);
           }
+
         } catch (Exception e) {
         }
       }
-    }).start();
+    });
+    newThread.start();
+    return newThread;
 
   }
 
@@ -357,5 +362,14 @@ public class Utils {
     return distInfo.isPresent() ? distInfo.get().getPath().resolve(DIST_SCRIPTS)
         : ContextPathInfo.INSTANCE.getHomeDirectory().resolve(LOCAL_SCRIPTS);
 
+  }
+
+  public static void processOutput(final InputStream isError, final InputStream isOutput, final Output output) {
+
+    Thread processorThread = processErrorAndOutPut(isError, isOutput, output);
+    while (!processorThread.getState().equals(Thread.State.TERMINATED)) {
+
+    }
+    ShowCommandHandler.start.setDisable(false);
   }
 }

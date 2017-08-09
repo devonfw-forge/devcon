@@ -59,7 +59,7 @@ public class Sencha extends AbstractCommandModule {
         final InputStream isError = process.getErrorStream();
         final InputStream isOutput = process.getInputStream();
 
-        Utils.processErrorAndOutPut(isError, isOutput, getOutput());
+        Utils.processOutput(isError, isOutput, getOutput());
 
         getOutput().showMessage(" Sencha App Watch Started");
 
