@@ -67,6 +67,8 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
 
   private List<String> mandatoryParamList = new ArrayList<>();
 
+  public static Button start;
+
   /**
    * Instance of output for Devcon GUI
    */
@@ -350,7 +352,7 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
     // Start button
     HBox hbox = new HBox(10);
     hbox.setPrefWidth(100);
-    Button start = new Button("Start");
+    start = new Button("Start");
     start.setMinWidth(hbox.getPrefWidth());
     changeBackgroundOnHover(start);
     start.setCursor(Cursor.HAND);
