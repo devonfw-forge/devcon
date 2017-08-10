@@ -39,6 +39,8 @@ public class GUIAppManager extends Application {
    */
   public static CommandManager cmdManager;
 
+  private final int MENU_NUMBER = 10;
+
   private Stage primaryStage;
 
   /**
@@ -135,7 +137,7 @@ public class GUIAppManager extends Application {
       menuBar.getMenus().add(menu);
     }
 
-    if (modules.size() > 10) {
+    if (modules.size() > this.MENU_NUMBER) {
       List<CommandModuleInfo> dropDownModule = modules.subList(11, modules.size());
       Menu dropDownMenu = new Menu("other modules");
       for (int l = 0; l < dropDownModule.size(); l++) {
