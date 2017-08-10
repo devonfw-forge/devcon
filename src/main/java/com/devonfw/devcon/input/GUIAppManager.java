@@ -134,6 +134,33 @@ public class GUIAppManager extends Application {
       }
       menuBar.getMenus().add(menu);
     }
+
+    if (modules.size() > 10) {
+      List<CommandModuleInfo> dropDownModule = modules.subList(11, modules.size());
+      Menu dropDownMenu = new Menu("other modules");
+      for (int l = 0; l < dropDownModule.size(); l++) {
+        // fetch modulename
+        StringBuilder moduleName = new StringBuilder(dropDownModule.get(l).getName());
+        // create menu for module
+        Menu newModule = new Menu(moduleName.toString());
+        // add menu as menuiteam
+        dropDownMenu.getItems().add(newModule);
+
+        Optional<CommandModuleInfo> commands = GUIAppManager.registry.getCommandModule(moduleName.toString());
+        Collection<Command> sortedCommands =
+            utils.sortCommands(commands.get().getCommands(), new NumericSortComparator<Command>());
+        Iterator<Command> itrCommands = sortedCommands.iterator();
+        while (itrCommands.hasNext()) {
+          Command cmd = itrCommands.next();
+          MenuItem item = new MenuItem(cmd.getName());
+          newModule.getItems().add(item);
+          item.setOnAction(new ShowCommandHandler(cmd, GUIAppManager.cmdManager, this.primaryStage));
+        }
+
+      }
+      menuBar.getMenus().add(dropDownMenu);
+    }
+
     return menuBar;
 
   }
