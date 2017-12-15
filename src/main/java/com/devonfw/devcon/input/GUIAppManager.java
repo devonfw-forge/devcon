@@ -39,6 +39,8 @@ public class GUIAppManager extends Application {
    */
   public static CommandManager cmdManager;
 
+  private final int MENU_NUMBER = 10;
+
   private Stage primaryStage;
 
   /**
@@ -110,7 +112,7 @@ public class GUIAppManager extends Application {
     List<CommandModuleInfo> modules =
         utils.sortModules(registry.getCommandModules(), new NumericSortComparator<CommandModuleInfo>());
 
-    for (int i = 0; i < modules.size(); i++) {
+    for (int i = 0; i <= MENU_NUMBER; i++) {
 
       if (!modules.get(i).isVisible())
         continue;
@@ -134,6 +136,33 @@ public class GUIAppManager extends Application {
       }
       menuBar.getMenus().add(menu);
     }
+
+    if (modules.size() > this.MENU_NUMBER) {
+      List<CommandModuleInfo> dropDownModule = modules.subList(11, modules.size());
+      Menu dropDownMenu = new Menu("other modules");
+      for (int l = 0; l < dropDownModule.size(); l++) {
+        // fetch modulename
+        StringBuilder moduleName = new StringBuilder(dropDownModule.get(l).getName());
+        // create menu for module
+        Menu newModule = new Menu(moduleName.toString());
+        // add menu as menuiteam
+        dropDownMenu.getItems().add(newModule);
+
+        Optional<CommandModuleInfo> commands = GUIAppManager.registry.getCommandModule(moduleName.toString());
+        Collection<Command> sortedCommands =
+            utils.sortCommands(commands.get().getCommands(), new NumericSortComparator<Command>());
+        Iterator<Command> itrCommands = sortedCommands.iterator();
+        while (itrCommands.hasNext()) {
+          Command cmd = itrCommands.next();
+          MenuItem item = new MenuItem(cmd.getName());
+          newModule.getItems().add(item);
+          item.setOnAction(new ShowCommandHandler(cmd, GUIAppManager.cmdManager, this.primaryStage));
+        }
+
+      }
+      menuBar.getMenus().add(dropDownMenu);
+    }
+
     return menuBar;
 
   }
