@@ -375,6 +375,9 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
           }
         }
 
+        if ((DownloadingProgress.downloadProgress / 100) == 1) {
+          pi.setProgress((DownloadingProgress.downloadProgress) / 100);
+        }
       }
     });
     progressBarUpdate.start();
