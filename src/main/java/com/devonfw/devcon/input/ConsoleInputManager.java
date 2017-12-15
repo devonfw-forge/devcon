@@ -55,6 +55,7 @@ public class ConsoleInputManager {
 
   public boolean parse(String[] args) {
 
+    String path;
     Sentence sentence;
 
     try {
@@ -62,7 +63,11 @@ public class ConsoleInputManager {
       CommandLineParser parser = new BasicParser();
       CommandLine cmd = parser.parse(getOptions(), args);
       ContextPathInfo contextPathInfo = new ContextPathInfo();
-      String path = contextPathInfo.getDistributionRoot().get().getPath().toAbsolutePath() + "\\software\\devcon";
+      if (contextPathInfo.getDistributionRoot() != null && contextPathInfo.getDistributionRoot().isPresent()) {
+        path = contextPathInfo.getDistributionRoot().get().getPath().toAbsolutePath() + "\\software\\devcon";
+      } else {
+        path = contextPathInfo.getCurrentWorkingDirectory().toString();
+      }
       String lock_file_path = path + "\\devcon.lock";
       File devcon_lock_file = new File(lock_file_path);
       if (devcon_lock_file.exists()) {
