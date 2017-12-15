@@ -112,7 +112,7 @@ public class GUIAppManager extends Application {
     List<CommandModuleInfo> modules =
         utils.sortModules(registry.getCommandModules(), new NumericSortComparator<CommandModuleInfo>());
 
-    for (int i = 0; i < modules.size(); i++) {
+    for (int i = 0; i < MENU_NUMBER; i++) {
 
       if (!modules.get(i).isVisible())
         continue;
