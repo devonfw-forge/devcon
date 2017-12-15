@@ -61,7 +61,7 @@ public class SystemCommands extends AbstractCommandModule {
    */
 
   @SuppressWarnings("javadoc")
-  @Command(name = "install", description = "Install Devcon on user´s HOME folder or alternative path", proxyParams = true)
+  @Command(name = "install devcon", description = "Install Devcon on user´s HOME folder or alternative path", proxyParams = true)
   @Parameters(values = {
   @Parameter(name = "addToPath", description = "Add to %PATH% (by default \"true\")", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
   "true", "false" })) })
@@ -158,7 +158,7 @@ public class SystemCommands extends AbstractCommandModule {
   }
 
   @SuppressWarnings("javadoc")
-  @Command(name = "update", description = "Update Devcon as installed on user´s system", proxyParams = true)
+  @Command(name = "configure environment", description = "Update Devcon as installed on user´s system", proxyParams = true)
   @Parameters(values = {})
   public void update() {
 
