@@ -1,5 +1,12 @@
 package com.devonfw.devcon.input;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.util.List;
 
 import org.apache.commons.cli.BasicParser;
@@ -18,6 +25,7 @@ import com.devonfw.devcon.common.api.CommandRegistry;
 import com.devonfw.devcon.common.api.data.CommandParameter;
 import com.devonfw.devcon.common.api.data.DevconOption;
 import com.devonfw.devcon.common.api.data.Sentence;
+import com.devonfw.devcon.common.exception.InvalidEnvironentException;
 import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.output.Output;
 import com.google.common.base.Optional;
@@ -47,12 +55,47 @@ public class ConsoleInputManager {
 
   public boolean parse(String[] args) {
 
+    String path;
     Sentence sentence;
 
     try {
 
       CommandLineParser parser = new BasicParser();
       CommandLine cmd = parser.parse(getOptions(), args);
+      ContextPathInfo contextPathInfo = new ContextPathInfo();
+      if (contextPathInfo.getDistributionRoot() != null && contextPathInfo.getDistributionRoot().isPresent()) {
+        path = contextPathInfo.getDistributionRoot().get().getPath().toAbsolutePath() + "\\software\\devcon";
+      } else {
+        path = contextPathInfo.getCurrentWorkingDirectory().toString();
+      }
+      String lock_file_path = path + "\\devcon.lock";
+      File devcon_lock_file = new File(lock_file_path);
+      if (devcon_lock_file.exists()) {
+
+        FileChannel channel = new RandomAccessFile(devcon_lock_file, "rw").getChannel();
+        FileLock lock = channel.tryLock();
+        if (lock == null) {
+          throw new InvalidEnvironentException("Devcon Instance Already Running");
+
+        } else {
+          lock.release();
+        }
+
+      }
+
+      if (cmd.hasOption("nl")) {
+
+        if (devcon_lock_file.exists()) {
+
+          boolean result = lockInstance(lock_file_path);
+
+        } else {
+          devcon_lock_file.createNewFile();
+          boolean result = lockInstance(lock_file_path);
+
+        }
+
+      }
 
       if (cmd.hasOption("v")) {
         this.output.showMessage(Devcon.DEVCON_VERSION);
@@ -110,12 +153,15 @@ public class ConsoleInputManager {
 
       return ((result.getLeft() == CommandResult.OK) || (result.getLeft() == CommandResult.HELP_SHOWN));
 
+    } catch (InvalidEnvironentException ie) {
+      this.output.showError("Devcon instance already running");
+      return false;
     } catch (UnrecognizedOptionException e) {
 
       this.output.showError(e.getMessage());
       return false;
     } catch (Throwable e) {
-
+      e.printStackTrace();
       this.output.showError("An unexcpected error occurred");
       if (Devcon.SHOW_STACK_TRACE) {
         this.output.showError("Stacktrace:");
@@ -215,4 +261,55 @@ public class ConsoleInputManager {
 
     return options;
   }
+
+  private static boolean lockInstance(final String lockFile) {
+
+    RandomAccessFile file = null;
+    FileLock fileLock = null;
+    try {
+      file = new RandomAccessFile(lockFile, "rw");
+      FileChannel fileChannel = file.getChannel();
+
+      fileLock = fileChannel.tryLock();
+      if (fileLock != null) {
+        System.out.println("File is locked");
+        return true;
+      } else {
+        throw new InvalidEnvironentException("Devcon Instance Already Running");
+      }
+    } catch (FileNotFoundException e) {
+
+      e.printStackTrace();
+    } catch (IOException e) {
+
+      e.printStackTrace();
+    }
+    return false;
+  }
+
+  private static boolean lockInstance1(FileInputStream fis) {
+
+    FileLock fileLock = null;
+    try {
+
+      FileChannel fileChannel = fis.getChannel();
+
+      fileLock = fileChannel.lock();
+      if (fileLock != null) {
+        System.out.println("File is locked");
+        return true;
+      } else {
+        throw new InvalidEnvironentException("Devcon Instance Already Running");
+      }
+    } catch (FileNotFoundException e) {
+
+      e.printStackTrace();
+    } catch (IOException e) {
+
+      e.printStackTrace();
+    }
+    return false;
+
+  }
+
 }

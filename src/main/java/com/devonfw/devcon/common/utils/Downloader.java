@@ -39,6 +39,8 @@ import com.google.common.base.Optional;
  */
 public class Downloader {
 
+  public static DownloadingProgress progressBar;
+
   /**
    * Downloads a file from Team Forge repository
    *
@@ -52,7 +54,7 @@ public class Downloader {
       throws Exception {
 
     Thread thread = null;
-    DownloadingProgress progressBar = null;
+    // DownloadingProgress progressBar = null;
     Output out = new ConsoleOutput();
     String fileName = "";
     String tempFilePath = "";

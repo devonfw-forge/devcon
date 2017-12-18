@@ -19,6 +19,11 @@
     "longOpt":"gui",
     "description":"show devcon GUI"
    },
+       {
+    "opt":"nl",
+    "longOpt":"no-lock ",
+    "description":"creating one isntance"
+   },
    {
     "opt":"s",
     "longOpt":"stacktrace",
