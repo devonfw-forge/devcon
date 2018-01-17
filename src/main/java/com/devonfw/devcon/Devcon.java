@@ -32,7 +32,7 @@ public class Devcon {
   /**
    * current version of the tool
    */
-  public static final String VERSION = "1.3.0";
+  public static final String VERSION = "1.4.0";
 
   /**
    * url where the versions configuration file is located
@@ -62,14 +62,14 @@ public class Devcon {
   /**
    * Determine whether app is inside an "executable jar" or not (made with Eclipse: has an "resource" folder"
    */
-  public static final boolean IN_EXEC_JAR =
-      ClassLoader.getSystemClassLoader().getResource("resources/execjar.txt") != null;
+  public static final boolean IN_EXEC_JAR = ClassLoader.getSystemClassLoader()
+      .getResource("resources/execjar.txt") != null;
 
   /**
    * Obtain script engine; only on Java 1.8+ is Javascript supported (version "Nashorn")
    */
-  public static final Optional<ScriptEngine> scriptEngine =
-      Optional.fromNullable(new ScriptEngineManager().getEngineByName(Constants.SCRIPT_ENGINE_NAME));
+  public static final Optional<ScriptEngine> scriptEngine = Optional
+      .fromNullable(new ScriptEngineManager().getEngineByName(Constants.SCRIPT_ENGINE_NAME));
 
   /**
    * Show stack-trace when errors are thrown by the command
@@ -100,8 +100,8 @@ public class Devcon {
       }
     }
 
-    ConsoleInputManager inputmanager =
-        new ConsoleInputManager(registry, input, output, new CommandManagerImpl(registry, input, output));
+    ConsoleInputManager inputmanager = new ConsoleInputManager(registry, input, output,
+        new CommandManagerImpl(registry, input, output));
     inputmanager.parse(args);
   }
 
