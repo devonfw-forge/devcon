@@ -54,7 +54,6 @@ public class Dist extends AbstractCommandModule {
     // Default parameters
     path = path.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : path.trim();
     type = type.isEmpty() ? DistConstants.DEVON_DIST : type.trim();
-    this.output.status("installing distribution..." + path);
     this.output.status("installing distribution...");
 
     try {
