@@ -69,7 +69,7 @@ public class Dist extends AbstractCommandModule {
       } else if (type.toLowerCase().equals(DistConstants.DEVON_DIST) && SystemUtils.IS_OS_LINUX) {
         teamforgeFileId = Downloader.getDevconConfigProperty(DistConstants.DEVON_FILE_LINUX_ID);
         if (!teamforgeFileId.isPresent())
-          throw new Exception("Property " + DistConstants.DEVON_FILE_ID + " not found.");
+          throw new Exception("Property " + DistConstants.DEVON_FILE_LINUX_ID + " not found.");
       } else {
         throw new Exception("The parameter 'type' of the install command is unknown");
       }
