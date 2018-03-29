@@ -24,6 +24,11 @@ public final class DistConstants {
   public static final String DEVON_FILE_ID = "devondist_file_id";
 
   /**
+   * devon distribution linux file id
+   */
+  public static final String DEVON_FILE_LINUX_ID = "devondist_file_linux_id";
+
+  /**
    * distribution type for oasp
    */
   public static final String OASP_IDE = DistributionType.OASPIDE.toString().toLowerCase();
@@ -42,7 +47,7 @@ public final class DistConstants {
    * script to configure settings.xml for Shared Services
    */
   public static final String INIT_SCRIPT = "s2-init.bat";
-  
+
   /**
    * script to configure settings.xml for Shared Services
    */

@@ -54,7 +54,6 @@ public class Dist extends AbstractCommandModule {
     // Default parameters
     path = path.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : path.trim();
     type = type.isEmpty() ? DistConstants.DEVON_DIST : type.trim();
-
     this.output.status("installing distribution...");
 
     try {
@@ -63,10 +62,14 @@ public class Dist extends AbstractCommandModule {
         teamforgeFileId = Downloader.getDevconConfigProperty(DistConstants.OASP_FILE_ID);
         if (!teamforgeFileId.isPresent())
           throw new Exception("Property " + DistConstants.OASP_FILE_ID + " not found.");
-      } else if (type.toLowerCase().equals(DistConstants.DEVON_DIST)) {
+      } else if (type.toLowerCase().equals(DistConstants.DEVON_DIST) && SystemUtils.IS_OS_WINDOWS) {
         teamforgeFileId = Downloader.getDevconConfigProperty(DistConstants.DEVON_FILE_ID);
         if (!teamforgeFileId.isPresent())
           throw new Exception("Property " + DistConstants.DEVON_FILE_ID + " not found.");
+      } else if (type.toLowerCase().equals(DistConstants.DEVON_DIST) && SystemUtils.IS_OS_LINUX) {
+        teamforgeFileId = Downloader.getDevconConfigProperty(DistConstants.DEVON_FILE_LINUX_ID);
+        if (!teamforgeFileId.isPresent())
+          throw new Exception("Property " + DistConstants.DEVON_FILE_LINUX_ID + " not found.");
       } else {
         throw new Exception("The parameter 'type' of the install command is unknown");
       }
