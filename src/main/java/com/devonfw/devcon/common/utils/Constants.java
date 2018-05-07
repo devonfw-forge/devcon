@@ -106,7 +106,7 @@ public final class Constants {
   /**
    * OASP TEMPLATE LAST STABLE VERSION
    */
-  public final static String OASP_TEMPLATE_LAST_STABLE_VERSION = "2.1.0";
+  public final static String OASP_TEMPLATE_LAST_STABLE_VERSION = "2.5.0";
 
   /**
    * OASP TEMPLATE GROUP ID
