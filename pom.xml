@@ -10,6 +10,13 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+  
   <dependencies>
 
     <dependency>
@@ -18,16 +25,16 @@
       <version>4.4.0.201605250940-rc1</version>
     </dependency>
 
- <dependency>
-     <groupId>com.oracle</groupId>
-     <artifactId>javafx</artifactId>
-     <version>2.2</version>
-     <!-- For Java 7 -->
-     <!-- <systemPath>${java.home}/lib/jfxrt.jar</systemPath> -->
-     <!-- For Java 8 -->
-     <systemPath>${java.home}/lib/ext/jfxrt.jar</systemPath>
-     <scope>system</scope>
-  </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>javafx</artifactId>
+      <version>2.2</version>
+      <!-- For Java 7 -->
+      <!-- <systemPath>${java.home}/lib/jfxrt.jar</systemPath> -->
+      <!-- For Java 8 -->
+      <systemPath>${java.home}/lib/ext/jfxrt.jar</systemPath>
+      <scope>system</scope>
+    </dependency>
 
     <dependency>
       <groupId>junit</groupId>
