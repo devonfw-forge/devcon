@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2015-2018 Capgemini SE.
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -87,13 +87,14 @@ public class Oasp4j extends AbstractCommandModule {
   @Parameter(name = "servername", description = "Name of project"),
   @Parameter(name = "packagename", description = "package name in server project"),
   @Parameter(name = "groupid", description = "groupid for server project"),
-  @Parameter(name = "version", description = "version of server project") })
-  public void create(String serverpath, String servername, String packagename, String groupid, String version)
-      throws Exception {
+  @Parameter(name = "version", description = "version of server project"),
+  @Parameter(name = "dbtype", description = "database type in server project(h2|postgresql|mysql|mariadb|oracle|hana|db2)") })
+  public void create(String serverpath, String servername, String packagename, String groupid, String version,
+      String dbtype) throws Exception {
 
     Optional<String> oaspTemplateVersion_op = Downloader.getDevconConfigProperty(Constants.OASP_TEMPLATE_VERSION); // Optional.of("2.3.0");
-    String oaspTemplateVersion =
-        oaspTemplateVersion_op.isPresent() ? oaspTemplateVersion_op.get() : Constants.OASP_TEMPLATE_LAST_STABLE_VERSION;
+    String oaspTemplateVersion = oaspTemplateVersion_op.isPresent() ? oaspTemplateVersion_op.get()
+        : Constants.OASP_TEMPLATE_LAST_STABLE_VERSION;
     if (!oaspTemplateVersion_op.isPresent())
       this.output.showError("Oasp template version not found in config file.");
 
@@ -101,10 +102,9 @@ public class Oasp4j extends AbstractCommandModule {
 
     String baseCommand = new StringBuffer("mvn -DarchetypeVersion=").append(oaspTemplateVersion)
         .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
-        .append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=").append(Constants.OASP_ARTIFACT_ID)
-        .append(" archetype:generate -DgroupId=").append(groupid).append(" -DartifactId=").append(servername)
-        .append(" -Dversion=").append(version).append(" -Dpackage=").append(packagename)
-        .append(" -DinteractiveMode=false").toString();
+        .append(Constants.OASP_ARTIFACT_ID).append(" archetype:generate -DgroupId=").append(groupid)
+        .append(" -DartifactId=").append(servername).append(" -Dversion=").append(version).append(" -Dpackage=")
+        .append(packagename).append(" -DdbType=").append(dbtype).append(" -DinteractiveMode=false").toString();
 
     getOutput().showMessage("Command executed to create project is -- " + baseCommand);
     serverpath = serverpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : serverpath;
@@ -435,8 +435,8 @@ public class Oasp4j extends AbstractCommandModule {
     File warFile = null;
     File serverTarget = new File(server.toFile().getAbsolutePath() + File.separator + "target");
     if (serverTarget.exists()) {
-      Collection<File> warFiles =
-          FileUtils.listFiles(serverTarget, new WildcardFileFilter("*.war*"), TrueFileFilter.TRUE);
+      Collection<File> warFiles = FileUtils.listFiles(serverTarget, new WildcardFileFilter("*.war*"),
+          TrueFileFilter.TRUE);
 
       if (warFiles.size() > 0) {
         warFile = warFiles.iterator().next();
