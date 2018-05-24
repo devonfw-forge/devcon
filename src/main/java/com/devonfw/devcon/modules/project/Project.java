@@ -149,13 +149,14 @@ public class Project extends AbstractCommandModule {
   @Parameter(name = "packagename", description = "package name for the server project"),
   @Parameter(name = "groupid", description = "groupid for server project"),
   @Parameter(name = "version", description = "version of server project"),
+  @Parameter(name = "dbtype", description = "database type in server project(h2|postgresql|mysql|mariadb|oracle|hana|db2)"),
   @Parameter(name = "clienttype", description = "type of the client project: 'devon4sencha' or 'oasp4js'", inputType = @InputType(name = InputTypeNames.LIST, values = {
   "oasp4js", "devon4sencha" })), @Parameter(name = "clientname", description = "name for the client project"),
   @Parameter(name = "clientpath", description = "path where the client project will be created.", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
   @Parameter(name = "createsenchaws", description = "Only for client type 'devon4sencha': if a new Sencha Workspace must be created to store new app. Values TRUE or FALSE (default)", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
   "False", "True" })) })
   public void create(String combinedprojectpath, String servername, String packagename, String groupid, String version,
-      String clienttype, String clientname, String clientpath, String createsenchaws) {
+      String dbtype, String clienttype, String clientname, String clientpath, String createsenchaws) {
 
     try {
 
@@ -167,7 +168,7 @@ public class Project extends AbstractCommandModule {
       boolean createWs = Boolean.parseBoolean(createsenchaws.toLowerCase());
       String clientJsonReference;
       if (createServer.isPresent()) {
-        createServer.get().exec(combinedprojectpath, servername, packagename, groupid, version);
+        createServer.get().exec(combinedprojectpath, servername, packagename, groupid, version, dbtype);
       } else {
         getOutput().showError("No command create found for oasp4j module.");
       }
