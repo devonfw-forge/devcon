@@ -73,6 +73,7 @@ public class ProjectTest {
 
   private String clientPath;
 
+  private String dbtype;
   @SuppressWarnings("javadoc")
   @Before
   public void setup() throws IOException {
@@ -119,11 +120,11 @@ public class ProjectTest {
     this.clientName = "oasp4jsTest";
     this.clientPath = this.serverPath;
     this.clientType = "oasp4js";
+    this.dbtype = "h2";
 
-    String[] args =
-        { "project", "create", "-servername", this.serverName, "-combinedprojectpath", this.serverPath, "-packagename",
-        this.packageName, "-groupid", this.groupId, "-version", this.version, "-clientname", this.clientName,
-        "-clientpath", this.clientPath, "-clienttype", this.clientType };
+    String[] args = { "project", "create", "-servername", this.serverName, "-combinedprojectpath", this.serverPath,
+    "-packagename", this.packageName, "-groupid", this.groupId, "-version", this.version, "-dbtype", this.dbtype,
+    "-clientname", this.clientName, "-clientpath", this.clientPath, "-clienttype", this.clientType };
 
     assertTrue(this.inputMgr.parse(args));
   }
