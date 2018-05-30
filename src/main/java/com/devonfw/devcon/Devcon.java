@@ -47,7 +47,7 @@ public class Devcon {
   /**
    * current version of the tool
    */
-  public static final String VERSION = "1.4.2";
+  public static final String VERSION = "1.5.0";
 
   /**
    * url where the versions configuration file is located
