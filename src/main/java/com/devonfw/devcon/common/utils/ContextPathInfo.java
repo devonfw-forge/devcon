@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2015-2018 Capgemini SE.
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,7 +44,6 @@ import com.devonfw.devcon.common.impl.DistributionInfoImpl;
 import com.devonfw.devcon.common.impl.ProjectInfoImpl;
 import com.devonfw.devcon.common.impl.utils.DistributionFolderProcessor;
 import com.devonfw.devcon.common.impl.utils.ProjectFolderProcessor;
-import com.devonfw.devcon.common.impl.utils.SenchaWorkspaceFolderProcessor;
 import com.github.zafarkhaja.semver.Version;
 import com.google.common.base.Optional;
 
@@ -71,8 +70,6 @@ public class ContextPathInfo {
   private static final String DEVON_JSON = "devon.json";
 
   private static final String COMBINED = "combined";
-
-  private static final String DEVON4SENCHA = "devon4sencha";
 
   private static final String OASP4JS = "oasp4js";
 
@@ -244,11 +241,9 @@ public class ContextPathInfo {
       projectType = ProjectType.OASP4J;
     } else if (projtype.toLowerCase().equals(OASP4JS)) {
       projectType = ProjectType.OASP4JS;
-    } else if (projtype.toLowerCase().equals(DEVON4SENCHA)) {
-      projectType = ProjectType.DEVON4SENCHA;
     } else {
       throw new InvalidConfigurationStateException(
-          "type property does not contain valid ProjectInfoType: 'combined', 'oasp4j', 'oasp4js' or 'devon4sencha' ");
+          "type property does not contain valid ProjectInfoType: 'combined', 'oasp4j', 'oasp4js' ");
     }
 
     /**
@@ -284,33 +279,6 @@ public class ContextPathInfo {
   public Optional<ProjectInfo> getCombinedProjectRoot() {
 
     return this.getCombinedProjectRoot(getCurrentWorkingDirectory());
-  }
-
-  public Optional<Path> getSenchaWorkspaceRoot(Path path) {
-
-    SenchaWorkspaceFolderProcessor interceptor = new SenchaWorkspaceFolderProcessor();
-
-    TreeClimber.climb(path, interceptor);
-    if (interceptor.isFound()) {
-
-      return Optional.of(interceptor.getFoundPath());
-    } else {
-      return Optional.absent();
-    }
-  }
-
-  public Optional<Path> getSenchaWorkspaceRoot(String dir) {
-
-    if ((dir == null) || (dir.isEmpty())) {
-      return this.getSenchaWorkspaceRoot();
-    } else {
-      return this.getSenchaWorkspaceRoot(getPath(dir));
-    }
-  }
-
-  public Optional<Path> getSenchaWorkspaceRoot() {
-
-    return this.getSenchaWorkspaceRoot(getCurrentWorkingDirectory());
   }
 
   public List<DevconOption> getGlobalOptions() {

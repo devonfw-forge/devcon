@@ -92,7 +92,7 @@ public class HelpTest {
     }
 
     // then
-    assertEquals(31, total);
+    assertEquals(29, total);
 
   }
 
