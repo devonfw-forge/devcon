@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2015-2018 Capgemini SE.
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,8 +32,6 @@ public class Doc extends AbstractCommandModule {
   /**
    *
    */
-  private static final String SENCHA_EXTJS_DOCS = "http://docs.sencha.com/extjs/6.2.0-classic/";
-
   private static final String DEVON_GET_STARTED = "https://troom.capgemini.com/sites/vcc/devon/getstarted.aspx";
 
   private static final String DEVON_SITE = "http://devonfw.com";
@@ -91,12 +89,6 @@ public class Doc extends AbstractCommandModule {
   public void getstarted() {
 
     openUrl(DEVON_GET_STARTED);
-  }
-
-  @Command(name = "sencha", description = "Show Sencha Ext JS 6 documentation site")
-  public void sencha() {
-
-    openUrl(SENCHA_EXTJS_DOCS);
   }
 
   @Command(name = "links", description = "Print Devonfw \"business card\" with info & links to the console")

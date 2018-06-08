@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2015-2018 Capgemini SE.
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -54,7 +54,7 @@ public class GUIAppManager extends Application {
    */
   public static CommandManager cmdManager;
 
-  private final int MENU_NUMBER = 10;
+  private final int MENU_NUMBER = 9;
 
   private Stage primaryStage;
 
@@ -124,10 +124,10 @@ public class GUIAppManager extends Application {
 
     final MenuBar menuBar = new MenuBar();
 
-    List<CommandModuleInfo> modules =
-        utils.sortModules(registry.getCommandModules(), new NumericSortComparator<CommandModuleInfo>());
+    List<CommandModuleInfo> modules = utils.sortModules(registry.getCommandModules(),
+        new NumericSortComparator<CommandModuleInfo>());
 
-    for (int i = 0; i <= MENU_NUMBER; i++) {
+    for (int i = 0; i <= this.MENU_NUMBER; i++) {
 
       if (!modules.get(i).isVisible())
         continue;
@@ -135,8 +135,8 @@ public class GUIAppManager extends Application {
       final Menu menu = new Menu(modules.get(i).getName());
 
       Optional<CommandModuleInfo> commands = GUIAppManager.registry.getCommandModule(modules.get(i).getName());
-      Collection<Command> sortedCommands =
-          utils.sortCommands(commands.get().getCommands(), new NumericSortComparator<Command>());
+      Collection<Command> sortedCommands = utils.sortCommands(commands.get().getCommands(),
+          new NumericSortComparator<Command>());
       Iterator<Command> itrCommands = sortedCommands.iterator();
       while (itrCommands.hasNext()) {
         Command cmd = itrCommands.next();
@@ -153,7 +153,7 @@ public class GUIAppManager extends Application {
     }
 
     if (modules.size() > this.MENU_NUMBER) {
-      List<CommandModuleInfo> dropDownModule = modules.subList(11, modules.size());
+      List<CommandModuleInfo> dropDownModule = modules.subList(this.MENU_NUMBER + 1, modules.size());
       Menu dropDownMenu = new Menu("other modules");
       for (int l = 0; l < dropDownModule.size(); l++) {
         // fetch modulename
@@ -164,8 +164,8 @@ public class GUIAppManager extends Application {
         dropDownMenu.getItems().add(newModule);
 
         Optional<CommandModuleInfo> commands = GUIAppManager.registry.getCommandModule(moduleName.toString());
-        Collection<Command> sortedCommands =
-            utils.sortCommands(commands.get().getCommands(), new NumericSortComparator<Command>());
+        Collection<Command> sortedCommands = utils.sortCommands(commands.get().getCommands(),
+            new NumericSortComparator<Command>());
         Iterator<Command> itrCommands = sortedCommands.iterator();
         while (itrCommands.hasNext()) {
           Command cmd = itrCommands.next();

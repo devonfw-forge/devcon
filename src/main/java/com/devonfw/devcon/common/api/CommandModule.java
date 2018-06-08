@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2015-2018 Capgemini SE.
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -97,12 +97,12 @@ public interface CommandModule {
    * This command can be use to call Devcon command from other module. Parameter module refers to modulename , command
    * refers to command name and projectInfo is passed from existing method. ProjectInfo contains all information related
    * to respective devcon project. Usecase: We can use this method from project module to get the commands of other
-   * modules such as oasp4j, oasp4js or sencha etc. This method provide correct information for respective projects such
-   * as path etc. As an example,consider we need to build combinedproject created by devcon. From project module build
-   * method, we internally call 'oasp4j build()' and 'client(oasp4js or sencha) build()' method. But as path parameter
-   * is optional we are not including it in command method signature e.g {@link Oasp4j#build()}. As this method do not
-   * have any input parameter we cannot pass any value directly from project method to this called method. So we will
-   * use getCommand(module,command, projectinfo) method which will pass all information required to called method.
+   * modules such as oasp4j, oasp4js etc. This method provide correct information for respective projects such as path
+   * etc. As an example,consider we need to build combinedproject created by devcon. From project module build method,
+   * we internally call 'oasp4j build()' and 'client(oasp4js) build()' method. But as path parameter is optional we are
+   * not including it in command method signature e.g {@link Oasp4j#build()}. As this method do not have any input
+   * parameter we cannot pass any value directly from project method to this called method. So we will use
+   * getCommand(module,command, projectinfo) method which will pass all information required to called method.
    */
 
   Optional<Command> getCommand(String module, String command, ProjectInfo projectInfo);
