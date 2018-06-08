@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2015-2018 Capgemini SE.
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -84,26 +84,6 @@ public final class Constants {
   public static final String OASP4J_REPO_URL = "https://github.com/oasp/oasp4j.git";
 
   /**
-   * DEVON4SENCHA Repo Url
-   */
-  public static final String SENCHA_REPO_URL = "https://github.com/devonfw/devon4sencha.git";
-
-  /**
-   * DEVON4SENCHA Repo Url
-   */
-  public static final String SENCHA_APP_BUILD = "cmd /c start sencha app build";
-
-  /**
-   * DEVON4SENCHA Repo Url
-   */
-  public static final String SENCHA_CMD_WS_PORT = "1841";
-
-  /**
-   * SENCHA STARTER TEMPLATE TO CREATE A SENCHA APPLICAITON
-   */
-  public static final String SENCHA_APP_STARTER_TEMPLATE = "StarterTemplate";
-
-  /**
    * BAT FILE TO UPDATE ALL WORKSPACES
    */
   public static final String UPDATE_ALL_WORKSPACES_BAT = "update-all-workspaces.bat";
@@ -137,16 +117,6 @@ public final class Constants {
    *
    */
   public final static String OASP4JS = "oasp4js";
-
-  /**
-   *
-   */
-  public final static String SENCHA = "sencha";
-
-  /**
-  *
-  */
-  public final static String DEVON4SENCHA = "devon4sencha";
 
   /**
    *
@@ -201,14 +171,14 @@ public final class Constants {
 
   public final static String SERVER = "server";
 
-  public final static String SETTING_FILE_PATH =
-      File.separator + "conf" + File.separator + ".m2" + File.separator + "settings.xml";
+  public final static String SETTING_FILE_PATH = File.separator + "conf" + File.separator + ".m2" + File.separator
+      + "settings.xml";
 
-  public final static String TOMCAT_USER_FILE_PATH =
-      File.separator + "software" + File.separator + "tomcat" + File.separator + "conf" + "tomcat-users.xml";
+  public final static String TOMCAT_USER_FILE_PATH = File.separator + "software" + File.separator + "tomcat"
+      + File.separator + "conf" + "tomcat-users.xml";
 
-  public final static String TOMCAT_START_UP_BAT_FILES =
-      File.separator + "software" + File.separator + "tomcat" + File.separator + "bin";
+  public final static String TOMCAT_START_UP_BAT_FILES = File.separator + "software" + File.separator + "tomcat"
+      + File.separator + "bin";
 
   public final static String DEFAULT_PORT = "8080";
 

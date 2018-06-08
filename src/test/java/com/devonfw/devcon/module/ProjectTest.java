@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2015-2018 Capgemini SE.
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -67,13 +67,12 @@ public class ProjectTest {
 
   private String version;
 
-  private String clientType;
-
   private String clientName;
 
   private String clientPath;
 
   private String dbtype;
+
   @SuppressWarnings("javadoc")
   @Before
   public void setup() throws IOException {
@@ -119,12 +118,12 @@ public class ProjectTest {
 
     this.clientName = "oasp4jsTest";
     this.clientPath = this.serverPath;
-    this.clientType = "oasp4js";
+    String clientType = "oasp4js";
     this.dbtype = "h2";
 
     String[] args = { "project", "create", "-servername", this.serverName, "-combinedprojectpath", this.serverPath,
     "-packagename", this.packageName, "-groupid", this.groupId, "-version", this.version, "-dbtype", this.dbtype,
-    "-clientname", this.clientName, "-clientpath", this.clientPath, "-clienttype", this.clientType };
+    "-clientname", this.clientName, "-clientpath", this.clientPath, clientType };
 
     assertTrue(this.inputMgr.parse(args));
   }
