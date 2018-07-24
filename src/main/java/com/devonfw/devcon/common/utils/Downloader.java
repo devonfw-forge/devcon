@@ -19,30 +19,29 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.RoundingMode;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.file.FileAlreadyExistsException;
 import java.rmi.RemoteException;
 import java.text.DecimalFormat;
 
-import javax.activation.DataHandler;
+import javax.annotation.Nonnull;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 
-import com.collabnet.ce.soap60.webservices.ClientSoapStubFactory;
-import com.collabnet.ce.soap60.webservices.cemain.ICollabNetSoap;
-import com.collabnet.ce.soap60.webservices.filestorage.IFileStorageAppSoap;
-import com.collabnet.ce.soap60.webservices.frs.FrsFileSoapDO;
-import com.collabnet.ce.soap60.webservices.frs.IFrsAppSoap;
 import com.devonfw.devcon.Devcon;
 import com.devonfw.devcon.modules.dist.DistConstants;
 import com.devonfw.devcon.output.ConsoleOutput;
+import com.devonfw.devcon.output.DownloadingDetails;
 import com.devonfw.devcon.output.DownloadingProgress;
 import com.devonfw.devcon.output.Output;
 import com.google.common.base.Optional;
@@ -60,87 +59,65 @@ public class Downloader {
    * Downloads a file from Team Forge repository
    *
    * @param path the path where the file should be downloaded
-   * @param user a user with permissions to download from Team Forge repository
-   * @param password the user password
-   * @param frsFileId the id of the distribution in Team Forge
-   * @throws Exception
+   * @param distType is the type of distribution
+   * @return file download status
    */
-  public static Optional<String> downloadFromTeamForge(String path, String user, String password, String frsFileId)
-      throws Exception {
+  @SuppressWarnings("null")
+  public static Optional<String> downloadFromTeamForge(String path, String distType) {
 
-    Thread thread = null;
-    // DownloadingProgress progressBar = null;
     Output out = new ConsoleOutput();
     String fileName = "";
-    String tempFilePath = "";
     String userTempDir = System.getProperty("java.io.tmpdir");
-
+    String respositiryUrl = "";
+    @Nonnull
+    File fileInLocaltemp = null;
+    long transferedSize = 0;
+    long finalsize = 0;
+    boolean copyfile = false;
     try {
-      ICollabNetSoap _sfSoap =
-          (ICollabNetSoap) ClientSoapStubFactory.getSoapStub(ICollabNetSoap.class, DistConstants.REPOSITORY_URL);
 
-      if (_sfSoap != null) {
-
-        String sessionId = _sfSoap.login(user, password);
-        if (sessionId != null) {
-          IFileStorageAppSoap _fileStorageAppSoap = (IFileStorageAppSoap) ClientSoapStubFactory
-              .getSoapStub(IFileStorageAppSoap.class, DistConstants.REPOSITORY_URL);
-
-          IFrsAppSoap frsAppSoap =
-              (IFrsAppSoap) ClientSoapStubFactory.getSoapStub(IFrsAppSoap.class, DistConstants.REPOSITORY_URL);
-
-          FrsFileSoapDO file = frsAppSoap.getFrsFileData(sessionId, frsFileId);
-          if (file != null) {
-
-            fileName = file.getFilename();
-
-            File fileInLocal = new File(path + File.separator + fileName);
-
-            if (fileInLocal.exists())
-              throw new FileAlreadyExistsException(path + File.separator + fileName);
-
-            fileInLocal.getParentFile().mkdirs();
-
-            String fileStorageId = frsAppSoap.getFrsFileId(sessionId, frsFileId);
-            Double size = (file.getSize() / 1024.0) / 1024.0;
-            DecimalFormat df = new DecimalFormat("#.##");
-            df.setRoundingMode(RoundingMode.CEILING);
-
-            out.status(
-                "Downloading " + file.getFilename() + " (" + df.format(size) + "MB). It may take a few minutes.");
-
-            // start showing progressBar
-            progressBar = new DownloadingProgress(file.getSize(), userTempDir);
-            thread = new Thread(progressBar);
-            thread.start();
-
-            // downloading
-            DataHandler hdl = _fileStorageAppSoap.downloadFile(sessionId, fileStorageId);
-
-            // end progressBar
-            if (thread != null) {
-              progressBar.terminate();
-              thread.join();
-            }
-
-            // converting the temporal file to a "real" file
-            if (hdl != null) {
-              tempFilePath = hdl.getName();
-              InputStream is = hdl.getInputStream();
-              OutputStream os = new FileOutputStream(new File(path + File.separator + fileName));
-              IOUtils.copy(is, os);
-              IOUtils.closeQuietly(os);
-              IOUtils.closeQuietly(is);
-              out.statusInNewLine("File downloaded successfully.");
-            }
-
-          } else {
-            throw new FileNotFoundException();
-          }
-
-        }
-
+      /* Checking OS Type and assing file name */
+      /* Assining REPOSITORY_URL in local variable based on OS type for download Dist */
+      if (distType == "windows") {
+        fileName = DistConstants.DIST_FILENAME_WINDOWS;
+        respositiryUrl = DistConstants.REPOSITORY_URL + DistConstants.WINDOWS_DIST_ZIP;
+      } else {
+        fileName = DistConstants.DIST_FILENAME_LINUX;
+        respositiryUrl = DistConstants.REPOSITORY_URL + DistConstants.LINUX_DIST_ZIP;
       }
+
+      /* Creating Local and Temp File path for save the Dist */
+      fileInLocaltemp = new File(userTempDir + File.separator + fileName);
+      File fileInLocal = new File(path + File.separator + fileName);
+
+      if (fileInLocal.exists()) {
+        throw new FileAlreadyExistsException(path + File.separator + fileName);
+      }
+      if (fileInLocaltemp.exists()) {
+        fileInLocaltemp.delete();
+      }
+      /* Creating Local directory */
+      fileInLocal.getParentFile().mkdirs();
+      /* calculating size of zip file */
+      Double size = DownloadingDetails.getSize(respositiryUrl);
+      DecimalFormat df = new DecimalFormat("#.##");
+      df.setRoundingMode(RoundingMode.CEILING);
+      finalsize = DownloadingDetails.size(respositiryUrl);
+
+      out.status("Downloading-- " + fileName + " (" + df.format(size) + "MB). It may take a few minutes.");
+      /* download file from Url using Javanio lib */
+      transferedSize = Downloader.downloadingFile(fileInLocaltemp.toString(), respositiryUrl);
+
+      if (finalsize != transferedSize) {
+        throw new DownloadFileException("downloading failed, some issue in downloading .");
+      }
+      // copy Temp to to target using Files Class
+      copyfile = DownloadingDetails.copy(fileInLocaltemp, fileInLocal);
+      if (copyfile != true) {
+        fileInLocal.delete();
+        throw new DownloadFileException("issue while copying the file .");
+      }
+      out.statusInNewLine("File downloaded successfully.");
 
       return Optional.of(fileName);
 
@@ -148,22 +125,27 @@ public class Downloader {
       out.showError(e.getMessage());
       return null;
     } catch (FileNotFoundException e) {
-      out.showError("Download failed. File " + fileName + " not found in the repository " + DistConstants.REPOSITORY_URL
-          + ". " + e.getMessage());
+
+      out.showError("Download failed. File " + fileName + " not found in the repository " + respositiryUrl + ". "
+          + e.getMessage());
       return null;
     } catch (FileAlreadyExistsException e) {
       out.showError("Download failed. File " + e.getFile() + " already exists.");
+      return null;
+    }
+
+    catch (DownloadFileException de) {
+      out.showError(de.getMessage());
       return null;
     } catch (Exception e) {
       out.showError(e.getMessage());
       return null;
     } finally {
-      File tempFile = new File(tempFilePath);
-      if (tempFile.exists()) {
+      if (fileInLocaltemp.exists()) {
         // TODO implement logs
-        System.out.println("[LOG] Deleting temp file " + tempFile.getPath() + "...");
-        tempFile.delete();
-        System.out.println("[LOG] Temp file " + tempFile.getPath() + " deleted.");
+        System.out.println("[LOG] Deleting temp file " + fileInLocaltemp.getPath() + "...");
+        fileInLocaltemp.delete();
+        System.out.println("[LOG] Temp file " + fileInLocaltemp.getPath() + " deleted.");
       }
 
     }
@@ -196,8 +178,8 @@ public class Downloader {
         folder.mkdirs();
       }
 
-      outputStream =
-          new BufferedOutputStream(new FileOutputStream(new File(path + File.separator + tempFileName /*
+      outputStream = new BufferedOutputStream(
+          new FileOutputStream(new File(path + File.separator + tempFileName /*
                                                                               * + ".zip"
                                                                               */)));
       inputStream = url.openConnection(proxy).getInputStream();
@@ -232,15 +214,36 @@ public class Downloader {
     try {
       String propertyValue = null;
       JSONObject json = null;
-
       json = new JSONObject(IOUtils.toString(new URL(Devcon.VERSION_URL), Charset.forName("UTF-8")));
-
       propertyValue = (String) json.get(property);
       return Optional.of(propertyValue);
     } catch (Exception e) {
       return Optional.absent();
     }
 
+  }
+
+  private static long downloadingFile(String file, String urlStr) throws IOException, InterruptedException {
+
+    URL url = new URL(urlStr);
+    ReadableByteChannel rbc = Channels.newChannel(url.openStream());
+    FileOutputStream fos = new FileOutputStream(file);
+    long finalsize = DownloadingDetails.size(urlStr);
+    long downloadfilesize = 0;
+    /* Starting Progress Bar */
+    progressBar = new DownloadingProgress(finalsize, file);
+    Thread thread = new Thread(progressBar);
+    thread.start();
+    downloadfilesize = fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+
+    if (thread != null) {
+      progressBar.terminate();
+      thread.join();
+    }
+    /* finished Progress Bar */
+    fos.close();
+    rbc.close();
+    return downloadfilesize;
   }
 
 }
