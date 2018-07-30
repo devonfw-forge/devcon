@@ -94,7 +94,7 @@ public class Dist extends AbstractCommandModule {
       // Optional<String> fileDownloaded = Downloader.downloadFromTeamForge(path, user, password,
       // teamforgeFileId.get());
       Optional<String> fileDownloaded = Downloader.downloadFromTeamForge(path, distType);
-
+      File downloadedfile = new File(path + File.separator + fileDownloaded.get().toString());
       if (fileDownloaded.isPresent()) {
         Extractor.unZip(path + File.separator + fileDownloaded.get().toString(), path);
         this.output
@@ -102,9 +102,14 @@ public class Dist extends AbstractCommandModule {
                 + "in the Devonfw Guide or, alternatively, run 'devon dist init' to initialize the distribution.");
 
       } else {
+        if (downloadedfile.exists()) {
+          downloadedfile.delete();
+        }
         throw new Exception("An error occurred while downloading the file.");
       }
-
+      if (downloadedfile.exists()) {
+        downloadedfile.delete();
+      }
     } catch (Exception e) {
       getOutput().showError(e.getMessage());
       throw e;
