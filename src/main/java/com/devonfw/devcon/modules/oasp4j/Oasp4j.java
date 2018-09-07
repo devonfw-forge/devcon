@@ -92,10 +92,10 @@ public class Oasp4j extends AbstractCommandModule {
   public void create(String serverpath, String servername, String packagename, String groupid, String version,
       String dbtype) throws Exception {
 
-    Optional<String> oaspTemplateVersion_op = Downloader.getDevconConfigProperty(Constants.OASP_TEMPLATE_VERSION); // Optional.of("2.3.0");
-    String oaspTemplateVersion = oaspTemplateVersion_op.isPresent() ? oaspTemplateVersion_op.get()
-        : Constants.OASP_TEMPLATE_LAST_STABLE_VERSION;
-    if (!oaspTemplateVersion_op.isPresent())
+    serverpath = serverpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : serverpath;
+
+    String oaspTemplateVersion = getTemplateVersion(serverpath);
+    if (oaspTemplateVersion.isEmpty())
       this.output.showError("Oasp template version not found in config file.");
 
     this.output.showMessage("Using the oasp template version: " + oaspTemplateVersion);
@@ -107,7 +107,6 @@ public class Oasp4j extends AbstractCommandModule {
         .append(packagename).append(" -DdbType=").append(dbtype).append(" -DinteractiveMode=false").toString();
 
     getOutput().showMessage("Command executed to create project is -- " + baseCommand);
-    serverpath = serverpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : serverpath;
 
     File projectDir = new File(serverpath);
 
@@ -569,6 +568,29 @@ public class Oasp4j extends AbstractCommandModule {
     dependency.appendChild(configuration);
 
     return dependency;
+  }
+
+  /**
+   * Gets the template version from the version.json file. Firstly, it's searching for it on devonfw.github.io
+   * repository. If not found, it's searching for it in the DevonFolder/conf/ folder.
+   *
+   * @param serverPath Path where DEVON server is located on disk
+   * @return The template version or empty string if not found
+   */
+  private String getTemplateVersion(String serverPath) {
+
+    String oaspTemplateVersion = "";
+    Optional<String> oaspTemplateVersion_op = Downloader.getDevconConfigProperty(Constants.OASP_TEMPLATE_VERSION); // Optional.of("2.3.0");
+    if (oaspTemplateVersion_op.isPresent()) {
+      oaspTemplateVersion = oaspTemplateVersion_op.get();
+    } else {
+      String configPath = Utils.addTrailingSlash(serverPath) + Constants.VERSION_PARAMS_FILE_FULL_PATH;
+      oaspTemplateVersion_op = Utils.getJSONConfigProperty(configPath, Constants.OASP_TEMPLATE_VERSION);
+      if (oaspTemplateVersion_op.isPresent()) {
+        oaspTemplateVersion = oaspTemplateVersion_op.get();
+      }
+    }
+    return oaspTemplateVersion;
   }
 
 }
