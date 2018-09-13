@@ -404,6 +404,19 @@ public class Utils {
     else
       return path.endsWith(File.separator) ? path : path + File.separator;
   }
+  
+  /**
+   * Remove the ending dot (if exists) from the passed path
+   *
+   * @return the passed path without ending dot
+   */
+  public static String removeEndingDot(String path) {
+
+    if (path == null)
+      return path;
+    else
+      return path.endsWith(".") ? path.substring(0, path.length() - 1) : path;
+  }
 
   /**
    * Method to obtain the value of any JSON property file
@@ -433,4 +446,21 @@ public class Utils {
     return Optional.absent();
   }
 
+  /**
+   * Gets the template version from the passed config file path
+   *
+   * @param configPath Path where the config path is located on disk
+   * @return The template version or empty string if not found
+   */
+  public static String getTemplateVersion(String configPath) {
+
+    String oaspTemplateVersion = "";    
+    Optional<String> oaspTemplateVersionOp = Utils.getJSONConfigProperty(configPath, Constants.OASP_TEMPLATE_VERSION);    
+    if (oaspTemplateVersionOp.isPresent()) {
+      oaspTemplateVersion = oaspTemplateVersionOp.get();
+    }
+    return oaspTemplateVersion;
+  }
+
+  
 }

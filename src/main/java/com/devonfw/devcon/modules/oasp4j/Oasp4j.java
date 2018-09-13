@@ -53,7 +53,6 @@ import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Constants;
-import com.devonfw.devcon.common.utils.Downloader;
 import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
 
@@ -94,7 +93,7 @@ public class Oasp4j extends AbstractCommandModule {
 
     serverpath = serverpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : serverpath;
 
-    String oaspTemplateVersion = getTemplateVersion(serverpath);
+    String oaspTemplateVersion = Utils.getTemplateVersion(Utils.addTrailingSlash(Utils.removeEndingDot(serverpath)) + Constants.VERSION_PARAMS_FILE_FULL_PATH);
     if (oaspTemplateVersion.isEmpty())
       this.output.showError("Oasp template version not found in config file.");
 
@@ -570,27 +569,5 @@ public class Oasp4j extends AbstractCommandModule {
     return dependency;
   }
 
-  /**
-   * Gets the template version from the version.json file. Firstly, it's searching for it on devonfw.github.io
-   * repository. If not found, it's searching for it in the DevonFolder/conf/ folder.
-   *
-   * @param serverPath Path where DEVON server is located on disk
-   * @return The template version or empty string if not found
-   */
-  private String getTemplateVersion(String serverPath) {
-
-    String oaspTemplateVersion = "";
-    Optional<String> oaspTemplateVersion_op = Downloader.getDevconConfigProperty(Constants.OASP_TEMPLATE_VERSION); // Optional.of("2.3.0");
-    if (oaspTemplateVersion_op.isPresent()) {
-      oaspTemplateVersion = oaspTemplateVersion_op.get();
-    } else {
-      String configPath = Utils.addTrailingSlash(serverPath) + Constants.VERSION_PARAMS_FILE_FULL_PATH;
-      oaspTemplateVersion_op = Utils.getJSONConfigProperty(configPath, Constants.OASP_TEMPLATE_VERSION);
-      if (oaspTemplateVersion_op.isPresent()) {
-        oaspTemplateVersion = oaspTemplateVersion_op.get();
-      }
-    }
-    return oaspTemplateVersion;
-  }
-
+ 
 }
