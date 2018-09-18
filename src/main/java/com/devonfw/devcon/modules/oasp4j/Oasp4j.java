@@ -93,9 +93,11 @@ public class Oasp4j extends AbstractCommandModule {
 
     serverpath = serverpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : serverpath;
 
-    String oaspTemplateVersion = Utils.getTemplateVersion(Utils.addTrailingSlash(Utils.removeEndingDot(serverpath)) + Constants.VERSION_PARAMS_FILE_FULL_PATH);
+    String oaspTemplateVersion = Utils.getTemplateVersion(
+        Utils.addTrailingSlash(Utils.removeEndingDot(serverpath)) + Constants.VERSION_PARAMS_FILE_FULL_PATH);
     if (oaspTemplateVersion.isEmpty())
-      this.output.showError("Oasp template version not found in config file.");
+      this.output.showError(
+          "Oasp template version not found neither in config file '{devonfwPath}/conf/version.json' nor Internet. Please, go online or setup the config file correctly.");
 
     this.output.showMessage("Using the oasp template version: " + oaspTemplateVersion);
 

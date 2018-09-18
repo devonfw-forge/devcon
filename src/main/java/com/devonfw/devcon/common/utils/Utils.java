@@ -404,7 +404,7 @@ public class Utils {
     else
       return path.endsWith(File.separator) ? path : path + File.separator;
   }
-  
+
   /**
    * Remove the ending dot (if exists) from the passed path
    *
@@ -447,20 +447,25 @@ public class Utils {
   }
 
   /**
-   * Gets the template version from the passed config file path
+   * Gets the template version. Firstly, tries to get it from the passed config file path. If not found, tries to get it
+   * from Internet (the devonfw.github.io repository). Else, raise error to end-users.
    *
    * @param configPath Path where the config path is located on disk
    * @return The template version or empty string if not found
    */
   public static String getTemplateVersion(String configPath) {
 
-    String oaspTemplateVersion = "";    
-    Optional<String> oaspTemplateVersionOp = Utils.getJSONConfigProperty(configPath, Constants.OASP_TEMPLATE_VERSION);    
+    String oaspTemplateVersion = "";
+    Optional<String> oaspTemplateVersionOp = Utils.getJSONConfigProperty(configPath, Constants.OASP_TEMPLATE_VERSION);
     if (oaspTemplateVersionOp.isPresent()) {
       oaspTemplateVersion = oaspTemplateVersionOp.get();
+    } else {
+      oaspTemplateVersionOp = Downloader.getDevconConfigProperty(Constants.OASP_TEMPLATE_VERSION);
+      if (oaspTemplateVersionOp.isPresent()) {
+        oaspTemplateVersion = oaspTemplateVersionOp.get();
+      }
     }
     return oaspTemplateVersion;
   }
 
-  
 }
