@@ -44,6 +44,16 @@ public final class Constants {
   public static final String GLOBAL_PARAMS_FILE = "globalParameters.json";
 
   /**
+   * The name of the version parameters file
+   */
+  public static final String VERSION_PARAMS_FILE = "version.json";
+
+  /**
+   * The full path of the version parameters file
+   */
+  public static final String VERSION_PARAMS_FILE_FULL_PATH = "conf" + File.separator + VERSION_PARAMS_FILE;
+
+  /**
    * Constant defined for .git directory
    */
   public static final String DOT_GIT = "\\.git";

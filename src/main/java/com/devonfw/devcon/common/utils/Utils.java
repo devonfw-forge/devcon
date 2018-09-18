@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2015-2018 Capgemini SE.
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,6 +18,7 @@ package com.devonfw.devcon.common.utils;
 import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,6 +32,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +44,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.json.JSONObject;
 
 import com.devonfw.devcon.Devcon;
 import com.devonfw.devcon.common.api.Command;
@@ -240,8 +244,8 @@ public class Utils {
     try {
       File appFolder = pathToApp.toFile();
       if (appFolder.exists()) {
-        String content =
-            "{\"version\": \"" + Devcon.DEVON_DEFAULT_VERSION + "\",\n\"type\":\"" + type.toString() + "\"}";
+        String content = "{\"version\": \"" + Devcon.DEVON_DEFAULT_VERSION + "\",\n\"type\":\"" + type.toString()
+            + "\"}";
         File settingsfile = pathToApp.resolve("devon.json").toFile();
         FileUtils.writeStringToFile(settingsfile, content, "UTF-8");
       }
@@ -387,4 +391,81 @@ public class Utils {
     }
     ShowCommandHandler.start.setDisable(false);
   }
+
+  /**
+   * Checks if the passed path ends with slash. If not, it's added
+   *
+   * @return the passed path with trailing slash
+   */
+  public static String addTrailingSlash(String path) {
+
+    if (path == null)
+      return path;
+    else
+      return path.endsWith(File.separator) ? path : path + File.separator;
+  }
+
+  /**
+   * Remove the ending dot (if exists) from the passed path
+   *
+   * @return the passed path without ending dot
+   */
+  public static String removeEndingDot(String path) {
+
+    if (path == null)
+      return path;
+    else
+      return path.endsWith(".") ? path.substring(0, path.length() - 1) : path;
+  }
+
+  /**
+   * Method to obtain the value of any JSON property file
+   *
+   * @param filePath Properties file path
+   * @param property name of the property
+   * @return the value of the passed property
+   */
+  public static Optional<String> getJSONConfigProperty(String filePath, String property) {
+
+    try {
+
+      File f = new File(filePath);
+      if (f.exists()) {
+        try (InputStream is = new FileInputStream(f)) {
+          String jsonTxt = IOUtils.toString(is, StandardCharsets.UTF_8);
+          JSONObject json = new JSONObject(jsonTxt);
+          String propertyValue = (String) json.get(property);
+          return Optional.of(propertyValue);
+        } catch (IOException ioex) {
+          ioex.printStackTrace();
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return Optional.absent();
+  }
+
+  /**
+   * Gets the template version. Firstly, tries to get it from the passed config file path. If not found, tries to get it
+   * from Internet (the devonfw.github.io repository). Else, raise error to end-users.
+   *
+   * @param configPath Path where the config path is located on disk
+   * @return The template version or empty string if not found
+   */
+  public static String getTemplateVersion(String configPath) {
+
+    String oaspTemplateVersion = "";
+    Optional<String> oaspTemplateVersionOp = Utils.getJSONConfigProperty(configPath, Constants.OASP_TEMPLATE_VERSION);
+    if (oaspTemplateVersionOp.isPresent()) {
+      oaspTemplateVersion = oaspTemplateVersionOp.get();
+    } else {
+      oaspTemplateVersionOp = Downloader.getDevconConfigProperty(Constants.OASP_TEMPLATE_VERSION);
+      if (oaspTemplateVersionOp.isPresent()) {
+        oaspTemplateVersion = oaspTemplateVersionOp.get();
+      }
+    }
+    return oaspTemplateVersion;
+  }
+
 }

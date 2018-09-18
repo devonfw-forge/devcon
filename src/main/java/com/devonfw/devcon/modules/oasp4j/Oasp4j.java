@@ -53,7 +53,6 @@ import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Constants;
-import com.devonfw.devcon.common.utils.Downloader;
 import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
 
@@ -92,11 +91,13 @@ public class Oasp4j extends AbstractCommandModule {
   public void create(String serverpath, String servername, String packagename, String groupid, String version,
       String dbtype) throws Exception {
 
-    Optional<String> oaspTemplateVersion_op = Downloader.getDevconConfigProperty(Constants.OASP_TEMPLATE_VERSION); // Optional.of("2.3.0");
-    String oaspTemplateVersion = oaspTemplateVersion_op.isPresent() ? oaspTemplateVersion_op.get()
-        : Constants.OASP_TEMPLATE_LAST_STABLE_VERSION;
-    if (!oaspTemplateVersion_op.isPresent())
-      this.output.showError("Oasp template version not found in config file.");
+    serverpath = serverpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : serverpath;
+
+    String oaspTemplateVersion = Utils.getTemplateVersion(
+        Utils.addTrailingSlash(Utils.removeEndingDot(serverpath)) + Constants.VERSION_PARAMS_FILE_FULL_PATH);
+    if (oaspTemplateVersion.isEmpty())
+      this.output.showError(
+          "Oasp template version not found neither in config file '{devonfwPath}/conf/version.json' nor Internet. Please, go online or setup the config file correctly.");
 
     this.output.showMessage("Using the oasp template version: " + oaspTemplateVersion);
 
@@ -107,7 +108,6 @@ public class Oasp4j extends AbstractCommandModule {
         .append(packagename).append(" -DdbType=").append(dbtype).append(" -DinteractiveMode=false").toString();
 
     getOutput().showMessage("Command executed to create project is -- " + baseCommand);
-    serverpath = serverpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : serverpath;
 
     File projectDir = new File(serverpath);
 
@@ -571,4 +571,5 @@ public class Oasp4j extends AbstractCommandModule {
     return dependency;
   }
 
+ 
 }
