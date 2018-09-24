@@ -36,6 +36,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.SystemUtils;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.json.simple.parser.ParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -412,6 +414,35 @@ public class Oasp4j extends AbstractCommandModule {
 
     } catch (Exception e) {
       getOutput().showError("In oasp4j deploy command. " + e.getMessage());
+    }
+  }
+
+  /**
+   * @param tomcatpath Path to tomcat
+   * @param path server project path
+   * @throws ParseException
+   * @throws IOException
+   * @throws XmlPullParserException
+   */
+  @Command(name = "migrate", description = "This command will migrate the project to latest version", context = ContextType.PROJECT)
+  public void migrate() {
+
+    if (!this.projectInfo.isPresent()) {
+      getOutput().showError("Not in a project or -path param not pointing to a project");
+      return;
+    }
+
+    ProjectInfo info = this.projectInfo.get();
+
+    // Get port from a) parameter or b) devon.json file or c) default value passed as 2nd paranter to info.getProperty
+
+    String projectpath = info.getPath().toString();
+    try {
+      new com.devonfw.devcon.modules.oasp4j.migrate.JavaCrawler().processFiles(new File(projectpath), this.output);
+
+      new com.devonfw.devcon.modules.oasp4j.migrate.XmlUpdater().updatePom(projectpath);
+    } catch (IOException | ParseException | XmlPullParserException ex) {
+      getOutput().showError("In oasp4j migrate command. " + ex.getMessage());
     }
   }
 
