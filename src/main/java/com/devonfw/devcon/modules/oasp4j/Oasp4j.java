@@ -418,11 +418,7 @@ public class Oasp4j extends AbstractCommandModule {
   }
 
   /**
-   * @param tomcatpath Path to tomcat
-   * @param path server project path
-   * @throws ParseException
-   * @throws IOException
-   * @throws XmlPullParserException
+   * @param project path
    */
   @Command(name = "migrate", description = "This command will migrate the project to latest version", context = ContextType.PROJECT)
   public void migrate() {
@@ -602,5 +598,4 @@ public class Oasp4j extends AbstractCommandModule {
     return dependency;
   }
 
- 
 }
