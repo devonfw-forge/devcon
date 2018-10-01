@@ -73,7 +73,7 @@ public class ContextPathInfo {
 
   private static final String OASP4JS = "oasp4js";
 
-  private static final String OASP4J = "oasp4j";
+  private static final String DEVON4J = "devon4j";
 
   /**
    *
@@ -237,13 +237,13 @@ public class ContextPathInfo {
         projects.add(getProjectInfo(resolved));
       }
 
-    } else if (projtype.toLowerCase().equals(OASP4J)) {
-      projectType = ProjectType.OASP4J;
+    } else if (projtype.toLowerCase().equals(DEVON4J)) {
+      projectType = ProjectType.DEVON4J;
     } else if (projtype.toLowerCase().equals(OASP4JS)) {
       projectType = ProjectType.OASP4JS;
     } else {
       throw new InvalidConfigurationStateException(
-          "type property does not contain valid ProjectInfoType: 'combined', 'oasp4j', 'oasp4js' ");
+          "type property does not contain valid ProjectInfoType: 'combined', 'devon4j', 'oasp4js' ");
     }
 
     /**

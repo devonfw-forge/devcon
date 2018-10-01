@@ -116,12 +116,12 @@ public final class Constants {
   /**
    * OASP TEMPLATE GROUP ID
    */
-  public final static String OASP_TEMPLATE_GROUP_ID = "io.oasp.java.templates";
+  public final static String OASP_TEMPLATE_GROUP_ID = "com.devonfw.java.templates";
 
   /**
    * OASP ARTIFACT ID
    */
-  public final static String OASP_ARTIFACT_ID = "oasp4j-template-server";
+  public final static String OASP_ARTIFACT_ID = "devon4j-template-server";
 
   /**
    *
@@ -131,7 +131,7 @@ public final class Constants {
   /**
    *
    */
-  public final static String OASP4J = "oasp4j";
+  public final static String DEVON4J = "devon4j";
 
   /**
    *

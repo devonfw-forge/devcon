@@ -61,7 +61,7 @@ import com.google.common.base.Optional;
  *
  * @author ssarmoka
  */
-@CmdModuleRegistry(name = "oasp4j", description = "Oasp4j(server project) related commands", sort = 3)
+@CmdModuleRegistry(name = "devon4j", description = "Devon4j(server project) related commands", sort = 3)
 public class Oasp4j extends AbstractCommandModule {
 
   /**
@@ -138,14 +138,14 @@ public class Oasp4j extends AbstractCommandModule {
         int result = process.waitFor();
         if (result == 0) {
           getOutput().showMessage("Adding devon.json file...");
-          Utils.addDevonJsonFile(project.toPath(), ProjectType.OASP4J);
+          Utils.addDevonJsonFile(project.toPath(), ProjectType.DEVON4J);
 
           if (Integer.parseInt(oaspTemplateVersion.replaceAll("\\.", "")) <= new Integer("211")) {
             modifyPom(serverpath + File.separator + servername + File.separator + "server" + File.separator + "pom.xml",
                 packagename);
           }
 
-          getOutput().showMessage("Oasp4j project created successfully");
+          getOutput().showMessage("devonp4j project created successfully");
 
         } else {
           throw new Exception("Project creation failed");
@@ -211,7 +211,7 @@ public class Oasp4j extends AbstractCommandModule {
 
     } catch (Exception e) {
 
-      getOutput().showError("An error occured during executing oasp4j Cmd: %s", e.getMessage());
+      getOutput().showError("An error occured during executing devonp4j Cmd: %s", e.getMessage());
     }
   }
 
@@ -245,7 +245,7 @@ public class Oasp4j extends AbstractCommandModule {
       Utils.processOutput(isError, isOutput, this.output);
 
     } catch (Exception e) {
-      getOutput().showError("An error occured during executing oasp4j Cmd" + e.getMessage());
+      getOutput().showError("An error occured during executing devonp4j Cmd" + e.getMessage());
     }
   }
 
@@ -411,7 +411,7 @@ public class Oasp4j extends AbstractCommandModule {
       }
 
     } catch (Exception e) {
-      getOutput().showError("In oasp4j deploy command. " + e.getMessage());
+      getOutput().showError("In devonp4j deploy command. " + e.getMessage());
     }
   }
 
@@ -516,7 +516,7 @@ public class Oasp4j extends AbstractCommandModule {
       }
 
     } catch (Exception e) {
-      getOutput().showError("Error executing oasp4j command " + e.getMessage());
+      getOutput().showError("Error executing devonp4j command " + e.getMessage());
 
     }
 
@@ -571,5 +571,4 @@ public class Oasp4j extends AbstractCommandModule {
     return dependency;
   }
 
- 
 }

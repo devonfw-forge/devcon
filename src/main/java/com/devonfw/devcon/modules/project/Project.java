@@ -68,8 +68,8 @@ public class Project extends AbstractCommandModule {
       for (int i = 0; i < size; i++) {
         ProjectInfo p = this.projectInfo.get().getSubProjects().get(i);
 
-        if (p.getProjecType() == ProjectType.OASP4J) {
-          Optional<com.devonfw.devcon.common.api.Command> oasp4j = getCommand("oasp4j", "build", p);
+        if (p.getProjecType() == ProjectType.DEVON4J) {
+          Optional<com.devonfw.devcon.common.api.Command> oasp4j = getCommand("devon4j", "build", p);
           oasp4j.get().exec();
         }
         if (p.getProjecType() == ProjectType.OASP4JS) {
@@ -160,8 +160,8 @@ public class Project extends AbstractCommandModule {
       for (int i = 0; i < size; i++) {
         ProjectInfo p = this.projectInfo.get().getSubProjects().get(i);
 
-        if (p.getProjecType() == ProjectType.OASP4J) {
-          Optional<com.devonfw.devcon.common.api.Command> cmd = getCommand(Constants.OASP4J, Constants.RUN, p);
+        if (p.getProjecType() == ProjectType.DEVON4J) {
+          Optional<com.devonfw.devcon.common.api.Command> cmd = getCommand(Constants.DEVON4J, Constants.RUN, p);
           cmd.get().exec(serverport);
         } else {
           String clienttype = Constants.OASP4JS;
