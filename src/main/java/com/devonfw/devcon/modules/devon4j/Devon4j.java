@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ******************************************************************************/
-package com.devonfw.devcon.modules.oasp4j;
+package com.devonfw.devcon.modules.devon4j;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -57,17 +57,17 @@ import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
 
 /**
- * This class implements a Command Module with Oasp4j(server project) related commands
+ * This class implements a Command Module with Devon4j(server project) related commands
  *
  * @author ssarmoka
  */
 @CmdModuleRegistry(name = "devon4j", description = "Devon4j(server project) related commands", sort = 3)
-public class Oasp4j extends AbstractCommandModule {
+public class Devon4j extends AbstractCommandModule {
 
   /**
    * The constructor.
    */
-  public Oasp4j() {
+  public Devon4j() {
 
     super();
   }
@@ -163,7 +163,7 @@ public class Oasp4j extends AbstractCommandModule {
   }
 
   /**
-   * Run OASP4j Project from the command line ContextType Project makes this into a "special" command which gets an
+   * Run DEVON4J Project from the command line ContextType Project makes this into a "special" command which gets an
    * extra parameter '-path' allowing to specify the project root (in reality, any directory below the root is valid as
    * well) Alternatively, the current dir is used. When the file devon.json is found at the project root, it is
    * available as type ProjectInfo in the field propertyInfo. Apart from "version" and "type" (default properties) *ANY*

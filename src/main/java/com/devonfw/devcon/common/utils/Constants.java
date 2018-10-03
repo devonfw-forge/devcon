@@ -89,9 +89,9 @@ public final class Constants {
   public static final String DEVON_REPO_URL = "github.com/devonfw/devon.git";
 
   /**
-   * OASP4J Repo Url
+   * DEVON4J Repo Url
    */
-  public static final String OASP4J_REPO_URL = "https://github.com/oasp/oasp4j.git";
+  public static final String OASP4J_REPO_URL = "https://github.com/oasp/devon4j.git";
 
   /**
    * BAT FILE TO UPDATE ALL WORKSPACES

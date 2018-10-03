@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2015-2018 Capgemini SE.
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,31 +32,32 @@ import com.devonfw.devcon.common.api.data.InputTypeNames;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 
 /**
- * This class contains command to clone oasp4j and devon repositories.
+ * This class contains command to clone devon4j and devon repositories.
  *
  * @author ssarmoka
  */
 @CmdModuleRegistry(name = "github", description = "Module to get Github repositories related to Devonfw.", sort = 4)
 public class Github extends AbstractCommandModule {
 
-  public static final String OASP4J_URL = "https://github.com/oasp/oasp4j.git";
+  public static final String DEVON4J_URL = "https://github.com/oasp/devon4j.git";
 
   public static final String DEVON_URL = "https://github.com/devonfw/devon.git";
 
   public static final String DOT_GIT = ".git";
 
   /**
-   * This command is to clone oasp4j repository.
+   * This command is to clone devon4j repository.
    *
-   * @param path location to download the oasp4j repository.
+   * @param path location to download the devon4j repository.
    * @throws Exception
    */
-  @Command(name = "oasp4j", description = "This command clones oasp4j repository.", context = ContextType.NONE, proxyParams = true)
+  @Command(name = "devon4j", description = "This command clones devon4j repository.", context = ContextType.NONE, proxyParams = true)
   @Parameters(values = {
-  @Parameter(name = "path", description = "a location for the oasp4j download (Current directory if not provided)", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
-  public void oasp4j(String path) throws Exception {
+  @Parameter(name = "path", description = "a location for the devon4j download (Current directory if not provided)", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
+  public void devon4j(String path) throws Exception {
 
-    path = path.isEmpty() ? this.contextPathInfo.getCurrentWorkingDirectory().toString() + File.separatorChar + "oasp4j"
+    path = path.isEmpty()
+        ? this.contextPathInfo.getCurrentWorkingDirectory().toString() + File.separatorChar + "devon4j"
         : path;
     try {
 
@@ -65,8 +66,8 @@ public class Github extends AbstractCommandModule {
         folder.mkdirs();
       }
 
-      getOutput().showMessage("Cloning from " + OASP4J_URL + " to " + path);
-      Git result = Git.cloneRepository().setURI(OASP4J_URL).setDirectory(folder).call();
+      getOutput().showMessage("Cloning from " + DEVON4J_URL + " to " + path);
+      Git result = Git.cloneRepository().setURI(DEVON4J_URL).setDirectory(folder).call();
       getOutput().showMessage("Stored repository in: " + result.getRepository().getDirectory());
 
     } catch (TransportException te) {
@@ -78,7 +79,7 @@ public class Github extends AbstractCommandModule {
           .showError("Connection error. Please verify your proxy or use the -proxyHost and -proxyPort parameters");
       throw te;
     } catch (Exception e) {
-      getOutput().showError("Getting the OASP4J code from Github: %s", e.getMessage());
+      getOutput().showError("Getting the DEVON4J code from Github: %s", e.getMessage());
       throw e;
     }
 

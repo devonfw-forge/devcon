@@ -39,7 +39,7 @@ import com.google.common.base.Optional;
 @CmdModuleRegistry(name = "project", description = "Module to automate tasks related to the devon projects (server + client)", visible = true)
 public class Project extends AbstractCommandModule {
 
-  private final String OASP4J = "oasp4j";
+  private final String DEVON4J = "devon4j";
 
   private final String OASP4JS = "oasp4js";
 
@@ -69,8 +69,8 @@ public class Project extends AbstractCommandModule {
         ProjectInfo p = this.projectInfo.get().getSubProjects().get(i);
 
         if (p.getProjecType() == ProjectType.DEVON4J) {
-          Optional<com.devonfw.devcon.common.api.Command> oasp4j = getCommand("devon4j", "build", p);
-          oasp4j.get().exec();
+          Optional<com.devonfw.devcon.common.api.Command> devon4j = getCommand("devon4j", "build", p);
+          devon4j.get().exec();
         }
         if (p.getProjecType() == ProjectType.OASP4JS) {
           Optional<com.devonfw.devcon.common.api.Command> oasp4js_cmd = getCommand("oasp4js", "build", p);
@@ -99,7 +99,7 @@ public class Project extends AbstractCommandModule {
 
     try {
 
-      Optional<com.devonfw.devcon.common.api.Command> createServer = getCommand(this.OASP4J, this.CREATE);
+      Optional<com.devonfw.devcon.common.api.Command> createServer = getCommand(this.DEVON4J, this.CREATE);
 
       combinedprojectpath = combinedprojectpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString()
           : combinedprojectpath;
@@ -108,7 +108,7 @@ public class Project extends AbstractCommandModule {
       if (createServer.isPresent()) {
         createServer.get().exec(combinedprojectpath, servername, packagename, groupid, version, dbtype);
       } else {
-        getOutput().showError("No command create found for oasp4j module.");
+        getOutput().showError("No command create found for devon4j module.");
       }
 
       getOutput().showMessage("Creating client project...");

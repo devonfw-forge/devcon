@@ -39,7 +39,7 @@ public class Doc extends AbstractCommandModule {
 
   private static final String DEVON_GUIDE = "https://github.com/devonfw/devon/wiki";
 
-  private static final String OASP4J_GUIDE = "https://github.com/oasp/oasp4j/wiki";
+  private static final String OASP4J_GUIDE = "https://github.com/oasp/devon4j/wiki";
 
   private static final String DEVCON_USER_GUIDE = "https://github.com/devonfw/devon/wiki/devcon-user-guide";
 
@@ -79,7 +79,7 @@ public class Doc extends AbstractCommandModule {
   }
 
   @SuppressWarnings("javadoc")
-  @Command(name = "oasp4jguide", description = "Opens the OASP4J Guide")
+  @Command(name = "oasp4jguide", description = "Opens the DEVON4J Guide")
   public void oasp4jguide() {
 
     openUrl(OASP4J_GUIDE);
