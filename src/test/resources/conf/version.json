@@ -3,8 +3,8 @@
   "url":"http://devonfw.github.io/download/devcon/devcon.jar",
   "devondist_file_id": "frs65334",
   "devondist_file_linux_id": "frs65335",
-  "oaspide_file_id": "frs54315",
-  "oasp4js_ang1_id": "frs51721",
-  "oasp4js_ang2_id": "frs51961",
-  "oasp_template_version": "3.0.0"
+  "devonide_file_id": "frs54315",
+  "devon4ng_ang1_id": "frs51721",
+  "devon4ng_ang2_id": "frs51961",
+  "devon_template_version": "3.0.0"
 }

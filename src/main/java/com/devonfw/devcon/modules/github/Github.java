@@ -39,7 +39,7 @@ import com.devonfw.devcon.common.impl.AbstractCommandModule;
 @CmdModuleRegistry(name = "github", description = "Module to get Github repositories related to Devonfw.", sort = 4)
 public class Github extends AbstractCommandModule {
 
-  public static final String DEVON4J_URL = "https://github.com/oasp/devon4j.git";
+  public static final String DEVON4J_URL = "https://github.com/devonfw/devon4j.git";
 
   public static final String DEVON_URL = "https://github.com/devonfw/devon.git";
 

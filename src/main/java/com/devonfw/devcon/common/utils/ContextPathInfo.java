@@ -57,7 +57,7 @@ public class ContextPathInfo {
 
   public static final ContextPathInfo INSTANCE = new ContextPathInfo();
 
-  private static final String OASP_IDE = "oasp-ide";
+  private static final String DEVON_IDE = "devon-ide";
 
   private static final String DEVON_DIST = "devon-dist";
 
@@ -71,7 +71,7 @@ public class ContextPathInfo {
 
   private static final String COMBINED = "combined";
 
-  private static final String OASP4JS = "oasp4js";
+  private static final String DEVON4NG = "devon4ng";
 
   private static final String DEVON4J = "devon4j";
 
@@ -107,7 +107,7 @@ public class ContextPathInfo {
 
   /**
    *
-   * @return Distribution Info if CWD within a Devon Distrubution or OASP IDE
+   * @return Distribution Info if CWD within a Devon Distrubution or DEVON IDE
    */
   public Optional<DistributionInfo> getDistributionRoot() {
 
@@ -117,7 +117,7 @@ public class ContextPathInfo {
   /**
    *
    * @param currentDir pass directory as String
-   * @return Distribution Info if currentDir within a Devon Distrubution or OASP IDE
+   * @return Distribution Info if currentDir within a Devon Distrubution or DEVON IDE
    */
   public Optional<DistributionInfo> getDistributionRoot(String path) {
 
@@ -131,7 +131,7 @@ public class ContextPathInfo {
   /**
    *
    * @param aPath pass directory as Path instance
-   * @return Distribution Info if currentDir within a Devon Distrubution or OASP IDE
+   * @return Distribution Info if currentDir within a Devon Distrubution or DEVON IDE
    */
   public Optional<DistributionInfo> getDistributionRoot(Path aPath) {
 
@@ -172,10 +172,11 @@ public class ContextPathInfo {
     String disttype = json.get(TYPE).toString();
     if (disttype.toLowerCase().equals(DEVON_DIST)) {
       distType = DistributionType.DevonDist;
-    } else if (disttype.toLowerCase().equals(OASP_IDE)) {
-      distType = DistributionType.OASPIDE;
+    } else if (disttype.toLowerCase().equals(DEVON_IDE)) {
+      distType = DistributionType.DEVONIDE;
     } else {
-      throw new InvalidConfigurationStateException("type property does not contain either 'devon-dist' nor 'oasp-ide'");
+      throw new InvalidConfigurationStateException(
+          "type property does not contain either 'devon-dist' nor 'devon-ide'");
     }
 
     return new DistributionInfoImpl(distPath, distType, version);
@@ -239,11 +240,11 @@ public class ContextPathInfo {
 
     } else if (projtype.toLowerCase().equals(DEVON4J)) {
       projectType = ProjectType.DEVON4J;
-    } else if (projtype.toLowerCase().equals(OASP4JS)) {
-      projectType = ProjectType.OASP4JS;
+    } else if (projtype.toLowerCase().equals(DEVON4NG)) {
+      projectType = ProjectType.DEVON4NG;
     } else {
       throw new InvalidConfigurationStateException(
-          "type property does not contain valid ProjectInfoType: 'combined', 'devon4j', 'oasp4js' ");
+          "type property does not contain valid ProjectInfoType: 'combined', 'devon4j', 'devon4ng' ");
     }
 
     /**

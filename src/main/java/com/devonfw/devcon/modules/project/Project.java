@@ -41,7 +41,7 @@ public class Project extends AbstractCommandModule {
 
   private final String DEVON4J = "devon4j";
 
-  private final String OASP4JS = "oasp4js";
+  private final String DEVON4NG = "devon4ng";
 
   private final String CREATE = "create";
 
@@ -72,9 +72,9 @@ public class Project extends AbstractCommandModule {
           Optional<com.devonfw.devcon.common.api.Command> devon4j = getCommand("devon4j", "build", p);
           devon4j.get().exec();
         }
-        if (p.getProjecType() == ProjectType.OASP4JS) {
-          Optional<com.devonfw.devcon.common.api.Command> oasp4js_cmd = getCommand("oasp4js", "build", p);
-          oasp4js_cmd.get().exec();
+        if (p.getProjecType() == ProjectType.DEVON4NG) {
+          Optional<com.devonfw.devcon.common.api.Command> devon4ng_cmd = getCommand("devon4ng", "build", p);
+          devon4ng_cmd.get().exec();
         }
       }
 
@@ -92,7 +92,7 @@ public class Project extends AbstractCommandModule {
   @Parameter(name = "groupid", description = "groupid for server project"),
   @Parameter(name = "version", description = "version of server project"),
   @Parameter(name = "dbtype", description = "database type in server project(h2|postgresql|mysql|mariadb|oracle|hana|db2)"),
-  @Parameter(name = "clientname", description = "name for the oasp4js project"),
+  @Parameter(name = "clientname", description = "name for the devon4ng project"),
   @Parameter(name = "clientpath", description = "path where the client project will be created.", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
   public void create(String combinedprojectpath, String servername, String packagename, String groupid, String version,
       String dbtype, String clientname, String clientpath) {
@@ -113,15 +113,15 @@ public class Project extends AbstractCommandModule {
 
       getOutput().showMessage("Creating client project...");
 
-      Optional<com.devonfw.devcon.common.api.Command> createOasp4js = getCommand(this.OASP4JS, this.CREATE);
+      Optional<com.devonfw.devcon.common.api.Command> createDevon4ng = getCommand(this.DEVON4NG, this.CREATE);
 
-      if (createOasp4js.isPresent()) {
-        createOasp4js.get().exec(clientname, clientpath);
+      if (createDevon4ng.isPresent()) {
+        createDevon4ng.get().exec(clientname, clientpath);
 
         clientJsonReference = clientpath.isEmpty() ? clientname : clientpath + File.separator + clientname;
 
       } else {
-        getOutput().showError("No command create found for oasp4js module.");
+        getOutput().showError("No command create found for devon4ng module.");
         return;
       }
 
@@ -143,7 +143,7 @@ public class Project extends AbstractCommandModule {
    */
   @Command(name = "run", description = "This command runs the server & client project (unified server and client build) in debug mode. It runs client app and spring boot server seperately.", context = ContextType.COMBINEDPROJECT)
   @Parameters(values = {
-  @Parameter(name = "clientpath", description = "Location of the oasp4js app", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
+  @Parameter(name = "clientpath", description = "Location of the devon4ng app", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
   @Parameter(name = "serverport", description = "Port to start server", optional = true),
   @Parameter(name = "serverpath", description = "Path to Server project Workspace (currentDir if not given)", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
   public void run(String clientpath, String serverport, String serverpath) {
@@ -164,9 +164,10 @@ public class Project extends AbstractCommandModule {
           Optional<com.devonfw.devcon.common.api.Command> cmd = getCommand(Constants.DEVON4J, Constants.RUN, p);
           cmd.get().exec(serverport);
         } else {
-          String clienttype = Constants.OASP4JS;
-          Optional<com.devonfw.devcon.common.api.Command> oasp4js_cmd = getCommand(Constants.OASP4JS, Constants.RUN, p);
-          oasp4js_cmd.get().exec();
+          String clienttype = Constants.DEVON4NG;
+          Optional<com.devonfw.devcon.common.api.Command> devon4ng_cmd = getCommand(Constants.DEVON4NG, Constants.RUN,
+              p);
+          devon4ng_cmd.get().exec();
         }
       }
 

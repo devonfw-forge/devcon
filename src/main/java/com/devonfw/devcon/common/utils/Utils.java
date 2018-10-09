@@ -455,17 +455,17 @@ public class Utils {
    */
   public static String getTemplateVersion(String configPath) {
 
-    String oaspTemplateVersion = "";
-    Optional<String> oaspTemplateVersionOp = Utils.getJSONConfigProperty(configPath, Constants.OASP_TEMPLATE_VERSION);
-    if (oaspTemplateVersionOp.isPresent()) {
-      oaspTemplateVersion = oaspTemplateVersionOp.get();
+    String devonTemplateVersion = "";
+    Optional<String> devonTemplateVersionOp = Utils.getJSONConfigProperty(configPath, Constants.DEVON_TEMPLATE_VERSION);
+    if (devonTemplateVersionOp.isPresent()) {
+      devonTemplateVersion = devonTemplateVersionOp.get();
     } else {
-      oaspTemplateVersionOp = Downloader.getDevconConfigProperty(Constants.OASP_TEMPLATE_VERSION);
-      if (oaspTemplateVersionOp.isPresent()) {
-        oaspTemplateVersion = oaspTemplateVersionOp.get();
+      devonTemplateVersionOp = Downloader.getDevconConfigProperty(Constants.DEVON_TEMPLATE_VERSION);
+      if (devonTemplateVersionOp.isPresent()) {
+        devonTemplateVersion = devonTemplateVersionOp.get();
       }
     }
-    return oaspTemplateVersion;
+    return devonTemplateVersion;
   }
 
 }

@@ -50,7 +50,7 @@ public interface ProjectInfo {
 
   /**
    *
-   * @return whether is Combined project, devon4j, oasp4js or devon4secha
+   * @return whether is Combined project, devon4j, devon4ng or devon4secha
    */
   ProjectType getProjecType();
 
