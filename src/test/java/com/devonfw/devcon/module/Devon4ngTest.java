@@ -65,7 +65,7 @@ public class Devon4ngTest {
     this.commandManager = new CommandManagerImpl(this.registry, this.input, this.output);
     this.inputMgr = new ConsoleInputManager(this.registry, this.input, this.output, this.commandManager);
     this.clientName = "angularProjectTest";
-    this.clientPath = "D:\\devconcreateDevon4ngTestTemp";
+    this.clientPath = "D:\\devconDevon4ngTestTemp";
   }
 
   @Test

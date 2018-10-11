@@ -39,7 +39,7 @@ public class Doc extends AbstractCommandModule {
 
   private static final String DEVON_GUIDE = "https://github.com/devonfw/devon/wiki";
 
-  private static final String DEVON4J_GUIDE = "https://github.com/devon/devon4j/wiki";
+  private static final String DEVON4J_GUIDE = "https://github.com/devonfw/devon4j/wiki";
 
   private static final String DEVCON_USER_GUIDE = "https://github.com/devonfw/devon/wiki/devcon-user-guide";
 
