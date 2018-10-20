@@ -7,24 +7,34 @@ import java.util.Objects;
  */
 public class VersionIdentifier {
 
+  /** {@link #getGroupId() GroupId} for OASP: {@value} */
   public static final String GROUP_ID_OASP = "io.oasp";
 
+  /** {@link #getGroupId() GroupId} for OASP4J: {@value} */
   public static final String GROUP_ID_OASP4J = GROUP_ID_OASP + ".java";
 
+  /** {@link #getGroupId() GroupId} for OASP4J modules: {@value} */
   public static final String GROUP_ID_OASP4J_MODULES = GROUP_ID_OASP4J + ".modules";
 
+  /** {@link #getGroupId() GroupId} for OASP4J starters: {@value} */
   public static final String GROUP_ID_OASP4J_STARTERS = GROUP_ID_OASP4J + ".starters";
 
+  /** {@link #getGroupId() GroupId} for OASP4J boms: {@value} */
   public static final String GROUP_ID_OASP4J_BOMS = GROUP_ID_OASP4J + ".boms";
 
+  /** {@link #getGroupId() GroupId} for devonfw: {@value} */
   public static final String GROUP_ID_DEVON = "com.devonfw";
 
+  /** {@link #getGroupId() GroupId} for devon4j: {@value} */
   public static final String GROUP_ID_DEVON4J = GROUP_ID_DEVON + ".java";
 
+  /** {@link #getGroupId() GroupId} for devon4j modules: {@value} */
   public static final String GROUP_ID_DEVON4J_MODULES = GROUP_ID_DEVON4J + ".modules";
 
+  /** {@link #getGroupId() GroupId} for devon4j starters: {@value} */
   public static final String GROUP_ID_DEVON4J_STARTERS = GROUP_ID_DEVON4J + ".starters";
 
+  /** {@link #getGroupId() GroupId} for devon4j boms: {@value} */
   public static final String GROUP_ID_DEVON4J_BOMS = GROUP_ID_DEVON4J + ".boms";
 
   private final String groupId;
@@ -83,6 +93,11 @@ public class VersionIdentifier {
     return this.version;
   }
 
+  /**
+   * @param other the {@link VersionIdentifier} to match.
+   * @return {@code true} if this {@link VersionIdentifier} pattern matches the given {@link VersionIdentifier},
+   *         {@code false} otherwise.
+   */
   public boolean matches(VersionIdentifier other) {
 
     if (!matches(this.groupId, other.groupId)) {
@@ -125,7 +140,7 @@ public class VersionIdentifier {
     if (this == obj) {
       return true;
     }
-    if ((obj == null) && (getClass() != obj.getClass())) {
+    if ((obj == null) || (getClass() != obj.getClass())) {
       return false;
     }
     VersionIdentifier other = (VersionIdentifier) obj;
@@ -149,11 +164,19 @@ public class VersionIdentifier {
     }
   }
 
+  /**
+   * @param version the {@link #getVersion() version}.
+   * @return the {@link VersionIdentifier} for the specified devon4j {@link VersionIdentifier}.
+   */
   public static VersionIdentifier ofDevon4j(String version) {
 
     return new VersionIdentifier("devon4j", version);
   }
 
+  /**
+   * @param version the {@link #getVersion() version}.
+   * @return the {@link VersionIdentifier} for the specified oasp4j {@link VersionIdentifier}.
+   */
   public static VersionIdentifier ofOasp4j(String version) {
 
     return new VersionIdentifier("oasp4j", version);

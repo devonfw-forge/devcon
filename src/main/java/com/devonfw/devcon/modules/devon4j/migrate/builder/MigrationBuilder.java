@@ -11,9 +11,7 @@ import com.devonfw.devcon.modules.devon4j.migrate.version.VersionIdentifier;
 import com.devonfw.devcon.output.Output;
 
 /**
- * TODO hohwille This type ...
- *
- * @since 1.5.0
+ * Top-level builder to {@link #build() build} a {@link Migrator}.
  */
 public class MigrationBuilder {
 
@@ -26,8 +24,8 @@ public class MigrationBuilder {
   /**
    * The constructor.
    *
-   * @param from
-   * @param steps
+   * @param output the {@link Output}.
+   * @param from the initial starting point from where the migration is supported.
    */
   public MigrationBuilder(Output output, VersionIdentifier from) {
 
@@ -37,6 +35,10 @@ public class MigrationBuilder {
     this.steps = new ArrayList<>();
   }
 
+  /**
+   * @param to the {@link VersionIdentifier} to migrate to.
+   * @return the builder to configure the {@link MigrationStep} to migrate to that given {@link VersionIdentifier}.
+   */
   public MigrationStepBuilder to(VersionIdentifier to) {
 
     VersionIdentifier from = this.version;
@@ -44,12 +46,20 @@ public class MigrationBuilder {
     return new MigrationStepBuilder(this, from, to);
   }
 
+  /**
+   * @return the build {@link Migrator}.
+   */
   public Migrator build() {
 
     VersionDetector versionDetector = new MavenVersionDetector();
     return new Migrator(this.output, versionDetector, this.steps.toArray(new MigrationStep[this.steps.size()]));
   }
 
+  /**
+   * @param version the initial supported {@link VersionIdentifier}.
+   * @param output the {@link Output}.
+   * @return {@code this}.
+   */
   public static MigrationBuilder from(VersionIdentifier version, Output output) {
 
     return new MigrationBuilder(output, version);

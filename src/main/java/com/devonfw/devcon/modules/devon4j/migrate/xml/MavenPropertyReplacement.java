@@ -4,9 +4,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * TODO hohwille This type ...
- *
- * @since 1.5.0
+ * Implementation of {@link XmlMigration} for replacing a maven property.
  */
 public class MavenPropertyReplacement extends AbstractXmlMigration {
 
@@ -19,8 +17,8 @@ public class MavenPropertyReplacement extends AbstractXmlMigration {
   /**
    * The constructor.
    *
-   * @param propertyName
-   * @param newValue
+   * @param propertyName the name of the property to modify.
+   * @param newValue the new value of the specified property.
    */
   public MavenPropertyReplacement(String propertyName, String newValue) {
 
@@ -30,9 +28,9 @@ public class MavenPropertyReplacement extends AbstractXmlMigration {
   /**
    * The constructor.
    *
-   * @param propertyName
-   * @param newValue
-   * @param newPropertyName
+   * @param propertyName the name of the property to replace.
+   * @param newValue the new value of the specified property.
+   * @param newPropertyName the new name of the property.
    */
   public MavenPropertyReplacement(String propertyName, String newValue, String newPropertyName) {
 

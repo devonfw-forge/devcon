@@ -9,9 +9,7 @@ import com.devonfw.devcon.modules.devon4j.migrate.version.VersionIdentifier;
 import com.devonfw.devcon.output.Output;
 
 /**
- * TODO hohwille This type ...
- *
- * @since 1.5.0
+ * Implementation of {@link MigrationStep}.
  */
 public class MigrationStepImpl implements MigrationStep {
 
@@ -26,8 +24,9 @@ public class MigrationStepImpl implements MigrationStep {
   /**
    * The constructor.
    *
-   * @param from
-   * @param to
+   * @param output the {@link Output}.
+   * @param from - see {@link #getFrom()}.
+   * @param to - see {@link #getTo()}.
    */
   public MigrationStepImpl(Output output, VersionIdentifier from, VersionIdentifier to) {
 

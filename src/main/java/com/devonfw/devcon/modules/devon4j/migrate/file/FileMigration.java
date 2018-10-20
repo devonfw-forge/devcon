@@ -34,7 +34,8 @@ public abstract class FileMigration implements Migration {
   }
 
   /**
-   * @param file
+   * @param file the matching {@link File} to migrate.
+   * @throws Exception on error.
    */
   protected abstract void migrateFile(File file) throws Exception;
 

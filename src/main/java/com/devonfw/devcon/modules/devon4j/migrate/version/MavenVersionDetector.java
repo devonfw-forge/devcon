@@ -1,19 +1,37 @@
 package com.devonfw.devcon.modules.devon4j.migrate.version;
 
 import java.io.File;
-import java.io.IOException;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import com.devonfw.devcon.modules.devon4j.migrate.xml.AbstractXmlSupport;
 
 /**
- * TODO hohwille This type ...
- *
- * @since 1.5.0
+ * Implementation of {@link VersionDetector} for Maven projects based on {@code pom.xml} {@link File}.
  */
-public class MavenVersionDetector implements VersionDetector {
+public class MavenVersionDetector extends AbstractXmlSupport implements VersionDetector {
 
   @Override
-  public VersionIdentifier detectVersion(File projectFolder) throws IOException {
+  public VersionIdentifier detectVersion(File projectFolder) throws Exception {
 
-    return VersionIdentifier.ofOasp4j("2.6.0");
+    File pom = new File(projectFolder, "pom.xml");
+    if (!pom.exists()) {
+      throw new IllegalArgumentException("No pom.xml found in project folder: " + projectFolder);
+    }
+    Document xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pom);
+    Element properties = getChildElement(xml.getDocumentElement(), "properties");
+    Element version = getChildElement(properties, "devon4j.version");
+    if (version != null) {
+      return VersionIdentifier.ofDevon4j(version.getTextContent().trim());
+    }
+    version = getChildElement(properties, "oasp4j.version");
+    if (version != null) {
+      return VersionIdentifier.ofOasp4j(version.getTextContent().trim());
+    }
+    throw new IllegalArgumentException("Could not determine version of oasp4j or devon4j from pom.xml: " + pom);
   }
 
 }

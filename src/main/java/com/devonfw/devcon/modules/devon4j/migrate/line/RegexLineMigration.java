@@ -3,9 +3,7 @@ package com.devonfw.devcon.modules.devon4j.migrate.line;
 import java.util.regex.Pattern;
 
 /**
- * TODO hohwille This type ...
- *
- * @since 1.5.0
+ * Implementation of {@link LineMigration} based on regex {@link Pattern} replacement.
  */
 public class RegexLineMigration implements LineMigration {
 
@@ -15,6 +13,9 @@ public class RegexLineMigration implements LineMigration {
 
   /**
    * The constructor.
+   * 
+   * @param regex the {@link Pattern} to match.
+   * @param replacement the replacement.
    */
   public RegexLineMigration(Pattern regex, String replacement) {
 

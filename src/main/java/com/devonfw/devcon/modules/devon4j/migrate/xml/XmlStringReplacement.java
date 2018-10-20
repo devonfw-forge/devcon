@@ -7,9 +7,9 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * TODO hohwille This type ...
- *
- * @since 1.5.0
+ * Implementation of {@link AbstractXmlMigration} for a simple {@link String} replacement in any
+ * {@link Element#getTextContent() text}. Currently no attributes are supported as focus is so far on maven that does
+ * not make use of attributes.
  */
 public class XmlStringReplacement extends AbstractXmlMigration {
 
@@ -20,8 +20,8 @@ public class XmlStringReplacement extends AbstractXmlMigration {
   /**
    * The constructor.
    *
-   * @param search
-   * @param replacement
+   * @param search the {@link String} to search for.
+   * @param replacement the replacement for the given {@code search} {@link String}.
    */
   public XmlStringReplacement(String search, String replacement) {
 

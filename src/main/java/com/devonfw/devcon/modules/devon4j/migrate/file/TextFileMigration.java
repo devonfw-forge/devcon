@@ -14,20 +14,22 @@ import java.util.regex.Pattern;
 import com.devonfw.devcon.modules.devon4j.migrate.line.LineMigration;
 
 /**
- * TODO hohwille This type ...
- *
- * @since 1.5.0
+ * Implementation of {@link FileMigration} for textual files that are replaced line by line.
  */
 public class TextFileMigration extends FileMigration {
 
+  /** {@link Pattern} for Java files. */
   public static final Pattern JAVA_PATTERN = Pattern.compile(".*\\.java");
 
+  /** {@link Pattern} for spring {@code application*.properties}. */
   public static final Pattern APPLICATION_PROPERTIES_PATTERN = Pattern.compile("application.*\\.properties");
 
   private final List<LineMigration> lineMigrations;
 
   /**
    * The constructor.
+   *
+   * @param filePattern the {@link Pattern} to match the file name.
    */
   public TextFileMigration(Pattern filePattern) {
 

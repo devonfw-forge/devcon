@@ -5,21 +5,20 @@ import java.util.regex.Pattern;
 import com.devonfw.devcon.modules.devon4j.migrate.file.XmlFileMigration;
 
 /**
- * TODO hohwille This type ...
- *
- * @since 1.5.0
+ * Builder for an {@link XmlFileMigration}.
  */
 public class XmlMigrationBuilder {
 
   private final MigrationStepBuilder parent;
 
+  /** The actual migration to build. */
   protected final XmlFileMigration migration;
 
   /**
    * The constructor.
    *
-   * @param migrationStepBuilder
-   * @param pomXmlPattern
+   * @param parent the parent builder.
+   * @param pattern the {@link Pattern} for the filenames to match.
    */
   public XmlMigrationBuilder(MigrationStepBuilder parent, Pattern pattern) {
 
@@ -28,6 +27,9 @@ public class XmlMigrationBuilder {
     this.migration = new XmlFileMigration(pattern);
   }
 
+  /**
+   * @return the parent builder after this XML migration is complete.
+   */
   public MigrationStepBuilder and() {
 
     this.parent.step.getFileMigrations().add(this.migration);

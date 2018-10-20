@@ -22,6 +22,7 @@ public class Migrator implements Migration {
   /**
    * The constructor.
    *
+   * @param output the {@link Output}.
    * @param versionDetector the {@link VersionDetector}.
    * @param steps the {@link MigrationStep}s.
    */

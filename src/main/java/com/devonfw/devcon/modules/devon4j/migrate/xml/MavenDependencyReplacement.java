@@ -7,9 +7,7 @@ import org.w3c.dom.NodeList;
 import com.devonfw.devcon.modules.devon4j.migrate.version.VersionIdentifier;
 
 /**
- * TODO hohwille This type ...
- *
- * @since 1.5.0
+ * Implementation of {@link XmlMigration} for replacing a maven dependency.
  */
 public class MavenDependencyReplacement extends AbstractXmlMigration {
 
@@ -20,8 +18,8 @@ public class MavenDependencyReplacement extends AbstractXmlMigration {
   /**
    * The constructor.
    *
-   * @param pattern
-   * @param replacement
+   * @param pattern the {@link VersionIdentifier} to match as pattern.
+   * @param replacement the {@link VersionIdentifier} with the replacement.
    */
   public MavenDependencyReplacement(VersionIdentifier pattern, VersionIdentifier replacement) {
 
@@ -63,16 +61,16 @@ public class MavenDependencyReplacement extends AbstractXmlMigration {
     return false;
   }
 
-  private void replace(Element element, String replacement, String pattern, String value) {
+  private void replace(Element element, String replacementString, String patternString, String value) {
 
     if (value == null) {
       return;
     }
-    if ((pattern != null) && (pattern.endsWith("*") && (replacement != null) && (replacement.endsWith("*")))) {
-      String suffix = value.substring(pattern.length() - 1);
-      setText(element, replacement.substring(0, replacement.length() - 1) + suffix);
+    if ((patternString != null) && (patternString.endsWith("*") && (replacementString != null) && (replacementString.endsWith("*")))) {
+      String suffix = value.substring(patternString.length() - 1);
+      setText(element, replacementString.substring(0, replacementString.length() - 1) + suffix);
     } else {
-      setText(element, replacement);
+      setText(element, replacementString);
     }
   }
 

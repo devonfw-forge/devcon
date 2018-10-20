@@ -16,12 +16,11 @@ import org.w3c.dom.Document;
 import com.devonfw.devcon.modules.devon4j.migrate.xml.XmlMigration;
 
 /**
- * TODO hohwille This type ...
- *
- * @since 1.5.0
+ * Implementation of {@link FileMigration} for XML {@link File}.
  */
 public class XmlFileMigration extends FileMigration implements XmlMigration {
 
+  /** {@link Pattern} for {@code pom.xml}. */
   public static final Pattern POM_XML_PATTERN = Pattern.compile("pom\\.xml");
 
   private final List<XmlMigration> migrations;
@@ -29,7 +28,7 @@ public class XmlFileMigration extends FileMigration implements XmlMigration {
   /**
    * The constructor.
    *
-   * @param namePattern
+   * @param namePattern the {@link Pattern} to match the filename.
    */
   public XmlFileMigration(Pattern namePattern) {
 

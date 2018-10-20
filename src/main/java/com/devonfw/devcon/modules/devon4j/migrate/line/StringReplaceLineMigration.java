@@ -1,9 +1,7 @@
 package com.devonfw.devcon.modules.devon4j.migrate.line;
 
 /**
- * TODO hohwille This type ...
- *
- * @since 1.5.0
+ * Implementation of {@link LineMigration} for simple string replacement.
  */
 public class StringReplaceLineMigration implements LineMigration {
 
@@ -13,9 +11,9 @@ public class StringReplaceLineMigration implements LineMigration {
 
   /**
    * The constructor.
-   * 
-   * @param search
-   * @param replacement
+   *
+   * @param search the {@link String} to search for.
+   * @param replacement the replacement for the {@code search} {@link String}.
    */
   public StringReplaceLineMigration(String search, String replacement) {
 
