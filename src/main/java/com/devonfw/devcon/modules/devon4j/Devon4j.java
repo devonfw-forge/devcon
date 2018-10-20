@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ******************************************************************************/
-package com.devonfw.devcon.modules.oasp4j;
+package com.devonfw.devcon.modules.devon4j;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -36,8 +36,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.SystemUtils;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.json.simple.parser.ParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -56,6 +54,8 @@ import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Constants;
 import com.devonfw.devcon.common.utils.Utils;
+import com.devonfw.devcon.modules.devon4j.migrate.Migrations;
+import com.devonfw.devcon.modules.devon4j.migrate.Migrator;
 import com.google.common.base.Optional;
 
 /**
@@ -63,13 +63,13 @@ import com.google.common.base.Optional;
  *
  * @author ssarmoka
  */
-@CmdModuleRegistry(name = "oasp4j", description = "Oasp4j(server project) related commands", sort = 3)
-public class Oasp4j extends AbstractCommandModule {
+@CmdModuleRegistry(name = "devon4j", description = "devon4j (Java server project) related commands", sort = 3)
+public class Devon4j extends AbstractCommandModule {
 
   /**
    * The constructor.
    */
-  public Oasp4j() {
+  public Devon4j() {
 
     super();
   }
@@ -421,24 +421,16 @@ public class Oasp4j extends AbstractCommandModule {
    * @param project path
    */
   @Command(name = "migrate", description = "This command will migrate the project to latest version", context = ContextType.PROJECT)
-  public void migrate() {
+  @Parameters(values = {
+  @Parameter(name = "projectPath", description = "Path to project folder", optional = false, inputType = @InputType(name = InputTypeNames.PATH)), })
+  public void migrate(String projectPath) {
 
-    if (!this.projectInfo.isPresent()) {
-      getOutput().showError("Not in a project or -path param not pointing to a project");
-      return;
-    }
-
-    ProjectInfo info = this.projectInfo.get();
-
-    // Get port from a) parameter or b) devon.json file or c) default value passed as 2nd paranter to info.getProperty
-
-    String projectpath = info.getPath().toString();
     try {
-      new com.devonfw.devcon.modules.oasp4j.migrate.JavaCrawler().processFiles(new File(projectpath), this.output);
-
-      new com.devonfw.devcon.modules.oasp4j.migrate.XmlUpdater().updatePom(projectpath);
-    } catch (IOException | ParseException | XmlPullParserException ex) {
-      getOutput().showError("In oasp4j migrate command. " + ex.getMessage());
+      Migrator migrator = Migrations.devon4j(getOutput());
+      migrator.migrate(new File(projectPath));
+    } catch (Exception e) {
+      getOutput().showError("Migration failed.", e.getMessage());
+      e.printStackTrace();
     }
   }
 
