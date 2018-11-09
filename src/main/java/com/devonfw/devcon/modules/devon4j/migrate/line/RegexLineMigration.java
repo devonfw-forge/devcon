@@ -1,11 +1,12 @@
 package com.devonfw.devcon.modules.devon4j.migrate.line;
 
+import java.io.FileFilter;
 import java.util.regex.Pattern;
 
 /**
  * Implementation of {@link LineMigration} based on regex {@link Pattern} replacement.
  */
-public class RegexLineMigration implements LineMigration {
+public class RegexLineMigration extends AbstractLineMigration {
 
   private final Pattern regex;
 
@@ -13,19 +14,20 @@ public class RegexLineMigration implements LineMigration {
 
   /**
    * The constructor.
-   * 
+   *
    * @param regex the {@link Pattern} to match.
    * @param replacement the replacement.
+   * @param fileFilter the {@link FileFilter} to accept the files that shall be migrated.
    */
-  public RegexLineMigration(Pattern regex, String replacement) {
+  public RegexLineMigration(Pattern regex, String replacement, FileFilter fileFilter) {
 
-    super();
+    super(fileFilter);
     this.regex = regex;
     this.replacement = replacement;
   }
 
   @Override
-  public String migrateLine(String line) {
+  protected String migrate(String line) {
 
     return this.regex.matcher(line).replaceAll(this.replacement);
   }

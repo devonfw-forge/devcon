@@ -413,15 +413,18 @@ public class Devon4j extends AbstractCommandModule {
    * Migrates an oasp4j or devon4j project to the latest version.
    *
    * @param projectPath the path of the project to migrate.
+   * @param singleVersion - {@code true} to only migrate to the next version, {@code false} otherwise (migrate to latest
+   *        version).
    */
-  @Command(name = "migrate", description = "This command will migrate the project to latest version", context = ContextType.PROJECT)
+  @Command(name = "migrate", description = "This command will migrate the project to latest version")
   @Parameters(values = {
-  @Parameter(name = "projectPath", description = "Path to project folder", optional = false, inputType = @InputType(name = InputTypeNames.PATH)), })
-  public void migrate(String projectPath) {
+  @Parameter(name = "projectPath", description = "Path to project folder", optional = false, inputType = @InputType(name = InputTypeNames.PATH)),
+  @Parameter(name = "singleVersion", description = "Migrate only to next version (rather than the latest version)", optional = true, inputType = @InputType(name = InputTypeNames.BOOLEAN)), })
+  public void migrate(String projectPath, String singleVersion) {
 
     try {
       Migrator migrator = Migrations.devon4j(getOutput());
-      migrator.migrate(new File(projectPath));
+      migrator.migrate(new File(projectPath), "true".equals(singleVersion));
     } catch (Exception e) {
       getOutput().showError("Migration failed.", e.getMessage());
       e.printStackTrace();

@@ -190,8 +190,8 @@ public class GUIOutput implements Output {
   @Override
   public void showError(String message, String... args) {
 
-    this.consoleOutput.append("\n[ERROR] ");
-    this.consoleOutput.append(String.format(message, args));
+    this.consoleOutput.append("[ERROR] ");
+    this.consoleOutput.append(String.format(message, args)).append("\n");
     this.out_.setText(this.consoleOutput.toString());
   }
 

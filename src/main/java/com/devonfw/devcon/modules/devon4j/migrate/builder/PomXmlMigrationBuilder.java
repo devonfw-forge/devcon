@@ -2,6 +2,7 @@ package com.devonfw.devcon.modules.devon4j.migrate.builder;
 
 import com.devonfw.devcon.modules.devon4j.migrate.file.XmlFileMigration;
 import com.devonfw.devcon.modules.devon4j.migrate.version.VersionIdentifier;
+import com.devonfw.devcon.modules.devon4j.migrate.xml.MavenDependencyAdder;
 import com.devonfw.devcon.modules.devon4j.migrate.xml.MavenDependencyReplacement;
 import com.devonfw.devcon.modules.devon4j.migrate.xml.MavenPropertyReplacement;
 import com.devonfw.devcon.modules.devon4j.migrate.xml.XmlStringReplacement;
@@ -29,6 +30,17 @@ public class PomXmlMigrationBuilder extends XmlMigrationBuilder {
   public PomXmlMigrationBuilder replaceDependency(VersionIdentifier pattern, VersionIdentifier replacement) {
 
     this.migration.getMigrations().add(new MavenDependencyReplacement(pattern, replacement));
+    return this;
+  }
+
+  /**
+   * @param projectPattern the {@link VersionIdentifier} of the maven project/module to match.
+   * @param dependency the {@link VersionIdentifier} with the dependency to add.
+   * @return {@code this}.
+   */
+  public PomXmlMigrationBuilder addDependency(VersionIdentifier projectPattern, VersionIdentifier dependency) {
+
+    this.migration.getMigrations().add(new MavenDependencyAdder(projectPattern, dependency));
     return this;
   }
 

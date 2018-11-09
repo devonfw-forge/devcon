@@ -1,9 +1,11 @@
 package com.devonfw.devcon.modules.devon4j.migrate.line;
 
+import java.io.FileFilter;
+
 /**
  * Implementation of {@link LineMigration} for simple string replacement.
  */
-public class StringReplaceLineMigration implements LineMigration {
+public class StringReplaceLineMigration extends AbstractLineMigration {
 
   private final String search;
 
@@ -14,16 +16,17 @@ public class StringReplaceLineMigration implements LineMigration {
    *
    * @param search the {@link String} to search for.
    * @param replacement the replacement for the {@code search} {@link String}.
+   * @param fileFilter the {@link FileFilter} to accept the files that shall be migrated.
    */
-  public StringReplaceLineMigration(String search, String replacement) {
+  public StringReplaceLineMigration(String search, String replacement, FileFilter fileFilter) {
 
-    super();
+    super(fileFilter);
     this.search = search;
     this.replacement = replacement;
   }
 
   @Override
-  public String migrateLine(String line) {
+  protected String migrate(String line) {
 
     return line.replace(this.search, this.replacement);
   }

@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2015-2018 Capgemini SE.
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,6 +40,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -231,124 +232,146 @@ public class ShowCommandHandler implements EventHandler<ActionEvent> {
       Text blankText = new Text();
       switch (inputType.getName()) {
 
-      case LIST:
-        Label list = new Label(param.getName());
-        Text text = new Text(Constants.ASTRIKE);
-        text.setFill(Color.RED);
-        HBox hb = new HBox();
-        hb.getChildren().add(list);
-        if (param.isOptional()) {
-          hb.getChildren().add(blankText);
-        } else {
-          this.mandatoryParamList.add(param.getName());
-          hb.getChildren().add(text);
-        }
-
-        list.setStyle("-fx-background-color: #efeeee;");
-        grid.add(hb, 0, order); // col row
-
-        ObservableList<String> options = FXCollections.observableArrayList();
-        String[] inputVals = param.getInputType().getValues();
-        options.addAll(Arrays.asList(inputVals));
-        ComboBox<String> comboBox = new ComboBox<>(options);
-        comboBox.getSelectionModel().select(0); // default selection for option in drop down list
-        comboBox.setId("combo_" + param.getName());
-        comboBox.setTooltip(toolTip);
-        comboBox.setMinHeight(Constants.HEIGHT);
-        comboBox.setPrefWidth(Constants.WIDTH);
-        grid.add(comboBox, 1, order);
-        break;
-
-      case PASSWORD:
-        final Label message = new Label("");
-        Text text1 = new Text(Constants.ASTRIKE);
-        text1.setFill(Color.RED);
-        Label pw = new Label(param.getName());
-        pw.setStyle("-fx-background-color: #efeeee;");
-        HBox hb1 = new HBox();
-        hb1.getChildren().add(pw);
-        if (param.isOptional()) {
-          hb1.getChildren().add(blankText);
-        } else {
-          this.mandatoryParamList.add(param.getName());
-          hb1.getChildren().add(text1);
-        }
-        grid.add(hb1, 0, order); // col row
-        final PasswordField pwBox = new PasswordField();
-        pwBox.setId("password_" + param.getName());
-        pwBox.setTooltip(toolTip);
-        pwBox.setMinHeight(Constants.HEIGHT);
-        pwBox.setMaxWidth(Constants.WIDTH);
-        pwBox.setPrefWidth(Constants.WIDTH);
-        grid.add(pwBox, 1, order);
-        break;
-
-      case PATH:
-        Label path = new Label(param.getName());
-        Text text2 = new Text(Constants.ASTRIKE);
-        text2.setFill(Color.RED);
-        path.setStyle("-fx-background-color: #efeeee;");
-        HBox hb2 = new HBox();
-        hb2.getChildren().add(path);
-        if (param.isOptional()) {
-          hb2.getChildren().add(blankText);
-        } else {
-          this.mandatoryParamList.add(param.getName());
-          hb2.getChildren().add(text2);
-        }
-
-        grid.add(hb2, 0, order); // col row
-
-        HBox directorySelector = new HBox();
-
-        final TextField selectedPath = new TextField();
-        selectedPath.setText(this.cmdManager.getContextPathInfo().getCurrentWorkingDirectory().toString());
-        selectedPath.setEditable(false);
-        Button pathSelector = new Button(Constants.SELECT_PATH);
-        pathSelector.setTooltip(toolTip);
-        pathSelector.setOnAction(new EventHandler<ActionEvent>() {
-          @Override
-          public void handle(ActionEvent t) {
-
-            chooseDirectory(ShowCommandHandler.this.screenController, selectedPath);
+        case LIST:
+          Label list = new Label(param.getName());
+          Text text = new Text(Constants.ASTRIKE);
+          text.setFill(Color.RED);
+          HBox hb = new HBox();
+          hb.getChildren().add(list);
+          if (param.isOptional()) {
+            hb.getChildren().add(blankText);
+          } else {
+            this.mandatoryParamList.add(param.getName());
+            hb.getChildren().add(text);
           }
-        });
 
-        ;
+          list.setStyle("-fx-background-color: #efeeee;");
+          grid.add(hb, 0, order); // col row
 
-        directorySelector.getChildren().add(selectedPath);
-        directorySelector.getChildren().add(pathSelector);
-        directorySelector.setId("path_" + param.getName());
+          ObservableList<String> options = FXCollections.observableArrayList();
+          String[] inputVals = param.getInputType().getValues();
+          options.addAll(Arrays.asList(inputVals));
+          ComboBox<String> comboBox = new ComboBox<>(options);
+          comboBox.getSelectionModel().select(0); // default selection for option in drop down list
+          comboBox.setId("combo_" + param.getName());
+          comboBox.setTooltip(toolTip);
+          comboBox.setMinHeight(Constants.HEIGHT);
+          comboBox.setPrefWidth(Constants.WIDTH);
+          grid.add(comboBox, 1, order);
+          break;
 
-        directorySelector.setSpacing(5);
-        directorySelector.setPrefHeight(Constants.HEIGHT);
-        directorySelector.setPrefWidth(Constants.WIDTH);
-        grid.add(directorySelector, 1, order);
+        case PASSWORD:
+          final Label message = new Label("");
+          Text text1 = new Text(Constants.ASTRIKE);
+          text1.setFill(Color.RED);
+          Label pw = new Label(param.getName());
+          pw.setStyle("-fx-background-color: #efeeee;");
+          HBox hb1 = new HBox();
+          hb1.getChildren().add(pw);
+          if (param.isOptional()) {
+            hb1.getChildren().add(blankText);
+          } else {
+            this.mandatoryParamList.add(param.getName());
+            hb1.getChildren().add(text1);
+          }
+          grid.add(hb1, 0, order); // col row
+          final PasswordField pwBox = new PasswordField();
+          pwBox.setId("password_" + param.getName());
+          pwBox.setTooltip(toolTip);
+          pwBox.setMinHeight(Constants.HEIGHT);
+          pwBox.setMaxWidth(Constants.WIDTH);
+          pwBox.setPrefWidth(Constants.WIDTH);
+          grid.add(pwBox, 1, order);
+          break;
 
-        break;
+        case PATH:
+          Label path = new Label(param.getName());
+          Text text2 = new Text(Constants.ASTRIKE);
+          text2.setFill(Color.RED);
+          path.setStyle("-fx-background-color: #efeeee;");
+          HBox hb2 = new HBox();
+          hb2.getChildren().add(path);
+          if (param.isOptional()) {
+            hb2.getChildren().add(blankText);
+          } else {
+            this.mandatoryParamList.add(param.getName());
+            hb2.getChildren().add(text2);
+          }
 
-      default: /* GENERIC */
-        final Label genLabel = new Label(param.getName());
-        Text text3 = new Text(Constants.ASTRIKE);
-        text3.setFill(Color.RED);
-        genLabel.setStyle("-fx-background-color: #efeeee;");
-        HBox hb3 = new HBox();
-        hb3.getChildren().add(genLabel);
-        if (param.isOptional()) {
-          hb3.getChildren().add(blankText);
-        } else {
-          this.mandatoryParamList.add(param.getName());
-          hb3.getChildren().add(text3);
-        }
-        grid.add(hb3, 0, order);
+          grid.add(hb2, 0, order); // col row
 
-        TextField userTextField = new TextField();
-        userTextField.setMinHeight(Constants.HEIGHT);
-        userTextField.setMaxWidth(Constants.WIDTH);
-        userTextField.setId("text_" + param.getName());
-        userTextField.setTooltip(toolTip);
-        userTextField.setPromptText("Enter " + param.getName());
-        grid.add(userTextField, 1, order);
+          HBox directorySelector = new HBox();
+
+          final TextField selectedPath = new TextField();
+          selectedPath.setText(this.cmdManager.getContextPathInfo().getCurrentWorkingDirectory().toString());
+          selectedPath.setEditable(false);
+          Button pathSelector = new Button(Constants.SELECT_PATH);
+          pathSelector.setTooltip(toolTip);
+          pathSelector.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent t) {
+
+              chooseDirectory(ShowCommandHandler.this.screenController, selectedPath);
+            }
+          });
+
+          ;
+
+          directorySelector.getChildren().add(selectedPath);
+          directorySelector.getChildren().add(pathSelector);
+          directorySelector.setId("path_" + param.getName());
+
+          directorySelector.setSpacing(5);
+          directorySelector.setPrefHeight(Constants.HEIGHT);
+          directorySelector.setPrefWidth(Constants.WIDTH);
+          grid.add(directorySelector, 1, order);
+
+          break;
+
+        case BOOLEAN:
+          final Label flagLabel = new Label(param.getName());
+          flagLabel.setStyle("-fx-background-color: #efeeee;");
+          HBox hbFlag = new HBox();
+          hbFlag.getChildren().add(flagLabel);
+          if (param.isOptional()) {
+            hbFlag.getChildren().add(blankText);
+          } else {
+            this.mandatoryParamList.add(param.getName());
+            Text mandatoryMarker = new Text(Constants.ASTRIKE);
+            mandatoryMarker.setFill(Color.RED);
+            hbFlag.getChildren().add(mandatoryMarker);
+          }
+          grid.add(hbFlag, 0, order);
+
+          CheckBox checkbox = new CheckBox();
+          checkbox.setMinHeight(Constants.HEIGHT);
+          checkbox.setMaxWidth(Constants.WIDTH);
+          checkbox.setId("checkbox_" + param.getName());
+          checkbox.setTooltip(toolTip);
+          grid.add(checkbox, 1, order);
+
+        default: /* GENERIC */
+          final Label genLabel = new Label(param.getName());
+          Text text3 = new Text(Constants.ASTRIKE);
+          text3.setFill(Color.RED);
+          genLabel.setStyle("-fx-background-color: #efeeee;");
+          HBox hb3 = new HBox();
+          hb3.getChildren().add(genLabel);
+          if (param.isOptional()) {
+            hb3.getChildren().add(blankText);
+          } else {
+            this.mandatoryParamList.add(param.getName());
+            hb3.getChildren().add(text3);
+          }
+          grid.add(hb3, 0, order);
+
+          TextField userTextField = new TextField();
+          userTextField.setMinHeight(Constants.HEIGHT);
+          userTextField.setMaxWidth(Constants.WIDTH);
+          userTextField.setId("text_" + param.getName());
+          userTextField.setTooltip(toolTip);
+          userTextField.setPromptText("Enter " + param.getName());
+          grid.add(userTextField, 1, order);
 
       }
 

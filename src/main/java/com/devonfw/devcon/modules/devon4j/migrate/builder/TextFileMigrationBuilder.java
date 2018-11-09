@@ -1,8 +1,11 @@
 package com.devonfw.devcon.modules.devon4j.migrate.builder;
 
+import java.io.FileFilter;
 import java.util.regex.Pattern;
 
+import com.devonfw.devcon.modules.devon4j.migrate.file.FileFilterAll;
 import com.devonfw.devcon.modules.devon4j.migrate.file.TextFileMigration;
+import com.devonfw.devcon.modules.devon4j.migrate.line.LineMigration;
 import com.devonfw.devcon.modules.devon4j.migrate.line.RegexLineMigration;
 import com.devonfw.devcon.modules.devon4j.migrate.line.StringReplaceLineMigration;
 
@@ -25,7 +28,7 @@ public class TextFileMigrationBuilder {
 
     super();
     this.parent = parent;
-    this.migration = new TextFileMigration(pattern);
+    this.migration = new TextFileMigration(parent.parent.output, pattern);
   }
 
   /**
@@ -36,7 +39,19 @@ public class TextFileMigrationBuilder {
    */
   public TextFileMigrationBuilder replaceRegex(Pattern pattern, String replacement) {
 
-    this.migration.getLineMigrations().add(new RegexLineMigration(pattern, replacement));
+    return replaceRegex(pattern, replacement, FileFilterAll.INSTANCE);
+  }
+
+  /**
+   * @param pattern the {@link Pattern} to match.
+   * @param replacement the replacement for the given {@link Pattern}. May contain variable expressions (e.g. "$1") to
+   *        reference regex groups.
+   * @param fileFilter the {@link FileFilter} to accept the files that shall be migrated.
+   * @return {@code this}.
+   */
+  public TextFileMigrationBuilder replaceRegex(Pattern pattern, String replacement, FileFilter fileFilter) {
+
+    this.migration.getLineMigrations().add(new RegexLineMigration(pattern, replacement, fileFilter));
     return this;
   }
 
@@ -48,8 +63,19 @@ public class TextFileMigrationBuilder {
    */
   public TextFileMigrationBuilder replaceRegex(String pattern, String replacement) {
 
-    this.migration.getLineMigrations().add(new RegexLineMigration(Pattern.compile(pattern), replacement));
-    return this;
+    return replaceRegex(Pattern.compile(pattern), replacement);
+  }
+
+  /**
+   * @param pattern the {@link Pattern} to match as {@link String}.
+   * @param replacement the replacement for the given {@link Pattern}. May contain variable expressions (e.g. "$1") to
+   *        reference regex groups.
+   * @param fileFilter the {@link FileFilter} to accept the files that shall be migrated.
+   * @return {@code this}.
+   */
+  public TextFileMigrationBuilder replaceRegex(String pattern, String replacement, FileFilter fileFilter) {
+
+    return replaceRegex(Pattern.compile(pattern), replacement, fileFilter);
   }
 
   /**
@@ -59,7 +85,28 @@ public class TextFileMigrationBuilder {
    */
   public TextFileMigrationBuilder replace(String search, String replacement) {
 
-    this.migration.getLineMigrations().add(new StringReplaceLineMigration(search, replacement));
+    return replace(search, replacement, FileFilterAll.INSTANCE);
+  }
+
+  /**
+   * @param search the plain {@link String} to search for.
+   * @param replacement the replacement for the given {@code search} {@link String}.
+   * @param fileFilter the {@link FileFilter} to accept the files that shall be migrated.
+   * @return {@code this}.
+   */
+  public TextFileMigrationBuilder replace(String search, String replacement, FileFilter fileFilter) {
+
+    this.migration.getLineMigrations().add(new StringReplaceLineMigration(search, replacement, fileFilter));
+    return this;
+  }
+
+  /**
+   * @param lineMigration the custom {@link LineMigration} to add.
+   * @return {@code this}.
+   */
+  public TextFileMigrationBuilder add(LineMigration lineMigration) {
+
+    this.migration.getLineMigrations().add(lineMigration);
     return this;
   }
 

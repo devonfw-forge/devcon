@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import com.devonfw.devcon.modules.devon4j.migrate.line.LineMigration;
+import com.devonfw.devcon.output.Output;
 
 /**
  * Implementation of {@link FileMigration} for textual files that are replaced line by line.
@@ -29,17 +30,21 @@ public class TextFileMigration extends FileMigration {
   /**
    * The constructor.
    *
+   * @param output the {@link Output}.
    * @param filePattern the {@link Pattern} to match the file name.
    */
-  public TextFileMigration(Pattern filePattern) {
+  public TextFileMigration(Output output, Pattern filePattern) {
 
-    super(filePattern);
+    super(output, filePattern);
     this.lineMigrations = new ArrayList<>();
   }
 
   @Override
   protected void migrateFile(File file) throws IOException {
 
+    for (LineMigration lineMigration : this.lineMigrations) {
+      lineMigration.init(file);
+    }
     StringBuilder sb = new StringBuilder(4096);
     boolean changed = false;
     try (FileInputStream in = new FileInputStream(file);
@@ -59,9 +64,13 @@ public class TextFileMigration extends FileMigration {
         sb.append('\n');
       }
     }
+    for (LineMigration lineMigration : this.lineMigrations) {
+      lineMigration.clear();
+    }
     if (!changed) {
       return;
     }
+    this.output.showMessage("Migrating file: %s", file.getPath());
     String content = sb.toString();
     try (FileOutputStream out = new FileOutputStream(file);
         OutputStreamWriter writer = new OutputStreamWriter(out, "UTF-8")) {

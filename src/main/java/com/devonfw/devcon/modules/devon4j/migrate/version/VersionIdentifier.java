@@ -123,6 +123,12 @@ public class VersionIdentifier {
       }
       String prefix = pattern.substring(0, pattern.length() - 1);
       return value.startsWith(prefix);
+    } else if (pattern.startsWith("*")) {
+      if (value == null) {
+        return pattern.length() == 1;
+      }
+      String suffix = pattern.substring(1);
+      return value.endsWith(suffix);
     } else {
       return (pattern.equals(value));
     }

@@ -1,5 +1,7 @@
 package com.devonfw.devcon.modules.devon4j.migrate.builder;
 
+import java.util.regex.Pattern;
+
 import com.devonfw.devcon.modules.devon4j.migrate.MigrationStep;
 import com.devonfw.devcon.modules.devon4j.migrate.MigrationStepImpl;
 import com.devonfw.devcon.modules.devon4j.migrate.file.TextFileMigration;
@@ -10,7 +12,7 @@ import com.devonfw.devcon.modules.devon4j.migrate.version.VersionIdentifier;
  */
 public class MigrationStepBuilder {
 
-  private final MigrationBuilder parent;
+  final MigrationBuilder parent;
 
   final MigrationStepImpl step;
 
@@ -53,6 +55,17 @@ public class MigrationStepBuilder {
   public PomXmlMigrationBuilder pom() {
 
     return new PomXmlMigrationBuilder(this);
+  }
+
+  /**
+   * @param filename the filename to match literally.
+   * @return a new builder to create an XML migration. Call {@link XmlMigrationBuilder#and()} to continue with this
+   *         builder once complete.
+   */
+  public XmlMigrationBuilder xml(String filename) {
+
+    Pattern pattern = Pattern.compile(filename.replace(".", "\\."));
+    return new XmlMigrationBuilder(this, pattern);
   }
 
   /**

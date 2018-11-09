@@ -40,7 +40,25 @@ public class Migrator implements Migration {
   @Override
   public void migrate(File projectFolder) throws Exception {
 
-    VersionIdentifier startVersion = this.versionDetector.detectVersion(projectFolder);
+    migrate(projectFolder, false);
+  }
+
+  /**
+   * @param projectFolder the {@link File} (or directory) to migrate.
+   * @param singleStep - {@code true} to only migrate to the next version, {@code false} otherwise (migrate to latest
+   *        version).
+   * @throws Exception on error.
+   */
+  public void migrate(File projectFolder, boolean singleStep) throws Exception {
+
+    VersionIdentifier startVersion;
+    try {
+      startVersion = this.versionDetector.detectVersion(projectFolder);
+    } catch (Exception e1) {
+      this.output.showError(e1.getMessage());
+      e1.printStackTrace();
+      return;
+    }
     int migrations = 0;
     VersionIdentifier version = startVersion;
     while (true) {
@@ -50,9 +68,14 @@ public class Migrator implements Migration {
         return;
       } else {
         try {
+          this.output.showMessage("***********************************************************");
           this.output.showMessage("Migrating from version %s to %s ...", step.getFrom().toString(),
               step.getTo().toString());
+          this.output.showMessage("***********************************************************");
           step.migrate(projectFolder);
+          if (singleStep) {
+            return;
+          }
           migrations++;
         } catch (Exception e) {
           this.output.showError("Migration from %s to %s failed: %s", step.getFrom().toString(),
@@ -75,8 +98,10 @@ public class Migrator implements Migration {
       this.output.showError("Project is already on version %s. No migrations available to update.",
           startVersion.toString());
     } else {
+      this.output.showMessage("***********************************************************");
       this.output.showMessage("Successfully applied %s migrations to migrate project from version %s to %s.",
           Integer.toString(migrations), startVersion.toString(), endVersion.toString());
+      this.output.showMessage("***********************************************************");
     }
   }
 

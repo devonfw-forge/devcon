@@ -14,6 +14,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 
 import com.devonfw.devcon.modules.devon4j.migrate.xml.XmlMigration;
+import com.devonfw.devcon.output.Output;
 
 /**
  * Implementation of {@link FileMigration} for XML {@link File}.
@@ -28,11 +29,12 @@ public class XmlFileMigration extends FileMigration implements XmlMigration {
   /**
    * The constructor.
    *
+   * @param output the {@link Output}.
    * @param namePattern the {@link Pattern} to match the filename.
    */
-  public XmlFileMigration(Pattern namePattern) {
+  public XmlFileMigration(Output output, Pattern namePattern) {
 
-    super(namePattern);
+    super(output, namePattern);
     this.migrations = new ArrayList<>();
   }
 
@@ -42,6 +44,7 @@ public class XmlFileMigration extends FileMigration implements XmlMigration {
     Document xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
     boolean change = migrateXml(xml);
     if (change) {
+      this.output.showMessage("Migrating file: %s", file.getPath());
       Result target = new StreamResult(file);
       TransformerFactory.newInstance().newTransformer().transform(new DOMSource(xml), target);
     }
