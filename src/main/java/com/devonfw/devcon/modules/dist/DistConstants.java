@@ -32,14 +32,14 @@ public final class DistConstants {
   public static final String REPOSITORY_URL = "http://de-mucevolve02/files/devonfw/current/";
 
   /**
-   * oasp distribution file id
+   * devon distribution file id
    */
-  public static final String OASP_FILE_ID = "oaspide_file_id";
+  public static final String DEVON_FILE_ID = "devonide_file_id";
 
   /**
    * devon distribution file id
    */
-  public static final String DEVON_FILE_ID = "devondist_file_id";
+  public static final String DEVON_DIST_FILE_ID = "devondist_file_id";
 
   /**
    * devon distribution linux file id
@@ -47,9 +47,9 @@ public final class DistConstants {
   public static final String DEVON_FILE_LINUX_ID = "devondist_file_linux_id";
 
   /**
-   * distribution type for oasp
+   * distribution type for devon
    */
-  public static final String OASP_IDE = DistributionType.OASPIDE.toString().toLowerCase();
+  public static final String DEVON_IDE = DistributionType.DEVONIDE.toString().toLowerCase();
 
   /**
    * distribution type for devon

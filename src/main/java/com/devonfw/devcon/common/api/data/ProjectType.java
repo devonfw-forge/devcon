@@ -21,5 +21,5 @@ package com.devonfw.devcon.common.api.data;
  * @author ivanderk
  */
 public enum ProjectType {
-  COMBINED, OASP4J, OASP4JS
+  COMBINED, DEVON4J, DEVON4NG
 }
