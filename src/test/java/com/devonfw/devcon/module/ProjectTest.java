@@ -116,9 +116,9 @@ public class ProjectTest {
   @Test
   public void createServerWithAngular() {
 
-    this.clientName = "oasp4jsTest";
+    this.clientName = "Devon4ngTest";
     this.clientPath = this.serverPath;
-    String clientType = "oasp4js";
+    String clientType = "Devon4ng";
     this.dbtype = "h2";
 
     String[] args = { "project", "create", "-servername", this.serverName, "-combinedprojectpath", this.serverPath,

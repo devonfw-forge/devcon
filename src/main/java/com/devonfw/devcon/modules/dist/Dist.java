@@ -55,20 +55,20 @@ public class Dist extends AbstractCommandModule {
    * @param password the password related to the user with permissions to download the Devon distribution
    * @throws Exception
    */
-  @Command(name = "install", description = "This command downloads the last version of a distribution from Teamforge. You can select between Devonfw distribution (by default) and Oasp-ide distribution.", context = ContextType.NONE)
+  @Command(name = "install", description = "This command downloads the last version of a distribution from Teamforge. You can select between Devonfw distribution (by default) and Devon-ide distribution.", context = ContextType.NONE)
   @Parameters(values = {
   @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
-  @Parameter(name = "type", description = "the type of the distribution, the options are: \n 'oaspide' to download OASP IDE\n 'devondist' to download Devon IP IDE", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
-  "devondist"/* ,"oaspide" */ }))/*
-                                  * ,
-                                  *
-                                  * @Parameter(name = "user", description =
-                                  * "a user with permissions to download the Devon distribution"),
-                                  *
-                                  * @Parameter(name = "password", description =
-                                  * "the password related to the user with permissions to download the Devon distribution"
-                                  * , inputType = @InputType(name = InputTypeNames.PASSWORD))
-                                  */ })
+  @Parameter(name = "type", description = "the type of the distribution, the options are: \n 'devonide' to download DEVON IDE\n 'devondist' to download Devon IP IDE", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
+  "devondist"/* ,"devonide" */ }))/*
+                                   * ,
+                                   *
+                                   * @Parameter(name = "user", description =
+                                   * "a user with permissions to download the Devon distribution"),
+                                   *
+                                   * @Parameter(name = "password", description =
+                                   * "the password related to the user with permissions to download the Devon distribution"
+                                   * , inputType = @InputType(name = InputTypeNames.PASSWORD))
+                                   */ })
   public void install(String path, String type/* , String user, String password */) throws Exception {
 
     Optional<String> teamforgeFileId;
@@ -81,7 +81,7 @@ public class Dist extends AbstractCommandModule {
 
     try {
 
-      if (type.toLowerCase().equals(DistConstants.OASP_IDE)) {
+      if (type.toLowerCase().equals(DistConstants.DEVON_IDE)) {
 
       } else if (type.toLowerCase().equals(DistConstants.DEVON_DIST) && SystemUtils.IS_OS_WINDOWS) {
         distType = DistConstants.DIST_TYPE_WINDOWS;

@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2015-2018 Capgemini SE.
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -175,7 +175,7 @@ public class FooTest {
   public void commandWithOptionalParameter() throws IOException {
 
     Path tmp = FileSystems.getDefault().getPath(System.getProperty("user.dir"));
-    String content = "{\"version\": \"2.0.0\",\n\"type\":\"oasp4j\",\n\"signature\":\"from json\"}";
+    String content = "{\"version\": \"2.0.0\",\n\"type\":\"devon4j\",\n\"signature\":\"from json\"}";
     File tempSettings = tmp.resolve("devon.json").toFile();
     FileUtils.writeStringToFile(tempSettings, content, "UTF-8");
 
@@ -277,7 +277,7 @@ public class FooTest {
     sentence.addParam("second", "Brown");
 
     // Devon project containing missing values
-    String content = "{\"version\": \"2.0.0\",\n\"type\":\"oasp4j\",\n\"first\": \"The\",\n\"fourth\": \"Fox\"\n}";
+    String content = "{\"version\": \"2.0.0\",\n\"type\":\"devon4j\",\n\"first\": \"The\",\n\"fourth\": \"Fox\"\n}";
     File settingsfile = this.testFoo.resolve("devon.json").toFile();
     FileUtils.writeStringToFile(settingsfile, content, "UTF-8");
 

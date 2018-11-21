@@ -59,7 +59,7 @@ import com.devonfw.devcon.modules.devon4j.migrate.Migrator;
 import com.google.common.base.Optional;
 
 /**
- * This class implements a Command Module with Oasp4j(server project) related commands
+ * This class implements a Command Module with Devon4j(server project) related commands
  *
  * @author ssarmoka
  */
@@ -83,7 +83,7 @@ public class Devon4j extends AbstractCommandModule {
    * @param dbType the database type (e.g. "postgresql", "hana", "oracle", etc.)
    * @throws Exception on error.
    */
-  @Command(name = "create", description = "This creates a new server project based on OASP template")
+  @Command(name = "create", description = "This creates a new server project based on devon4j template")
   @Parameters(values = {
   @Parameter(name = "serverpath", description = "where to create", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
   @Parameter(name = "servername", description = "Name of project"),
@@ -96,17 +96,17 @@ public class Devon4j extends AbstractCommandModule {
 
     serverpath = serverpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : serverpath;
 
-    String oaspTemplateVersion = Utils.getTemplateVersion(
+    String devonTemplateVersion = Utils.getTemplateVersion(
         Utils.addTrailingSlash(Utils.removeEndingDot(serverpath)) + Constants.VERSION_PARAMS_FILE_FULL_PATH);
-    if (oaspTemplateVersion.isEmpty())
+    if (devonTemplateVersion.isEmpty())
       this.output.showError(
-          "Oasp template version not found neither in config file '{devonfwPath}/conf/version.json' nor Internet. Please, go online or setup the config file correctly.");
+          "Devon template version not found neither in config file '{devonfwPath}/conf/version.json' nor Internet. Please, go online or setup the config file correctly.");
 
-    this.output.showMessage("Using the oasp template version: " + oaspTemplateVersion);
+    this.output.showMessage("Using the devon template version: " + devonTemplateVersion);
 
-    String baseCommand = new StringBuffer("mvn -DarchetypeVersion=").append(oaspTemplateVersion)
-        .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
-        .append(Constants.OASP_ARTIFACT_ID).append(" archetype:generate -DgroupId=").append(groupid)
+    String baseCommand = new StringBuffer("mvn -DarchetypeVersion=").append(devonTemplateVersion)
+        .append(" -DarchetypeGroupId=").append(Constants.DEVON_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
+        .append(Constants.DEVON_ARTIFACT_ID).append(" archetype:generate -DgroupId=").append(groupid)
         .append(" -DartifactId=").append(servername).append(" -Dversion=").append(version).append(" -Dpackage=")
         .append(packagename).append(" -DdbType=").append(dbType).append(" -DinteractiveMode=false").toString();
 
@@ -141,14 +141,14 @@ public class Devon4j extends AbstractCommandModule {
         int result = process.waitFor();
         if (result == 0) {
           getOutput().showMessage("Adding devon.json file...");
-          Utils.addDevonJsonFile(project.toPath(), ProjectType.OASP4J);
+          Utils.addDevonJsonFile(project.toPath(), ProjectType.DEVON4J);
 
-          if (Integer.parseInt(oaspTemplateVersion.replaceAll("\\.", "")) <= new Integer("211")) {
+          if (Integer.parseInt(devonTemplateVersion.replaceAll("\\.", "")) <= new Integer("211")) {
             modifyPom(serverpath + File.separator + servername + File.separator + "server" + File.separator + "pom.xml",
                 packagename);
           }
 
-          getOutput().showMessage("Oasp4j project created successfully");
+          getOutput().showMessage("devon4j project created successfully");
 
         } else {
           throw new Exception("Project creation failed");
@@ -166,7 +166,7 @@ public class Devon4j extends AbstractCommandModule {
   }
 
   /**
-   * Run OASP4j Project from the command line ContextType Project makes this into a "special" command which gets an
+   * Run Devon4j Project from the command line ContextType Project makes this into a "special" command which gets an
    * extra parameter '-path' allowing to specify the project root (in reality, any directory below the root is valid as
    * well) Alternatively, the current dir is used. When the file devon.json is found at the project root, it is
    * available as type ProjectInfo in the field propertyInfo. Apart from "version" and "type" (default properties) *ANY*
@@ -211,7 +211,7 @@ public class Devon4j extends AbstractCommandModule {
 
     } catch (Exception e) {
 
-      getOutput().showError("An error occured during executing oasp4j Cmd: %s", e.getMessage());
+      getOutput().showError("An error occured during executing devon4j Cmd: %s", e.getMessage());
     }
   }
 
@@ -247,7 +247,7 @@ public class Devon4j extends AbstractCommandModule {
       Utils.processOutput(isError, isOutput, this.output);
 
     } catch (Exception e) {
-      getOutput().showError("An error occured during executing oasp4j Cmd" + e.getMessage());
+      getOutput().showError("An error occured during executing devon4j Cmd" + e.getMessage());
     }
   }
 
@@ -405,7 +405,7 @@ public class Devon4j extends AbstractCommandModule {
         getOutput().showError("'artifactId' element not found in the pom.xml");
       }
     } catch (Exception e) {
-      getOutput().showError("In oasp4j deploy command. " + e.getMessage());
+      getOutput().showError("In devon4j deploy command. " + e.getMessage());
     }
   }
 
@@ -537,7 +537,7 @@ public class Devon4j extends AbstractCommandModule {
       }
 
     } catch (Exception e) {
-      getOutput().showError("Error executing oasp4j command " + e.getMessage());
+      getOutput().showError("Error executing devon4j command " + e.getMessage());
 
     }
 
