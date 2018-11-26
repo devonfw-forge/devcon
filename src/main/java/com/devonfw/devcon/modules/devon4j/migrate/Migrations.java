@@ -36,6 +36,8 @@ public class Migrations {
 
         .to(VersionIdentifier.ofDevon4j("3.0.0")) //
         .pom().replaceProperty("oasp4j.version", "3.0.0", "devon4j.version") //
+        .replaceProperty("spring.boot.version", "2.0.4.RELEASE") //
+        .replaceProperty("flyway.version", "5.0.7") //
         .replaceRegex("\\s*\\$\\{oasp4j\\.version\\}\\s*", "\\$\\{devon4j.version\\}") //
         .replaceProperty("oasp.test.excluded.groups", null, "devonfw.test.excluded.groups") //
         .replaceRegex("\\s*\\$\\{oasp\\.test\\.excluded\\.groups\\}\\s*", "\\$\\{devonfw.test.excluded.groups\\}") //
