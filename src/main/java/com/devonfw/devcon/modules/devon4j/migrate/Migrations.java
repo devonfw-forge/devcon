@@ -35,8 +35,8 @@ public class Migrations {
         .applicationProperties().replace("flyway.", "spring.flyway.").and().next() //
 
         .to(VersionIdentifier.ofDevon4j("3.0.0")) //
-        .pom().replaceProperty("oasp4j.version", "3.0.0-SNAPSHOT", "devon4j.version") //
-        .replaceString("${oasp4j.version}", "${devon4j.version}") //
+        .pom().replaceProperty("oasp4j.version", "3.0.0", "devon4j.version") //
+        .replaceRegex("\\s*\\$\\{oasp4j\\.version\\}\\s*", "\\$\\{devon4j.version\\}") //
         .replaceDependency(new VersionIdentifier(VersionIdentifier.GROUP_ID_OASP4J, "oasp4j-bom", null),
             new VersionIdentifier(VersionIdentifier.GROUP_ID_DEVON4J_BOMS, "devon4j-bom", null))
         .replaceDependency(new VersionIdentifier(VersionIdentifier.GROUP_ID_OASP4J + "*", "oasp4j*", null),

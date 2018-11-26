@@ -1,10 +1,13 @@
 package com.devonfw.devcon.modules.devon4j.migrate.builder;
 
+import java.util.regex.Pattern;
+
 import com.devonfw.devcon.modules.devon4j.migrate.file.XmlFileMigration;
 import com.devonfw.devcon.modules.devon4j.migrate.version.VersionIdentifier;
 import com.devonfw.devcon.modules.devon4j.migrate.xml.MavenDependencyAdder;
 import com.devonfw.devcon.modules.devon4j.migrate.xml.MavenDependencyReplacement;
 import com.devonfw.devcon.modules.devon4j.migrate.xml.MavenPropertyReplacement;
+import com.devonfw.devcon.modules.devon4j.migrate.xml.XmlRegexReplacement;
 import com.devonfw.devcon.modules.devon4j.migrate.xml.XmlStringReplacement;
 
 /**
@@ -74,6 +77,27 @@ public class PomXmlMigrationBuilder extends XmlMigrationBuilder {
   public PomXmlMigrationBuilder replaceString(String search, String replacement) {
 
     this.migration.getMigrations().add(new XmlStringReplacement(search, replacement));
+    return this;
+  }
+
+  /**
+   * @param pattern the plain {@link Pattern} to replace in POM.
+   * @param replacement the replacement {@link String}.
+   * @return {@code this}.
+   */
+  public PomXmlMigrationBuilder replaceRegex(String pattern, String replacement) {
+
+    return replaceRegex(Pattern.compile(pattern), replacement);
+  }
+
+  /**
+   * @param pattern the plain {@link Pattern} to replace in POM.
+   * @param replacement the replacement {@link String}.
+   * @return {@code this}.
+   */
+  public PomXmlMigrationBuilder replaceRegex(Pattern pattern, String replacement) {
+
+    this.migration.getMigrations().add(new XmlRegexReplacement(pattern, replacement));
     return this;
   }
 
