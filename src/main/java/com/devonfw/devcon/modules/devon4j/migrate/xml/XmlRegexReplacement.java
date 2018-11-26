@@ -1,6 +1,5 @@
 package com.devonfw.devcon.modules.devon4j.migrate.xml;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.w3c.dom.Document;
@@ -53,9 +52,10 @@ public class XmlRegexReplacement extends AbstractXmlMigration {
         }
       } else if (nodeType == Node.TEXT_NODE) {
         Text text = (Text) node;
-        Matcher matcher = this.pattern.matcher(text.getData());
-        if (matcher.matches()) {
-          text.setData(matcher.replaceAll(this.replacement));
+        String data = text.getData();
+        String newData = data.replaceAll(this.pattern.pattern(), this.replacement);
+        if (!data.equals(newData)) {
+          text.setData(newData);
           updated = true;
         }
       }

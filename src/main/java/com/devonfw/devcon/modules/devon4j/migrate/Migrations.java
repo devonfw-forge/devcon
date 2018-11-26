@@ -37,6 +37,9 @@ public class Migrations {
         .to(VersionIdentifier.ofDevon4j("3.0.0")) //
         .pom().replaceProperty("oasp4j.version", "3.0.0", "devon4j.version") //
         .replaceRegex("\\s*\\$\\{oasp4j\\.version\\}\\s*", "\\$\\{devon4j.version\\}") //
+        .replaceProperty("oasp.test.excluded.groups", null, "devonfw.test.excluded.groups") //
+        .replaceRegex("\\s*\\$\\{oasp\\.test\\.excluded\\.groups\\}\\s*", "\\$\\{devonfw.test.excluded.groups\\}") //
+        .replaceRegex("io\\.oasp\\.module\\.test\\.", "com.devonfw.module.test.") //
         .replaceDependency(new VersionIdentifier(VersionIdentifier.GROUP_ID_OASP4J, "oasp4j-bom", null),
             new VersionIdentifier(VersionIdentifier.GROUP_ID_DEVON4J_BOMS, "devon4j-bom", null))
         .replaceDependency(new VersionIdentifier(VersionIdentifier.GROUP_ID_OASP4J + "*", "oasp4j*", null),
