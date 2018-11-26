@@ -101,6 +101,8 @@ public class Migrations {
             "AbstractEto extends com.devonfw.module.basic.common.api.to.AbstractEto")
         .replace("EntityTo<Long>", "AbstractEto").replace("MutableGenericEntity<", "GenericEntity<")
         .replace("net.sf.mmm.util.transferobject.api.EntityTo", "com.devonfw.module.basic.common.api.to.AbstractEto")
+        .replace("/io/oasp/module/security/access-control-schema.xsd",
+            "/com/devonfw/module/security/access-control-schema.xsd") //
         .replace(".OaspPackage", ".Devon4jPackage").replace("OaspPackage ", "Devon4jPackage ")
         .replace("OaspPackage.", "Devon4jPackage.")
         .replace("import com.devonfw.module.basic.common.api.to.AbstractEto;", "",
