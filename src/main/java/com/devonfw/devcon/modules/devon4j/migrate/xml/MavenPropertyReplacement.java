@@ -2,6 +2,7 @@ package com.devonfw.devcon.modules.devon4j.migrate.xml;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * Implementation of {@link XmlMigration} for replacing a maven property.
@@ -43,19 +44,28 @@ public class MavenPropertyReplacement extends AbstractXmlMigration {
   @Override
   public boolean migrateXml(Document xml) throws Exception {
 
-    Element properties = getChildElement(xml.getDocumentElement(), "properties");
-    Element property = getChildElement(properties, this.propertyName);
-    if (property == null) {
-      return false;
+    boolean modified = false;
+    Element projectElement = xml.getDocumentElement();
+    NodeList propertiesElementList = projectElement.getElementsByTagName("properties");
+    for (int i = 0; i < propertiesElementList.getLength(); i++) {
+      Element propertiesElement = (Element) propertiesElementList.item(i);
+      Element propertyElement = getChildElement(propertiesElement, this.propertyName);
+      if (propertyElement != null) {
+        modified = true;
+        if (this.newPropertyName.equals(this.propertyName)) {
+          propertyElement.setTextContent(this.newValue);
+        } else {
+          Element newProperty = xml.createElement(this.newPropertyName);
+          if (this.newValue == null) {
+            newProperty.setTextContent(propertyElement.getTextContent());
+          } else {
+            newProperty.setTextContent(this.newValue);
+          }
+          propertiesElement.replaceChild(newProperty, propertyElement);
+        }
+      }
     }
-    if (this.newPropertyName.equals(this.propertyName)) {
-      property.setTextContent(this.newValue);
-    } else {
-      Element newProperty = xml.createElement(this.newPropertyName);
-      newProperty.setTextContent(this.newValue);
-      properties.replaceChild(newProperty, property);
-    }
-    return true;
+    return modified;
   }
 
 }

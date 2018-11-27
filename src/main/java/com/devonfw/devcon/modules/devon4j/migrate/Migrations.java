@@ -23,20 +23,39 @@ public class Migrations {
         .pom().replaceProperty("oasp4j.version", "2.6.1").and().next() //
 
         .to(VersionIdentifier.ofOasp4j("3.0.0")) //
-        .pom().replaceProperty("oasp4j.version", "3.0.0").and() //
+        .pom().replaceProperty("oasp4j.version", "3.0.0") //
+        .replaceProperty("spring.boot.version", "2.0.4.RELEASE") //
+        .replaceProperty("flyway.version", "5.0.7") //
+        .replaceDependency(new VersionIdentifier("org.hibernate", "hibernate-validator", null),
+            new VersionIdentifier("org.hibernate.validator", "hibernate-validator", null))
+        .and() //
         .java().replace("org.hibernate.Query", "org.hibernate.query.Query")
         .replace("com.mysema.query.alias.Alias", "com.querydsl.core.alias.Alias")
         .replace("com.mysema.query.jpa.impl.JPAQuery", "com.querydsl.jpa.impl.JPAQuery")
         .replace("com.mysema.query.types.path.EntityPathBase", "com.querydsl.core.types.dsl.EntityPathBase")
+        .replace("org.springframework.boot.web.support.SpringBootServletInitializer",
+            "org.springframework.boot.web.servlet.support.SpringBootServletInitializer")
+        .replace("org.springframework.boot.context.embedded.LocalServerPort",
+            "org.springframework.boot.web.server.LocalServerPort")
+        .replace("org.springframework.boot.actuate.autoconfigure.EndpointAutoConfiguration",
+            "org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration")
+        .replace("org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration",
+            "org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration")
+        .replace("org.springframework.boot.autoconfigure.security.SecurityFilterAutoConfiguration",
+            "org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration")
         .replace("query.clone().count()", "query.clone().fetchCount()").replace("query.count()", "query.fetchCount()")
         .replace("query.list(expr)", "query.select(expr).fetch()").replace("query.list()", "query.fetch()")
         .replace("query.firstResult(", "query.fetchFirst(").replace("query.uniqueResult(", "query.fetchUnique(")
         .replace("query.listResults(", "query.fetchResults(").add(new QueryDslJpaQueryLineMigration()).and() //
-        .applicationProperties().replace("flyway.", "spring.flyway.").and().next() //
+        .applicationProperties().replace("flyway.", "spring.flyway.") //
+        .replace("server.context-path", "server.servlet.context-path").and().next() //
 
         .to(VersionIdentifier.ofDevon4j("3.0.0")) //
-        .pom().replaceProperty("oasp4j.version", "3.0.0-SNAPSHOT", "devon4j.version") //
-        .replaceString("${oasp4j.version}", "${devon4j.version}") //
+        .pom().replaceProperty("oasp4j.version", "3.0.0", "devon4j.version") //
+        .replaceRegex("\\s*\\$\\{oasp4j\\.version\\}\\s*", "\\$\\{devon4j.version\\}") //
+        .replaceProperty("oasp.test.excluded.groups", null, "devonfw.test.excluded.groups") //
+        .replaceRegex("\\s*\\$\\{oasp\\.test\\.excluded\\.groups\\}\\s*", "\\$\\{devonfw.test.excluded.groups\\}") //
+        .replaceRegex("io\\.oasp\\.module\\.test\\.", "com.devonfw.module.test.") //
         .replaceDependency(new VersionIdentifier(VersionIdentifier.GROUP_ID_OASP4J, "oasp4j-bom", null),
             new VersionIdentifier(VersionIdentifier.GROUP_ID_DEVON4J_BOMS, "devon4j-bom", null))
         .replaceDependency(new VersionIdentifier(VersionIdentifier.GROUP_ID_OASP4J + "*", "oasp4j*", null),
@@ -82,6 +101,8 @@ public class Migrations {
             "AbstractEto extends com.devonfw.module.basic.common.api.to.AbstractEto")
         .replace("EntityTo<Long>", "AbstractEto").replace("MutableGenericEntity<", "GenericEntity<")
         .replace("net.sf.mmm.util.transferobject.api.EntityTo", "com.devonfw.module.basic.common.api.to.AbstractEto")
+        .replace("/io/oasp/module/security/access-control-schema.xsd",
+            "/com/devonfw/module/security/access-control-schema.xsd") //
         .replace(".OaspPackage", ".Devon4jPackage").replace("OaspPackage ", "Devon4jPackage ")
         .replace("OaspPackage.", "Devon4jPackage.")
         .replace("import com.devonfw.module.basic.common.api.to.AbstractEto;", "",
