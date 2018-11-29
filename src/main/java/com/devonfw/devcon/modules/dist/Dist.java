@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2015-2018 Capgemini SE.
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -55,16 +55,24 @@ public class Dist extends AbstractCommandModule {
    * @param password the password related to the user with permissions to download the Devon distribution
    * @throws Exception
    */
-  @Command(name = "install", description = "This command downloads the last version of a distribution from Teamforge. You can select between Devonfw distribution (by default) and Oasp-ide distribution.", context = ContextType.NONE)
+  @Command(name = "install", description = "This command downloads the last version of a distribution from Teamforge. You can select between Devonfw distribution (by default) and Devon-ide distribution.", context = ContextType.NONE)
   @Parameters(values = {
   @Parameter(name = "path", description = "a location for the Devon distribution download", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
-  @Parameter(name = "type", description = "the type of the distribution, the options are: \n 'oaspide' to download OASP IDE\n 'devondist' to download Devon IP IDE", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
-  "devondist", "oaspide" })),
-  @Parameter(name = "user", description = "a user with permissions to download the Devon distribution"),
-  @Parameter(name = "password", description = "the password related to the user with permissions to download the Devon distribution", inputType = @InputType(name = InputTypeNames.PASSWORD)) })
-  public void install(String path, String type, String user, String password) throws Exception {
+  @Parameter(name = "type", description = "the type of the distribution, the options are: \n 'devonide' to download DEVON IDE\n 'devondist' to download Devon IP IDE", optional = true, inputType = @InputType(name = InputTypeNames.LIST, values = {
+  "devondist"/* ,"devonide" */ }))/*
+                                   * ,
+                                   *
+                                   * @Parameter(name = "user", description =
+                                   * "a user with permissions to download the Devon distribution"),
+                                   *
+                                   * @Parameter(name = "password", description =
+                                   * "the password related to the user with permissions to download the Devon distribution"
+                                   * , inputType = @InputType(name = InputTypeNames.PASSWORD))
+                                   */ })
+  public void install(String path, String type/* , String user, String password */) throws Exception {
 
     Optional<String> teamforgeFileId;
+    String distType = "";
 
     // Default parameters
     path = path.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : path.trim();
@@ -73,35 +81,35 @@ public class Dist extends AbstractCommandModule {
 
     try {
 
-      if (type.toLowerCase().equals(DistConstants.OASP_IDE)) {
-        teamforgeFileId = Downloader.getDevconConfigProperty(DistConstants.OASP_FILE_ID);
-        if (!teamforgeFileId.isPresent())
-          throw new Exception("Property " + DistConstants.OASP_FILE_ID + " not found.");
+      if (type.toLowerCase().equals(DistConstants.DEVON_IDE)) {
+
       } else if (type.toLowerCase().equals(DistConstants.DEVON_DIST) && SystemUtils.IS_OS_WINDOWS) {
-        teamforgeFileId = Downloader.getDevconConfigProperty(DistConstants.DEVON_FILE_ID);
-        if (!teamforgeFileId.isPresent())
-          throw new Exception("Property " + DistConstants.DEVON_FILE_ID + " not found.");
+        distType = DistConstants.DIST_TYPE_WINDOWS;
       } else if (type.toLowerCase().equals(DistConstants.DEVON_DIST) && SystemUtils.IS_OS_LINUX) {
-        teamforgeFileId = Downloader.getDevconConfigProperty(DistConstants.DEVON_FILE_LINUX_ID);
-        if (!teamforgeFileId.isPresent())
-          throw new Exception("Property " + DistConstants.DEVON_FILE_LINUX_ID + " not found.");
+        distType = DistConstants.DIST_TYPE_LINUX;
       } else {
         throw new Exception("The parameter 'type' of the install command is unknown");
       }
 
-      Optional<String> fileDownloaded = Downloader.downloadFromTeamForge(path, user, password, teamforgeFileId.get());
-
+      // Optional<String> fileDownloaded = Downloader.downloadFromTeamForge(path, user, password,
+      // teamforgeFileId.get());
+      Optional<String> fileDownloaded = Downloader.downloadFromTeamForge(path, distType);
+      File downloadedfile = new File(path + File.separator + fileDownloaded.get().toString());
       if (fileDownloaded.isPresent()) {
         Extractor.unZip(path + File.separator + fileDownloaded.get().toString(), path);
-
         this.output
             .showMessage("Distribution successfully installed. You can now follow the manual steps as described\n"
                 + "in the Devonfw Guide or, alternatively, run 'devon dist init' to initialize the distribution.");
 
       } else {
+        if (downloadedfile.exists()) {
+          downloadedfile.delete();
+        }
         throw new Exception("An error occurred while downloading the file.");
       }
-
+      if (downloadedfile.exists()) {
+        downloadedfile.delete();
+      }
     } catch (Exception e) {
       getOutput().showError(e.getMessage());
       throw e;

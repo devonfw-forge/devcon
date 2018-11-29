@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ******************************************************************************/
-package com.devonfw.devcon.modules.oasp4j;
+package com.devonfw.devcon.modules.devon4j;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -53,22 +53,23 @@ import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.api.data.ProjectType;
 import com.devonfw.devcon.common.impl.AbstractCommandModule;
 import com.devonfw.devcon.common.utils.Constants;
-import com.devonfw.devcon.common.utils.Downloader;
 import com.devonfw.devcon.common.utils.Utils;
+import com.devonfw.devcon.modules.devon4j.migrate.Migrations;
+import com.devonfw.devcon.modules.devon4j.migrate.Migrator;
 import com.google.common.base.Optional;
 
 /**
- * This class implements a Command Module with Oasp4j(server project) related commands
+ * This class implements a Command Module with Devon4j(server project) related commands
  *
  * @author ssarmoka
  */
-@CmdModuleRegistry(name = "oasp4j", description = "Oasp4j(server project) related commands", sort = 3)
-public class Oasp4j extends AbstractCommandModule {
+@CmdModuleRegistry(name = "devon4j", description = "devon4j (Java server project) related commands", sort = 3)
+public class Devon4j extends AbstractCommandModule {
 
   /**
    * The constructor.
    */
-  public Oasp4j() {
+  public Devon4j() {
 
     super();
   }
@@ -79,9 +80,10 @@ public class Oasp4j extends AbstractCommandModule {
    * @param packagename Package Name of Server Project
    * @param groupid Group Id of the Server Project
    * @param version Version of the Server Project
-   * @throws Exception
+   * @param dbType the database type (e.g. "postgresql", "hana", "oracle", etc.)
+   * @throws Exception on error.
    */
-  @Command(name = "create", description = "This creates a new server project based on OASP template")
+  @Command(name = "create", description = "This creates a new server project based on devon4j template")
   @Parameters(values = {
   @Parameter(name = "serverpath", description = "where to create", optional = true, inputType = @InputType(name = InputTypeNames.PATH)),
   @Parameter(name = "servername", description = "Name of project"),
@@ -90,24 +92,25 @@ public class Oasp4j extends AbstractCommandModule {
   @Parameter(name = "version", description = "version of server project"),
   @Parameter(name = "dbtype", description = "database type in server project(h2|postgresql|mysql|mariadb|oracle|hana|db2)") })
   public void create(String serverpath, String servername, String packagename, String groupid, String version,
-      String dbtype) throws Exception {
+      String dbType) throws Exception {
 
-    Optional<String> oaspTemplateVersion_op = Downloader.getDevconConfigProperty(Constants.OASP_TEMPLATE_VERSION); // Optional.of("2.3.0");
-    String oaspTemplateVersion = oaspTemplateVersion_op.isPresent() ? oaspTemplateVersion_op.get()
-        : Constants.OASP_TEMPLATE_LAST_STABLE_VERSION;
-    if (!oaspTemplateVersion_op.isPresent())
-      this.output.showError("Oasp template version not found in config file.");
+    serverpath = serverpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : serverpath;
 
-    this.output.showMessage("Using the oasp template version: " + oaspTemplateVersion);
+    String devonTemplateVersion = Utils.getTemplateVersion(
+        Utils.addTrailingSlash(Utils.removeEndingDot(serverpath)) + Constants.VERSION_PARAMS_FILE_FULL_PATH);
+    if (devonTemplateVersion.isEmpty())
+      this.output.showError(
+          "Devon template version not found neither in config file '{devonfwPath}/conf/version.json' nor Internet. Please, go online or setup the config file correctly.");
 
-    String baseCommand = new StringBuffer("mvn -DarchetypeVersion=").append(oaspTemplateVersion)
-        .append(" -DarchetypeGroupId=").append(Constants.OASP_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
-        .append(Constants.OASP_ARTIFACT_ID).append(" archetype:generate -DgroupId=").append(groupid)
+    this.output.showMessage("Using the devon template version: " + devonTemplateVersion);
+
+    String baseCommand = new StringBuffer("mvn -DarchetypeVersion=").append(devonTemplateVersion)
+        .append(" -DarchetypeGroupId=").append(Constants.DEVON_TEMPLATE_GROUP_ID).append(" -DarchetypeArtifactId=")
+        .append(Constants.DEVON_ARTIFACT_ID).append(" archetype:generate -DgroupId=").append(groupid)
         .append(" -DartifactId=").append(servername).append(" -Dversion=").append(version).append(" -Dpackage=")
-        .append(packagename).append(" -DdbType=").append(dbtype).append(" -DinteractiveMode=false").toString();
+        .append(packagename).append(" -DdbType=").append(dbType).append(" -DinteractiveMode=false").toString();
 
     getOutput().showMessage("Command executed to create project is -- " + baseCommand);
-    serverpath = serverpath.isEmpty() ? getContextPathInfo().getCurrentWorkingDirectory().toString() : serverpath;
 
     File projectDir = new File(serverpath);
 
@@ -118,17 +121,17 @@ public class Oasp4j extends AbstractCommandModule {
 
     if (!project.exists()) {
 
-      Runtime rt = Runtime.getRuntime();
       Process process = null;
 
       try {
 
         if (SystemUtils.IS_OS_WINDOWS) {
           process = Runtime.getRuntime().exec(Constants.WINDOWS_CMD_PROMPT + baseCommand, null, new File(serverpath));
-
         } else if (SystemUtils.IS_OS_LINUX) {
           String args[] = new String[] { Constants.LINUX_BASH, "-c", baseCommand };
           process = Runtime.getRuntime().exec(args, null, new File(serverpath));
+        } else {
+          throw new IllegalStateException("Unsupported OS!");
         }
         final InputStream isError = process.getErrorStream();
         final InputStream isOutput = process.getInputStream();
@@ -138,14 +141,14 @@ public class Oasp4j extends AbstractCommandModule {
         int result = process.waitFor();
         if (result == 0) {
           getOutput().showMessage("Adding devon.json file...");
-          Utils.addDevonJsonFile(project.toPath(), ProjectType.OASP4J);
+          Utils.addDevonJsonFile(project.toPath(), ProjectType.DEVON4J);
 
-          if (Integer.parseInt(oaspTemplateVersion.replaceAll("\\.", "")) <= new Integer("211")) {
+          if (Integer.parseInt(devonTemplateVersion.replaceAll("\\.", "")) <= new Integer("211")) {
             modifyPom(serverpath + File.separator + servername + File.separator + "server" + File.separator + "pom.xml",
                 packagename);
           }
 
-          getOutput().showMessage("Oasp4j project created successfully");
+          getOutput().showMessage("devon4j project created successfully");
 
         } else {
           throw new Exception("Project creation failed");
@@ -163,7 +166,7 @@ public class Oasp4j extends AbstractCommandModule {
   }
 
   /**
-   * Run OASP4j Project from the command line ContextType Project makes this into a "special" command which gets an
+   * Run Devon4j Project from the command line ContextType Project makes this into a "special" command which gets an
    * extra parameter '-path' allowing to specify the project root (in reality, any directory below the root is valid as
    * well) Alternatively, the current dir is used. When the file devon.json is found at the project root, it is
    * available as type ProjectInfo in the field propertyInfo. Apart from "version" and "type" (default properties) *ANY*
@@ -191,19 +194,16 @@ public class Oasp4j extends AbstractCommandModule {
       String path_ = info.getPath().toString() + File.separator + "server";
 
       if (SystemUtils.IS_OS_WINDOWS) {
-
         String baseCommand = "mvn spring-boot:run -Drun.jvmArguments=\"-Dserver.port=" + port_ + "\"";
-
         process = Runtime.getRuntime().exec(Constants.WINDOWS_CMD_PROMPT + baseCommand, null, new File(path_));
       } else if (SystemUtils.IS_OS_LINUX) {
         String baseCommand = "mvn spring-boot:run -Drun.jvmArguments='-Dserver.port=" + port_ + "'";
-
         String args[] = new String[] { Constants.LINUX_BASH, "-c", baseCommand };
         process = Runtime.getRuntime().exec(args, null, new File(path_));
-
+      } else {
+        throw new IllegalStateException("Unsupported OS!");
       }
 
-      String line;
       final InputStream isError = process.getErrorStream();
       final InputStream isOutput = process.getInputStream();
 
@@ -211,12 +211,12 @@ public class Oasp4j extends AbstractCommandModule {
 
     } catch (Exception e) {
 
-      getOutput().showError("An error occured during executing oasp4j Cmd: %s", e.getMessage());
+      getOutput().showError("An error occured during executing devon4j Cmd: %s", e.getMessage());
     }
   }
 
   /**
-   * @param path path to server project
+   * Builds the project using maven.
    */
   @Command(name = "build", description = "This command will build the server project", context = ContextType.PROJECT)
   public void build() {
@@ -237,6 +237,8 @@ public class Oasp4j extends AbstractCommandModule {
       } else if (SystemUtils.IS_OS_LINUX) {
         String args[] = new String[] { Constants.LINUX_BASH, "-c", baseCommand };
         p = Runtime.getRuntime().exec(args, null, this.projectInfo.get().getPath().toFile());
+      } else {
+        throw new IllegalStateException("Unsupported OS!");
       }
 
       final InputStream isError = p.getErrorStream();
@@ -245,18 +247,17 @@ public class Oasp4j extends AbstractCommandModule {
       Utils.processOutput(isError, isOutput, this.output);
 
     } catch (Exception e) {
-      getOutput().showError("An error occured during executing oasp4j Cmd" + e.getMessage());
+      getOutput().showError("An error occured during executing devon4j Cmd" + e.getMessage());
     }
   }
 
   /**
-   * @param tomcatpath Path to tomcat
-   * @param path server project path
+   * @param tomcatPath Path to tomcat
    */
   @Command(name = "deploy", description = "This command will deploy the server project on tomcat", context = ContextType.PROJECT)
   @Parameters(values = {
   @Parameter(name = "tomcatpath", description = "Path to tomcat folder (if not provided and the project is in a Devonfw distribution the default software/tomcat folder will be used)", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
-  public void deploy(String tomcatpath) {
+  public void deploy(String tomcatPath) {
 
     String path;
     try {
@@ -279,11 +280,11 @@ public class Oasp4j extends AbstractCommandModule {
 
       if (appName.isPresent()) {
 
-        tomcatpath = tomcatpath.isEmpty()
+        tomcatPath = tomcatPath.isEmpty()
             ? distInfo.get().getPath().toFile().toString() + File.separator + "software" + File.separator + "tomcat"
-            : tomcatpath;
+            : tomcatPath;
 
-        File tomcatDir = new File(tomcatpath);
+        File tomcatDir = new File(tomcatPath);
 
         if (!tomcatDir.exists()) {
           getOutput().showError("Tomcat directory " + tomcatDir.toString() + " not found.");
@@ -291,7 +292,7 @@ public class Oasp4j extends AbstractCommandModule {
 
         }
 
-        File newTomcat4app = new File(tomcatpath + "_" + appName.get().toString());
+        File newTomcat4app = new File(tomcatPath + "_" + appName.get().toString());
 
         if (!newTomcat4app.exists()) {
           newTomcat4app.mkdirs();
@@ -307,30 +308,27 @@ public class Oasp4j extends AbstractCommandModule {
           // PACKAGING THE APP (creating the .war file)
 
           File mvnBat = null;
-
           if (SystemUtils.IS_OS_WINDOWS) {
-
             mvnBat = new File(distInfo.get().getPath().toString() + File.separator + "software\\maven\\bin\\mvn.bat");
           } else if (SystemUtils.IS_OS_LINUX) {
             mvnBat = new File(distInfo.get().getPath().toString() + File.separator + "software" + File.separator
                 + "maven" + File.separator + "bin" + File.separator + "mvn.cmd");
+          } else {
+            throw new IllegalStateException("Unsupported OS!");
           }
 
           ProcessBuilder processBuilder = null;
           File startTomcatBat = null;
           if (mvnBat.exists()) {
-
             if (SystemUtils.IS_OS_WINDOWS) {
               startTomcatBat = new File(newTomcat4app + File.separator + "bin" + File.separator + "startup.bat");
-
               processBuilder = new ProcessBuilder(mvnBat.getAbsolutePath(), "package");
-
             } else if (SystemUtils.IS_OS_LINUX) {
               startTomcatBat = new File(newTomcat4app + File.separator + "bin" + File.separator + "startup.sh");
-
               String args[] = new String[] { Constants.LINUX_BASH, "-c", mvnBat.getAbsolutePath(), "package" };
               processBuilder = new ProcessBuilder(args);
-
+            } else {
+              throw new IllegalStateException("Unsupported OS!");
             }
             processBuilder.directory(project);
             Process process = processBuilder.start();
@@ -365,6 +363,8 @@ public class Oasp4j extends AbstractCommandModule {
                       String args1[] = new String[] { Constants.LINUX_BASH, "-c", "sh catalina.sh start" };
                       tomcatProcessBuilder = new ProcessBuilder(args1);
                       tomcatProcessBuilder.directory(new File(newTomcat4app + File.separator + "bin"));
+                    } else {
+                      throw new IllegalStateException("Unsupported OS!");
                     }
 
                     Process tomcatProcess = tomcatProcessBuilder.start();
@@ -385,36 +385,57 @@ public class Oasp4j extends AbstractCommandModule {
                       getOutput()
                           .showMessage("##########################################################################");
                     }
-
                   } else {
                     getOutput().showError("No tomcat/bin/startup.bat file found.");
                   }
-
                 } else {
                   getOutput().showError("No tomcat/webapps directory found.");
                 }
               }
-
             } else {
               getOutput().showError("No server project found.");
             }
-
           } else {
             getOutput().showError("No mvn.bat found.");
           }
-
         } else {
           getOutput().showError("The project does not exist.");
         }
       } else {
         getOutput().showError("'artifactId' element not found in the pom.xml");
       }
-
     } catch (Exception e) {
-      getOutput().showError("In oasp4j deploy command. " + e.getMessage());
+      getOutput().showError("In devon4j deploy command. " + e.getMessage());
     }
   }
 
+  /**
+   * Migrates an oasp4j or devon4j project to the latest version.
+   *
+   * @param projectPath the path of the project to migrate.
+   * @param singleVersion - {@code true} to only migrate to the next version, {@code false} otherwise (migrate to latest
+   *        version).
+   */
+  @Command(name = "migrate", description = "This command will migrate the project to latest version")
+  @Parameters(values = {
+  @Parameter(name = "projectPath", description = "Path to project folder", optional = false, inputType = @InputType(name = InputTypeNames.PATH)),
+  @Parameter(name = "singleVersion", description = "Migrate only to next version (rather than the latest version)", optional = true, inputType = @InputType(name = InputTypeNames.BOOLEAN)), })
+  public void migrate(String projectPath, String singleVersion) {
+
+    try {
+      Migrator migrator = Migrations.devon4j(getOutput());
+      migrator.migrate(new File(projectPath), "true".equals(singleVersion));
+    } catch (Exception e) {
+      getOutput().showError("Migration failed.", e.getMessage());
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * @param path the {@link File} to read.
+   * @return the content of the {@link File}.
+   * @throws IOException on error.
+   */
   public String readFile(File path) throws IOException {
 
     StringBuilder sb = new StringBuilder();
@@ -516,7 +537,7 @@ public class Oasp4j extends AbstractCommandModule {
       }
 
     } catch (Exception e) {
-      getOutput().showError("Error executing oasp4j command " + e.getMessage());
+      getOutput().showError("Error executing devon4j command " + e.getMessage());
 
     }
 

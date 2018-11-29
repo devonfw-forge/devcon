@@ -20,7 +20,7 @@ import java.nio.file.Path;
 import com.devonfw.devcon.common.api.data.ProjectInfo;
 import com.devonfw.devcon.common.utils.ContextPathInfo;
 import com.devonfw.devcon.input.Input;
-import com.devonfw.devcon.modules.oasp4j.Oasp4j;
+import com.devonfw.devcon.modules.devon4j.Devon4j;
 import com.devonfw.devcon.output.Output;
 import com.google.common.base.Optional;
 
@@ -97,10 +97,10 @@ public interface CommandModule {
    * This command can be use to call Devcon command from other module. Parameter module refers to modulename , command
    * refers to command name and projectInfo is passed from existing method. ProjectInfo contains all information related
    * to respective devcon project. Usecase: We can use this method from project module to get the commands of other
-   * modules such as oasp4j, oasp4js etc. This method provide correct information for respective projects such as path
+   * modules such as Devon4j, devon4ng etc. This method provide correct information for respective projects such as path
    * etc. As an example,consider we need to build combinedproject created by devcon. From project module build method,
-   * we internally call 'oasp4j build()' and 'client(oasp4js) build()' method. But as path parameter is optional we are
-   * not including it in command method signature e.g {@link Oasp4j#build()}. As this method do not have any input
+   * we internally call 'Devon4j build()' and 'client(devon4ng) build()' method. But as path parameter is optional we
+   * are not including it in command method signature e.g {@link Devon4j#build()}. As this method do not have any input
    * parameter we cannot pass any value directly from project method to this called method. So we will use
    * getCommand(module,command, projectinfo) method which will pass all information required to called method.
    */

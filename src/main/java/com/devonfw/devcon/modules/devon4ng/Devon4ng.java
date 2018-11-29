@@ -1,19 +1,19 @@
 /*******************************************************************************
  * Copyright 2015-2018 Capgemini SE.
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ******************************************************************************/
-package com.devonfw.devcon.modules.oasp4js;
+package com.devonfw.devcon.modules.devon4ng;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -36,13 +36,13 @@ import com.devonfw.devcon.common.utils.Utils;
 import com.google.common.base.Optional;
 
 /**
- * Module with tasks related to oasp4js (Angular client)
+ * Module with tasks related to devon4ng (Angular client)
  *
  * @author pparrado
  */
 
-@CmdModuleRegistry(name = "oasp4js", description = "Module to automate tasks related to oasp4js")
-public class Oasp4js extends AbstractCommandModule {
+@CmdModuleRegistry(name = "devon4ng", description = "Module to automate tasks related to devon4ng")
+public class Devon4ng extends AbstractCommandModule {
 
   private static String[] STATE = { "successfully", "failed" };
 
@@ -52,7 +52,7 @@ public class Oasp4js extends AbstractCommandModule {
 
   private static String NG_SERVE = " ng serve --progress false";
 
-  @Command(name = "create", description = "This command creates a basic Oasp4js app")
+  @Command(name = "create", description = "This command creates a basic Devon4ng app")
   @Parameters(values = { @Parameter(name = "clientname", description = "The name for the project"),
   @Parameter(name = "clientpath", description = "The location for the new project", optional = true, inputType = @InputType(name = InputTypeNames.PATH)) })
   public void create(String clientname, String clientpath) {
@@ -96,7 +96,7 @@ public class Oasp4js extends AbstractCommandModule {
           int result = process.waitFor();
           if (result == 0) {
             getOutput().showMessage("Adding devon.json file...");
-            Utils.addDevonJsonFile(projectFile.toPath(), ProjectType.OASP4JS);
+            Utils.addDevonJsonFile(projectFile.toPath(), ProjectType.DEVON4NG);
           }
 
           getOutput().showMessage("Project create " + STATE[result]);
@@ -111,7 +111,7 @@ public class Oasp4js extends AbstractCommandModule {
     }
   }
 
-  @Command(name = "build", description = "This command will build the oasp4js project.", context = ContextType.PROJECT)
+  @Command(name = "build", description = "This command will build the devon4ng project.", context = ContextType.PROJECT)
   public void build() {
 
     try {
@@ -122,7 +122,7 @@ public class Oasp4js extends AbstractCommandModule {
       }
 
       Process p;
-      if (this.projectInfo.get().getProjecType().equals(ProjectType.OASP4JS)) {
+      if (this.projectInfo.get().getProjecType().equals(ProjectType.DEVON4NG)) {
 
         Process process = null;
 
@@ -149,7 +149,7 @@ public class Oasp4js extends AbstractCommandModule {
 
       } else {
         getOutput()
-            .showError("Seems that you are not in a OASP4JS project. Please verify the devon.json configuration file");
+            .showError("Seems that you are not in a DEVON4NG project. Please verify the devon.json configuration file");
       }
 
     } catch (Exception e) {
@@ -157,7 +157,7 @@ public class Oasp4js extends AbstractCommandModule {
     }
   }
 
-  @Command(name = "run", description = "This command runs a debug build of oasp4js", context = ContextType.PROJECT)
+  @Command(name = "run", description = "This command runs a debug build of devon4ng", context = ContextType.PROJECT)
   public void run() {
 
     try {
@@ -167,7 +167,7 @@ public class Oasp4js extends AbstractCommandModule {
       }
 
       if (this.projectInfo.isPresent()) {
-        if (this.projectInfo.get().getProjecType().equals(ProjectType.OASP4JS)) {
+        if (this.projectInfo.get().getProjecType().equals(ProjectType.DEVON4NG)) {
 
           Process process = null;
 
@@ -195,7 +195,7 @@ public class Oasp4js extends AbstractCommandModule {
 
         } else {
           getOutput().showError(
-              "Seems that you are not in a OASP4JS project. Please verify the devon.json configuration file");
+              "Seems that you are not in a DEVON4NG project. Please verify the devon.json configuration file");
         }
 
       } else {

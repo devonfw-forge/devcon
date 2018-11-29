@@ -44,6 +44,16 @@ public final class Constants {
   public static final String GLOBAL_PARAMS_FILE = "globalParameters.json";
 
   /**
+   * The name of the version parameters file
+   */
+  public static final String VERSION_PARAMS_FILE = "version.json";
+
+  /**
+   * The full path of the version parameters file
+   */
+  public static final String VERSION_PARAMS_FILE_FULL_PATH = "conf" + File.separator + VERSION_PARAMS_FILE;
+
+  /**
    * Constant defined for .git directory
    */
   public static final String DOT_GIT = "\\.git";
@@ -79,9 +89,9 @@ public final class Constants {
   public static final String DEVON_REPO_URL = "github.com/devonfw/devon.git";
 
   /**
-   * OASP4J Repo Url
+   * DEVON4J Repo Url
    */
-  public static final String OASP4J_REPO_URL = "https://github.com/oasp/oasp4j.git";
+  public static final String DEVON4J_REPO_URL = "https://github.com/devonfw/devon4j.git";
 
   /**
    * BAT FILE TO UPDATE ALL WORKSPACES
@@ -94,34 +104,34 @@ public final class Constants {
   public static final String WORKSPACES = "workspaces";
 
   /**
-   * OASP TEMPLATE VERSION
+   * DEVON TEMPLATE VERSION
    */
-  public final static String OASP_TEMPLATE_VERSION = "oasp_template_version";
+  public final static String DEVON_TEMPLATE_VERSION = "devon_template_version";
 
   /**
-   * OASP TEMPLATE LAST STABLE VERSION
+   * DEVON TEMPLATE LAST STABLE VERSION
    */
-  public final static String OASP_TEMPLATE_LAST_STABLE_VERSION = "2.5.0";
+  public final static String DEVON_TEMPLATE_LAST_STABLE_VERSION = "2.5.0";
 
   /**
-   * OASP TEMPLATE GROUP ID
+   * DEVON TEMPLATE GROUP ID
    */
-  public final static String OASP_TEMPLATE_GROUP_ID = "io.oasp.java.templates";
+  public final static String DEVON_TEMPLATE_GROUP_ID = "com.devonfw.java.templates";
 
   /**
-   * OASP ARTIFACT ID
+   * DEVON ARTIFACT ID
    */
-  public final static String OASP_ARTIFACT_ID = "oasp4j-template-server";
-
-  /**
-   *
-   */
-  public final static String OASP4JS = "oasp4js";
+  public final static String DEVON_ARTIFACT_ID = "devon4j-template-server";
 
   /**
    *
    */
-  public final static String OASP4J = "oasp4j";
+  public final static String DEVON4NG = "devon4ng";
+
+  /**
+   *
+   */
+  public final static String DEVON4J = "devon4j";
 
   /**
    *

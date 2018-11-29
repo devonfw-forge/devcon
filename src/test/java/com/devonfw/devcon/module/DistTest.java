@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2015-2018 Capgemini SE.
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -64,7 +64,7 @@ public class DistTest {
   public void installFail_WrongUser() {
 
     String[] args = { "-np", "dist", "install", "-path", "C:\\Temp\\myTemp", "-user", "asdf", "-password", "12345",
-    "-type", "oaspide" };
+    "-type", "devonide" };
 
     assertFalse(this.inputMgr.parse(args));
   }

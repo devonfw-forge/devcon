@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2015-2018 Capgemini SE.
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,6 +49,7 @@ public class GUIOutput implements Output {
    * The constructor.
    */
   public GUIOutput() {
+
     this.out_ = new TextArea();
   }
 
@@ -58,6 +59,7 @@ public class GUIOutput implements Output {
    * @param out - Textarea in which output should be set
    */
   public GUIOutput(TextArea out) {
+
     this();
     this.out_ = out;
   }
@@ -188,7 +190,8 @@ public class GUIOutput implements Output {
   @Override
   public void showError(String message, String... args) {
 
-    this.consoleOutput.append("[ERROR] " + String.format(message, args));
+    this.consoleOutput.append("[ERROR] ");
+    this.consoleOutput.append(String.format(message, args)).append("\n");
     this.out_.setText(this.consoleOutput.toString());
   }
 
@@ -198,7 +201,8 @@ public class GUIOutput implements Output {
   @Override
   public void status(String message, String... args) {
 
-    this.consoleOutput.append("\r[INFO] " + String.format(message, args));
+    this.consoleOutput.append("\n[INFO] ");
+    this.consoleOutput.append(String.format(message, args));
     this.out_.setText(this.consoleOutput.toString());
   }
 
@@ -218,7 +222,7 @@ public class GUIOutput implements Output {
   @Override
   public void success(String command) {
 
-    this.consoleOutput.append("[INFO] The command " + command.toUpperCase() + " has finished successfully");
+    this.consoleOutput.append("\n[INFO] The command " + command.toUpperCase() + " has finished successfully");
     this.out_.setText(this.consoleOutput.toString());
   }
 
