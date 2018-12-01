@@ -18,6 +18,7 @@ package com.devonfw.devcon.basic;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.Test;
 
 import com.devonfw.devcon.common.impl.utils.WindowsReqistry;
@@ -32,6 +33,10 @@ public class RegistryTest {
 
   @Test
   public void testRegistry() {
+
+    if (!SystemUtils.IS_OS_WINDOWS){
+      return;
+    }
 
     // given
     // set reg value
