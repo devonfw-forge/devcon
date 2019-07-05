@@ -115,7 +115,7 @@ public class Migrations {
         .and() //
         .next().to(VersionIdentifier.ofDevon4j("3.1.0")) //
         .pom().replaceProperty("devon4j.version", "3.1.0") //
-        .replaceProperty("spring.boot.version", "2.1.2.RELEASE")
+        .replaceProperty("spring.boot.version", "2.1.6.RELEASE")
         // only for oasp4j legacy project (flyway.version not present in projects created from devon4j)
         .replaceProperty("flyway.version", "5.2.4") //
         .replaceDependency(new VersionIdentifier("org.hibernate.javax.persistence", "hibernate-jpa-2.1-api", null),
