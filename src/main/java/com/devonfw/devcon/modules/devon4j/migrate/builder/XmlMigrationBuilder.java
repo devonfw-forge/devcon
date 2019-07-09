@@ -3,6 +3,8 @@ package com.devonfw.devcon.modules.devon4j.migrate.builder;
 import java.util.regex.Pattern;
 
 import com.devonfw.devcon.modules.devon4j.migrate.file.XmlFileMigration;
+import com.devonfw.devcon.modules.devon4j.migrate.xml.XmlCommentNodeReplacement;
+import com.devonfw.devcon.modules.devon4j.migrate.xml.XmlNamespaceReplacement;
 import com.devonfw.devcon.modules.devon4j.migrate.xml.XmlStringReplacement;
 
 /**
@@ -48,4 +50,25 @@ public class XmlMigrationBuilder {
     return this.parent;
   }
 
+  /**
+   * @param search the {@link String} to search for.
+   * @param replacement the replacement for the given {@code search} {@link String}.
+   * @return {@code this}.
+   */
+  public XmlMigrationBuilder replaceNamespace(String search, String replacement) {
+
+    this.migration.getMigrations().add(new XmlNamespaceReplacement(search, replacement));
+    return this;
+  }
+
+  /**
+   * @param search the {@link String} to search for.
+   * @param replacement the replacement for the given {@code search} {@link String}.
+   * @return {@code this}.
+   */
+  public XmlMigrationBuilder replaceCommentNode(String search, String replacement) {
+
+    this.migration.getMigrations().add(new XmlCommentNodeReplacement(search, replacement));
+    return this;
+  }
 }
