@@ -45,7 +45,7 @@ public class UtilsTest {
     String configPath = this.getClass().getResource("").getPath().replace("com/devonfw/devcon/module/", "")
         + Constants.VERSION_PARAMS_FILE_FULL_PATH;
     String templateVersion = Utils.getTemplateVersion(configPath);
-    assertTrue(templateVersion.equals("3.0.0"));
+    assertTrue(templateVersion.equals("3.1.0"));
   }
 
   @Test
